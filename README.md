@@ -39,4 +39,7 @@ python convert_paths2barcodes.py lineagePaths.txt
 ```
 which saves the new barcodes as "usher_barcodes.csv". 
 
+---
+
+Acknowledgements
 
