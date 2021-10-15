@@ -20,8 +20,21 @@ samtools mpileup -aa -A -d 600000 -B -Q 0 test.trimmed.bam | tee >(cut -f1-4 > t
 ```
 
 We can then run DWDM on the output files using the commmand:
+```
+python sample_deconv.py variant_tsvs/ depth_files/ output_result.tsv
+```
+This results in a tsv file, which includes the lineages present and their corresponding abundances. 
 
+By default, this method will use the existing "usher_barcodes.csv" file for the barcodes. To make a new barcode library, download the latest global phylogenetic tree from UShER: http://hgdownload.soe.ucsc.edu/goldenPath/wuhCor1/UShER_SARS-CoV-2/. 
+
+Lineage defining mutation barcodes are extracted using 
 ```
-python sample_deconv.py test.tsv test.depth output_result.tsv
+matUtils extract -i public-latest.all.masked.pb.gz -C lineagePaths.txt
 ```
+and these are converted to a new barcode set by 
+```
+python convert_paths2barcodes.py lineagePaths.txt
+```
+which saves the new barcodes as "usher_barcodes.csv". 
+
 
