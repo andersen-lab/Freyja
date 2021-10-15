@@ -26,8 +26,8 @@ python sample_deconv.py variant_tsvs/ depth_files/ output_result.tsv
 This results in a tsv file, which includes the lineages present and their corresponding abundances. 
 
 ---
-
-By default, this method will use the existing "usher_barcodes.csv" file for the barcodes. To make a new barcode library, download the latest global phylogenetic tree from UShER: http://hgdownload.soe.ucsc.edu/goldenPath/wuhCor1/UShER_SARS-CoV-2/. 
+### Additional options
+1. By default, this method will use the existing "usher_barcodes.csv" file for the barcodes. To make a new barcode library, download the latest global phylogenetic tree from UShER: http://hgdownload.soe.ucsc.edu/goldenPath/wuhCor1/UShER_SARS-CoV-2/. 
 
 Lineage defining mutation barcodes are extracted using 
 ```
@@ -38,6 +38,12 @@ and these are converted to a new barcode set by
 python convert_paths2barcodes.py lineagePaths.txt
 ```
 which saves the new barcodes as "usher_barcodes.csv". 
+
+2. For summarizing of lineages by constellation, we pull directly from the [outbreak.info](outbreak.info) curated lineage metadata file. To pull a new one, just run
+
+```
+wget https://raw.githubusercontent.com/outbreak-info/outbreak.info/master/web/src/assets/genomics/curated_lineages.json
+```
 
 ---
 
