@@ -15,5 +15,13 @@ DWDM is entirely written in Python 3, but requires preprocessing by tools like i
 
 ## Usage
 After primer trimming in iVar, we get both variant call and sequencing depth information with the command:
+```
+samtools mpileup -aa -A -d 600000 -B -Q 0 test.trimmed.bam | tee >(cut -f1-4 > test.depth) | ivar variants -p test -q 20 -r NC_045512_Hu-1.fa 
+```
 
+We can then run DWDM on the output files using the commmand:
+
+```
+python sample_deconv.py test.tsv test.depth output_result.tsv
+```
 
