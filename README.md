@@ -39,7 +39,7 @@ python convert_paths2barcodes.py lineagePaths.txt
 ```
 which saves the new barcodes as "usher_barcodes.csv". 
 
-2. For summarizing of lineages by constellation, we pull directly from the [outbreak.info](outbreak.info) curated lineage metadata file. To pull a new one, just run
+2. For summarizing of lineages by constellation, we pull directly from the [outbreak.info](https://outbreak.info/) curated lineage metadata file. To pull a new one, just run
 
 ```
 wget https://raw.githubusercontent.com/outbreak-info/outbreak.info/master/web/src/assets/genomics/curated_lineages.json
