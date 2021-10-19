@@ -27,7 +27,11 @@ This results in a tsv file, which includes the lineages present and their corres
 
 ---
 ### Additional options
-1. By default, this method will use the existing "usher_barcodes.csv" file for the barcodes. To make a new barcode library, download the latest global phylogenetic tree from UShER: http://hgdownload.soe.ucsc.edu/goldenPath/wuhCor1/UShER_SARS-CoV-2/. 
+1. By default, this method will use the existing "usher_barcodes.csv" file for the barcodes. To make a new barcode library, download the latest global phylogenetic tree from UShER: http://hgdownload.soe.ucsc.edu/goldenPath/wuhCor1/UShER_SARS-CoV-2/. To pull the latest tree from the comand line, run
+
+```
+http://hgdownload.soe.ucsc.edu/goldenPath/wuhCor1/UShER_SARS-CoV-2/public-latest.all.masked.pb.gz
+```
 
 Lineage defining mutation barcodes are extracted using 
 ```
