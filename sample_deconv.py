@@ -50,13 +50,12 @@ df_depths = pd.DataFrame()
 
 fnames = os.listdir(dirName)
 
-filetype ='pileup.variants.tsv'
+filetype =fnames[0].split('.')[-1]
 depthDir = sys.argv[2]#'test_depthfiles/'
-
 for fn in tqdm(os.listdir(dirName)):
 	df = pd.read_csv(dirName+fn,sep='\t')
 	try:
-		df_depth  = pd.read_csv(depthDir+fn.split(filetype)[0]+'sorted.depth',sep='\t',header=None,index_col=1)
+		df_depth  = pd.read_csv(depthDir+fn.split(filetype)[0]+'depth',sep='\t',header=None,index_col=1)
 	except:
 		continue
 
@@ -66,7 +65,6 @@ for fn in tqdm(os.listdir(dirName)):
 	keptInds = [dfi for jdi, dfi in  enumerate(df.index) if dfi  in muts]#meh... works but gross
 	df_mix = df_mix.append(pd.Series({kI:df.loc[kI,'ALT_FREQ'].astype(float) for kI in keptInds},name=fn))
 	df_depths = df_depths.append(pd.Series({kI:df_depth.loc[int(re.findall(r'\d+',kI)[0]),3].astype(float) for kI in muts},name=fn))
-
 
 #### reindex everything to match across the dfs
 df_barcodes.drop(index=['20A', '20C', '20D', '20H(Beta,V2)', '21C(Epsilon)'],inplace=True)### drop Nextstrain clade names. 
@@ -80,13 +78,12 @@ df_depths= df_depths.groupby(axis=1,level=0).max()#drop this?
 df_depths = df_depths.reindex(df_barcodes.columns, axis=1).fillna(0.)
 
 print('demixing')
-from scipy.optimize import nnls,lsq_linear
-from sklearn import linear_model
 import cvxpy as cp
 
 sols = []
 errors = []
 strains = []
+summarized = []
 abundances = []
 eps = 1e-5#minimum abundance to include
 for i in tqdm(range(df_mix.shape[0])):
@@ -111,6 +108,22 @@ for i in tqdm(range(df_mix.shape[0])):
 	localDict = {}
 	vals = sol[nzInds]/np.sum(sol[nzInds])
 
+	for jj,lin in enumerate(df_barcodes.index[nzInds].to_list()):
+		if lin in mapDict.keys():
+			if mapDict[lin] not in localDict.keys():
+				localDict[mapDict[lin]] = vals[jj]
+			else: 
+				localDict[mapDict[lin]] += vals[jj]
+		elif 'A.' in lin or lin=='A':
+			if 'Aaron' not in localDict.keys():
+				localDict['Aaron'] = vals[jj]
+			else: 
+				localDict['Aaron'] += vals[jj]
+		else:
+			if 'Other' not in localDict.keys():
+				localDict['Other']=vals[jj]
+			else:
+				localDict['Other']+=vals[jj]
 
 	localDict = sorted(localDict.items(), key=lambda x: x[1], reverse=True)
 	abundances.append(sol[nzInds])
@@ -120,8 +133,8 @@ for i in tqdm(range(df_mix.shape[0])):
 
 
 
-sols_df = pd.DataFrame(data=np.stack((strains,abundances),axis=1),index=[dmi.split('.')[0] for dmi in df_mix.index],columns=['lineages','abundances'])
+sols_df = pd.DataFrame(data=np.stack((summarized,strains,abundances),axis=1),index=[dmi.split('.')[0] for dmi in df_mix.index],columns=['summarized','lineages','abundances'])
 sols_df['resid'] = errors
 sols_df = sols_df.sort_index()
-sols_df.to_csv(sys.argv[3])
+sols_df.to_csv(sys.argv[3],sep='\t')
 
