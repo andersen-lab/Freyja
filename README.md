@@ -7,6 +7,7 @@ DWDM is intended as a post-processing step after primer trimming and variant cal
 DWDM is entirely written in Python 3, but requires preprocessing by tools like iVar and [samtools](https://github.com/samtools/samtools) mpileup to generate the required input data. Successful installation of iVar (available via conda) should be sufficient to perform all required steps. 
 
 ### Dependencies
+* [iVar](https://github.com/andersen-lab/ivar)
 * [UShER](https://usher-wiki.readthedocs.io/en/latest/#)
 * [cvxpy](https://www.cvxpy.org/)
 * [tqdm](https://github.com/tqdm/tqdm)
@@ -16,7 +17,7 @@ DWDM is entirely written in Python 3, but requires preprocessing by tools like i
 ## Usage
 After primer trimming in iVar, we get both variant call and sequencing depth information with the command:
 ```
-samtools mpileup -aa -A -d 600000 -B -Q 0 test.trimmed.bam | tee >(cut -f1-4 > test.depth) | ivar variants -p test -q 20 -r NC_045512_Hu-1.fa 
+samtools mpileup -aa -A -d 600000 -Q 20 -q 0 -B -f NC_045512_Hu-1.fasta filename.trimmed.bam | tee >(cut -f1-4 > filename.depth) | ivar variants -p filename -q 20 -r NC_045512_Hu-1.fa 
 ```
 
 We can then run DWDM on the output files using the commmand:
