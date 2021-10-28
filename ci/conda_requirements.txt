@@ -1,0 +1,7 @@
+pandas
+numpy
+click
+tqdm
+cvxpy
+pytest
+flake8

@@ -1,0 +1,51 @@
+name: freyja CI
+    
+on: 
+  push:
+    branches: [ main ]
+  pull_request:
+    
+jobs:
+  testsuite:
+    runs-on: ubuntu-latest
+      
+    steps:
+      # Downloads a copy of the code in your repository before running CI tests
+      - name: Check out repository code
+        uses: actions/checkout@v2
+
+      - name: Setup for conda
+        uses: conda-incubator/setup-miniconda@v2
+        with:        
+          auto-update-conda: true
+          python-version: 3.7 
+      
+      - name: Install
+        shell: bash -l {0}
+        run: |
+          conda create --yes -n freyja python=3.7
+          conda activate freyja
+          conda config --add channels conda-forge
+          conda install --yes --file ci/conda_requirements.txt
+          pip install -e . --no-deps 
+          
+      - name: Test
+        shell: bash -l {0}
+        run: |
+          conda activate freyja
+          make test
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: flake8
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.7
+    - name: install dependencies
+      run: python -m pip install --upgrade pip
+    - name: lint
+      run: |
+        pip install -q flake8
+        make lint
