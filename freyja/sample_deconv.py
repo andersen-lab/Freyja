@@ -69,12 +69,10 @@ for fn in tqdm(os.listdir(dirName)):
 #### reindex everything to match across the dfs
 df_barcodes.drop(index=['20A', '20C', '20D', '20H(Beta,V2)', '21C(Epsilon)'],inplace=True)### drop Nextstrain clade names. 
 df_barcodes= df_barcodes.reindex(sorted(df_barcodes.columns), axis=1)
-df_mix = df_mix.groupby(axis=1,level=0).max()#drop this? 
 df_mix = df_mix.reindex(df_barcodes.columns, axis=1).fillna(0.)
 
 
-df_depths = df_depths.drop(labels=[m0 for m0 in muts if m0 not in df_mix.columns.to_list()],axis=1)
-df_depths= df_depths.groupby(axis=1,level=0).max()#drop this? 
+df_depths = df_depths.drop(labels=[m0 for m0 in muts if m0 not in df_mix.columns.to_list()],axis=1)# dropping extra sequencing depth info we don't need
 df_depths = df_depths.reindex(df_barcodes.columns, axis=1).fillna(0.)
 
 print('demixing')
