@@ -20,7 +20,7 @@ After primer trimming in iVar, we get both variant call and sequencing depth inf
 samtools mpileup -aa -A -d 600000 -Q 20 -q 0 -B -f NC_045512_Hu-1.fasta filename.trimmed.bam | tee >(cut -f1-4 > filename.depth) | ivar variants -p filename -q 20 -r NC_045512_Hu-1.fa 
 ```
 
-We can then run DWDM on the output files using the commmand:
+We can then run Freyja on the output files using the commmand:
 ```
 python sample_deconv.py variant_tsvs/ depth_files/ output_result.tsv
 ```
