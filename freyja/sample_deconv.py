@@ -1,13 +1,13 @@
-import pandas as pd 
+import pandas as pd
 import numpy as np
 import os
 
-from tqdm import tqdm 
+from tqdm import tqdm
 import datetime
 import json
 import sys
 
-### get variant files. 
+### get variant files.
 
 #### make sure to pull a new one periodically!
 f0 = open('curated_lineages.json')
@@ -17,14 +17,14 @@ f0.close()
 sampleFreq = 'D'#sampleFreq
 mapDict = {}
 for l in range(len(dat)):
-	if 'who_name' in dat[l].keys():
-		for d0 in dat[l]['pango_descendants']:
-			if dat[l]['who_name'] != None:
-				mapDict[d0] = dat[l]['who_name']
+    if 'who_name' in dat[l].keys():
+        for d0 in dat[l]['pango_descendants']:
+            if dat[l]['who_name'] != None:
+                mapDict[d0] = dat[l]['who_name']
 
 print('loading lineage models')
 ##################################################################33
-#######build barcodes. 
+#######build barcodes.
 
 df_barcodes = pd.read_csv('usher_barcodes.csv',index_col=0)
 
@@ -53,28 +53,28 @@ fnames = os.listdir(dirName)
 filetype =fnames[0].split('.')[-1]
 depthDir = sys.argv[2]#'test_depthfiles/'
 for fn in tqdm(os.listdir(dirName)):
-	df = pd.read_csv(dirName+fn,sep='\t')
-	try:
-		df_depth  = pd.read_csv(depthDir+fn.split(filetype)[0]+'depth',sep='\t',header=None,index_col=1)
-	except:
-		continue
+    df = pd.read_csv(dirName+fn,sep='\t')
+    try:
+        df_depth  = pd.read_csv(depthDir+fn.split(filetype)[0]+'depth',sep='\t',header=None,index_col=1)
+    except:
+        continue
 
-	df['mutName'] = df['REF'] + df['POS'].astype(str) + df['ALT']### this only works for substitutions, but that's what we get from the usher tree
-	df = df.drop_duplicates(subset='mutName')
-	df.set_index('mutName',inplace=True)
-	keptInds = [dfi for jdi, dfi in  enumerate(df.index) if dfi  in muts]#meh... works but gross
-	df_mix = df_mix.append(pd.Series({kI:df.loc[kI,'ALT_FREQ'].astype(float) for kI in keptInds},name=fn))
-	df_depths = df_depths.append(pd.Series({kI:df_depth.loc[int(re.findall(r'\d+',kI)[0]),3].astype(float) for kI in muts},name=fn))
+    df['mutName'] = df['REF'] + df['POS'].astype(str) + df['ALT']### this only works for substitutions, but that's what we get from the usher tree
+    df = df.drop_duplicates(subset='mutName')
+    df.set_index('mutName',inplace=True)
+    keptInds = [dfi for jdi, dfi in  enumerate(df.index) if dfi  in muts]#meh... works but gross
+    df_mix = df_mix.append(pd.Series({kI:df.loc[kI,'ALT_FREQ'].astype(float) for kI in keptInds},name=fn))
+    df_depths = df_depths.append(pd.Series({kI:df_depth.loc[int(re.findall(r'\d+',kI)[0]),3].astype(float) for kI in muts},name=fn))
 
 #### reindex everything to match across the dfs
-df_barcodes.drop(index=['20A', '20C', '20D', '20H(Beta,V2)', '21C(Epsilon)'],inplace=True)### drop Nextstrain clade names. 
+df_barcodes.drop(index=['20A', '20C', '20D', '20H(Beta,V2)', '21C(Epsilon)'],inplace=True)### drop Nextstrain clade names.
 df_barcodes= df_barcodes.reindex(sorted(df_barcodes.columns), axis=1)
-df_mix = df_mix.groupby(axis=1,level=0).max()#drop this? 
+df_mix = df_mix.groupby(axis=1,level=0).max()#drop this?
 df_mix = df_mix.reindex(df_barcodes.columns, axis=1).fillna(0.)
 
 
 df_depths = df_depths.drop(labels=[m0 for m0 in muts if m0 not in df_mix.columns.to_list()],axis=1)
-df_depths= df_depths.groupby(axis=1,level=0).max()#drop this? 
+df_depths= df_depths.groupby(axis=1,level=0).max()#drop this?
 df_depths = df_depths.reindex(df_barcodes.columns, axis=1).fillna(0.)
 
 print('demixing')
@@ -87,49 +87,49 @@ summarized = []
 abundances = []
 eps = 1e-5#minimum abundance to include
 for i in tqdm(range(df_mix.shape[0])):
-	dep= np.log2(df_depths.iloc[i]+1)
-	dep=dep/np.max(dep)
+    dep= np.log2(df_depths.iloc[i]+1)
+    dep=dep/np.max(dep)
 
-	A = np.array((df_barcodes*dep).T)
-	b = np.array(pd.to_numeric(df_mix.iloc[i])*dep)
-	x = cp.Variable(A.shape[1])
-	cost = cp.norm(A @ x - b,1)
-	constraints = [sum(x)==1,x>=0]
-	prob = cp.Problem(cp.Minimize(cost), constraints)
+    A = np.array((df_barcodes*dep).T)
+    b = np.array(pd.to_numeric(df_mix.iloc[i])*dep)
+    x = cp.Variable(A.shape[1])
+    cost = cp.norm(A @ x - b,1)
+    constraints = [sum(x)==1,x>=0]
+    prob = cp.Problem(cp.Minimize(cost), constraints)
 
-	prob.solve(verbose=False)
-	sol = x.value
-	rnorm = cp.norm(A @ x - b, 1).value
-	sol[sol<eps] = 0
-	nzInds = np.nonzero(sol)[0]
-	newOrd = np.argsort(sol[nzInds])
-	strains.append(df_barcodes.index[nzInds].to_list())
-	#### summarize by constellation
-	localDict = {}
-	vals = sol[nzInds]/np.sum(sol[nzInds])
+    prob.solve(verbose=False)
+    sol = x.value
+    rnorm = cp.norm(A @ x - b, 1).value
+    sol[sol<eps] = 0
+    nzInds = np.nonzero(sol)[0]
+    newOrd = np.argsort(sol[nzInds])
+    strains.append(df_barcodes.index[nzInds].to_list())
+    #### summarize by constellation
+    localDict = {}
+    vals = sol[nzInds]/np.sum(sol[nzInds])
 
-	for jj,lin in enumerate(df_barcodes.index[nzInds].to_list()):
-		if lin in mapDict.keys():
-			if mapDict[lin] not in localDict.keys():
-				localDict[mapDict[lin]] = vals[jj]
-			else: 
-				localDict[mapDict[lin]] += vals[jj]
-		elif 'A.' in lin or lin=='A':
-			if 'Aaron' not in localDict.keys():
-				localDict['Aaron'] = vals[jj]
-			else: 
-				localDict['Aaron'] += vals[jj]
-		else:
-			if 'Other' not in localDict.keys():
-				localDict['Other']=vals[jj]
-			else:
-				localDict['Other']+=vals[jj]
+    for jj,lin in enumerate(df_barcodes.index[nzInds].to_list()):
+        if lin in mapDict.keys():
+            if mapDict[lin] not in localDict.keys():
+                localDict[mapDict[lin]] = vals[jj]
+            else:
+                localDict[mapDict[lin]] += vals[jj]
+        elif 'A.' in lin or lin=='A':
+            if 'Aaron' not in localDict.keys():
+                localDict['Aaron'] = vals[jj]
+            else:
+                localDict['Aaron'] += vals[jj]
+        else:
+            if 'Other' not in localDict.keys():
+                localDict['Other']=vals[jj]
+            else:
+                localDict['Other']+=vals[jj]
 
-	localDict = sorted(localDict.items(), key=lambda x: x[1], reverse=True)
-	abundances.append(sol[nzInds])
-	summarized.append(localDict)
-	sols.append(sol)
-	errors.append(rnorm)
+    localDict = sorted(localDict.items(), key=lambda x: x[1], reverse=True)
+    abundances.append(sol[nzInds])
+    summarized.append(localDict)
+    sols.append(sol)
+    errors.append(rnorm)
 
 
 

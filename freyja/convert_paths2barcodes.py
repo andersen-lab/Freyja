@@ -18,19 +18,19 @@ df = set_from_tree_root(df)
 df_barcodes = pd.DataFrame()
 
 for clade in df.index:
-	cladeSeries = pd.Series({c:1 for c in df.loc[clade,'from_tree_root']},name=clade)
-	df_barcodes = df_barcodes.append(cladeSeries)
+    cladeSeries = pd.Series({c:1 for c in df.loc[clade,'from_tree_root']},name=clade)
+    df_barcodes = df_barcodes.append(cladeSeries)
 
 print('separating combined splits')
 df_barcodes.drop(columns='',inplace=True)
 temp = pd.DataFrame()
 dropList = []
 for c in df_barcodes.columns:
-	### if column includes multiple mutations, split into separate columns and concatenate
-	if "," in c:
-		for mt in c.split(","):
-			temp[mt] = df_barcodes[c]
-		dropList.append(c)
+    ### if column includes multiple mutations, split into separate columns and concatenate
+    if "," in c:
+        for mt in c.split(","):
+            temp[mt] = df_barcodes[c]
+        dropList.append(c)
 df_barcodes.drop(columns=dropList,inplace=True)
 df_barcodes = pd.concat((df_barcodes,temp),axis=1)
 df_barcodes = df_barcodes.fillna(0)
@@ -39,7 +39,7 @@ df_barcodes = df_barcodes.groupby(axis=1,level=0).sum()
 
 print('checking for mutation pairs')
 def sortFun(x):
-	return int(x[1:(len(x)-1)])
+    return int(x[1:(len(x)-1)])
 ###check if a reversion is present.
 flips = [d[-1] +d[1:len(d)-1]+d[0] for d in df_barcodes.columns[1:]]
 flipPairs = [d for d in df_barcodes.columns[1:] if d in flips]
@@ -48,7 +48,7 @@ flipPairs = [[flipPairs[j],flipPairs[j+1]] for j in np.arange(0,len(flipPairs),2
 
 ### subtract lower of two pair counts from both to get overall haplotype
 for fp in flipPairs:
-	df_barcodes[fp] = df_barcodes[fp].subtract(df_barcodes[fp].min(axis=1),axis=0)
+    df_barcodes[fp] = df_barcodes[fp].subtract(df_barcodes[fp].min(axis=1),axis=0)
 
 #### drop all unused mutations (i.e. paired mutations with reversions)
 df_barcodes.drop(columns=df_barcodes.columns[df_barcodes.sum(axis=0)==0])
