@@ -1,15 +1,19 @@
 from copy import deepcopy
 import numpy as np
-import pandas as pd 
+import pandas as pd
 import sys
 
 fn = sys.argv[1]
 df = pd.read_csv(fn,sep='\t')
-df.set_index('clade',inplace=True)
-df = df.drop_duplicates(keep='last')### check which lineages got trimmed. 
-df['from_tree_root'] = df['from_tree_root'].fillna('')
-df['from_tree_root'] = df['from_tree_root'].apply(lambda x:x.replace(' ','').strip('>').split('>'))
 
+def set_from_tree_root(df):
+    df = df.set_index('clade')
+    df = df.drop_duplicates(keep='last')### check which lineages got trimmed.
+    df['from_tree_root'] = df['from_tree_root'].fillna('')
+    df['from_tree_root'] = df['from_tree_root'].apply(lambda x:x.replace(' ','').strip('>').split('>'))
+    return df
+
+df = set_from_tree_root(df)
 
 df_barcodes = pd.DataFrame()
 
@@ -36,7 +40,7 @@ df_barcodes = df_barcodes.groupby(axis=1,level=0).sum()
 print('checking for mutation pairs')
 def sortFun(x):
 	return int(x[1:(len(x)-1)])
-###check if a reversion is present. 
+###check if a reversion is present.
 flips = [d[-1] +d[1:len(d)-1]+d[0] for d in df_barcodes.columns[1:]]
 flipPairs = [d for d in df_barcodes.columns[1:] if d in flips]
 flipPairs.sort(key=sortFun)
@@ -57,7 +61,7 @@ df_barcodes.to_csv('usher_barcodes.csv')
 # import seaborn as sns
 # import matplotlib.pyplot as plt
 # fig,ax = plt.subplots()
-# ### minimize for figure 
+# ### minimize for figure
 
 # df_barcodesMini = df_barcodes.loc[df_barcodes.sum(axis=1).sort_values(ascending=False).index[np.arange(0,600,4)],:]
 # df_barcodesMini = df_barcodesMini.loc[:,df_barcodes.sum(axis=0).sort_values(ascending=False).index[0:150]].drop_duplicates()
