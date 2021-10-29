@@ -1,0 +1,4 @@
+
+        [console_scripts]
+        freyja=freyja._cli:cli
+        
