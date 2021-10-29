@@ -41,11 +41,10 @@ def reversion_checking(df_barcodes):
 	print('checking for mutation pairs')
 
 	###check if a reversion is present. 
-	flips = [d[-1] +d[1:len(d)-1]+d[0] for d in df_barcodes.columns[1:]]
-	flipPairs = [d for d in df_barcodes.columns[1:] if d in flips]
+	flips = [d[-1] +d[1:len(d)-1]+d[0] for d in df_barcodes.columns]
+	flipPairs = [d for d in df_barcodes.columns if d in flips]
 	flipPairs.sort(key=sortFun)
 	flipPairs = [[flipPairs[j],flipPairs[j+1]] for j in np.arange(0,len(flipPairs),2)]
-
 	### subtract lower of two pair counts from both to get overall lineage defining mutations
 	for fp in flipPairs:
 		df_barcodes[fp] = df_barcodes[fp].subtract(df_barcodes[fp].min(axis=1),axis=0)
