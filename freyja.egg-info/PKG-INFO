@@ -1,0 +1,67 @@
+Metadata-Version: 2.1
+Name: freyja
+Version: 2021.10
+Summary: Freyja recovers relative lineage abundances from mixed SARS-CoV-2 samples
+Home-page: https://github.com/joshuailevy/freyja
+Author: Joshua Levy
+Author-email: jolevy@scripps.edu
+License: XXX
+Description: # Freyja
+        Freyja is a tool to recover relative lineage abundances from mixed SARS-CoV-2 samples from a sequencing dataset (BAM aligned to the Hu-1 reference). The method uses  lineage-determining mutational "barcodes" derived from the UShER global phylogenetic tree as a basis set to solve the constrained (unit sum, non-negative) de-mixing problem. 
+        
+        Freyja is intended as a post-processing step after primer trimming and variant calling in [iVar (Grubaugh and Gangavaparu et al., 2019)](https://github.com/andersen-lab/ivar). From measurements of SNV freqency and sequencing depth at each position in the genome, Freyja returns an estimate of the true lineage abundances in the sample.   
+        
+        ## Installation
+        Freyja is entirely written in Python 3, but requires preprocessing by tools like iVar and [samtools](https://github.com/samtools/samtools) mpileup to generate the required input data. Successful installation of iVar (available via conda) should be sufficient to perform all required steps. 
+        
+        ### Dependencies
+        * [iVar](https://github.com/andersen-lab/ivar)
+        * [UShER](https://usher-wiki.readthedocs.io/en/latest/#)
+        * [cvxpy](https://www.cvxpy.org/)
+        * [tqdm](https://github.com/tqdm/tqdm)
+        * [numpy](https://numpy.org/)
+        * [pandas](https://pandas.pydata.org/)
+        
+        ## Usage
+        After primer trimming in iVar, we get both variant call and sequencing depth information with the command:
+        ```
+        samtools mpileup -aa -A -d 600000 -Q 20 -q 0 -B -f NC_045512_Hu-1.fasta filename.trimmed.bam | tee >(cut -f1-4 > filename.depth) | ivar variants -p filename -q 20 -r NC_045512_Hu-1.fa 
+        ```
+        
+        We can then run Freyja on the output files using the commmand:
+        ```
+        python sample_deconv.py variant_tsvs/ depth_files/ output_result.tsv
+        ```
+        This results in a tsv file, which includes the lineages present and their corresponding abundances. 
+        
+        ---
+        ### Additional options
+        1. By default, this method will use the existing "usher_barcodes.csv" file for the barcodes. To make a new barcode library, download the latest global phylogenetic tree from UShER: http://hgdownload.soe.ucsc.edu/goldenPath/wuhCor1/UShER_SARS-CoV-2/. To pull the latest tree from the comand line, run
+        
+        ```
+        wget http://hgdownload.soe.ucsc.edu/goldenPath/wuhCor1/UShER_SARS-CoV-2/public-latest.all.masked.pb.gz
+        ```
+        
+        Lineage defining mutation barcodes are extracted using 
+        ```
+        matUtils extract -i public-latest.all.masked.pb.gz -C lineagePaths.txt
+        ```
+        and these are converted to a new barcode set by 
+        ```
+        python convert_paths2barcodes.py lineagePaths.txt
+        ```
+        which saves the new barcodes as "usher_barcodes.csv". 
+        
+        2. For summarizing of lineages by constellation, we pull directly from the [outbreak.info](https://outbreak.info/) curated lineage metadata file. To pull a new one, just run
+        
+        ```
+        wget -N https://raw.githubusercontent.com/outbreak-info/outbreak.info/master/web/src/assets/genomics/curated_lineages.json
+        ```
+        
+        ---
+        
+        Acknowledgements
+        
+        
+Platform: UNKNOWN
+Description-Content-Type: text/markdown
