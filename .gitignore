@@ -19,8 +19,8 @@
 *.rar
 *.tar
 *.zip
-*.tsv
-*.depth
+freya/variantfiles/
+frey/depthfiles/
 
 # Logs and databases #
 ######################
