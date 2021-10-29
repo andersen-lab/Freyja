@@ -11,7 +11,7 @@ import cvxpy as cp
 ### get variant files. 
 def buildLineageMap():
 	#### make sure to pull a new one periodically!
-	f0 = open('curated_lineages.json')
+	f0 = open('freyja/data/curated_lineages.json')
 	dat = json.load(f0)
 	f0.close()
 

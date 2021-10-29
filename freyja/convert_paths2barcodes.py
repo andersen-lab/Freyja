@@ -61,4 +61,4 @@ if __name__ == '__main__':
 	df = parse_tree_paths(df)
 	df_barcodes = convert_to_barcodes(df)
 	df_barcodes = reversion_checking(df_barcodes)
-	df_barcodes.to_csv('usher_barcodes.csv')
+	df_barcodes.to_csv('data/usher_barcodes.csv')
