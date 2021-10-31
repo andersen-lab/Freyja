@@ -44,7 +44,8 @@ def reindex_dfs(df_barcodes,mix,depths):
 	df_barcodes= df_barcodes.reindex(sorted(df_barcodes.columns), axis=1)
 	mix = mix.reindex(df_barcodes.columns).fillna(0.)
 
-	depths = depths.drop(labels=[m0 for m0 in df_barcodes.columns if m0 not in mix.index.to_list()])# dropping extra sequencing depth info we don't need
+        mix_as_set = set(mix.index)
+	depths = depths.drop(labels=[m0 for m0 in df_barcodes.columns if m0 not in mix_as_set])# dropping extra sequencing depth info we don't need
 	depths = depths.reindex(df_barcodes.columns).fillna(0.)
 	return df_barcodes,mix,depths
 
