@@ -32,7 +32,8 @@ def build_mix_and_depth_arrays(fn, depthFn,muts):
 	df = df.drop_duplicates(subset='mutName')
 	df.set_index('mutName',inplace=True)
         keptInds = set(muts) & set(df.index)
-	mix = pd.Series({kI:df.loc[kI,'ALT_FREQ'].astype(float) for kI in keptInds},name=fn)
+	mix = df.loc[keptInds, 'ALT_FREQ'].astype(float)
+	mix.name = fn
 	depths = pd.Series({kI:df_depth.loc[int(re.findall(r'\d+',kI)[0]),3].astype(float) for kI in muts},name=fn)
 	return mix,depths
 
