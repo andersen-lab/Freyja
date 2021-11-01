@@ -20,6 +20,7 @@ test-install: all
 
 test-cov: all
 	py.test --cov=freyja
+	coveralls
 
 install: all
 	$(PYTHON) setup.py install

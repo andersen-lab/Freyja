@@ -8,7 +8,8 @@ def parse_tree_paths(df):
     # Make sure to check with new tree versions, lineages could get trimmed.
     df = df.drop_duplicates(keep='last')
     df['from_tree_root'] = df['from_tree_root'].fillna('')
-    df['from_tree_root'] = df['from_tree_root'].apply(lambda x: x.replace(' ', '').strip('>').split('>'))
+    df['from_tree_root'] = df['from_tree_root']\
+        .apply(lambda x: x.replace(' ', '').strip('>').split('>'))
     return df
 
 
@@ -22,7 +23,8 @@ def convert_to_barcodes(df):
     df_barcodes = pd.DataFrame()
     for clade in df.index:
         # sparse,binary encoding
-        cladeSeries = pd.Series({c: 1 for c in df.loc[clade, 'from_tree_root']}, name=clade)
+        cladeSeries = pd.Series({c: 1 for c in
+                                 df.loc[clade, 'from_tree_root']}, name=clade)
         df_barcodes = df_barcodes.append(cladeSeries)
 
     print('separating combined splits')
@@ -49,13 +51,16 @@ def reversion_checking(df_barcodes):
     flips = [d[-1] + d[1:len(d)-1]+d[0] for d in df_barcodes.columns]
     flipPairs = [d for d in df_barcodes.columns if d in flips]
     flipPairs.sort(key=sortFun)
-    flipPairs = [[flipPairs[j], flipPairs[j+1]] for j in np.arange(0, len(flipPairs), 2)]
+    flipPairs = [[flipPairs[j], flipPairs[j+1]]
+                 for j in np.arange(0, len(flipPairs), 2)]
     # subtract lower of two pair counts to get the lineage defining mutations
     for fp in flipPairs:
-        df_barcodes[fp] = df_barcodes[fp].subtract(df_barcodes[fp].min(axis=1), axis=0)
+        df_barcodes[fp] = df_barcodes[fp].subtract(df_barcodes[fp].min(axis=1),
+                                                   axis=0)
 
     # drop all unused mutations (i.e. paired mutations with reversions)
-    df_barcodes = df_barcodes.drop(columns=df_barcodes.columns[df_barcodes.sum(axis=0) == 0])
+    df_barcodes = df_barcodes.drop(
+                columns=df_barcodes.columns[df_barcodes.sum(axis=0) == 0])
     return df_barcodes
 
 
