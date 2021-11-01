@@ -31,20 +31,24 @@ def build_mix_and_depth_arrays(fn, depthFn, muts):
     keptInds = set(muts) & set(df.index)
     mix = df.loc[keptInds, 'ALT_FREQ'].astype(float)
     mix.name = fn
-    depths = pd.Series({kI: df_depth.loc[int(re.findall(r'\d+', kI)[0]), 3].astype(float) for kI in muts}, name=fn)
+    depths = pd.Series({kI: df_depth.loc[int(re.findall(r'\d+', kI)[0]), 3]
+                        .astype(float) for kI in muts}, name=fn)
     return mix, depths
 
 
 def reindex_dfs(df_barcodes, mix, depths):
     # first, drop Nextstrain clade names.
-    df_barcodes = df_barcodes.drop(index=['20A', '20C', '20D', '20H(Beta,V2)', '21C(Epsilon)'])
+    df_barcodes = df_barcodes.drop(index=['20A', '20C',
+                                          '20D', '20H(Beta,V2)',
+                                          '21C(Epsilon)'])
     # reindex everything to match across the dfs
     df_barcodes = df_barcodes.reindex(sorted(df_barcodes.columns), axis=1)
     mix = mix.reindex(df_barcodes.columns).fillna(0.)
 
     mix_as_set = set(mix.index)
     # dropping extra sequencing depth info we don't need
-    depths = depths.drop(labels=[m0 for m0 in df_barcodes.columns if m0 not in mix_as_set])
+    depths = depths.drop(labels=[m0 for m0 in df_barcodes.columns
+                                 if m0 not in mix_as_set])
     depths = depths.reindex(df_barcodes.columns).fillna(0.)
     return df_barcodes, mix, depths
 
@@ -118,8 +122,11 @@ if __name__ == '__main__':
     mix, depths_ = build_mix_and_depth_arrays(variants, depths, muts)
     print('demixing')
     df_barcodes, mix, depths_ = reindex_dfs(df_barcodes, mix, depths_)
-    sample_strains, abundances, error = solve_demixing_problem(df_barcodes, mix, depths_)
+    sample_strains, abundances, error = solve_demixing_problem(df_barcodes,
+                                                               mix, depths_)
     localDict = map_to_constellation(sample_strains, abundances, mapDict)
     # assemble into series and write.
     sols_df = pd.Series(data=(localDict, sample_strains, abundances, error),
-    index=['summarized', 'lineages', 'abundances', 'resid'], name=mix.name)
+                        index=['summarized', 'lineages',
+                               'abundances', 'resid'],
+                        name=mix.name)

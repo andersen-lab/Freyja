@@ -5,3 +5,4 @@ tqdm
 cvxpy
 pytest
 flake8
+coveralls
