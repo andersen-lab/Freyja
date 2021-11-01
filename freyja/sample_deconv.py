@@ -13,11 +13,11 @@ def buildLineageMap():
     f0.close()
 
     mapDict = {}
-    for l in range(len(dat)):
-        if 'who_name' in dat[l].keys():
-            for d0 in dat[l]['pango_descendants']:
-                if dat[l]['who_name'] is not None:
-                    mapDict[d0] = dat[l]['who_name']
+    for ind in range(len(dat)):
+        if 'who_name' in dat[ind].keys():
+            for d0 in dat[ind]['pango_descendants']:
+                if dat[ind]['who_name'] is not None:
+                    mapDict[d0] = dat[ind]['who_name']
     return mapDict
 
 
