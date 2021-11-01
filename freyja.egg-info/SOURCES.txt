@@ -12,6 +12,8 @@ freyja.egg-info/requires.txt
 freyja.egg-info/top_level.txt
 freyja/data/NC_045512_Hu-1.fasta
 freyja/data/curated_lineages.json
+freyja/data/mixture.depth
+freyja/data/mixture.tsv
 freyja/data/usher_barcodes.csv
 freyja/tests/__init__.py
 freyja/tests/test_barcoding.py

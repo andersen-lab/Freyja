@@ -1,5 +1,6 @@
 import unittest
-from freyja.sample_deconv import *
+import pandas as pd
+from freyja.sample_deconv import buildLineageMap,build_mix_and_depth_arrays,reindex_dfs,map_to_constellation,solve_demixing_problem
 import pandas.testing as pdt
 import pandas.api.types as ptypes
 from numpy.random import negative_binomial
@@ -39,12 +40,11 @@ class DeconvTests(unittest.TestCase):
         strain1='B.1.1.7'
         strain2='B.1.427'
         mixFracs = [0.4,0.6]
-        eps = 0.001 #to check accuracy
         mix =mixFracs[0]*df_barcodes.loc[strain1,]+mixFracs[1]*df_barcodes.loc[strain2,]
-        depths = negative_binomial(50,0.25,size=len(mix))
+        depths = negative_binomial(50,0.25,size=len(mix))## generate random sequencing depth at each position
         sample_strains,abundances,error = solve_demixing_problem(df_barcodes,mix,depths)
-        self.assertTrue(np.abs(abundances[sample_strains.index(strain1)]-mixFracs[0]<eps))
-        self.assertTrue(np.abs(abundances[sample_strains.index(strain2)]-mixFracs[1]<eps))
+        self.assertAlmostEqual(abundances[sample_strains.index(strain1)],mixFracs[0])
+        self.assertAlmostEqual(abundances[sample_strains.index(strain2)],mixFracs[1])
 
 
 if __name__ == '__main__':

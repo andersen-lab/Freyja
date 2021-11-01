@@ -1,5 +1,6 @@
 import unittest
-from freyja.convert_paths2barcodes import *
+import pandas as pd
+from freyja.convert_paths2barcodes import parse_tree_paths,sortFun,convert_to_barcodes,reversion_checking
 import pandas.testing as pdt
 
 class BarcodeTests(unittest.TestCase):
