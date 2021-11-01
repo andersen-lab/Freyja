@@ -43,8 +43,8 @@ class DeconvTests(unittest.TestCase):
         mix =mixFracs[0]*df_barcodes.loc[strain1,]+mixFracs[1]*df_barcodes.loc[strain2,]
         depths = negative_binomial(50,0.25,size=len(mix))## generate random sequencing depth at each position
         sample_strains,abundances,error = solve_demixing_problem(df_barcodes,mix,depths)
-        self.assertAlmostEqual(abundances[sample_strains.index(strain1)],mixFracs[0])
-        self.assertAlmostEqual(abundances[sample_strains.index(strain2)],mixFracs[1])
+        self.assertAlmostEqual(abundances[sample_strains.tolist().index(strain1)],mixFracs[0])
+        self.assertAlmostEqual(abundances[sample_strains.tolist().index(strain2)],mixFracs[1])
 
 
 if __name__ == '__main__':
