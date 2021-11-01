@@ -6,8 +6,6 @@
 # The full license is in the file LICENSE, distributed with this software.
 # ----------------------------------------------------------------------------
 from setuptools import setup, find_packages
-import os
-import sys
 
 with open('README.md') as f:
     long_description = f.read()
@@ -35,5 +33,5 @@ setup(
     package_data={
         'freyja': ['data/*', ],
         },
-    install_requires=["click", "numpy", "pandas", "tqdm", "cvxpy"],
+    install_requires=["click", "numpy", "pandas", "cvxpy"],
 )

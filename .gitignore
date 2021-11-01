@@ -1,2 +1,5 @@
+*.gz
+*.pyc
 freyja/variantfiles/
 freyja/depthfiles/
+freyja/cladePaths.txt
