@@ -8,39 +8,41 @@ Freyja is entirely written in Python 3, but requires preprocessing by tools like
 
 ### Dependencies
 * [iVar](https://github.com/andersen-lab/ivar)
+* [samtools](https://github.com/samtools/samtools)
 * [UShER](https://usher-wiki.readthedocs.io/en/latest/#)
 * [cvxpy](https://www.cvxpy.org/)
-* [tqdm](https://github.com/tqdm/tqdm)
 * [numpy](https://numpy.org/)
 * [pandas](https://pandas.pydata.org/)
 
 ## Usage
 After primer trimming in iVar, we get both variant call and sequencing depth information with the command:
 ```
-samtools mpileup -aa -A -d 600000 -Q 20 -q 0 -B -f NC_045512_Hu-1.fasta filename.trimmed.bam | tee >(cut -f1-4 > filename.depth) | ivar variants -p filename -q 20 -r NC_045512_Hu-1.fa 
+samtools mpileup -aa -A -d 600000 -Q 20 -q 0 -B -f NC_045512_Hu-1.fasta [filename.trimmed.bam] | tee >(cut -f1-4 > [outpath.depth]) | ivar variants -p [outpath] -q 20 -r NC_045512_Hu-1.fa 
 ```
 
 We can then run Freyja on the output files using the commmand:
 ```
-python sample_deconv.py variant_tsvs/ depth_files/ output_result.tsv
+freyja demix [variants-file] [depth-file] --output [output-file]
 ```
-This results in a tsv file, which includes the lineages present and their corresponding abundances. 
+This outputs in a tsv file, which includes the lineages present, their corresponding abundances, and summarization by constellation. 
 
 ---
 ### Additional options
-1. By default, this method will use the existing "usher_barcodes.csv" file for the barcodes. To make a new barcode library, download the latest global phylogenetic tree from UShER: http://hgdownload.soe.ucsc.edu/goldenPath/wuhCor1/UShER_SARS-CoV-2/. To pull the latest tree from the comand line, run
+1. By default, this method will use the existing "data/usher_barcodes.csv" file for the barcodes, and the [outbreak.info](https://outbreak.info/) curated lineage metadata file for summarizing lineages by WHO designation. To update both of these we recommend running the command
 
 ```
-wget http://hgdownload.soe.ucsc.edu/goldenPath/wuhCor1/UShER_SARS-CoV-2/public-latest.all.masked.pb.gz
+freyja update
+
 ```
+which downloads new versions of the UShER global phylogenetic [tree](http://hgdownload.soe.ucsc.edu/goldenPath/wuhCor1/UShER_SARS-CoV-2/) as well as the curated lineage file. 
 
 Lineage defining mutation barcodes are extracted using 
 ```
 matUtils extract -i public-latest.all.masked.pb.gz -C lineagePaths.txt
 ```
-and these are converted to a new barcode set by 
+These are converted to a new barcode set by 
 ```
-python convert_paths2barcodes.py lineagePaths.txt
+freyja barcode lineagePaths.txt
 ```
 which saves the new barcodes as "usher_barcodes.csv". 
 

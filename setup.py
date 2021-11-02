@@ -1,7 +1,7 @@
 # ----------------------------------------------------------------------------
 # Copyright (c) 2021-, Andersen Lab development team.
 #
-# Distributed under the terms of the XXX
+# Distributed under the terms of the BSD 2-Clause License
 #
 # The full license is in the file LICENSE, distributed with this software.
 # ----------------------------------------------------------------------------
@@ -20,7 +20,7 @@ setup(
     version="2021.10",
     packages=find_packages(),
     author="Joshua Levy",
-    license='XXX',
+    license='BSD 2-Clause',
     author_email="jolevy@scripps.edu",
     url="https://github.com/joshuailevy/freyja",
     description=description,

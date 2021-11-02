@@ -4,8 +4,13 @@ from freyja.convert_paths2barcodes import parse_tree_paths,\
      convert_to_barcodes, reversion_checking
 from freyja.sample_deconv import buildLineageMap, build_mix_and_depth_arrays,\
     reindex_dfs, map_to_constellation, solve_demixing_problem
+from freyja.updates import download_tree, convert_tree,\
+                           get_curated_lineage_data
 import os
-import urllib.request
+import subprocess
+import sys
+
+locDir = os.path.abspath(os.path.join(os.path.realpath(__file__), os.pardir))
 
 
 @click.group()
@@ -16,6 +21,7 @@ def cli():
 @cli.command()
 @click.argument('filename', type=click.Path(exists=True))
 def barcode(filename):
+    # not needed anymore. This all takes place in the update function now.
     print('Building barcodes from global phylogenetic tree')
     df = pd.read_csv(filename, sep='\t')
     df = parse_tree_paths(df)
@@ -57,19 +63,40 @@ def demix(variants, depths, output):
 
 @cli.command()
 def update():
+    # get data from UShER
     print('Downloading a new global tree')
-    url = 'http://hgdownload.soe.ucsc.edu/goldenPath/wuhCor1/\
-    UShER_SARS-CoV-2/public-latest.all.masked.pb.gz'
-    locDir = os.path.abspath(os.path.join(os.path.realpath(__file__),
-                                          os.pardir))
-    urllib.request.urlretrieve(url, os.path.join(locDir,
-                               "data/public-latest.all.masked.pb.gz"))
-    print('Downloading an updated curated lineage set from outbreak.info')
-    url2 = 'https://raw.githubusercontent.com/outbreak-info/outbreak.info/\
-    master/web/src/assets/genomics/curated_lineages.json'
-    urllib.request.urlretrieve(url2,
-                               os.path.join(locDir,
-                                            "data/curated_lineages.json"))
+    download_tree()
+    print('Getting outbreak data')
+    get_curated_lineage_data()
+    print("Converting tree info to barcodes")
+    convert_tree()  # returns paths for each lineage
+    # Now parse into barcode form
+    lineagePath = os.path.join(locDir, "data/lineagePaths.txt")
+    print('Building barcodes from global phylogenetic tree')
+    df = pd.read_csv(lineagePath, sep='\t')
+    df = parse_tree_paths(df)
+    df_barcodes = convert_to_barcodes(df)
+    df_barcodes = reversion_checking(df_barcodes)
+    df_barcodes.to_csv(os.path.join(locDir, 'data/usher_barcodes.csv'))
+
+
+@cli.command()
+@click.argument('bamfile', type=click.Path(exists=True))
+@click.option('--ref', help='Reference',
+              default=os.path.join(locDir,
+                                   'data/NC_045512_Hu-1.fasta'),
+              type=click.Path())
+@click.option('--variants', help='Variant call output file', type=click.Path())
+@click.option('--depths', help='Sequencing depth output file',
+              type=click.Path())
+def variants(bamfile, ref, variants, depths):
+    bashCmd = f"samtools mpileup -aa -A -d 600000 -Q 20 -q 0 -B -f "\
+              f"{ref} {bamfile} | tee >(cut -f1-4 > {depths}.depth) |"\
+              f" ivar variants -p {variants} -q 20 -t 0.0 -r {ref}"
+    sys.stdout.flush()  # force python to flush
+    completed = subprocess.run(bashCmd, shell=True, executable="/bin/bash",
+                               stdout=subprocess.PIPE)
+    sys.exit(completed.returncode)
 
 
 if __name__ == '__main__':

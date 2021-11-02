@@ -6,3 +6,6 @@ cvxpy
 pytest
 flake8
 coveralls
+ivar
+samtools
+usher

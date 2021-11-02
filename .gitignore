@@ -1,3 +1,4 @@
+*.bam
 *.gz
 *.pyc
 freyja/variantfiles/
