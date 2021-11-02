@@ -17,40 +17,25 @@ Freyja is entirely written in Python 3, but requires preprocessing by tools like
 ## Usage
 After primer trimming in iVar, we get both variant call and sequencing depth information with the command:
 ```
-samtools mpileup -aa -A -d 600000 -Q 20 -q 0 -B -f NC_045512_Hu-1.fasta [filename.trimmed.bam] | tee >(cut -f1-4 > [outpath.depth]) | ivar variants -p [outpath] -q 20 -r NC_045512_Hu-1.fa 
+freyja variants [bamfile] --variants [variant outfile name] --depths [depths outfile name]
 ```
+which uses both samtools and iVar. 
 
 We can then run Freyja on the output files using the commmand:
 ```
 freyja demix [variants-file] [depth-file] --output [output-file]
 ```
-This outputs in a tsv file, which includes the lineages present, their corresponding abundances, and summarization by constellation. 
+This outputs to a tsv file that includes the lineages present, their corresponding abundances, and summarization by constellation. 
 
 ---
 ### Additional options
-1. By default, this method will use the existing "data/usher_barcodes.csv" file for the barcodes, and the [outbreak.info](https://outbreak.info/) curated lineage metadata file for summarizing lineages by WHO designation. To update both of these we recommend running the command
+By default, this method ships with an existing "data/usher_barcodes.csv" file for the barcodes, and the [outbreak.info](https://outbreak.info/) curated lineage metadata file for summarizing lineages by WHO designation. To update both of these we recommend running the command
 
 ```
 freyja update
 
 ```
-which downloads new versions of the UShER global phylogenetic [tree](http://hgdownload.soe.ucsc.edu/goldenPath/wuhCor1/UShER_SARS-CoV-2/) as well as the curated lineage file. 
-
-Lineage defining mutation barcodes are extracted using 
-```
-matUtils extract -i public-latest.all.masked.pb.gz -C lineagePaths.txt
-```
-These are converted to a new barcode set by 
-```
-freyja barcode lineagePaths.txt
-```
-which saves the new barcodes as "usher_barcodes.csv". 
-
-2. For summarizing of lineages by constellation, we pull directly from the [outbreak.info](https://outbreak.info/) curated lineage metadata file. To pull a new one, just run
-
-```
-wget -N https://raw.githubusercontent.com/outbreak-info/outbreak.info/master/web/src/assets/genomics/curated_lineages.json
-```
+which downloads new versions of the curated lineage file as well as the UShER global phylogenetic [tree](http://hgdownload.soe.ucsc.edu/goldenPath/wuhCor1/UShER_SARS-CoV-2/), which is subsequently converted into barcodes and saved in "data/usher_barcodes.csv".
 
 ---
 
