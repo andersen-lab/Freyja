@@ -34,7 +34,7 @@ def convert_to_barcodes(df):
     for c in df_barcodes.columns:
         # if column includes multiple mutations,
         # split into separate columns and concatenates
-        # TODO: change to concat, sometimes warning comes up. 
+        # TODO: change to concat, sometimes warning comes up.
         if "," in c:
             for mt in c.split(","):
                 temp[mt] = df_barcodes[c]
