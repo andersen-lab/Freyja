@@ -19,20 +19,6 @@ def cli():
 
 
 @cli.command()
-@click.argument('filename', type=click.Path(exists=True))
-def barcode(filename):
-    # not needed anymore. This all takes place in the update function now.
-    print('Building barcodes from global phylogenetic tree')
-    df = pd.read_csv(filename, sep='\t')
-    df = parse_tree_paths(df)
-    df_barcodes = convert_to_barcodes(df)
-    df_barcodes = reversion_checking(df_barcodes)
-    locDir = os.path.abspath(os.path.join(os.path.realpath(__file__),
-                                          os.pardir))
-    df_barcodes.to_csv(os.path.join(locDir, 'data/usher_barcodes.csv'))
-
-
-@cli.command()
 @click.argument('variants', type=click.Path(exists=True))
 @click.argument('depths', type=click.Path(exists=True))
 @click.option('--output', default='demixing_result.csv', help='Output file',
