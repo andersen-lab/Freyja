@@ -3,9 +3,21 @@ Freyja is a tool to recover relative lineage abundances from mixed SARS-CoV-2 sa
 
 Freyja is intended as a post-processing step after primer trimming and variant calling in [iVar (Grubaugh and Gangavaparu et al., 2019)](https://github.com/andersen-lab/ivar). From measurements of SNV freqency and sequencing depth at each position in the genome, Freyja returns an estimate of the true lineage abundances in the sample.   
 
-## Installation
-Freyja is entirely written in Python 3, but requires preprocessing by tools like iVar and [samtools](https://github.com/samtools/samtools) mpileup to generate the required input data. Successful installation of iVar (available via conda) should be sufficient to perform all required steps. 
-
+## Installation via conda
+Freyja is entirely written in Python 3, but requires preprocessing by tools like iVar and [samtools](https://github.com/samtools/samtools) mpileup to generate the required input data. First, create an environment for freyja
+```
+conda create -n freyja-env
+```
+then add the following channels
+```
+conda config --add channels defaults
+conda config --add channels bioconda
+conda config --add channels conda-forge
+```
+and then install freyja
+```
+conda install freyja
+```
 ### Dependencies
 * [iVar](https://github.com/andersen-lab/ivar)
 * [samtools](https://github.com/samtools/samtools)
@@ -33,7 +45,6 @@ By default, this method ships with an existing "data/usher_barcodes.csv" file fo
 
 ```
 freyja update
-
 ```
 which downloads new versions of the curated lineage file as well as the UShER global phylogenetic [tree](http://hgdownload.soe.ucsc.edu/goldenPath/wuhCor1/UShER_SARS-CoV-2/), which is subsequently converted into barcodes and saved in "data/usher_barcodes.csv".
 
