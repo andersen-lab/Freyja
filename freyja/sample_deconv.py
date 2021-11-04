@@ -4,11 +4,14 @@ import json
 import sys
 import re
 import cvxpy as cp
+import os
 
 
 def buildLineageMap():
     # Parsing curated lineage data from outbreak.info
-    f0 = open('freyja/data/curated_lineages.json')
+    locDir = os.path.abspath(os.path.join(os.path.realpath(__file__),
+                             os.pardir))
+    f0 = open(os.path.join(locDir, 'data/curated_lineages.json'))
     dat = json.load(f0)
     f0.close()
 
@@ -79,7 +82,7 @@ def map_to_constellation(sample_strains, vals, mapDict):
 
 def solve_demixing_problem(df_barcodes, mix, depths):
     # single file problem setup, solving
-    eps = 1e-5  # minimum abundance to include---TO DO:allow user to modify
+    eps = 1e-2  # minimum abundance to include---TO DO:allow user to modify
     dep = np.log2(depths+1)
     dep = dep/np.max(dep)  # normalize depth scaling pre-optimization
 
