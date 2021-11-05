@@ -12,7 +12,7 @@ class VariantsTests(unittest.TestCase):
             os.remove(filePathDepth)
             os.remove(filePathVariants)
         varCmd = "freyja variants freyja/data/test.bam "\
-                 "--variants freyja/data/test --depths freyja/data/test"
+                 "--variants freyja/data/test --depths freyja/data/test.depth"
         sys.stdout.flush()
         os.system(varCmd)
         self.assertTrue(os.path.exists(filePathVariants))

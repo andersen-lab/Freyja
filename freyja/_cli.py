@@ -64,6 +64,7 @@ def update():
     df_barcodes = convert_to_barcodes(df)
     df_barcodes = reversion_checking(df_barcodes)
     df_barcodes.to_csv(os.path.join(locDir, 'data/usher_barcodes.csv'))
+    # TODO: delete files generated along the way
 
 
 @cli.command()
@@ -77,7 +78,7 @@ def update():
               type=click.Path())
 def variants(bamfile, ref, variants, depths):
     bashCmd = f"samtools mpileup -aa -A -d 600000 -Q 20 -q 0 -B -f "\
-              f"{ref} {bamfile} | tee >(cut -f1-4 > {depths}.depth) |"\
+              f"{ref} {bamfile} | tee >(cut -f1-4 > {depths}) |"\
               f" ivar variants -p {variants} -q 20 -t 0.0 -r {ref}"
     sys.stdout.flush()  # force python to flush
     completed = subprocess.run(bashCmd, shell=True, executable="/bin/bash",
