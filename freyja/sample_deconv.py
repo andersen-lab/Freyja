@@ -41,7 +41,7 @@ def build_mix_and_depth_arrays(fn, depthFn, muts):
 
 def reindex_dfs(df_barcodes, mix, depths):
     # first, drop Nextstrain clade names.
-    nxNames = ['20A', '20C', '20D', '20H(Beta,V2)', '21C(Epsilon)']
+    nxNames = df_barcodes.index[df_barcodes.index.str[0].str.isdigit()]
     dropList = set(nxNames) & set(df_barcodes.index)
     df_barcodes = df_barcodes.drop(index=dropList)
     # reindex everything to match across the dfs

@@ -13,7 +13,6 @@ def download_tree():
 
 
 def convert_tree():
-    print('Converting tree into barcodes',)
     locDir = os.path.abspath(os.path.join(os.path.realpath(__file__),
                                           os.pardir))
     treePath = os.path.join(locDir, "data/public-latest.all.masked.pb.gz")
@@ -25,7 +24,6 @@ def convert_tree():
 def get_curated_lineage_data():
     locDir = os.path.abspath(os.path.join(os.path.realpath(__file__),
                                           os.pardir))
-    print('Downloading an updated curated lineage set from outbreak.info')
     url2 = "https://raw.githubusercontent.com/outbreak-info/outbreak.info/"\
            "master/web/src/assets/genomics/curated_lineages.json"
     urllib.request.urlretrieve(url2,
