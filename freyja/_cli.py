@@ -64,7 +64,9 @@ def update():
     df_barcodes = convert_to_barcodes(df)
     df_barcodes = reversion_checking(df_barcodes)
     df_barcodes.to_csv(os.path.join(locDir, 'data/usher_barcodes.csv'))
-    # TODO: delete files generated along the way
+    # delete files generated along the way that aren't needed anymore
+    os.remove(lineagePath)
+    os.remove(os.path.join(locDir, "data/public-latest.all.masked.pb.gz"))
 
 
 @cli.command()
