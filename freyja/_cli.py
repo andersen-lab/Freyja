@@ -57,7 +57,7 @@ def update():
     print("Converting tree info to barcodes")
     convert_tree()  # returns paths for each lineage
     # Now parse into barcode form
-    lineagePath = os.path.join(locDir, "data/lineagePaths.txt")
+    lineagePath = os.path.join(os.curdir,"lineagePaths.txt")
     print('Building barcodes from global phylogenetic tree')
     df = pd.read_csv(lineagePath, sep='\t')
     df = parse_tree_paths(df)
@@ -65,6 +65,7 @@ def update():
     df_barcodes = reversion_checking(df_barcodes)
     df_barcodes.to_csv(os.path.join(locDir, 'data/usher_barcodes.csv'))
     # delete files generated along the way that aren't needed anymore
+    print('Cleaning up')
     os.remove(lineagePath)
     os.remove(os.path.join(locDir, "data/public-latest.all.masked.pb.gz"))
 
@@ -87,6 +88,16 @@ def variants(bamfile, ref, variants, depths):
                                stdout=subprocess.PIPE)
     sys.exit(completed.returncode)
 
+
+@cli.command()
+@click.argument('results', type=click.Path(exists=True))
+@click.option('--output', default='aggregated_result.csv', help='Output file',
+              type=click.Path(exists=False))
+def aggregate(results,output):
+    allResults = [pd.read_csv(results+fn,skipinitialspace=True,sep='\t',index_col=0) for fn in os.listdir(results)]
+    df_demix = pd.concat(allDat,axis=1).T
+    df_demix.index = [x.split('/')[1] for x in df_demix.index]
+    df_demix.to_csv(output,sep='\t')
 
 if __name__ == '__main__':
     cli()

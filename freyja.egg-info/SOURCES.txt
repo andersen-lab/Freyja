@@ -19,6 +19,7 @@ freyja/data/lineagePaths.txt
 freyja/data/mixture.depth
 freyja/data/mixture.tsv
 freyja/data/public-latest.all.masked.pb.gz
+freyja/data/test
 freyja/data/test.bam
 freyja/data/test.depth
 freyja/data/test.tsv
