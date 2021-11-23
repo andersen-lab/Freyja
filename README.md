@@ -37,7 +37,7 @@ We can then run Freyja on the output files using the commmand:
 ```
 freyja demix [variants-file] [depth-file] --output [output-file]
 ```
-This outputs to a tsv file that includes the lineages present, their corresponding abundances, and summarization by constellation. 
+This outputs to a tsv file that includes the lineages present, their corresponding abundances, and summarization by constellation. This method also includes a `--eps` option, which enables the user to define the minimum lineage abundance returned to the user (e.g. `--eps 0.0001`).  
 
 ---
 ### Additional options
@@ -48,7 +48,20 @@ freyja update
 ```
 which downloads new versions of the curated lineage file as well as the UShER global phylogenetic [tree](http://hgdownload.soe.ucsc.edu/goldenPath/wuhCor1/UShER_SARS-CoV-2/), which is subsequently converted into barcodes and saved in "data/usher_barcodes.csv".
 
----
+For rapid visualization of results, we also offer two utility methods for manipulating the "demixed" output files. The first is an aggregation method
 
-Acknowledgements
+```
+freyja aggregate [directory-of-output-files] --output [aggregated-filename.tsv]
+```
+This resulting aggregated data can analyzed directly as a tsv file, or can be visualized using
 
+```
+freyja plot [aggregated-filename-tsv] --output [plot-filename(.pdf,.png,etc.)]
+```
+which provides a fractional abundance estimate for all aggregated samples. To modify the provide a lineage specific breakdown, the `--lineages` flag can be used. If users wish to include sample collection time information, this can be done using 
+
+```
+freyja plot [aggregated-filename-tsv] --output [plot-filename(.pdf,.png,etc.)] --times [times_metadata.csv(note csv!)] --interval [MS or D (month/day bins)]
+```
+
+When using the `--interval D` option, the `--windowsize NN` should also be specified, where `NN` is the width of the rolling average window. 

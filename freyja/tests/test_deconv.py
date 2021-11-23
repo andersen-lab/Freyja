@@ -36,7 +36,7 @@ class DeconvTests(unittest.TestCase):
         strains = ['B.1.617.2', 'Q.3', 'B.1.427', 'A.2.5', 'B.1.1', 'B.1.1.7']
         locDict = map_to_constellation(strains, vals, mapDict)
         locDict_ideal = {'Alpha': 0.51, 'Epsilon': 0.31, 'Delta': 0.1,
-                         'Other': 0.02, 'Aaron': 0.01}
+                         'Other': 0.02, 'A': 0.01}
         self.assertTrue(locDict == list(locDict_ideal.items()))
 
     def test_demixing(self):
@@ -50,8 +50,10 @@ class DeconvTests(unittest.TestCase):
             + mixFracs[1]*df_barcodes.loc[strain2, ]
         # generate random sequencing depth at each position
         depths = negative_binomial(50, 0.25, size=len(mix))
+        eps = 0.001
         sample_strains, abundances, error = solve_demixing_problem(df_barcodes,
-                                                                   mix, depths)
+                                                                   mix, depths,
+                                                                   eps)
         self.assertAlmostEqual(
             abundances[sample_strains.tolist().index(strain1)], mixFracs[0])
         self.assertAlmostEqual(

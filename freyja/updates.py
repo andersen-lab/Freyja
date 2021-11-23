@@ -3,6 +3,7 @@ import os
 import sys
 import subprocess
 
+
 def download_tree():
     url = "http://hgdownload.soe.ucsc.edu/goldenPath/wuhCor1/"\
           "UShER_SARS-CoV-2/public-latest.all.masked.pb.gz"
@@ -21,7 +22,7 @@ def convert_tree():
     varCmd = f"matUtils extract -i {treePath} -C lineagePaths.txt"
     sys.stdout.flush()  # force python to flush
     completed = subprocess.run(varCmd, shell=True, executable="/bin/bash",
-                               stdout=subprocess.PIPE)
+                               stdout=subprocess.DEVNULL)
     return completed
 
 
