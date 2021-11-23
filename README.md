@@ -72,6 +72,6 @@ freyja plot [aggregated-filename-tsv] --output [plot-filename(.pdf,.png,etc.)] -
 
 When using the `--interval D` option, the `--windowsize NN` should also be specified, where `NN` is the width of the rolling average window. See `freyja/data/times_metadata.csv` for an example collection time metadata file. Example outputs:
 
-|**Month Binning** | **Daily binning (with smoothing)**|
+|**Month binning** | **Daily binning (with smoothing)**|
 |     :---:      |     :---:      |
 |![Monthly](freyja/data/test2.png) | ![Daily-Smoothed](freyja/data/test.png)|
