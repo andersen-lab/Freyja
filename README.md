@@ -60,7 +60,9 @@ freyja plot [aggregated-filename-tsv] --output [plot-filename(.pdf,.png,etc.)]
 ```
 which provides a fractional abundance estimate for all aggregated samples. To modify the provide a lineage specific breakdown, the `--lineages` flag can be used. Example outputs:
 
-![Summarized](freyja/data/testSummary.png) ![Lineage-Specific](freyja/data/test0.png)
+|**Summarized** | **Lineage-Specific**|
+|     :---:      |     :---:      |
+|![Summarized](freyja/data/testSummary.png) | ![Lineage-Specific](freyja/data/test0.png)|
 
 If users wish to include sample collection time information, this can be done using 
 
@@ -70,5 +72,6 @@ freyja plot [aggregated-filename-tsv] --output [plot-filename(.pdf,.png,etc.)] -
 
 When using the `--interval D` option, the `--windowsize NN` should also be specified, where `NN` is the width of the rolling average window. See `freyja/data/times_metadata.csv` for an example collection time metadata file. Example outputs:
 
-
-![Monthly](freyja/data/test2.png) ![Daily-Smoothed](freyja/data/test.png)
+|**Month Binning** | **Daily binning (with smoothing)|
+|     :---:      |     :---:      |
+|![Monthly](freyja/data/test2.png) | ![Daily-Smoothed](freyja/data/test.png)|
