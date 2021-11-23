@@ -9,3 +9,4 @@ coveralls
 ivar
 samtools
 usher
+matplotlib
