@@ -1,5 +1,7 @@
 import urllib.request
 import os
+import sys
+import subprocess
 
 
 def download_tree():
@@ -15,9 +17,12 @@ def download_tree():
 def convert_tree():
     locDir = os.path.abspath(os.path.join(os.path.realpath(__file__),
                                           os.pardir))
+    print(locDir)
     treePath = os.path.join(locDir, "data/public-latest.all.masked.pb.gz")
-    varCmd = f"matUtils extract -i {treePath} -C freyja/data/lineagePaths.txt"
-    completed = os.system(varCmd)
+    varCmd = f"matUtils extract -i {treePath} -C lineagePaths.txt"
+    sys.stdout.flush()  # force python to flush
+    completed = subprocess.run(varCmd, shell=True, executable="/bin/bash",
+                               stdout=subprocess.DEVNULL)
     return completed
 
 

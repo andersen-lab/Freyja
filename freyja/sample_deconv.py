@@ -42,8 +42,7 @@ def build_mix_and_depth_arrays(fn, depthFn, muts):
 def reindex_dfs(df_barcodes, mix, depths):
     # first, drop Nextstrain clade names.
     nxNames = df_barcodes.index[df_barcodes.index.str[0].str.isdigit()]
-    dropList = set(nxNames) & set(df_barcodes.index)
-    df_barcodes = df_barcodes.drop(index=dropList)
+    df_barcodes = df_barcodes.drop(index=nxNames)
     # reindex everything to match across the dfs
     df_barcodes = df_barcodes.reindex(sorted(df_barcodes.columns), axis=1)
     mix = mix.reindex(df_barcodes.columns).fillna(0.)
@@ -66,10 +65,10 @@ def map_to_constellation(sample_strains, vals, mapDict):
             else:
                 localDict[mapDict[lin]] += vals[jj]
         elif 'A.' in lin or lin == 'A':
-            if 'Aaron' not in localDict.keys():
-                localDict['Aaron'] = vals[jj]
+            if 'A' not in localDict.keys():
+                localDict['A'] = vals[jj]
             else:
-                localDict['Aaron'] += vals[jj]
+                localDict['A'] += vals[jj]
         else:
             if 'Other' not in localDict.keys():
                 localDict['Other'] = vals[jj]
@@ -80,9 +79,9 @@ def map_to_constellation(sample_strains, vals, mapDict):
     return localDict
 
 
-def solve_demixing_problem(df_barcodes, mix, depths):
+def solve_demixing_problem(df_barcodes, mix, depths, eps):
     # single file problem setup, solving
-    eps = 1e-2  # minimum abundance to include---TO DO:allow user to modify
+
     dep = np.log2(depths+1)
     dep = dep/np.max(dep)  # normalize depth scaling pre-optimization
 
