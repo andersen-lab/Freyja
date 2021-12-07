@@ -29,9 +29,9 @@ conda install freyja
 ## Usage
 After primer trimming in iVar, we get both variant call and sequencing depth information with the command:
 ```
-freyja variants [bamfile] --variants [variant outfile name] --depths [depths outfile name]
+freyja variants [bamfile] --variants [variant outfile name] --depths [depths outfile name] --ref [reference.fa]
 ```
-which uses both samtools and iVar. 
+which uses both samtools and iVar. Note that the reference should match the fasta file used for alignment.
 
 We can then run Freyja on the output files using the commmand:
 ```
