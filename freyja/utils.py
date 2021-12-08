@@ -10,7 +10,7 @@ def agg(results):
     allResults = [pd.read_csv(results+fn, skipinitialspace=True, sep='\t',
                               index_col=0) for fn in os.listdir(results)]
     df_demix = pd.concat(allResults, axis=1).T
-    df_demix.index = [x.split('/')[1] for x in df_demix.index]
+    df_demix.index = [x.split('/')[-1] for x in df_demix.index]
     return df_demix
 
 
@@ -35,7 +35,7 @@ def prepLineageDict(agg_d0):
     agg_d0['abundances'] = agg_d0['abundances'].apply(lambda x:
                                                       re.sub(' +', ' ', x)
                                                         .split(' '))
-
+    # print([float(abund) for abund in agg_d0.iloc[0].loc['abundances']])
     agg_d0['linDict'] = [{lin: float(abund) for lin, abund in
                          zip(agg_d0.loc[samp, 'lineages'],
                          agg_d0.loc[samp, 'abundances'])}
