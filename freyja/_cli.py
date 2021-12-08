@@ -23,17 +23,22 @@ def cli():
 @click.argument('variants', type=click.Path(exists=True))
 @click.argument('depths', type=click.Path(exists=True))
 @click.option('--eps', default=1e-3, help='minimum abundance to include')
+@click.option('--barcodes', default=-1, help='custom barcode file')
 @click.option('--output', default='demixing_result.csv', help='Output file',
               type=click.Path(exists=False))
-def demix(variants, depths, output, eps):
+def demix(variants, depths, output, eps, barcodes):
     locDir = os.path.abspath(os.path.join(os.path.realpath(__file__),
                              os.pardir))
-    df_barcodes = pd.read_csv(os.path.join(locDir,
-                              'data/usher_barcodes.csv'), index_col=0)
+    # option for custom barcodes
+    if barcodes != -1:
+        df_barcodes = pd.read_csv(barcodes, index_col=0)
+    else:
+        df_barcodes = pd.read_csv(os.path.join(locDir,
+                                  'data/usher_barcodes.csv'), index_col=0)
     muts = list(df_barcodes.columns)
     mapDict = buildLineageMap()
     print('building mix/depth matrices')
-    # assemble data from of (possibly) mixed samples
+    # assemble data from (possibly) mixed samples
     mix, depths_ = build_mix_and_depth_arrays(variants, depths, muts)
     print('demixing')
     df_barcodes, mix, depths_ = reindex_dfs(df_barcodes, mix, depths_)
