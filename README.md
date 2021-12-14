@@ -47,7 +47,7 @@ This outputs to a tsv file that includes the lineages present, their correspondi
 | abundances   | "[0.5 0.25 0.15 0.1]"|
 | resid   | 3.14159        |
 
-Where ```summarized``` denotes a sum of all lineages in a particular WHO designation, otherwise they are grouped into "Other". The ```lineage``` row lists the identified lineages in descending order, and the ```abundances``` row are the corresponding abundances estimates. The value of ```resid``` corresponds to the residual of the weighted least absolute devation problem used to estimate lineage abundances. 
+Where ```summarized``` denotes a sum of all lineage abundances in a particular WHO designation (i.e. B.1.617.2 and AY.6 abundances are summed in the above example), otherwise they are grouped into "Other". The ```lineage``` row lists the identified lineages in descending order, and the ```abundances``` row are the corresponding abundances estimates. The value of ```resid``` corresponds to the residual of the weighted least absolute devation problem used to estimate lineage abundances. 
 
 ---
 ### Additional options
