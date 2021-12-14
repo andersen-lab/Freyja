@@ -37,7 +37,17 @@ We can then run Freyja on the output files using the commmand:
 ```
 freyja demix [variants-file] [depth-file] --output [output-file]
 ```
-This outputs to a tsv file that includes the lineages present, their corresponding abundances, and summarization by constellation. This method also includes a `--eps` option, which enables the user to define the minimum lineage abundance returned to the user (e.g. `--eps 0.0001`).  
+This outputs to a tsv file that includes the lineages present, their corresponding abundances, and summarization by constellation. This method also includes a `--eps` option, which enables the user to define the minimum lineage abundance returned to the user (e.g. `--eps 0.0001`). An example output should have the format
+
+
+|       | filename |
+| ----------- | ----------- |
+| summarized      | ('Delta', 0.65), ('Alpha', 0.1'), ('Other', 0.25)  |
+| lineages   | ['B.1.617.2' 'B.1.2' 'AY.6' 'Q.3']       |
+| abundances   | "[0.5 0.25 0.15 0.1]"|
+| resid   | 3.14159        |
+
+Where ```summarized``` denotes a sum of all lineages in a particular WHO designation, otherwise they are grouped into "Other". The ```lineage``` row lists the identified lineages in descending order, and the ```abundances``` row are the corresponding abundances estimates. The value of ```resid``` corresponds to the residual of the weighted least absolute devation problem used to estimate lineage abundances. 
 
 ---
 ### Additional options
