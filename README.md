@@ -42,7 +42,7 @@ This outputs to a tsv file that includes the lineages present, their correspondi
 
 |       | filename |
 | ----------- | ----------- |
-| summarized      | ('Delta', 0.65), ('Alpha', 0.1'), ('Other', 0.25)  |
+| summarized      | ('Delta', 0.65),  ('Other', 0.25),  ('Alpha', 0.1') |
 | lineages   | ['B.1.617.2' 'B.1.2' 'AY.6' 'Q.3']       |
 | abundances   | "[0.5 0.25 0.15 0.1]"|
 | resid   | 3.14159        |
