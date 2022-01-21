@@ -31,7 +31,7 @@ After primer trimming in iVar, we get both variant call and sequencing depth inf
 ```
 freyja variants [bamfile] --variants [variant outfile name] --depths [depths outfile name] --ref [reference.fa]
 ```
-which uses both samtools and iVar. Note that the reference should match the fasta file used for alignment.
+which uses both samtools and iVar. Note that the reference should match the fasta file used for alignment. In cases where multiple reference genomes are present in the reference fasta, the user can specify the name of the desired reference genome with `--refname [name-of-reference]`. 
 
 We can then run Freyja on the output files using the commmand:
 ```
@@ -63,7 +63,7 @@ We now provide a fast bootstrapping method for freyja, which can be run using th
 ```
 freyja boot [variants-file] [depth-file] --nt [number-of-cpus] --nb [number-of-bootstraps] --output_basename [base-name]
 ```
-which results in two output files `base-name_lineages.csv` and `base-name_summarized.csv`, which contain the 0.05,0.25,0.5 (median),0.75, and 0.95 quantiles for each lineage and WHO designated VOI/VOC, respectively, as obtained via the bootstrap. We also provide the `--eps` and `--barcodes` options available in `freyja demix`. 
+which results in two output files `base-name_lineages.csv` and `base-name_summarized.csv`, which contain the 0.05,0.25,0.5 (median),0.75, and 0.95 quantiles for each lineage and WHO designated VOI/VOC, respectively, as obtained via the bootstrap. We also provide the `--eps` and `--barcodes` options as in `freyja demix`. 
 
 For rapid visualization of results, we also offer two utility methods for manipulating the "demixed" output files. The first is an aggregation method
 
