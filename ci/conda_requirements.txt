@@ -10,3 +10,4 @@ ivar
 samtools
 usher
 matplotlib
+joblib

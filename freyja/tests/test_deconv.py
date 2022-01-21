@@ -1,7 +1,8 @@
 import unittest
 import pandas as pd
 from freyja.sample_deconv import buildLineageMap, build_mix_and_depth_arrays,\
-    reindex_dfs, map_to_constellation, solve_demixing_problem
+    reindex_dfs, map_to_constellation, solve_demixing_problem,\
+    perform_bootstrap
 import pandas.testing as pdt
 import pandas.api.types as ptypes
 from numpy.random import negative_binomial
@@ -58,6 +59,29 @@ class DeconvTests(unittest.TestCase):
             abundances[sample_strains.tolist().index(strain1)], mixFracs[0])
         self.assertAlmostEqual(
             abundances[sample_strains.tolist().index(strain2)], mixFracs[1])
+
+    def test_boot(self):
+        mapDict = buildLineageMap()
+        df_barcodes = pd.read_csv('freyja/data/usher_barcodes.csv',
+                                  index_col=0)
+        muts = list(df_barcodes.columns)
+        # build crude in silico mixture from barcodes, perform recovery
+        strain1 = 'B.1.1.7'
+        strain2 = 'B.1.427'
+        mixFracs = [0.4, 0.6]
+        mix = mixFracs[0]*df_barcodes.loc[strain1, ]\
+            + mixFracs[1]*df_barcodes.loc[strain2, ]
+        # generate random sequencing depth at each position
+        depths = pd.Series(negative_binomial(50, 0.25, size=len(mix)),
+                           index=mix.index)
+        eps = 0.001
+        numBootstraps = 3
+        n_jobs = 1
+        lin_out, constell_out = perform_bootstrap(df_barcodes, mix, depths,
+                                                  numBootstraps, eps,
+                                                  n_jobs, mapDict, muts)
+        self.assertAlmostEqual(lin_out.loc[0.5, 'B.1.1.7'], 0.4, delta=0.1)
+        self.assertAlmostEqual(constell_out.loc[0.5, 'Alpha'], 0.4, delta=0.1)
 
 
 if __name__ == '__main__':

@@ -14,7 +14,7 @@ def agg(results):
     return df_demix
 
 
-def prepLineageDict(agg_d0):
+def prepLineageDict(agg_d0, thresh):
     agg_d0['lineages'] = agg_d0['lineages'].apply(lambda x:
                                                   x.replace("'", "")
                                                    .replace("]", "")
@@ -47,7 +47,7 @@ def prepLineageDict(agg_d0):
     for line in agg_d0.index:
         counter_summary += Counter(agg_d0.loc[line, 'linDict'])
 
-    thresh = 0.01  # possibly switch to a max number of lineages
+    # possibly switch to a max number of lineages
     keepers = [x[0] for x in counter_summary.most_common()
                if x[1]/agg_d0.shape[0] > thresh]
     if len(keepers) < len(counter_summary):
@@ -86,7 +86,7 @@ def prepSummaryDict(agg_d0):
     return agg_d0['summarized']
 
 
-def makePlot_simple(agg_df, lineages, outputFn):
+def makePlot_simple(agg_df, lineages, outputFn, colors0):
     cmap = plt.cm.tab20
     cmap_dict = {}
     if lineages:
@@ -96,21 +96,37 @@ def makePlot_simple(agg_df, lineages, outputFn):
     else:
         queryType = 'summarized'
         agg_df['summarized'] = prepSummaryDict(agg_df)
+    ct = 0
     fig, ax = plt.subplots()
     # Make abundance fraction for all samples in aggregated dataset
     for k in range(0, agg_df.shape[0]):
         loc = pd.Series(agg_df.iloc[k][queryType])
-        for i, label in enumerate(loc.index):
-            if label not in cmap_dict.keys():
-                cmap_dict[label] = cmap(len(cmap_dict.keys())/20.)
-                ax.bar(k, agg_df.iloc[k][queryType][label],
-                       width=0.75,
-                       bottom=loc.iloc[0:i].sum(), label=label,
-                       color=cmap_dict[label])
-            else:
-                ax.bar(k, agg_df.iloc[k][queryType][label],
-                       width=0.75,
-                       bottom=loc.iloc[0:i].sum(), color=cmap_dict[label])
+        if len(colors0) == 0:
+            for i, label in enumerate(loc.index):
+                if label not in cmap_dict.keys():
+                    cmap_dict[label] = cmap(ct/20.)
+                    ct += 1
+                    ax.bar(k, agg_df.iloc[k][queryType][label],
+                           width=0.75,
+                           bottom=loc.iloc[0:i].sum(), label=label,
+                           color=cmap_dict[label])
+                else:
+                    ax.bar(k, agg_df.iloc[k][queryType][label],
+                           width=0.75,
+                           bottom=loc.iloc[0:i].sum(), color=cmap_dict[label])
+        else:
+            for i, label in enumerate(loc.index):
+                if label not in cmap_dict.keys():
+                    cmap_dict[label] = cmap(ct/20.)
+                    ct += 1
+                    ax.bar(k, agg_df.iloc[k][queryType][label],
+                           width=0.75,
+                           bottom=loc.iloc[0:i].sum(), label=label,
+                           color=colors0[i])
+                else:
+                    ax.bar(k, agg_df.iloc[k][queryType][label],
+                           width=0.75,
+                           bottom=loc.iloc[0:i].sum(), color=colors0[i])
     ax.legend(loc='center left', bbox_to_anchor=(1, 0.5), prop={'size': 4})
     ax.set_ylabel('Variant Prevalence')
     ax.set_xticks(range(0, agg_df.shape[0]))
@@ -124,7 +140,8 @@ def makePlot_simple(agg_df, lineages, outputFn):
     plt.close()
 
 
-def makePlot_time(agg_df, lineages, times_df, interval, outputFn, windowSize):
+def makePlot_time(agg_df, lineages, times_df, interval, outputFn,
+                  windowSize, colors0):
     cmap = plt.cm.tab20
     if lineages:
         queryType = 'linDict'
@@ -146,8 +163,12 @@ def makePlot_time(agg_df, lineages, times_df, interval, outputFn, windowSize):
     if interval == 'D':
         df_abundances = df_abundances.rolling(windowSize, center=True,
                                               min_periods=0).mean()
-        ax.stackplot(df_abundances.index, df_abundances.to_numpy().T,
-                     labels=df_abundances.columns, cmap=cmap)
+        if len(colors0) == 0:
+            ax.stackplot(df_abundances.index, df_abundances.to_numpy().T,
+                         labels=df_abundances.columns, cmap=cmap)
+        else:
+            ax.stackplot(df_abundances.index, df_abundances.to_numpy().T,
+                         labels=df_abundances.columns, colors=colors0)
         ax.legend(loc='center left', bbox_to_anchor=(1, 0.5), prop={'size': 4})
         ax.set_ylabel('Variant Prevalence')
         ax.set_ylim([0, 1])
@@ -159,9 +180,14 @@ def makePlot_time(agg_df, lineages, times_df, interval, outputFn, windowSize):
         for i in range(0, df_abundances.shape[1]):
             label = df_abundances.columns[i]
             # color = colorDict[label]
-            ax.bar(df_abundances.index, df_abundances.iloc[:, i],
-                   width=14, bottom=df_abundances.iloc[:, 0:i].sum(axis=1),
-                   label=label, color=cmap(i/20.))
+            if len(colors0) == 0:
+                ax.bar(df_abundances.index, df_abundances.iloc[:, i],
+                       width=14, bottom=df_abundances.iloc[:, 0:i].sum(axis=1),
+                       label=label, color=cmap(i/20.))
+            else:
+                ax.bar(df_abundances.index, df_abundances.iloc[:, i],
+                       width=14, bottom=df_abundances.iloc[:, 0:i].sum(axis=1),
+                       label=label, color=colors0[i])
         ax.legend(loc='center left', bbox_to_anchor=(1, 0.5), prop={'size': 4})
         ax.set_ylabel('Variant Prevalence')
         locator = mdates.MonthLocator(bymonthday=1)
