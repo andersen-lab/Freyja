@@ -37,7 +37,7 @@ We can then run Freyja on the output files using the commmand:
 ```
 freyja demix [variants-file] [depth-file] --output [output-file]
 ```
-This outputs to a tsv file that includes the lineages present, their corresponding abundances, and summarization by constellation. This method also includes a `--eps` option, which enables the user to define the minimum lineage abundance returned to the user (e.g. `--eps 0.0001`). A custom barcode file can be prvoided using the `--barcodes [path-to-barcode-file]` option.  An example output should have the format
+This outputs to a tsv file that includes the lineages present, their corresponding abundances, and summarization by constellation. This method also includes a `--eps` option, which enables the user to define the minimum lineage abundance returned to the user (e.g. `--eps 0.0001`). A custom barcode file can be provided using the `--barcodes [path-to-barcode-file]` option.  An example output should have the format
 
 
 |       | filename |
