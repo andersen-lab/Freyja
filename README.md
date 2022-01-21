@@ -37,7 +37,7 @@ We can then run Freyja on the output files using the commmand:
 ```
 freyja demix [variants-file] [depth-file] --output [output-file]
 ```
-This outputs to a tsv file that includes the lineages present, their corresponding abundances, and summarization by constellation. This method also includes a `--eps` option, which enables the user to define the minimum lineage abundance returned to the user (e.g. `--eps 0.0001`). An example output should have the format
+This outputs to a tsv file that includes the lineages present, their corresponding abundances, and summarization by constellation. This method also includes a `--eps` option, which enables the user to define the minimum lineage abundance returned to the user (e.g. `--eps 0.0001`). A custom barcode file can be prvoided using the `--barcodes [path-to-barcode-file]` option.  An example output should have the format
 
 
 |       | filename |
@@ -58,6 +58,13 @@ freyja update
 ```
 which downloads new versions of the curated lineage file as well as the UShER global phylogenetic [tree](http://hgdownload.soe.ucsc.edu/goldenPath/wuhCor1/UShER_SARS-CoV-2/), which is subsequently converted into barcodes and saved in "data/usher_barcodes.csv".
 
+We now provide a fast bootstrapping method for freyja, which can be run using the command
+
+```
+freyja boot [variants-file] [depth-file] --nt [number-of-cpus] --nb [number-of-bootstraps] --output_basename [base-name]
+```
+which results in two output files `base-name_lineages.csv` and `base-name_summarized.csv`, which contain the 0.05,0.25,0.5 (median),0.75, and 0.95 quantiles for each lineage and WHO designated VOI/VOC, respectively, as obtained via the bootstrap. We also provide the `--eps` and `--barcodes` options available in `freyja demix`. 
+
 For rapid visualization of results, we also offer two utility methods for manipulating the "demixed" output files. The first is an aggregation method
 
 ```
@@ -68,7 +75,7 @@ This resulting aggregated data can analyzed directly as a tsv file, or can be vi
 ```
 freyja plot [aggregated-filename-tsv] --output [plot-filename(.pdf,.png,etc.)]
 ```
-which provides a fractional abundance estimate for all aggregated samples. To modify the provide a lineage specific breakdown, the `--lineages` flag can be used. Example outputs:
+which provides a fractional abundance estimate for all aggregated samples. To modify the provide a lineage specific breakdown, the `--lineages` flag can be used. We now provide a `--colors [path-to-csv-of-hex-codes]` option so users can control the colors of the plot (see `freyja/data/colors.csv` for an example input file).   Example outputs:
 
 |**Summarized** | **Lineage-Specific**|
 |     :---:      |     :---:      |
