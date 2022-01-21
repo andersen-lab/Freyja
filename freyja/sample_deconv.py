@@ -5,6 +5,8 @@ import sys
 import re
 import cvxpy as cp
 import os
+from joblib import Parallel, delayed
+from tqdm import tqdm
 
 
 def buildLineageMap():
@@ -64,7 +66,7 @@ def map_to_constellation(sample_strains, vals, mapDict):
                 localDict[mapDict[lin]] = vals[jj]
             else:
                 localDict[mapDict[lin]] += vals[jj]
-        elif 'A.' in lin or lin == 'A':
+        elif lin.startswith('A.') or lin == 'A':
             if 'A' not in localDict.keys():
                 localDict['A'] = vals[jj]
             else:
@@ -105,6 +107,99 @@ def solve_demixing_problem(df_barcodes, mix, depths, eps):
     return sample_strains[indSort], abundances[indSort], rnorm
 
 
+def bootstrap_parallel(jj, samplesDefining, fracDepths_adj, mix_grp,
+                       mix, df_barcodes, eps0, muts, mapDict):
+    # helper function for fast bootstrap and solve
+    # get sequencing depth at the position of all defining mutations
+    mix_boot = mix.copy()
+    dps = pd.Series(np.random.multinomial(samplesDefining[jj],
+                    fracDepths_adj, size=1)[0, :], index=fracDepths_adj.index)
+    # get number of reads of each possible nucleotide
+    # only for lineage defining muts observed in the dataset
+    for mp in mix_grp.index:
+        if len(mix_grp[mp]) == 1:
+            mut0 = mix_grp[mp][0]
+            if dps[mp] > 0:
+                mix_boot.loc[mut0] = np.random.binomial(
+                                                dps[mp],
+                                                mix.loc[mut0])/dps[mp]
+            else:
+                mix_boot.loc[mut0] = 0.
+        elif len(mix_grp[mp]) > 1:  # if multiple muts at a single site
+            # TODO: streamline-- right now looks at all positions
+            probs = [mix.loc[mut0] for mut0 in mix_grp[mp]]
+            probs.append(np.max([1.-np.sum(probs), 0]))
+            if np.sum(probs) > 1.0:
+                # correct rounding errors
+                probs = np.array(probs)/np.sum(probs)
+            altCounts = np.random.multinomial(dps[mp], probs,
+                                              size=1)[0, 0:(len(probs)-1)]
+            for j, mut0 in enumerate(mix_grp[mp]):
+                if dps[mp] > 0:
+                    mix_boot.loc[mut0] = \
+                                 float(altCounts[j])/dps[mp]
+                else:
+                    mix_boot.loc[mut0] = 0.
+    dps_ = pd.Series({kI:
+                      dps[int(kI[1:(len(kI)-1)])].astype(float)
+                      for kI in muts}, name='depths')
+    df_barcodes, mix_boot_, dps_ = reindex_dfs(df_barcodes,
+                                               mix_boot, dps_)
+    sample_strains, abundances, error = solve_demixing_problem(df_barcodes,
+                                                               mix_boot_,
+                                                               dps_, eps0)
+    localDict = map_to_constellation(sample_strains, abundances, mapDict)
+    return sample_strains, abundances, localDict
+
+
+def perform_bootstrap(df_barcodes, mix, depths_,
+                      numBootstraps, eps0, n_jobs, mapDict, muts):
+    depths_.index = depths_.index.to_series().apply(lambda x:
+                                                    int(x[1:len(x)-1]))
+    depths_ = depths_[~depths_.index.duplicated(keep='first')]
+    totalDepth = depths_.sum()
+    fracDepths = depths_/totalDepth
+
+    fracDefining = fracDepths.sum()
+    fracDepths_adj = fracDepths/fracDefining
+
+    # get the total depth at lineage defining positions
+    samplesDefining = np.random.binomial(totalDepth,
+                                         fracDefining,
+                                         size=numBootstraps)
+
+    mixPos = pd.Series(mix.index,
+                       index=mix.index.to_series()
+                                      .apply(lambda x:
+                                             int(x[1: len(x)-1])))
+    mix_grp = mixPos.groupby(level=0).apply(list)
+    lin_df = pd.DataFrame()
+    constellation_df = pd.DataFrame()
+    out = Parallel(n_jobs=n_jobs)(delayed(bootstrap_parallel)(jj0,
+                                                              samplesDefining,
+                                                              fracDepths_adj,
+                                                              mix_grp,
+                                                              mix,
+                                                              df_barcodes,
+                                                              eps0,
+                                                              muts,
+                                                              mapDict)
+                                  for jj0 in tqdm(range(numBootstraps)))
+    for i in range(len(out)):
+        sample_lins, abundances, localDict = out[i]
+        lin_df = lin_df.append({sample_lins[j]: abundances[j]
+                               for j in range(len(sample_lins))},
+                               ignore_index=True)
+        constellation_df = constellation_df.append({localDict[j][0]:
+                                                    localDict[j][1]
+                                                    for j in range(
+                                                        len(localDict))},
+                                                   ignore_index=True)
+    lin_out = lin_df.quantile([0.05, 0.25, 0.5, 0.75, 0.95])
+    constell_out = constellation_df.quantile([0.05, 0.25, 0.5, 0.75, 0.95])
+    return lin_out, constell_out
+
+
 if __name__ == '__main__':
     print('loading lineage models')
     # read in  barcodes.
@@ -118,6 +213,7 @@ if __name__ == '__main__':
     depths = sys.argv[2]  # depth file
     # assemble data from of (possibly) mixed samples
     muts = list(df_barcodes.columns)
+    eps = 0.001
     mapDict = buildLineageMap()
     print('building mix/depth matrices')
     # assemble data from of (possibly) mixed samples
@@ -125,10 +221,16 @@ if __name__ == '__main__':
     print('demixing')
     df_barcodes, mix, depths_ = reindex_dfs(df_barcodes, mix, depths_)
     sample_strains, abundances, error = solve_demixing_problem(df_barcodes,
-                                                               mix, depths_)
+                                                               mix,
+                                                               depths_, eps)
     localDict = map_to_constellation(sample_strains, abundances, mapDict)
     # assemble into series and write.
     sols_df = pd.Series(data=(localDict, sample_strains, abundances, error),
                         index=['summarized', 'lineages',
                                'abundances', 'resid'],
                         name=mix.name)
+    numBootstraps = 100
+    n_jobs = 10
+    lin_out, constell_out = perform_bootstrap(df_barcodes, mix, depths_,
+                                              numBootstraps, eps,
+                                              n_jobs, mapDict, muts)
