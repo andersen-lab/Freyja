@@ -14,7 +14,7 @@ def agg(results):
     return df_demix
 
 
-def prepLineageDict(agg_d0, thresh):
+def prepLineageDict(agg_d0, thresh=0.001):
     agg_d0['lineages'] = agg_d0['lineages'].apply(lambda x:
                                                   x.replace("'", "")
                                                    .replace("]", "")
