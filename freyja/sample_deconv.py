@@ -41,6 +41,40 @@ def build_mix_and_depth_arrays(fn, depthFn, muts):
     return mix, depths
 
 
+def build_mix_and_depth_arrays_vcf(fn, depthFn, muts):
+    with open(fn, "r") as file:
+        for line in file:
+            if line.startswith("#CHROM"):
+                vcfnames = [x for x in line.strip("\n").split('\t')]
+                break
+    file.close()
+
+    df = pd.read_csv(fn, comment='#', delim_whitespace=True,
+                     header=None,
+                     names=vcfnames)
+
+    vcf_info = df['INFO'].str.split(';', expand=True)
+    for j in range(vcf_info.shape[1]):
+        if vcf_info[j].str.split('=')[0] is not None:
+            if vcf_info[j].str.split('=')[0][0] == 'AF':
+                df[vcf_info[j].str.split('=')[0][0]] = vcf_info[j].str\
+                                                                  .split('=')\
+                                                                  .str[1]\
+                                                                  .values\
+                                                                  .astype(
+                                                                   float)
+    df_depth = pd.read_csv(depthFn, sep='\t', header=None, index_col=1)
+    df['mutName'] = df['REF'] + df['POS'].astype(str) + df['ALT']
+    df = df.drop_duplicates(subset='mutName')
+    df.set_index('mutName', inplace=True)
+    keptInds = set(muts) & set(df.index)
+    mix = df.loc[keptInds, 'AF'].astype(float)
+    mix.name = fn
+    depths = pd.Series({kI: df_depth.loc[int(re.findall(r'\d+', kI)[0]), 3]
+                        .astype(float) for kI in muts}, name=fn)
+    return mix, depths
+
+
 def reindex_dfs(df_barcodes, mix, depths):
     # first, drop Nextstrain clade names.
     nxNames = df_barcodes.index[df_barcodes.index.str[0].str.isdigit()]
