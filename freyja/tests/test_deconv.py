@@ -10,7 +10,7 @@ from numpy.random import negative_binomial
 
 class DeconvTests(unittest.TestCase):
     def test_buildLineageMap(self):
-        mapDict = buildLineageMap()
+        mapDict = buildLineageMap('-1')
         self.assertTrue('Alpha' == mapDict['B.1.1.7'])
         self.assertTrue('Delta' == mapDict['AY.4'])
 
@@ -32,7 +32,7 @@ class DeconvTests(unittest.TestCase):
         self.assertFalse('20C' in df_barcodes.columns)
 
     def test_constellation_mapping(self):
-        mapDict = buildLineageMap()
+        mapDict = buildLineageMap('-1')
         vals = [0.1, 0.5, 0.31, 0.01, 0.02, 0.01]
         strains = ['B.1.617.2', 'Q.3', 'B.1.427', 'A.2.5', 'B.1.1', 'B.1.1.7']
         locDict = map_to_constellation(strains, vals, mapDict)
@@ -61,7 +61,7 @@ class DeconvTests(unittest.TestCase):
             abundances[sample_strains.tolist().index(strain2)], mixFracs[1])
 
     def test_boot(self):
-        mapDict = buildLineageMap()
+        mapDict = buildLineageMap('-1')
         df_barcodes = pd.read_csv('freyja/data/usher_barcodes.csv',
                                   index_col=0)
         muts = list(df_barcodes.columns)
