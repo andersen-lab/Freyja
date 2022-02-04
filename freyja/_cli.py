@@ -25,9 +25,10 @@ def cli():
 @click.argument('depths', type=click.Path(exists=True))
 @click.option('--eps', default=1e-3, help='minimum abundance to include')
 @click.option('--barcodes', default='-1', help='custom barcode file')
+@click.option('--meta', default='-1', help='custom lineage metadata file')
 @click.option('--output', default='demixing_result.csv', help='Output file',
               type=click.Path(exists=False))
-def demix(variants, depths, output, eps, barcodes):
+def demix(variants, depths, output, eps, barcodes, meta):
     locDir = os.path.abspath(os.path.join(os.path.realpath(__file__),
                              os.pardir))
     # option for custom barcodes
@@ -37,7 +38,7 @@ def demix(variants, depths, output, eps, barcodes):
         df_barcodes = pd.read_csv(os.path.join(locDir,
                                   'data/usher_barcodes.csv'), index_col=0)
     muts = list(df_barcodes.columns)
-    mapDict = buildLineageMap()
+    mapDict = buildLineageMap(meta)
     print('building mix/depth matrices')
     # assemble data from (possibly) mixed samples
     if variants.lower().endswith('vcf'):
@@ -115,9 +116,10 @@ def variants(bamfile, ref, variants, depths, refname):
 @click.option('--nt', default=1, help='max number of cpus to use')
 @click.option('--eps', default=1e-3, help='minimum abundance to include')
 @click.option('--barcodes', default='-1', help='custom barcode file')
+@click.option('--meta', default='-1', help='custom lineage metadata file')
 @click.option('--output_base', default='test', help='Output file basename',
               type=click.Path(exists=False))
-def boot(variants, depths, output_base, eps, barcodes, nb, nt):
+def boot(variants, depths, output_base, eps, barcodes, meta, nb, nt):
     locDir = os.path.abspath(os.path.join(os.path.realpath(__file__),
                              os.pardir))
     # option for custom barcodes
@@ -127,7 +129,7 @@ def boot(variants, depths, output_base, eps, barcodes, nb, nt):
         df_barcodes = pd.read_csv(os.path.join(locDir,
                                   'data/usher_barcodes.csv'), index_col=0)
     muts = list(df_barcodes.columns)
-    mapDict = buildLineageMap()
+    mapDict = buildLineageMap(meta)
     print('building mix/depth matrices')
     # assemble data from (possibly) mixed samples
     mix, depths_ = build_mix_and_depth_arrays(variants, depths, muts)
