@@ -31,13 +31,13 @@ After primer trimming in iVar, we get both variant call and sequencing depth inf
 ```
 freyja variants [bamfile] --variants [variant outfile name] --depths [depths outfile name] --ref [reference.fa]
 ```
-which uses both samtools and iVar. Note that the reference should match the fasta file used for alignment. In cases where multiple reference genomes are present in the reference fasta, the user can specify the name of the desired reference genome with `--refname [name-of-reference]`. 
+which uses both samtools and iVar. Note that the reference should match the fasta file used for alignment. In cases where multiple reference genomes are present in the reference fasta, the user can specify the name of the desired reference genome with `--refname [name-of-reference]`. To enable alternative variant calling pipelines, we also enable users to provide a VCF file using the `--variants` option (in addition to a depth file, obtained using a command like ```samtools mpileup -aa -A -d 600000 -Q 20 -q 0 -B -f ref.fasta sample.bam | cut -f1-4 > sample.depth```).
 
 We can then run Freyja on the output files using the commmand:
 ```
 freyja demix [variants-file] [depth-file] --output [output-file]
 ```
-This outputs to a tsv file that includes the lineages present, their corresponding abundances, and summarization by constellation. This method also includes a `--eps` option, which enables the user to define the minimum lineage abundance returned to the user (e.g. `--eps 0.0001`). A custom barcode file can be provided using the `--barcodes [path-to-barcode-file]` option.  An example output should have the format
+This outputs to a tsv file that includes the lineages present, their corresponding abundances, and summarization by constellation. This method also includes a `--eps` option, which enables the user to define the minimum lineage abundance returned to the user (e.g. `--eps 0.0001`). A custom barcode file can be provided using the `--barcodes [path-to-barcode-file]` option. For additional flexibility and reproducibility of analyses, a custom lineage-to-contellation mapping metadata file can be provided using the `--meta` option. An example output should have the format
 
 
 |       | filename |
@@ -63,7 +63,7 @@ We now provide a fast bootstrapping method for freyja, which can be run using th
 ```
 freyja boot [variants-file] [depth-file] --nt [number-of-cpus] --nb [number-of-bootstraps] --output_basename [base-name]
 ```
-which results in two output files `base-name_lineages.csv` and `base-name_summarized.csv`, which contain the 0.05,0.25,0.5 (median),0.75, and 0.95 quantiles for each lineage and WHO designated VOI/VOC, respectively, as obtained via the bootstrap. We also provide the `--eps` and `--barcodes` options as in `freyja demix`. 
+which results in two output files `base-name_lineages.csv` and `base-name_summarized.csv`, which contain the 0.05,0.25,0.5 (median),0.75, and 0.95 quantiles for each lineage and WHO designated VOI/VOC, respectively, as obtained via the bootstrap. We also provide the `--eps`, `--barcodes`, and `--meta` options as in `freyja demix`. 
 
 For rapid visualization of results, we also offer two utility methods for manipulating the "demixed" output files. The first is an aggregation method
 
