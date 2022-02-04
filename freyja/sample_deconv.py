@@ -9,13 +9,18 @@ from joblib import Parallel, delayed
 from tqdm import tqdm
 
 
-def buildLineageMap():
+def buildLineageMap(locDir):
     # Parsing curated lineage data from outbreak.info
-    locDir = os.path.abspath(os.path.join(os.path.realpath(__file__),
-                             os.pardir))
-    f0 = open(os.path.join(locDir, 'data/curated_lineages.json'))
-    dat = json.load(f0)
-    f0.close()
+    if locDir == '-1':
+        locDir = os.path.abspath(os.path.join(os.path.realpath(__file__),
+                                 os.pardir))
+        f0 = open(os.path.join(locDir, 'data/curated_lineages.json'))
+        dat = json.load(f0)
+        f0.close()
+    else:
+        f0 = open(locDir)
+        dat = json.load(f0)
+        f0.close()
 
     mapDict = {}
     for ind in range(len(dat)):
