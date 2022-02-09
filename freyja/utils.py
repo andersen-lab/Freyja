@@ -5,10 +5,13 @@ import re
 import copy
 import matplotlib.dates as mdates
 
+def agg(results , suffix='*'):
 
-def agg(results):
-    allResults = [pd.read_csv(results+fn, skipinitialspace=True, sep='\t',
-                              index_col=0) for fn in os.listdir(results)]
+    allResults = []
+    for p in Path(results).rglob(suffix):
+        allResults.append(
+            pd.read_csv( p.joinpath() , skipinitialspace=True, sep='\t',index_col=0)
+        )     
     df_demix = pd.concat(allResults, axis=1).T
     df_demix.index = [x.split('/')[-1] for x in df_demix.index]
     return df_demix
