@@ -14,8 +14,8 @@ class UtilsTests(unittest.TestCase):
         agg_df = pd.read_csv('freyja/data/agg_outputs.tsv',
                              skipinitialspace=True,
                              sep='\t', index_col=0)
-        agg_df['linDict'] = prepLineageDict(agg_df, thresh=0.001)
-        agg_df['summarized'] = prepSummaryDict(agg_df)
+        agg_df = prepLineageDict(agg_df, thresh=0.001)
+        agg_df = prepSummaryDict(agg_df)
         self.assertTrue((agg_df['linDict'][0]['A'] > 0) &
                         (agg_df['linDict'][1]['A'] > 0))
         self.assertTrue((agg_df['summarized'][0]['A'] > 0) &
