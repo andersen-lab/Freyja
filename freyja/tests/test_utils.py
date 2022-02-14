@@ -19,8 +19,13 @@ class UtilsTests(unittest.TestCase):
                              sep='\t', index_col=0)
         agg_df = prepLineageDict(agg_df, thresh=0.001)
         agg_df = prepSummaryDict(agg_df)
-        self.assertTrue((agg_df['linDict'][0]['A'] > 0) &
-                        (agg_df['linDict'][1]['A'] > 0))
+        # flexibility to python versions
+        if isinstance(agg_df['linDict'][0], list):
+            self.assertTrue((agg_df['linDict'][0][0]['A'] > 0) &
+                            (agg_df['linDict'][1][0]['A'] > 0))
+        else:
+            self.assertTrue((agg_df['linDict'][0]['A'] > 0) &
+                            (agg_df['linDict'][1]['A'] > 0))
         self.assertTrue((agg_df['summarized'][0]['A'] > 0) &
                         (agg_df['summarized'][1]['A'] > 0))
         self.assertTrue(agg_df['summarized'][1]['Delta'] > 0)
