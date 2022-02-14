@@ -29,6 +29,7 @@ def convert_to_barcodes(df):
 
     print('separating combined splits')
     df_barcodes = df_barcodes.drop(columns='')
+    df_barcodes = df_barcodes.fillna(0)
     temp = pd.DataFrame()
     dropList = []
     for c in df_barcodes.columns:
@@ -37,11 +38,14 @@ def convert_to_barcodes(df):
         # TODO: change to concat, sometimes warning comes up.
         if "," in c:
             for mt in c.split(","):
-                temp[mt] = df_barcodes[c]
+                if mt not in temp.columns:
+                    temp[mt] = df_barcodes[c]
+                else:
+                    # to handle multiple different groups with mut
+                    temp[mt] += df_barcodes[c]
             dropList.append(c)
     df_barcodes = df_barcodes.drop(columns=dropList)
     df_barcodes = pd.concat((df_barcodes, temp), axis=1)
-    df_barcodes = df_barcodes.fillna(0)
     df_barcodes = df_barcodes.groupby(axis=1, level=0).sum()
     return df_barcodes
 
@@ -71,5 +75,5 @@ if __name__ == '__main__':
     df = pd.read_csv(fn, sep='\t')
     df = parse_tree_paths(df)
     df_barcodes = convert_to_barcodes(df)
-    df_barcodes = reversion_checking(df_barcodes)
-    df_barcodes.to_csv('data/usher_barcodes.csv')
+    # df_barcodes = reversion_checking(df_barcodes)
+    # df_barcodes.to_csv('data/usher_barcodes.csv')
