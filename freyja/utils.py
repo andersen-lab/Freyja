@@ -108,18 +108,25 @@ def makePlot_simple(agg_df, lineages, outputFn, colors0):
     fig, ax = plt.subplots()
     # Make abundance fraction for all samples in aggregated dataset
     for k in range(0, agg_df.shape[0]):
-        loc = pd.Series(agg_df.iloc[k][queryType])
+        dat = agg_df.iloc[k][queryType]
+        # handle parsing differences across python versions
+        if isinstance(dat, list):
+            loc = pd.Series(dat[0])
+        else:
+            loc = pd.Series(dat)
+
         if len(colors0) == 0:
             for i, label in enumerate(loc.index):
                 if label not in cmap_dict.keys():
                     cmap_dict[label] = cmap(ct / 20.)
                     ct += 1
-                    ax.bar(k, agg_df.iloc[k][queryType][label],
+                    # print('hih', loc.index, label, agg_df.iloc[k][queryType])
+                    ax.bar(k, loc[label],
                            width=0.75,
                            bottom=loc.iloc[0:i].sum(), label=label,
                            color=cmap_dict[label])
                 else:
-                    ax.bar(k, agg_df.iloc[k][queryType][label],
+                    ax.bar(k, loc[label],
                            width=0.75,
                            bottom=loc.iloc[0:i].sum(), color=cmap_dict[label])
         else:
@@ -127,12 +134,12 @@ def makePlot_simple(agg_df, lineages, outputFn, colors0):
                 if label not in cmap_dict.keys():
                     cmap_dict[label] = cmap(ct / 20.)
                     ct += 1
-                    ax.bar(k, agg_df.iloc[k][queryType][label],
+                    ax.bar(k, loc[label],
                            width=0.75,
                            bottom=loc.iloc[0:i].sum(), label=label,
                            color=colors0[i])
                 else:
-                    ax.bar(k, agg_df.iloc[k][queryType][label],
+                    ax.bar(k, loc[label],
                            width=0.75,
                            bottom=loc.iloc[0:i].sum(), color=colors0[i])
     ax.legend(loc='center left', bbox_to_anchor=(1, 0.5), prop={'size': 4})
@@ -161,10 +168,17 @@ def makePlot_time(agg_df, lineages, times_df, interval, outputFn,
 
     df_abundances = pd.DataFrame()
     for i, sampLabel in enumerate(agg_df.index):
-        df_abundances = df_abundances.append(
-            pd.Series(agg_df.loc[sampLabel, queryType],
-                      name=times_df.loc[sampLabel,
-                                        'sample_collection_datetime']))
+        dat = agg_df.loc[sampLabel, queryType]
+        if isinstance(dat, list):
+            df_abundances = df_abundances.append(
+                pd.Series(agg_df.loc[sampLabel, queryType][0],
+                          name=times_df.loc[sampLabel,
+                                            'sample_collection_datetime']))
+        else:
+            df_abundances = df_abundances.append(
+                pd.Series(agg_df.loc[sampLabel, queryType],
+                          name=times_df.loc[sampLabel,
+                                            'sample_collection_datetime']))
     df_abundances = df_abundances.fillna(0)
     df_abundances = df_abundances.groupby(pd.Grouper(freq=interval)).mean()
     fig, ax = plt.subplots()
