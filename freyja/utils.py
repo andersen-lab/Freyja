@@ -219,10 +219,11 @@ if __name__ == '__main__':
     lineages = False
     output = 'data/test.pdf'
     # make basic plot, without time info
-    makePlot_simple(agg_df, lineages, output, [])
+    # makePlot_simple(agg_df, lineages, output, [])
     times_df = pd.read_csv('data/times_metadata.csv', index_col=0)
     times_df['sample_collection_datetime'] = \
         pd.to_datetime(times_df['sample_collection_datetime'])
     interval = 'D'
     windowSize = 14
-    # makePlot_time(agg_df, lineages, times_df, interval, output, windowSize, [])
+    makePlot_time(agg_df, lineages, times_df,
+                  interval, output, windowSize, [])
