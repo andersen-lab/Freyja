@@ -1,11 +1,14 @@
 import unittest
 import pandas as pd
 from freyja.utils import agg, prepLineageDict, prepSummaryDict
+import os
 
 
 class UtilsTests(unittest.TestCase):
     def test_agg(self):
-        agg_df = agg('freyja/data/outputs/')
+        results = 'freyja/data/outputs/'
+        agg_df = agg([results + fn
+                      for fn in os.listdir('freyja/data/outputs/')])
         # simple checks, since entries are still not parsed
         self.assertTrue('mixture.tsv' in agg_df.index)
         self.assertTrue('summarized' in agg_df.columns)
