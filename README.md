@@ -70,6 +70,11 @@ For rapid visualization of results, we also offer two utility methods for manipu
 ```
 freyja aggregate [directory-of-output-files] --output [aggregated-filename.tsv]
 ```
+We also now allow the user to specify a file extension of their choosing, using the ```--ext``` option (for example, for ```demix``` outputs called ```X.output```)
+
+```
+freyja aggregate [directory-of-output-files] --output [aggregated-filename.tsv] --ext output
+```
 This resulting aggregated data can analyzed directly as a tsv file, or can be visualized using
 
 ```
