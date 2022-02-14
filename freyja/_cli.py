@@ -9,6 +9,7 @@ from freyja.updates import download_tree, convert_tree,\
                            get_curated_lineage_data
 from freyja.utils import agg, makePlot_simple, makePlot_time
 import os
+import glob
 import subprocess
 import sys
 
@@ -143,10 +144,15 @@ def boot(variants, depths, output_base, eps, barcodes, meta, nb, nt):
 
 @cli.command()
 @click.argument('results', type=click.Path(exists=True))
+@click.option('--wildcard', default='-1', help='file extension option')
 @click.option('--output', default='aggregated_result.tsv', help='Output file',
               type=click.Path(exists=False))
-def aggregate(results, output):
-    df_demix = agg(results)
+def aggregate(results, wildcard, output):
+    if wildcard != '-1':
+        results_ = [fn for fn in glob.glob(results+'*'+wildcard)]
+    else:
+        results_ = [results + fn for fn in os.listdir(results)]
+    df_demix = agg(results_)
     df_demix.to_csv(output, sep='\t')
 
 

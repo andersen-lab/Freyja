@@ -1,14 +1,13 @@
 import matplotlib.pyplot as plt
 import pandas as pd
-import os
 import re
 import copy
 import matplotlib.dates as mdates
 
 
 def agg(results):
-    allResults = [pd.read_csv(results + fn, skipinitialspace=True, sep='\t',
-                              index_col=0) for fn in os.listdir(results)]
+    allResults = [pd.read_csv(fn, skipinitialspace=True, sep='\t',
+                              index_col=0) for fn in results]
     df_demix = pd.concat(allResults, axis=1).T
     df_demix.index = [x.split('/')[-1] for x in df_demix.index]
     return df_demix
