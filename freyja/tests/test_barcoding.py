@@ -45,7 +45,7 @@ class BarcodeTests(unittest.TestCase):
     def test_no_flip_pairs(self):
         df_barcodes = pd.read_csv('freyja/data/usher_barcodes.csv',
                                   index_col=0)
-        flipPairs = [(d, d[-1] + d[1:len(d)-1]+d[0]) 
+        flipPairs = [(d, d[-1] + d[1:len(d)-1]+d[0])
                      for d in df_barcodes.columns
                      if (d[-1] + d[1:len(d)-1]+d[0]) in df_barcodes.columns]
         self.assertTrue(len(flipPairs) == 0)
