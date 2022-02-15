@@ -1,4 +1,3 @@
-import numpy as np
 import pandas as pd
 import sys
 
@@ -53,16 +52,13 @@ def convert_to_barcodes(df):
 def reversion_checking(df_barcodes):
     print('checking for mutation pairs')
     # check if a reversion is present.
-    flips = [d[-1] + d[1:len(d)-1]+d[0] for d in df_barcodes.columns]
-    flipPairs = [d for d in df_barcodes.columns if d in flips]
-    flipPairs.sort(key=sortFun)
-    flipPairs = [[flipPairs[j], flipPairs[j+1]]
-                 for j in np.arange(0, len(flipPairs), 2)]
+    flipPairs = [(d, d[-1] + d[1:len(d)-1]+d[0]) for d in df_barcodes.columns
+                 if (d[-1] + d[1:len(d)-1]+d[0]) in df_barcodes.columns]
+    flipPairs = [list(fp) for fp in list(set(flipPairs))]
     # subtract lower of two pair counts to get the lineage defining mutations
     for fp in flipPairs:
         df_barcodes[fp] = df_barcodes[fp].subtract(df_barcodes[fp].min(axis=1),
                                                    axis=0)
-
     # drop all unused mutations (i.e. paired mutations with reversions)
     df_barcodes = df_barcodes.drop(
                 columns=df_barcodes.columns[df_barcodes.sum(axis=0) == 0])
@@ -75,5 +71,5 @@ if __name__ == '__main__':
     df = pd.read_csv(fn, sep='\t')
     df = parse_tree_paths(df)
     df_barcodes = convert_to_barcodes(df)
-    # df_barcodes = reversion_checking(df_barcodes)
+    df_barcodes = reversion_checking(df_barcodes)
     # df_barcodes.to_csv('data/usher_barcodes.csv')

@@ -42,6 +42,14 @@ class BarcodeTests(unittest.TestCase):
                                                  'T1234G': [1., 0., 0.]})
         pdt.assert_frame_equal(df_barcode_checked, df_barcode_checked_ideal)
 
+    def test_no_flip_pairs(self):
+        df_barcodes = pd.read_csv('freyja/data/usher_barcodes.csv',
+                                  index_col=0)
+        flipPairs = [(d, d[-1] + d[1:len(d)-1]+d[0])
+                     for d in df_barcodes.columns
+                     if (d[-1] + d[1:len(d)-1]+d[0]) in df_barcodes.columns]
+        self.assertTrue(len(flipPairs) == 0)
+
 
 if __name__ == '__main__':
     unittest.main()
