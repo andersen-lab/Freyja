@@ -62,14 +62,21 @@ def demix(variants, depths, output, eps, barcodes, meta):
 
 
 @cli.command()
-def update():
+@click.option('--outdir', default='-1', help='Output directory save updated files')
+def update(outdir):
+    locDir = os.path.abspath(os.path.join(os.path.realpath(__file__), os.pardir))
+    if outdir != '-1':
+        # User specified directory
+        locDir = outdir
+    else:
+        locDir = os.path.join(locDir, 'data')
     # get data from UShER
     print('Downloading a new global tree')
-    download_tree()
+    download_tree(locDir)
     print('Getting outbreak data')
-    get_curated_lineage_data()
+    get_curated_lineage_data(locDir)
     print("Converting tree info to barcodes")
-    convert_tree()  # returns paths for each lineage
+    convert_tree(locDir)  # returns paths for each lineage
     # Now parse into barcode form
     lineagePath = os.path.join(os.curdir, "lineagePaths.txt")
     print('Building barcodes from global phylogenetic tree')
@@ -77,11 +84,11 @@ def update():
     df = parse_tree_paths(df)
     df_barcodes = convert_to_barcodes(df)
     df_barcodes = reversion_checking(df_barcodes)
-    df_barcodes.to_csv(os.path.join(locDir, 'data/usher_barcodes.csv'))
+    df_barcodes.to_csv(os.path.join(locDir, 'usher_barcodes.csv'))
     # delete files generated along the way that aren't needed anymore
     print('Cleaning up')
     os.remove(lineagePath)
-    os.remove(os.path.join(locDir, "data/public-latest.all.masked.pb.gz"))
+    os.remove(os.path.join(locDir, "public-latest.all.masked.pb.gz"))
 
 
 @cli.command()
