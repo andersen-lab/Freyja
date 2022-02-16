@@ -62,9 +62,11 @@ def demix(variants, depths, output, eps, barcodes, meta):
 
 
 @cli.command()
-@click.option('--outdir', default='-1', help='Output directory save updated files')
+@click.option('--outdir', default='-1',
+              help='Output directory save updated files')
 def update(outdir):
-    locDir = os.path.abspath(os.path.join(os.path.realpath(__file__), os.pardir))
+    locDir = os.path.abspath(os.path.join(os.path.realpath(__file__),
+                                          os.pardir))
     if outdir != '-1':
         # User specified directory
         locDir = outdir

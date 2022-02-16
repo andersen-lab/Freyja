@@ -234,6 +234,7 @@ def perform_bootstrap(df_barcodes, mix, depths_,
                                                     for j in range(
                                                         len(localDict))},
                                                    ignore_index=True)
+    lin_df = lin_df.fillna(0)
     lin_out = lin_df.quantile([0.05, 0.25, 0.5, 0.75, 0.95])
     constell_out = constellation_df.quantile([0.05, 0.25, 0.5, 0.75, 0.95])
     return lin_out, constell_out
