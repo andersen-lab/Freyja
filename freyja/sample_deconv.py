@@ -32,9 +32,14 @@ def buildLineageMap(locDir):
 
 
 def build_mix_and_depth_arrays(fn, depthFn, muts):
-    df = pd.read_csv(fn, sep='\t')
-    df_depth = pd.read_csv(depthFn, sep='\t', header=None, index_col=1)
+    input_is_vcf = fn.lower().endswith('vcf')
+    if input_is_vcf:
+        df = read_snv_frequencies_vcf(fn, depthFn, muts)
+    else:
+        df = read_snv_frequencies_ivar(fn, depthFn, muts)
+
     # only works for substitutions, but that's what we get from usher tree
+    df_depth = pd.read_csv(depthFn, sep='\t', header=None, index_col=1)
     df['mutName'] = df['REF'] + df['POS'].astype(str) + df['ALT']
     df = df.drop_duplicates(subset='mutName')
     df.set_index('mutName', inplace=True)
@@ -43,10 +48,17 @@ def build_mix_and_depth_arrays(fn, depthFn, muts):
     mix.name = fn
     depths = pd.Series({kI: df_depth.loc[int(re.findall(r'\d+', kI)[0]), 3]
                         .astype(float) for kI in muts}, name=fn)
+
     return mix, depths
 
 
-def build_mix_and_depth_arrays_vcf(fn, depthFn, muts):
+def read_snv_frequencies_ivar(fn, depthFn, muts):
+    df = pd.read_csv(fn, sep='\t')
+    return df
+
+
+def read_snv_frequencies_vcf(fn, depthFn, muts):
+    vcfnames=[]
     with open(fn, "r") as file:
         for line in file:
             if line.startswith("#CHROM"):
@@ -57,27 +69,16 @@ def build_mix_and_depth_arrays_vcf(fn, depthFn, muts):
     df = pd.read_csv(fn, comment='#', delim_whitespace=True,
                      header=None,
                      names=vcfnames)
-
     vcf_info = df['INFO'].str.split(';', expand=True)
     for j in range(vcf_info.shape[1]):
         if vcf_info[j].str.split('=')[0] is not None:
             if vcf_info[j].str.split('=')[0][0] == 'AF':
-                df[vcf_info[j].str.split('=')[0][0]] = vcf_info[j].str\
-                                                                  .split('=')\
-                                                                  .str[1]\
-                                                                  .values\
-                                                                  .astype(
-                                                                   float)
-    df_depth = pd.read_csv(depthFn, sep='\t', header=None, index_col=1)
-    df['mutName'] = df['REF'] + df['POS'].astype(str) + df['ALT']
-    df = df.drop_duplicates(subset='mutName')
-    df.set_index('mutName', inplace=True)
-    keptInds = set(muts) & set(df.index)
-    mix = df.loc[keptInds, 'AF'].astype(float)
-    mix.name = fn
-    depths = pd.Series({kI: df_depth.loc[int(re.findall(r'\d+', kI)[0]), 3]
-                        .astype(float) for kI in muts}, name=fn)
-    return mix, depths
+                df["ALT_FREQ"] = vcf_info[j].str.split('=')\
+                                              .str[1]\
+                                              .values\
+                                              .astype(
+                                               float)
+    return df
 
 
 def reindex_dfs(df_barcodes, mix, depths):
@@ -226,14 +227,30 @@ def perform_bootstrap(df_barcodes, mix, depths_,
                                   for jj0 in tqdm(range(numBootstraps)))
     for i in range(len(out)):
         sample_lins, abundances, localDict = out[i]
-        lin_df = lin_df.append({sample_lins[j]: abundances[j]
-                               for j in range(len(sample_lins))},
-                               ignore_index=True)
-        constellation_df = constellation_df.append({localDict[j][0]:
-                                                    localDict[j][1]
-                                                    for j in range(
-                                                        len(localDict))},
-                                                   ignore_index=True)
+        lin_df = pd.concat([    lin_df,
+                                pd.DataFrame({  sample_lins[j]:
+                                                abundances[j]
+                                                    for j in range(len(sample_lins))
+                                             },
+                                    index=[0]
+                                )
+                            ],
+                    axis=0,
+                    join='outer',
+                    ignore_index=True
+                )
+        constellation_df = pd.concat([      constellation_df,
+                                            pd.DataFrame({localDict[j][0]:
+                                                          localDict[j][1]
+                                                            for j in range(len(localDict))
+                                                         },
+                                                index=[0]
+                                            )
+                                     ],
+                                axis=0,
+                                join='outer',
+                                ignore_index=True
+                            )
     lin_df = lin_df.fillna(0)
     lin_out = lin_df.quantile([0.05, 0.25, 0.5, 0.75, 0.95])
     constell_out = constellation_df.quantile([0.05, 0.25, 0.5, 0.75, 0.95])

@@ -4,7 +4,7 @@ from freyja.convert_paths2barcodes import parse_tree_paths,\
      convert_to_barcodes, reversion_checking
 from freyja.sample_deconv import buildLineageMap, build_mix_and_depth_arrays,\
     reindex_dfs, map_to_constellation, solve_demixing_problem,\
-    perform_bootstrap, build_mix_and_depth_arrays_vcf
+    perform_bootstrap
 from freyja.updates import download_tree, convert_tree,\
                            get_curated_lineage_data
 from freyja.utils import agg, makePlot_simple, makePlot_time
@@ -42,10 +42,7 @@ def demix(variants, depths, output, eps, barcodes, meta):
     mapDict = buildLineageMap(meta)
     print('building mix/depth matrices')
     # assemble data from (possibly) mixed samples
-    if variants.lower().endswith('vcf'):
-        mix, depths_ = build_mix_and_depth_arrays_vcf(variants, depths, muts)
-    else:
-        mix, depths_ = build_mix_and_depth_arrays(variants, depths, muts)
+    mix, depths_ = build_mix_and_depth_arrays(variants, depths, muts)
     print('demixing')
     df_barcodes, mix, depths_ = reindex_dfs(df_barcodes, mix, depths_)
     sample_strains, abundances, error = solve_demixing_problem(df_barcodes,
