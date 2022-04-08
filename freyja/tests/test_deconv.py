@@ -79,7 +79,8 @@ class DeconvTests(unittest.TestCase):
         n_jobs = 1
         lin_out, constell_out = perform_bootstrap(df_barcodes, mix, depths,
                                                   numBootstraps, eps,
-                                                  n_jobs, mapDict, muts)
+                                                  n_jobs, mapDict, muts,
+                                                  '', 'test')
         self.assertAlmostEqual(lin_out.loc[0.5, 'B.1.1.7'], 0.4, delta=0.1)
         self.assertAlmostEqual(constell_out.loc[0.5, 'Alpha'], 0.4, delta=0.1)
 
