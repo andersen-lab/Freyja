@@ -129,7 +129,8 @@ def variants(bamfile, ref, variants, depths, refname):
 @click.option('--meta', default='-1', help='custom lineage metadata file')
 @click.option('--output_base', default='test', help='Output file basename',
               type=click.Path(exists=False))
-def boot(variants, depths, output_base, eps, barcodes, meta, nb, nt):
+@click.option('--boxplot', default='',help='file format of boxplot output (e.g. pdf or png)')
+def boot(variants, depths, output_base, eps, barcodes, meta, nb, nt, boxplot):
     locDir = os.path.abspath(os.path.join(os.path.realpath(__file__),
                              os.pardir))
     # option for custom barcodes
@@ -146,7 +147,8 @@ def boot(variants, depths, output_base, eps, barcodes, meta, nb, nt):
     print('demixing')
     df_barcodes, mix, depths_ = reindex_dfs(df_barcodes, mix, depths_)
     lin_out, constell_out = perform_bootstrap(df_barcodes, mix, depths_,
-                                              nb, eps, nt, mapDict, muts)
+                                              nb, eps, nt, mapDict, muts,
+                                              boxplot, output_base)
     lin_out.to_csv(output_base + '_lineages.csv')
     constell_out.to_csv(output_base + '_summarized.csv')
 

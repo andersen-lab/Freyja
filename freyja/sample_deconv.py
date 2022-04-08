@@ -5,9 +5,10 @@ import sys
 import re
 import cvxpy as cp
 import os
+import matplotlib.pyplot as plt
 from joblib import Parallel, delayed
 from tqdm import tqdm
-
+import matplotlib
 
 def buildLineageMap(locDir):
     # Parsing curated lineage data from outbreak.info
@@ -192,7 +193,8 @@ def bootstrap_parallel(jj, samplesDefining, fracDepths_adj, mix_grp,
 
 
 def perform_bootstrap(df_barcodes, mix, depths_,
-                      numBootstraps, eps0, n_jobs, mapDict, muts):
+                      numBootstraps, eps0, n_jobs,
+                      mapDict, muts, boxplot, basename):
     depths_.index = depths_.index.to_series().apply(lambda x:
                                                     int(x[1:len(x)-1]))
     depths_ = depths_[~depths_.index.duplicated(keep='first')]
@@ -234,9 +236,28 @@ def perform_bootstrap(df_barcodes, mix, depths_,
                                                     for j in range(
                                                         len(localDict))},
                                                    ignore_index=True)
-    lin_df = lin_df.fillna(0)
-    lin_out = lin_df.quantile([0.05, 0.25, 0.5, 0.75, 0.95])
-    constell_out = constellation_df.quantile([0.05, 0.25, 0.5, 0.75, 0.95])
+    lin_out = lin_df.quantile([0.025,0.05, 0.25, 0.5, 0.75, 0.95,0.975])
+    constell_out = constellation_df.quantile([0.025,0.05, 0.25, 0.5, 0.75, 0.95,0.975])
+    if len(boxplot) > 0:
+        if boxplot == 'pdf':
+            matplotlib.rcParams['pdf.fonttype'] = 42
+            matplotlib.rcParams['ps.fonttype'] = 42
+        fig, ax = plt.subplots()
+        lin_df.boxplot(ax=ax, rot=90)
+        ax.set_ylim([0, 1])
+        ax.set_aspect(2)
+        ax.set_ylabel('Variant Prevalence')
+        fig.tight_layout()
+        fig.savefig(basename+'_lineages.'+boxplot)
+
+        fig, ax = plt.subplots()
+        constellation_df.boxplot(ax=ax, rot=90)
+        ax.set_ylim([0, 1])
+        ax.set_aspect(2)
+        ax.set_ylabel('Variant Prevalence')
+        fig.tight_layout()
+        fig.savefig(basename+'_summarized.'+boxplot)
+
     return lin_out, constell_out
 
 
