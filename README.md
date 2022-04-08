@@ -58,7 +58,7 @@ By default, this method ships with an existing "data/usher_barcodes.csv" file fo
 ```
 freyja update
 ```
-which downloads new versions of the curated lineage file as well as the UShER global phylogenetic [tree](http://hgdownload.soe.ucsc.edu/goldenPath/wuhCor1/UShER_SARS-CoV-2/), which is subsequently converted into barcodes and saved in "data/usher_barcodes.csv".
+which downloads new versions of the curated lineage file as well as the UShER global phylogenetic [tree](http://hgdownload.soe.ucsc.edu/goldenPath/wuhCor1/UShER_SARS-CoV-2/), which is subsequently converted into barcodes and saved in "data/usher_barcodes.csv". The ```--outdir``` option can be used to specify a local directory to store the lineage mapping and barcode files. 
 
 We now provide a fast bootstrapping method for freyja, which can be run using the command
 

@@ -129,7 +129,8 @@ def variants(bamfile, ref, variants, depths, refname):
 @click.option('--meta', default='-1', help='custom lineage metadata file')
 @click.option('--output_base', default='test', help='Output file basename',
               type=click.Path(exists=False))
-@click.option('--boxplot', default='',help='file format of boxplot output (e.g. pdf or png)')
+@click.option('--boxplot', default='',
+              help='file format of boxplot output (e.g. pdf or png)')
 def boot(variants, depths, output_base, eps, barcodes, meta, nb, nt, boxplot):
     locDir = os.path.abspath(os.path.join(os.path.realpath(__file__),
                              os.pardir))
