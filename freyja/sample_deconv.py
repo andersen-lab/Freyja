@@ -60,7 +60,7 @@ def read_snv_frequencies_ivar(fn, depthFn, muts):
 
 
 def read_snv_frequencies_vcf(fn, depthFn, muts):
-    vcfnames=[]
+    vcfnames = []
     with open(fn, "r") as file:
         for line in file:
             if line.startswith("#CHROM"):
@@ -230,30 +230,19 @@ def perform_bootstrap(df_barcodes, mix, depths_,
                                   for jj0 in tqdm(range(numBootstraps)))
     for i in range(len(out)):
         sample_lins, abundances, localDict = out[i]
-        lin_df = pd.concat([    lin_df,
-                                pd.DataFrame({  sample_lins[j]:
-                                                abundances[j]
-                                                    for j in range(len(sample_lins))
-                                             },
-                                    index=[0]
-                                )
-                            ],
-                    axis=0,
-                    join='outer',
-                    ignore_index=True
-                )
-        constellation_df = pd.concat([      constellation_df,
-                                            pd.DataFrame({localDict[j][0]:
-                                                          localDict[j][1]
-                                                            for j in range(len(localDict))
-                                                         },
-                                                index=[0]
-                                            )
-                                     ],
-                                axis=0,
-                                join='outer',
-                                ignore_index=True
-                            )
+        lin_df = pd.concat([lin_df,
+                           pd.DataFrame({sample_lins[j]:
+                                         abundances[j]
+                                        for j in range(len(sample_lins))},
+                                        index=[0])], axis=0, join='outer',
+                           ignore_index=True)
+        constellation_df = pd.concat([constellation_df,
+                                     pd.DataFrame({localDict[j][0]:
+                                                   localDict[j][1]
+                                                   for j in range(
+                                                   len(localDict))},
+                                                  index=[0])], axis=0,
+                                     join='outer', ignore_index=True)
     lin_df = lin_df.fillna(0)
     constellation_df = constellation_df.fillna(0)
     lin_out = lin_df.quantile([0.025, 0.05, 0.25, 0.5, 0.75, 0.95, 0.975])
