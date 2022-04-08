@@ -236,6 +236,7 @@ def perform_bootstrap(df_barcodes, mix, depths_,
                                                     for j in range(
                                                         len(localDict))},
                                                    ignore_index=True)
+<<<<<<< HEAD
     lin_out = lin_df.quantile([0.025,0.05, 0.25, 0.5, 0.75, 0.95,0.975])
     constell_out = constellation_df.quantile([0.025,0.05, 0.25, 0.5, 0.75, 0.95,0.975])
     if len(boxplot) > 0:
@@ -258,6 +259,11 @@ def perform_bootstrap(df_barcodes, mix, depths_,
         fig.tight_layout()
         fig.savefig(basename+'_summarized.'+boxplot)
 
+=======
+    lin_df = lin_df.fillna(0)
+    lin_out = lin_df.quantile([0.05, 0.25, 0.5, 0.75, 0.95])
+    constell_out = constellation_df.quantile([0.05, 0.25, 0.5, 0.75, 0.95])
+>>>>>>> main
     return lin_out, constell_out
 
 
