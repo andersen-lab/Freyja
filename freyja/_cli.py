@@ -1,8 +1,7 @@
 import click
 import pandas as pd
 from freyja.convert_paths2barcodes import parse_tree_paths,\
-     convert_to_barcodes, reversion_checking, \
-     identify_chains, check_mutation_chain
+     convert_to_barcodes, reversion_checking, check_mutation_chain
 from freyja.sample_deconv import buildLineageMap, build_mix_and_depth_arrays,\
     reindex_dfs, map_to_constellation, solve_demixing_problem,\
     perform_bootstrap
