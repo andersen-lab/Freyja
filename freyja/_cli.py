@@ -1,7 +1,7 @@
 import click
 import pandas as pd
 from freyja.convert_paths2barcodes import parse_tree_paths,\
-     convert_to_barcodes, reversion_checking
+     convert_to_barcodes, reversion_checking, check_mutation_chain
 from freyja.sample_deconv import buildLineageMap, build_mix_and_depth_arrays,\
     reindex_dfs, map_to_constellation, solve_demixing_problem,\
     perform_bootstrap
@@ -84,6 +84,7 @@ def update(outdir):
     df = parse_tree_paths(df)
     df_barcodes = convert_to_barcodes(df)
     df_barcodes = reversion_checking(df_barcodes)
+    df_barcodes = check_mutation_chain(df_barcodes)
     df_barcodes.to_csv(os.path.join(locDir, 'usher_barcodes.csv'))
     # delete files generated along the way that aren't needed anymore
     print('Cleaning up')
