@@ -33,7 +33,7 @@ def buildLineageMap(locDir):
     return mapDict
 
 
-def build_mix_and_depth_arrays(fn, depthFn, muts):
+def build_mix_and_depth_arrays(fn, depthFn, muts, covcut):
     input_is_vcf = fn.lower().endswith('vcf')
     if input_is_vcf:
         df = read_snv_frequencies_vcf(fn, depthFn, muts)
@@ -50,8 +50,8 @@ def build_mix_and_depth_arrays(fn, depthFn, muts):
     mix.name = fn
     depths = pd.Series({kI: df_depth.loc[int(re.findall(r'\d+', kI)[0]), 3]
                         .astype(float) for kI in muts}, name=fn)
-
-    return mix, depths
+    coverage = 100.*np.sum(df_depth.loc[:, 3] >= covcut)/df_depth.shape[0]
+    return mix, depths, coverage
 
 
 def read_snv_frequencies_ivar(fn, depthFn, muts):
@@ -287,7 +287,7 @@ if __name__ == '__main__':
     mapDict = buildLineageMap()
     print('building mix/depth matrices')
     # assemble data from of (possibly) mixed samples
-    mix, depths_ = build_mix_and_depth_arrays(variants, depths, muts)
+    mix, depths_, cov = build_mix_and_depth_arrays(variants, depths, muts)
     print('demixing')
     df_barcodes, mix, depths_ = reindex_dfs(df_barcodes, mix, depths_)
     sample_strains, abundances, error = solve_demixing_problem(df_barcodes,
