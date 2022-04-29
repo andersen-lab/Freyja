@@ -17,7 +17,7 @@ locDir = os.path.abspath(os.path.join(os.path.realpath(__file__), os.pardir))
 
 
 @click.group()
-@click.version_option('1.3.5')
+@click.version_option('1.3.6')
 def cli():
     pass
 
@@ -30,7 +30,11 @@ def cli():
 @click.option('--meta', default='-1', help='custom lineage metadata file')
 @click.option('--output', default='demixing_result.csv', help='Output file',
               type=click.Path(exists=False))
-def demix(variants, depths, output, eps, barcodes, meta):
+@click.option('--covcut', default=10, help='depth cutoff for\
+                                            coverage estimate')
+@click.option('--confirmedonly', is_flag=True, default=False)
+def demix(variants, depths, output, eps, barcodes, meta,
+          covcut, confirmedonly):
     locDir = os.path.abspath(os.path.join(os.path.realpath(__file__),
                              os.pardir))
     # option for custom barcodes
@@ -39,11 +43,17 @@ def demix(variants, depths, output, eps, barcodes, meta):
     else:
         df_barcodes = pd.read_csv(os.path.join(locDir,
                                   'data/usher_barcodes.csv'), index_col=0)
+    if confirmedonly:
+        confirmed = [dfi for dfi in df_barcodes.index
+                     if 'proposed' not in dfi and 'misc' not in dfi]
+        df_barcodes = df_barcodes.loc[confirmed, :]
+
     muts = list(df_barcodes.columns)
     mapDict = buildLineageMap(meta)
     print('building mix/depth matrices')
     # assemble data from (possibly) mixed samples
-    mix, depths_ = build_mix_and_depth_arrays(variants, depths, muts)
+    mix, depths_, cov = build_mix_and_depth_arrays(variants, depths, muts,
+                                                   covcut)
     print('demixing')
     df_barcodes, mix, depths_ = reindex_dfs(df_barcodes, mix, depths_)
     sample_strains, abundances, error = solve_demixing_problem(df_barcodes,
@@ -52,9 +62,10 @@ def demix(variants, depths, output, eps, barcodes, meta):
                                                                eps)
     localDict = map_to_constellation(sample_strains, abundances, mapDict)
     # assemble into series and write.
-    sols_df = pd.Series(data=(localDict, sample_strains, abundances, error),
+    sols_df = pd.Series(data=(localDict, sample_strains, abundances,
+                              error, cov),
                         index=['summarized', 'lineages',
-                        'abundances', 'resid'],
+                        'abundances', 'resid', 'coverage'],
                         name=mix.name)
     sols_df.to_csv(output, sep='\t')
 
@@ -130,7 +141,9 @@ def variants(bamfile, ref, variants, depths, refname):
               type=click.Path(exists=False))
 @click.option('--boxplot', default='',
               help='file format of boxplot output (e.g. pdf or png)')
-def boot(variants, depths, output_base, eps, barcodes, meta, nb, nt, boxplot):
+@click.option('--confirmedonly', is_flag=True, default=False)
+def boot(variants, depths, output_base, eps, barcodes, meta,
+         nb, nt, boxplot, confirmedonly):
     locDir = os.path.abspath(os.path.join(os.path.realpath(__file__),
                              os.pardir))
     # option for custom barcodes
@@ -139,11 +152,18 @@ def boot(variants, depths, output_base, eps, barcodes, meta, nb, nt, boxplot):
     else:
         df_barcodes = pd.read_csv(os.path.join(locDir,
                                   'data/usher_barcodes.csv'), index_col=0)
+    if confirmedonly:
+        confirmed = [dfi for dfi in df_barcodes.index
+                     if 'proposed' not in dfi and 'misc' not in dfi]
+        df_barcodes = df_barcodes.loc[confirmed, :]
+
     muts = list(df_barcodes.columns)
     mapDict = buildLineageMap(meta)
     print('building mix/depth matrices')
     # assemble data from (possibly) mixed samples
-    mix, depths_ = build_mix_and_depth_arrays(variants, depths, muts)
+    covcut = 10  # set value, coverage estimate not returned to user from boot
+    mix, depths_, cov = build_mix_and_depth_arrays(variants, depths, muts,
+                                                   covcut)
     print('demixing')
     df_barcodes, mix, depths_ = reindex_dfs(df_barcodes, mix, depths_)
     lin_out, constell_out = perform_bootstrap(df_barcodes, mix, depths_,

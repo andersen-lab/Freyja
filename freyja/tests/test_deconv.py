@@ -20,7 +20,9 @@ class DeconvTests(unittest.TestCase):
         muts = list(df_barcodes.columns)
         varFn = 'freyja/data/mixture.tsv'
         depthFn = 'freyja/data/mixture.depth'
-        mix, depths = build_mix_and_depth_arrays(varFn, depthFn, muts)
+        covcut = 10
+        mix, depths, cov = build_mix_and_depth_arrays(varFn, depthFn, muts,
+                                                      covcut)
         # just making sure the files we've read in are ready for use
         self.assertTrue(ptypes.is_float_dtype(mix))
         self.assertTrue(ptypes.is_float_dtype(depths))

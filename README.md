@@ -39,7 +39,7 @@ We can then run Freyja on the output files using the commmand:
 ```
 freyja demix [variants-file] [depth-file] --output [output-file]
 ```
-This outputs to a tsv file that includes the lineages present, their corresponding abundances, and summarization by constellation. This method also includes a `--eps` option, which enables the user to define the minimum lineage abundance returned to the user (e.g. `--eps 0.0001`). A custom barcode file can be provided using the `--barcodes [path-to-barcode-file]` option. For additional flexibility and reproducibility of analyses, a custom lineage-to-contellation mapping metadata file can be provided using the `--meta` option. An example output should have the format
+This outputs to a tsv file that includes the lineages present, their corresponding abundances, and summarization by constellation. This method also includes a `--eps` option, which enables the user to define the minimum lineage abundance returned to the user (e.g. `--eps 0.0001`). A custom barcode file can be provided using the `--barcodes [path-to-barcode-file]` option. As the UShER tree now included proposed lineages, we now offer the ```--confirmedonly``` flag which removes unconfirmed lineages from the analysis. For additional flexibility and reproducibility of analyses, a custom lineage-to-contellation mapping metadata file can be provided using the `--meta` option. An example output should have the format
 
 
 |       | filename |
@@ -48,8 +48,9 @@ This outputs to a tsv file that includes the lineages present, their correspondi
 | lineages   | ['B.1.617.2' 'B.1.2' 'AY.6' 'Q.3']       |
 | abundances   | "[0.5 0.25 0.15 0.1]"|
 | resid   | 3.14159        |
+| coverage   | 95.8        |
 
-Where ```summarized``` denotes a sum of all lineage abundances in a particular WHO designation (i.e. B.1.617.2 and AY.6 abundances are summed in the above example), otherwise they are grouped into "Other". The ```lineage``` array lists the identified lineages in descending order, and  ```abundances``` contains the corresponding abundances estimates. The value of ```resid``` corresponds to the residual of the weighted least absolute devation problem used to estimate lineage abundances. 
+Where ```summarized``` denotes a sum of all lineage abundances in a particular WHO designation (i.e. B.1.617.2 and AY.6 abundances are summed in the above example), otherwise they are grouped into "Other". The ```lineage``` array lists the identified lineages in descending order, and  ```abundances``` contains the corresponding abundances estimates. The value of ```resid``` corresponds to the residual of the weighted least absolute devation problem used to estimate lineage abundances. The ```coverage``` value provides the 10x coverage estimate (percent of sites with 10 or greater reads- 10 is the default but can be modfied using the ```--covcut``` option in ```demix```). 
 
 ---
 ### Additional options
