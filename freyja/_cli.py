@@ -1,13 +1,14 @@
 import click
 import pandas as pd
 from freyja.convert_paths2barcodes import parse_tree_paths,\
-     convert_to_barcodes, reversion_checking, check_mutation_chain
+    convert_to_barcodes, reversion_checking, check_mutation_chain
 from freyja.sample_deconv import buildLineageMap, build_mix_and_depth_arrays,\
     reindex_dfs, map_to_constellation, solve_demixing_problem,\
     perform_bootstrap
 from freyja.updates import download_tree, convert_tree,\
-                           get_curated_lineage_data
-from freyja.utils import agg, makePlot_simple, makePlot_time
+    get_curated_lineage_data
+from freyja.utils import agg, makePlot_simple, makePlot_time,\
+    make_dashboard
 import os
 import glob
 import subprocess
@@ -67,6 +68,10 @@ def demix(variants, depths, output, eps, barcodes, meta,
                         index=['summarized', 'lineages',
                         'abundances', 'resid', 'coverage'],
                         name=mix.name)
+    # convert lineage/abundance readouts to single line strings
+    sols_df['lineages'] = ' '.join(sols_df['lineages'])
+    sols_df['abundances'] = ['%.8f' % ab for ab in sols_df['abundances']]
+    sols_df['abundances'] = ' '.join(sols_df['abundances'])
     sols_df.to_csv(output, sep='\t')
 
 
@@ -213,6 +218,29 @@ def plot(agg_results, lineages, times, interval, output, windowsize, colors):
             pd.to_datetime(times_df['sample_collection_datetime'])
         makePlot_time(agg_df, lineages, times_df, interval, output,
                       windowsize, colors0)
+
+
+@cli.command()
+@click.argument('agg_results', type=click.Path(exists=True))
+@click.argument('metadata', type=click.Path(exists=True))
+@click.argument('title', type=click.Path(exists=True))
+@click.argument('intro', type=click.Path(exists=True))
+@click.option('--thresh', default=0.01, help='min lineage abundance included')
+@click.option('--headerColor', default='mediumpurple', help='color of header')
+@click.option('--output', default='mydashboard.html', help='Output html file')
+def dash(agg_results, metadata, title, intro, thresh, headercolor, output):
+    agg_df = pd.read_csv(agg_results, skipinitialspace=True, sep='\t',
+                         index_col=0)
+    meta_df = pd.read_csv(metadata, index_col=0)
+    meta_df['sample_collection_datetime'] = \
+        pd.to_datetime(meta_df['sample_collection_datetime'])
+    # read in inputs
+    with open(title, "r") as f:
+        titleText = ''.join(f.readlines())
+    with open(intro, "r") as f:
+        introText = ''.join(f.readlines())
+    make_dashboard(agg_df, meta_df, thresh, titleText, introText,
+                   output, headercolor)
 
 
 if __name__ == '__main__':

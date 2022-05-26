@@ -11,3 +11,4 @@ samtools
 usher
 matplotlib
 joblib
+plotly
