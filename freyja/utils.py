@@ -3,6 +3,9 @@ import pandas as pd
 import re
 import copy
 import matplotlib.dates as mdates
+import plotly.graph_objects as go
+import plotly.express as px
+import os
 
 
 def agg(results):
@@ -225,18 +228,305 @@ def makePlot_time(agg_df, lineages, times_df, interval, outputFn,
                and Monthly (MS) time plots.')
 
 
+def make_dashboard(agg_df, meta_df, thresh, title, introText,
+                   outputFn, headerColor):
+    # beta version of dash output
+    agg_df = prepLineageDict(agg_df)
+    agg_df = prepSummaryDict(agg_df)
+
+    # collect lineage data
+    df_ab_lin = pd.DataFrame()
+    for i, sampLabel in enumerate(agg_df.index):
+        dat = agg_df.loc[sampLabel, 'linDict']
+        if isinstance(dat, list):
+            df_ab_lin = df_ab_lin.append(
+                pd.Series(agg_df.loc[sampLabel, 'linDict'][0],
+                          name=meta_df.loc[sampLabel,
+                                           'sample_collection_datetime']))
+        else:
+            df_ab_lin = df_ab_lin.append(
+                pd.Series(agg_df.loc[sampLabel, 'linDict'],
+                          name=meta_df.loc[sampLabel,
+                                           'sample_collection_datetime']))
+
+    df_ab_lin = df_ab_lin.fillna(0)
+    for col in df_ab_lin.columns:
+        if col != 'Other':
+            if df_ab_lin[col].sum() <= thresh:
+                df_ab_lin['Other'] += df_ab_lin[col]
+                df_ab_lin = df_ab_lin.drop(labels=[col], axis=1)
+
+    cols0 = [c0 for c0 in df_ab_lin.columns
+             if c0 != 'Other'] + ['Other']
+    df_ab_lin = df_ab_lin[cols0]
+    df_ab_lin = 100. * df_ab_lin
+
+    # collect VOC summarized data
+    df_ab_sum = pd.DataFrame()
+    for i, sampLabel in enumerate(agg_df.index):
+        dat = agg_df.loc[sampLabel, 'summarized']
+        if isinstance(dat, list):
+            df_ab_sum = df_ab_sum.append(
+                pd.Series(agg_df.loc[sampLabel, 'summarized'][0],
+                          name=meta_df.loc[sampLabel,
+                                           'sample_collection_datetime']))
+        else:
+            df_ab_sum = df_ab_sum.append(
+                pd.Series(agg_df.loc[sampLabel, 'summarized'],
+                          name=meta_df.loc[sampLabel,
+                                           'sample_collection_datetime']))
+
+    df_ab_sum = df_ab_sum.fillna(0)
+    for col in df_ab_sum.columns:
+        # TODO: expand to sum values not in top N lineages, etc.
+        if col != 'Other':
+            if df_ab_sum[col].sum() <= thresh:
+                df_ab_sum['Other'] += 1.0 * df_ab_sum[col]
+                df_ab_sum = df_ab_sum.drop(labels=[col], axis=1)
+
+    cols0 = [c0 for c0 in df_ab_sum.columns
+             if c0 != 'Other'] + ['Other']
+    df_ab_sum = df_ab_sum[cols0]
+    df_ab_sum = 100. * df_ab_sum.fillna(0)
+    # df_abundances = df_abundances.groupby(pd.Grouper(freq=interval)).mean()
+    # fig, ax = plt.subplots()
+    # if interval == 'D':
+    #     df_abundances = df_abundances.rolling(windowSize, center=True,
+    #                                           min_periods=0).mean()
+    meta_df = meta_df.set_index('sample_collection_datetime')
+    fig = go.Figure()
+    for j, col in enumerate(df_ab_lin.columns):
+
+        fig.add_trace(go.Scatter(
+            x=df_ab_lin.index, y=df_ab_lin[col],
+            hoverinfo='x+y',
+            name=col,
+            mode='markers+lines',
+            hovertemplate="%{y:.1f}%",
+            line=dict(width=0.5, color=px.colors.qualitative.Vivid[j]),
+            visible=False,
+            stackgroup='one'
+        ))
+
+    for j, col in enumerate(df_ab_sum.columns):
+
+        fig.add_trace(go.Scatter(
+            x=df_ab_sum.index, y=df_ab_sum[col],
+            hoverinfo='x+y',
+            name=col,
+            mode='markers+lines',
+            hovertemplate="%{y:.1f}%",
+            line=dict(width=0.5, color=px.colors.qualitative.Pastel[j]),
+            visible=True,
+            stackgroup='one',
+        ))
+    fig.add_trace(go.Scatter(
+        x=meta_df.index, y=meta_df['viral_load'],
+        hoverinfo='x+y',
+        mode='markers+lines',
+        hovertemplate="%{y:.1f} copies/L",
+        line=dict(width=1.25, color='blue'),
+        visible=False,
+    ))
+    # load scaled abundances
+    df_ab_lin_s = df_ab_lin.multiply(meta_df.viral_load,
+                                     axis=0) / 100.
+    for j, col in enumerate(df_ab_lin_s.columns):
+
+        fig.add_trace(go.Scatter(
+            x=df_ab_lin_s.index, y=df_ab_lin_s[col],
+            hoverinfo='x+y',
+            name=col,
+            mode='markers+lines',
+            hovertemplate="%{y:.1f} copies/L",
+            line=dict(width=0.5, color=px.colors.qualitative.Vivid[j]),
+            visible=False,
+            stackgroup='one'
+        ))
+    df_ab_sum_s = df_ab_sum.multiply(meta_df.viral_load,
+                                     axis=0) / 100.
+    for j, col in enumerate(df_ab_sum_s.columns):
+
+        fig.add_trace(go.Scatter(
+            x=df_ab_sum_s.index, y=df_ab_sum_s[col],
+            hoverinfo='x+y',
+            name=col,
+            mode='markers+lines',
+            hovertemplate="%{y:.1f} copies/L",
+            line=dict(width=0.5, color=px.colors.qualitative.Pastel[j]),
+            visible=False,
+            stackgroup='one'
+        ))
+    fig.update_layout(updatemenus=[dict(type="buttons",
+                      direction='right',
+                      active=0,
+                      bgcolor='lightskyblue',
+                      x=0.85,
+                      y=1.07,
+                      buttons=list([
+                                   dict(label="VOC Summary",
+                                        method="update",
+                                        args=[{
+                                             "visible":
+                                             [False] * df_ab_lin.shape[1] +
+                                             [True] * df_ab_sum.shape[1] +
+                                             [False] +
+                                             [False] * df_ab_lin_s.shape[1] +
+                                             [False] * df_ab_sum_s.shape[1]},
+                                            {"yaxis": {"title":
+                                             'VOC Prevalence',
+                                                       "ticksuffix": '%',
+                                                       "range": [0, 100]}}]),
+                                   dict(label="Lineages",
+                                        method="update",
+                                        args=[{
+                                              "visible":
+                                              [True] * df_ab_lin.shape[1] +
+                                              [False] * df_ab_sum.shape[1] +
+                                              [False] +
+                                              [False] * df_ab_lin_s.shape[1] +
+                                              [False] * df_ab_sum_s.shape[1]},
+                                              {"yaxis": {"title":
+                                               'Lineage Prevalence',
+                                                         "ticksuffix": '%',
+                                                         "range": [0, 100]}}]),
+                                   dict(label="Viral Load",
+                                        method="update",
+                                        args=[{
+                                              "visible":
+                                              [False] * df_ab_lin.shape[1] +
+                                              [False] * df_ab_sum.shape[1] +
+                                              [True] +
+                                              [False] * df_ab_lin_s.shape[1] +
+                                              [False] * df_ab_sum_s.shape[1]},
+                                              {"yaxis": {"title":
+                                                         'Virus copies/L',
+                                                         "range":
+                                                         [0,
+                                                          meta_df['viral_load']
+                                                          .max() * 1.1]}}]),
+                                   dict(
+                                       label="Load Scaled Summary",
+                                       method="update",
+                                       args=[{
+                                              "visible":
+                                              [False] * df_ab_lin.shape[1] +
+                                              [False] * df_ab_sum.shape[1] +
+                                              [False] +
+                                              [False] * df_ab_lin_s.shape[1] +
+                                              [True] * df_ab_sum_s.shape[1]},
+                                             {"yaxis": {"title":
+                                              'Variant copies/L',
+                                                        "range":
+                                                        [0,
+                                                         meta_df['viral_load']
+                                                         .max() * 1.1]}}]),
+                                   dict(
+                                       label="Load Scaled Lineages",
+                                       method="update",
+                                       args=[{
+                                              "visible":
+                                              [False] * df_ab_lin.shape[1] +
+                                              [False] * df_ab_sum.shape[1] +
+                                              [False] +
+                                              [True] * df_ab_lin_s.shape[1] +
+                                              [False] * df_ab_sum_s.shape[1]},
+                                             {"yaxis": {"title":
+                                                        'Lineage copies/L',
+                                                        "range":
+                                                        [0,
+                                                         meta_df['viral_load']
+                                                         .max() * 1.1]}}])]))],
+                      template="plotly_white",
+                      hovermode="x unified",
+                      xaxis=dict(hoverformat="%B %d, %Y"),
+                      legend=dict(yanchor="top",
+                                  y=0.99,
+                                  xanchor="right",
+                                  x=1.1,
+                                  itemsizing='constant'))
+
+    fig.update_layout(yaxis_title='VOC Prevalence',
+                      yaxis_ticksuffix="%",
+                      yaxis_range=[0, 100.],
+                      width=1000,
+                      height=600)
+    fig.update_layout(margin=dict(b=0, t=10))
+
+    fig.update_xaxes(dtick="6.048e+8", tickformat="%b %d", mirror=True,
+                     showline=False, ticks="", showgrid=False)
+    # generate plot as a div, to combine with additional html/css
+    fig.write_html("div-plot.html", full_html=False, default_width='50%',
+                   config={'displaylogo': False, 'displayModeBar': False})
+    # now assemble into a web page
+    header = "<html>\n \
+              <head><meta charset='utf-8' /></head>\n\
+              <body>\n\
+              <style>\n\
+              h1 {background: " + headerColor + "; color: white; height: 62px;\n\
+                  font-family:  font-family: 'Helvetica Neue', sans-serif;\n\
+                   font-size: 50px; font-weight: bold;}\n\
+              h2 {background: mediumpurple; font-size: 24px; color: white;\n\
+                  font-family:  font-family: 'Open Sans', sans-serif;}\n\
+              p {font-family: sans-serif}\n\
+              </style>\n\
+              <div class='header' align='center'> \n\
+              <h1>" + title + "</h1> \n\
+              <p>" + introText + "</p> \n\
+              </div>\n"
+    bottom = "</body> \n\
+                <p align='right'>\
+                <img src='https://tinyurl.com/freyjaLogo' \
+                alt='Freyja logo' width=100 height=100> </p>\n\
+                <p align='right'> Made with\
+                <a href= https://github.com/andersen-lab/Freyja> Freyja </a>\
+                </p>\n\
+                <hr>\n\
+                </html>"
+
+    centereddiv = "<div align='center'><script type=\
+                  'text/javascript'>window.PlotlyConfig =\
+                  {MathJaxConfig: 'local'};</script>"
+
+    filenames = ['div-plot.html']
+    with open(outputFn, 'w') as outfile:
+        outfile.write(header)
+        for fname in filenames:
+            with open(fname) as infile:
+                for j, line in enumerate(infile):
+                    if j == 0:
+                        outfile.write(centereddiv)
+                    else:
+                        outfile.write(line)
+        outfile.write(bottom)
+    os.remove('div-plot.html')
+
+
 if __name__ == '__main__':
-    agg_results = 'data/agg_outputs.tsv'
+    agg_results = 'data/test_sweep.tsv'
     agg_df = pd.read_csv(agg_results, skipinitialspace=True, sep='\t',
                          index_col=0)
-    lineages = False
-    output = 'data/test.pdf'
+    lineages = True
+    # output = 'data/test.pdf'
     # make basic plot, without time info
     # makePlot_simple(agg_df, lineages, output, [])
-    times_df = pd.read_csv('data/times_metadata.csv', index_col=0)
-    times_df['sample_collection_datetime'] = \
-        pd.to_datetime(times_df['sample_collection_datetime'])
+    # times_df = pd.read_csv('data/times_metadata.csv', index_col=0)
+    # times_df['sample_collection_datetime'] = \
+    #     pd.to_datetime(times_df['sample_collection_datetime'])
     interval = 'D'
     windowSize = 14
-    makePlot_time(agg_df, lineages, times_df,
-                  interval, output, windowSize, [])
+    # # makePlot_time(agg_df, lineages, times_df,
+    # #               interval, output, windowSize, [])
+    meta_df = pd.read_csv('data/sweep_metadata.csv', index_col=0)
+    meta_df['sample_collection_datetime'] = \
+        pd.to_datetime(meta_df['sample_collection_datetime'])
+    thresh = 0.01
+    # read in inputs
+    with open("data/title.txt", "r") as f:
+        title = ''.join(f.readlines())
+    with open("data/introContent.txt", "r") as f:
+        introText = ''.join(f.readlines())
+    outputFn = 'tester0.html'
+    headerColor = 'mediumpurple'
+    make_dashboard(agg_df, meta_df, thresh, title,
+                   introText, outputFn, headerColor)
