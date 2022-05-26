@@ -100,3 +100,19 @@ When using the `--interval D` option, the `--windowsize NN` should also be speci
 |**Month binning** | **Daily binning (with smoothing)**|
 |     :---:      |     :---:      |
 |![Monthly](freyja/data/test2.png) | ![Daily-Smoothed](freyja/data/test.png)|
+
+
+We are now providing functionality to rapidly prepare a dashboard web page, directly from aggregated freyja output. This can be done with the command
+
+```
+freyja dash [aggregated-filename-tsv] [sample-metadata.csv] [dashboard-title.txt] [introContent.txt] --output [outputname.html]
+```
+where the metadata file should have this [form](freyja/data/sweep_metadata.csv). See example [title](freyja/data/title.txt) and [intro-text](freyja/data/introContent.txt) files as well. The header color can be changed with the ```--headerColor [mycolorname]``` option. The resulting dashboard will look like this:
+<iframe 
+  width="660"
+  height="375"
+  src="freyja/data/test0.html"
+  frameborder="0"
+  allowfullscreen>
+</iframe>
+
