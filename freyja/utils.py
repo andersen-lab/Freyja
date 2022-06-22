@@ -296,6 +296,7 @@ def make_dashboard(agg_df, meta_df, thresh, title, introText,
     #                                           min_periods=0).mean()
     meta_df = meta_df.set_index('sample_collection_datetime')
     meta_df = meta_df.groupby('sample_collection_datetime').mean().sort_index()
+    dates_to_keep = meta_df.index[~meta_df['viral_load'].isna()]
     df_ab_sum = df_ab_sum.groupby(level=0).mean()
     df_ab_sum = df_ab_sum.sort_index()
     df_ab_lin = df_ab_lin.groupby(level=0).mean().sort_index()
@@ -336,6 +337,11 @@ def make_dashboard(agg_df, meta_df, thresh, title, introText,
             visible=True,
             stackgroup='one',
         ))
+    # if needed, drop dates with missing viral load metadata
+    if len(dates_to_keep) < meta_df.shape[0]:
+        meta_df = meta_df.loc[dates_to_keep]
+        df_ab_sum = df_ab_sum.loc[dates_to_keep]
+        df_ab_lin = df_ab_lin.loc[dates_to_keep]
     fig.add_trace(go.Scatter(
         x=meta_df.index, y=meta_df['viral_load'],
         hoverinfo='x+y',
@@ -344,6 +350,7 @@ def make_dashboard(agg_df, meta_df, thresh, title, introText,
         line=dict(width=1.25, color='blue'),
         visible=False,
     ))
+
     # load scaled abundances
     df_ab_lin_s = df_ab_lin.multiply(meta_df.viral_load,
                                      axis=0) / 100.
