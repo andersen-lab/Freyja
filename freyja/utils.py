@@ -6,6 +6,7 @@ import matplotlib.dates as mdates
 import plotly.graph_objects as go
 import plotly.express as px
 import os
+import sys
 
 
 def agg(results):
@@ -294,8 +295,19 @@ def make_dashboard(agg_df, meta_df, thresh, title, introText,
     #     df_abundances = df_abundances.rolling(windowSize, center=True,
     #                                           min_periods=0).mean()
     meta_df = meta_df.set_index('sample_collection_datetime')
+    meta_df = meta_df.groupby('sample_collection_datetime').mean().sort_index()
+    df_ab_sum = df_ab_sum.groupby(level=0).mean()
+    df_ab_sum = df_ab_sum.sort_index()
+    df_ab_lin = df_ab_lin.groupby(level=0).mean().sort_index()
     fig = go.Figure()
     for j, col in enumerate(df_ab_lin.columns):
+
+        if df_ab_lin.shape[1] <= 11:
+            color0 = px.colors.qualitative.Vivid[j]
+        elif df_ab_lin.shape[1] <= 24:
+            color0 = px.colors.qualitative.Dark24[j]
+        else:
+            sys.exit('Too many lineages to plot')
 
         fig.add_trace(go.Scatter(
             x=df_ab_lin.index, y=df_ab_lin[col],
@@ -303,20 +315,24 @@ def make_dashboard(agg_df, meta_df, thresh, title, introText,
             name=col,
             mode='markers+lines',
             hovertemplate="%{y:.1f}%",
-            line=dict(width=0.5, color=px.colors.qualitative.Vivid[j]),
+            line=dict(width=0.5, color=color0),
             visible=False,
             stackgroup='one'
         ))
 
     for j, col in enumerate(df_ab_sum.columns):
 
+        if df_ab_sum.shape[1] <= 11:
+            color0 = px.colors.qualitative.Pastel[j]
+        elif df_ab_sum.shape[1] <= 24:
+            color0 = px.colors.qualitative.Light24[j]
         fig.add_trace(go.Scatter(
             x=df_ab_sum.index, y=df_ab_sum[col],
             hoverinfo='x+y',
             name=col,
             mode='markers+lines',
             hovertemplate="%{y:.1f}%",
-            line=dict(width=0.5, color=px.colors.qualitative.Pastel[j]),
+            line=dict(width=0.5, color=color0),
             visible=True,
             stackgroup='one',
         ))
@@ -332,6 +348,10 @@ def make_dashboard(agg_df, meta_df, thresh, title, introText,
     df_ab_lin_s = df_ab_lin.multiply(meta_df.viral_load,
                                      axis=0) / 100.
     for j, col in enumerate(df_ab_lin_s.columns):
+        if df_ab_lin.shape[1] <= 11:
+            color0 = px.colors.qualitative.Vivid[j]
+        elif df_ab_lin.shape[1] <= 24:
+            color0 = px.colors.qualitative.Dark24[j]
 
         fig.add_trace(go.Scatter(
             x=df_ab_lin_s.index, y=df_ab_lin_s[col],
@@ -339,13 +359,18 @@ def make_dashboard(agg_df, meta_df, thresh, title, introText,
             name=col,
             mode='markers+lines',
             hovertemplate="%{y:.1f} copies/L",
-            line=dict(width=0.5, color=px.colors.qualitative.Vivid[j]),
+            line=dict(width=0.5, color=color0),
             visible=False,
             stackgroup='one'
         ))
+
     df_ab_sum_s = df_ab_sum.multiply(meta_df.viral_load,
                                      axis=0) / 100.
     for j, col in enumerate(df_ab_sum_s.columns):
+        if df_ab_sum.shape[1] <= 11:
+            color0 = px.colors.qualitative.Pastel[j]
+        elif df_ab_sum.shape[1] <= 11:
+            color0 = px.colors.qualitative.Light24[j]
 
         fig.add_trace(go.Scatter(
             x=df_ab_sum_s.index, y=df_ab_sum_s[col],
@@ -353,7 +378,7 @@ def make_dashboard(agg_df, meta_df, thresh, title, introText,
             name=col,
             mode='markers+lines',
             hovertemplate="%{y:.1f} copies/L",
-            line=dict(width=0.5, color=px.colors.qualitative.Pastel[j]),
+            line=dict(width=0.5, color=color0),
             visible=False,
             stackgroup='one'
         ))
