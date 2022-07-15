@@ -1,4 +1,0 @@
-click
-numpy
-pandas
-cvxpy
