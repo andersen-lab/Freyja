@@ -230,7 +230,7 @@ def makePlot_time(agg_df, lineages, times_df, interval, outputFn,
 
 
 def make_dashboard(agg_df, meta_df, thresh, title, introText,
-                   outputFn, headerColor):
+                   outputFn, headerColor, scale_by_viral_load):
     # beta version of dash output
     agg_df = prepLineageDict(agg_df)
     agg_df = prepSummaryDict(agg_df)
@@ -295,11 +295,25 @@ def make_dashboard(agg_df, meta_df, thresh, title, introText,
     #     df_abundances = df_abundances.rolling(windowSize, center=True,
     #                                           min_periods=0).mean()
     meta_df = meta_df.set_index('sample_collection_datetime')
-    meta_df = meta_df.groupby('sample_collection_datetime').mean().sort_index()
+
+    if scale_by_viral_load:
+        df_ab_lin_rescale = df_ab_lin.multiply(meta_df.viral_load,
+                                               axis=0)
+        df_ab_lin_rescale = df_ab_lin_rescale.groupby(level=0).sum()
+        df_ab_lin_rescale = df_ab_lin_rescale.sort_index()
+        meta_df = meta_df.groupby('sample_collection_datetime').sum()\
+            .sort_index()
+        df_ab_lin = df_ab_lin_rescale.divide(meta_df.viral_load,
+                                             axis=0)
+        df_ab_lin = df_ab_lin.fillna(0).sort_index()
+    else:
+        meta_df = meta_df.groupby('sample_collection_datetime').mean()\
+            .sort_index()
+        df_ab_lin = df_ab_lin.groupby(level=0).mean().sort_index()
+
     dates_to_keep = meta_df.index[~meta_df['viral_load'].isna()]
     df_ab_sum = df_ab_sum.groupby(level=0).mean()
     df_ab_sum = df_ab_sum.sort_index()
-    df_ab_lin = df_ab_lin.groupby(level=0).mean().sort_index()
     fig = go.Figure()
     for j, col in enumerate(df_ab_lin.columns):
 
