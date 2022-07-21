@@ -12,3 +12,5 @@ usher
 matplotlib
 joblib
 plotly
+pyyaml
+requests

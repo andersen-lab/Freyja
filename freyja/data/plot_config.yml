@@ -1,0 +1,32 @@
+# Lineages: (Lineages key makes changes to the "Lineages" and "Load Scaled Lineages" plot. The Lineages is optional.)
+#   key1:
+#    name: "Lineage 1" (The name key changes the name on the legend on the graph.)
+#    members:
+#     - member1 (The lineages under the members key will be aggreagated to gether and represented as a single plot on the graph.)
+#     - member2* (Added a '*' to the end of the lineage name indicates that the sub-lineages of that lineage have to be included too.)
+#    color: "red" (The color key changes the color of the plot on the graph.)
+# VOC: (VOC key makes changes to the "VOC plot" and "Load Scaled Summary" plot. The VOC key is optional.)
+#   key1:
+#    name: "VOC 1" (The name key changes the name on the legend on the graph.)
+#    color: "red" (The color key changes the color of the plot on the graph.)
+# Please refer to https://github.com/cov-lineages/lineages-website/blob/master/data/lineages.yml
+# to see the relationship between lineages.
+# Note: if 2 keys in the 'Lineages' key have overlapping members, the one with the highest priority will be used.
+# The priority is determined by the order of the keys in the 'Lineages' key.
+Lineages:
+  AY.48:
+    name: "A"
+    members:
+      - "BA.2.12*"
+    color: "orange"
+  Q.3:
+    name: "B"
+    members:
+      - "BA.2*"
+    color: "green"
+# Currently users can only change the color and not the legend name.
+VOC:
+  Delta:
+    name: "Omicron"
+    color: "purple"
+    

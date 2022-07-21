@@ -1,6 +1,6 @@
 import unittest
 import pandas as pd
-from freyja.utils import agg, prepLineageDict, prepSummaryDict
+from freyja.utils import agg, checkConfig, prepLineageDict, prepSummaryDict
 import os
 
 
@@ -29,6 +29,153 @@ class UtilsTests(unittest.TestCase):
         self.assertTrue((agg_df['summarized'][0]['A'] > 0) &
                         (agg_df['summarized'][1]['A'] > 0))
         self.assertTrue(agg_df['summarized'][1]['Delta'] > 0)
+    
+    def test_checkConfig(self):
+        # config dictionaries whose format is valid.
+        valid_configs = [
+            {
+                'Lineages': {
+                    'AY.48': {
+                        'name': 'A',
+                        'members': ['B.1.617*', 'B.1.252'],
+                        'color': 'orange'
+                        },
+                    'Q.3': {
+                        'name': 'B',
+                        'members': ['Q.3'],
+                        'color': 'green'
+                        }
+                    }, 
+                'VOC': {
+                    'Delta': {
+                        'name':'Delta',
+                        'color': 'default'
+                        }
+                    }
+            },
+            {
+                'Lineages': {
+                    'AY.48': {
+                        'name': 'A',
+                        'members': ['B.1.617*', 'B.1.252'],
+                        'color': 'orange'
+                        },
+                    'Q.3': {
+                        'name': 'B',
+                        'members': ['Q.3'],
+                        'color': 'green'
+                        }
+                    }
+            },
+        {
+            'VOC': {
+                'Delta': {
+                    'name':'Delta',
+                    'color': 'default'
+                    }
+                }
+            },
+        ]
+
+        output_valid_configs = [
+            {
+                'Lineages': {
+                    'AY.48': {
+                        'name': 'A',
+                        'members': ['B.1.617*', 'B.1.252'],
+                        'color': 'orange'
+                        },
+                    'Q.3': {
+                        'name': 'B',
+                        'members': ['Q.3'],
+                        'color': 'green'
+                        }
+                    }, 
+                'VOC': {
+                    'Delta': {
+                        'name':'Delta',
+                        'color': 'default'
+                        }
+                    }
+            },
+            {
+                'Lineages': {
+                    'AY.48': {
+                        'name': 'A',
+                        'members': ['B.1.617*', 'B.1.252'],
+                        'color': 'orange'
+                        },
+                    'Q.3': {
+                        'name': 'B',
+                        'members': ['Q.3'],
+                        'color': 'green'
+                        }
+                    }, 
+                'VOC': {}
+            },
+            {
+                'Lineages': {}, 
+                'VOC': {
+                    'Delta': {
+                        'name':'Delta',
+                        'color': 'default'
+                        }
+                    }
+            },
+        ]
+
+
+        # config dictionaries whose format is invalid.
+        invalid_configs = [
+            {
+                'Lineages': {
+                    'AY.48': {
+                        'name': 'A',
+                        'members': ['B.1.617*', 'B.1.252'],
+                        },
+                    'Q.3': {
+                        'name': 'B',
+                        'members': ['Q.3'],
+                        'color': 'green'
+                        }
+                    }, 
+                'VOC': {
+                    'Delta': {
+                        'name':'Delta',
+                        'color': 'default'
+                        }
+                    }
+            },
+            {
+                'Lineages': {
+                    'AY.48': {
+                        'name': 'A',
+                        'members': ['B.1.617*', 'B.1.252'],
+                        'color': 'orange'
+                        },
+                    'Q.3': {
+                        'name': 'B',
+                        'color': 'green'
+                        }
+                    }
+            },
+        {
+            'VOC': {
+                'Delta': {
+                    'color': 'default'
+                    }
+                }
+            },
+        ]
+
+        #  Test valid configs
+        for i, config in enumerate(valid_configs):
+            self.assertEqual(checkConfig(config), output_valid_configs[i])
+        
+        # Test invalid configs
+        for i, config in enumerate(invalid_configs):
+            self.assertRaises(ValueError, checkConfig, config)
+
 
 
 if __name__ == '__main__':
