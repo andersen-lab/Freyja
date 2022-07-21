@@ -230,9 +230,11 @@ def plot(agg_results, lineages, times, interval, output, windowsize, colors):
 @click.argument('intro', type=click.Path(exists=True))
 @click.option('--thresh', default=0.01, help='min lineage abundance included')
 @click.option('--headerColor', default='mediumpurple', help='color of header')
+@click.option('--scale_by_viral_load', is_flag=True,
+              help='scale by viral load')
 @click.option('--config', default=None, help='path to yaml file')
 @click.option('--output', default='mydashboard.html', help='Output html file')
-def dash(agg_results, metadata, title, intro, thresh, headercolor, config, output):
+def dash(agg_results, metadata, title, intro, thresh, headercolor, scale_by_viral_load, config, output):
     agg_df = pd.read_csv(agg_results, skipinitialspace=True, sep='\t',
                          index_col=0)
     meta_df = pd.read_csv(metadata, index_col=0)
@@ -277,7 +279,7 @@ def dash(agg_results, metadata, title, intro, thresh, headercolor, config, outpu
 
     config = checkConfig(config)
     make_dashboard(agg_df, meta_df, thresh, titleText, introText,
-                   output, headercolor, config, lineage_info)
+                   output, headercolor, scale_by_viral_load, config, lineage_info)
 
 if __name__ == '__main__':
     cli()
