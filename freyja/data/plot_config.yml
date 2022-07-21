@@ -14,19 +14,19 @@
 # Note: if 2 keys in the 'Lineages' key have overlapping members, the one with the highest priority will be used.
 # The priority is determined by the order of the keys in the 'Lineages' key.
 Lineages:
-  AY.48:
+  A:
     name: "A"
     members:
       - "BA.2.12*"
     color: "orange"
-  Q.3:
+  B:
     name: "B"
     members:
       - "BA.2*"
     color: "green"
 # Currently users can only change the color and not the legend name.
 VOC:
-  Delta:
+  Omicron:
     name: "Omicron"
     color: "purple"
     

@@ -234,7 +234,8 @@ def plot(agg_results, lineages, times, interval, output, windowsize, colors):
               help='scale by viral load')
 @click.option('--config', default=None, help='path to yaml file')
 @click.option('--output', default='mydashboard.html', help='Output html file')
-def dash(agg_results, metadata, title, intro, thresh, headercolor, scale_by_viral_load, config, output):
+def dash(agg_results, metadata, title, intro, thresh, headercolor,
+         scale_by_viral_load, config, output):
     agg_df = pd.read_csv(agg_results, skipinitialspace=True, sep='\t',
                          index_col=0)
     meta_df = pd.read_csv(metadata, index_col=0)
@@ -251,10 +252,11 @@ def dash(agg_results, metadata, title, intro, thresh, headercolor, scale_by_vira
                 config = yaml.safe_load(f)
             except yaml.YAMLError as exc:
                 raise ValueError('Error in config file: ' + str(exc))
-    
+
     # Download lineages.yml from cov-lineage repository.
     # and save it as lineages.yml
-    r = requests.get('https://raw.githubusercontent.com/cov-lineages/lineages-website/master/data/lineages.yml')
+    r = requests.get('https://raw.githubusercontent.com/cov-lineages/' +
+                     'lineages-website/master/data/lineages.yml')
     if r.status_code == 200:
         print('Downloading lineages.yml')
         with open('freyja/data/lineages.yml', 'w+') as f:
@@ -270,16 +272,19 @@ def dash(agg_results, metadata, title, intro, thresh, headercolor, scale_by_vira
             lineages_yml = yaml.safe_load(f)
         except yaml.YAMLError as exc:
             raise ValueError('Error in lineages.yml file: ' + str(exc))
-    
-    # converts lineages_yml to a dictionary where the lineage names are the keys.
+
+    # converts lineages_yml to a dictionary where the lineage names are the
+    # keys.
     lineage_info = {}
     for lineage in lineages_yml:
         lineage_info[lineage['name']] = {'name': lineage['name'],
                                          'children': lineage['children']}
-
-    config = checkConfig(config)
+    if config is not None:
+        config = checkConfig(config)
     make_dashboard(agg_df, meta_df, thresh, titleText, introText,
-                   output, headercolor, scale_by_viral_load, config, lineage_info)
+                   output, headercolor, scale_by_viral_load, config,
+                   lineage_info)
+
 
 if __name__ == '__main__':
     cli()

@@ -29,7 +29,7 @@ class UtilsTests(unittest.TestCase):
         self.assertTrue((agg_df['summarized'][0]['A'] > 0) &
                         (agg_df['summarized'][1]['A'] > 0))
         self.assertTrue(agg_df['summarized'][1]['Delta'] > 0)
-    
+
     def test_checkConfig(self):
         # config dictionaries whose format is valid.
         valid_configs = [
@@ -45,10 +45,10 @@ class UtilsTests(unittest.TestCase):
                         'members': ['Q.3'],
                         'color': 'green'
                         }
-                    }, 
+                    },
                 'VOC': {
                     'Delta': {
-                        'name':'Delta',
+                        'name': 'Delta',
                         'color': 'default'
                         }
                     }
@@ -67,13 +67,13 @@ class UtilsTests(unittest.TestCase):
                         }
                     }
             },
-        {
-            'VOC': {
-                'Delta': {
-                    'name':'Delta',
-                    'color': 'default'
+            {
+                'VOC': {
+                    'Delta': {
+                        'name': 'Delta',
+                        'color': 'default'
+                        }
                     }
-                }
             },
         ]
 
@@ -90,10 +90,10 @@ class UtilsTests(unittest.TestCase):
                         'members': ['Q.3'],
                         'color': 'green'
                         }
-                    }, 
+                    },
                 'VOC': {
                     'Delta': {
-                        'name':'Delta',
+                        'name': 'Delta',
                         'color': 'default'
                         }
                     }
@@ -110,20 +110,19 @@ class UtilsTests(unittest.TestCase):
                         'members': ['Q.3'],
                         'color': 'green'
                         }
-                    }, 
+                    },
                 'VOC': {}
             },
             {
-                'Lineages': {}, 
+                'Lineages': {},
                 'VOC': {
                     'Delta': {
-                        'name':'Delta',
+                        'name': 'Delta',
                         'color': 'default'
                         }
                     }
             },
         ]
-
 
         # config dictionaries whose format is invalid.
         invalid_configs = [
@@ -138,10 +137,10 @@ class UtilsTests(unittest.TestCase):
                         'members': ['Q.3'],
                         'color': 'green'
                         }
-                    }, 
+                    },
                 'VOC': {
                     'Delta': {
-                        'name':'Delta',
+                        'name': 'Delta',
                         'color': 'default'
                         }
                     }
@@ -159,23 +158,22 @@ class UtilsTests(unittest.TestCase):
                         }
                     }
             },
-        {
-            'VOC': {
-                'Delta': {
-                    'color': 'default'
+            {
+                'VOC': {
+                    'Delta': {
+                        'color': 'default'
+                        }
                     }
-                }
             },
         ]
 
         #  Test valid configs
         for i, config in enumerate(valid_configs):
             self.assertEqual(checkConfig(config), output_valid_configs[i])
-        
+
         # Test invalid configs
         for i, config in enumerate(invalid_configs):
             self.assertRaises(ValueError, checkConfig, config)
-
 
 
 if __name__ == '__main__':

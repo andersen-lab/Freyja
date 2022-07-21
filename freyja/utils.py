@@ -33,14 +33,31 @@ def checkConfig(config):
             for k in val:
                 for nest_key in config[key].keys():
                     if k not in config[key][nest_key].keys():
-                        raise ValueError(f'{key} key missing {k} key in the config file')
+                        raise ValueError(f'{key} key missing {k} key' +
+                                         ' in the config file')
     return config
 
 
+# Get value from the config dictionary.
+def get_value(val, dict, get_val, match_key):
+    values = []
+    for key, value in dict.items():
+        if val == value[match_key]:
+            values.append(dict[key][get_val])
+    return values[0]
+
+
+# Get name key from the config dictionary for which the
+# queried lineage is a member.
+def get_name(val, dict):
+    values = []
+    for key, value in dict.items():
+        if val in value['members']:
+            values.append(dict[key]['name'])
+    return values[0]
+
 # Used to define the color scheme for make_dashboard function.
-def get_color_scheme(df, default_color_scheme, config = None):
-    # lambda function to get values from config dictionary
-    get_value = lambda val, dict, get_val, match_key : [dict[key][get_val] for key, value in dict.items() if val == value[match_key]][0]
+def get_color_scheme(df, default_color_scheme, config=None):
     if config is None:
         config = {}
     default_colors = None
@@ -51,12 +68,13 @@ def get_color_scheme(df, default_color_scheme, config = None):
             break
 
     if default_colors is None and len(config.keys()) != df.shape[1]:
-        raise Exception('No default color scheme found for this number of samples.')
+        raise Exception('No default color scheme found for this number of' +
+                        ' samples.')
 
     for i, col in enumerate(df.columns):
-        if any(col == i['name'] for i in config.values()):
+        if any(col == i['name'] for i in config.values()) and config != {}:
             if get_value(col, config, 'color', 'name').lower() != "default":
-                color_scheme[get_value(col, config, 'name', 'name')] = get_value(col, config, 'color', 'name')
+                color_scheme[col] = get_value(col, config, 'color', 'name')
             else:
                 color_scheme[col] = default_colors[i]
         else:
@@ -64,7 +82,7 @@ def get_color_scheme(df, default_color_scheme, config = None):
     return color_scheme
 
 
-def prepLineageDict(agg_d0, thresh=0.001, config = None, lineage_info = None):
+def prepLineageDict(agg_d0, thresh=0.001, config=None, lineage_info=None):
     agg_d0.loc[:, 'lineages'] = agg_d0['lineages']\
           .apply(lambda x:
                  x.replace("'", "")
@@ -101,21 +119,27 @@ def prepLineageDict(agg_d0, thresh=0.001, config = None, lineage_info = None):
     for line in agg_d0.index:
         counter_summary += Counter(agg_d0.loc[line, 'linDict'])
 
-    # Aggregate the lineages specified in config file into a single key/value pair.
+    # Aggregate the lineages specified in config file into a single
+    # key/value pair.
     if config is not None:
-        # Returns the first name where the queried lineage is present in the config memebers.
-        get_name = lambda val, dict : [dict[key]['name'] for key, value in dict.items() if val in value['members']][0]
+        config = config['Lineages']
+        # Returns the first name where the queried lineage is present in the
+        # config memebers.
         for i, i_config in config.items():
             for lin in i_config['members']:
                 if '*' in lin:
-                    config[i]['members'].extend(lineage_info[lin.replace('*', '')]['children'])
+                    config[i]['members'].extend(lineage_info
+                                                [lin.replace('*', '')]
+                                                ['children']
+                                                )
         # aggregate all the members into 1ist
-        config_members = [lin for val in config.values() for lin in val['members']]
+        config_members = [lin for val in config.values() for lin in val[
+                          'members']]
         # Aggregate lineages into a single dict key/value pair
         for j, sampLabel in enumerate(agg_d0.index):
-            # This list will contain the keys that have been created in the dict.
-            # This is used to ensure that the same key is not created twice or
-            # tha value of the key is doubled.
+            # This list will contain the keys that have been created
+            # in the dict. This is used to ensure that the same key is
+            # not created twice or that value of the key is doubled.
             created_keys = []
             linDictMod = copy.deepcopy(agg_d0.loc[sampLabel, 'linDict'])
             linDictModCopy = copy.deepcopy(
@@ -123,9 +147,13 @@ def prepLineageDict(agg_d0, thresh=0.001, config = None, lineage_info = None):
             for rInd in linDictModCopy.keys():
                 if rInd in config_members:
                     if get_name(rInd, config) in created_keys:
-                        linDictMod[get_name(rInd, config)] += linDictMod.pop(rInd)
+                        linDictMod[
+                            get_name(rInd,config)
+                            ] += linDictMod.pop(rInd)
                     else:
-                        linDictMod[get_name(rInd, config)] = linDictMod.pop(rInd)
+                        linDictMod[
+                            get_name(rInd,config)
+                            ] = linDictMod.pop(rInd)
                         created_keys.append(get_name(rInd, config))
             agg_d0.loc[sampLabel, 'linDict'] = [linDictMod]
 
@@ -304,9 +332,11 @@ def makePlot_time(agg_df, lineages, times_df, interval, outputFn,
 
 
 def make_dashboard(agg_df, meta_df, thresh, title, introText,
-                   outputFn, headerColor, scale_by_viral_load, config, lineage_info):
+                   outputFn, headerColor, scale_by_viral_load,
+                   config, lineage_info):
     # beta version of dash output
-    agg_df = prepLineageDict(agg_df, config=config['Lineages'] ,lineage_info=lineage_info)
+    agg_df = prepLineageDict(agg_df, config=config,
+                             lineage_info=lineage_info)
     agg_df = prepSummaryDict(agg_df)
 
     # collect lineage data
@@ -394,7 +424,14 @@ def make_dashboard(agg_df, meta_df, thresh, title, introText,
         11: px.colors.qualitative.Vivid,
         24: px.colors.qualitative.Dark24
     }
-    color_lin = get_color_scheme(df_ab_lin, default_color_lin, config['Lineages'])
+    if config is not None:
+        color_lin = get_color_scheme(df_ab_lin,
+                                    default_color_lin,
+                                    config['Lineages'])
+    else:
+        color_lin = get_color_scheme(df_ab_lin,
+                            default_color_lin,
+                            config=None)
     for j, col in enumerate(df_ab_lin.columns):
 
         fig.add_trace(go.Scatter(
@@ -412,7 +449,14 @@ def make_dashboard(agg_df, meta_df, thresh, title, introText,
         11: px.colors.qualitative.Pastel,
         24: px.colors.qualitative.Light24
     }
-    color_sum = get_color_scheme(df_ab_sum, default_color_sum, config['VOC'])
+    if config is not None:
+        color_sum = get_color_scheme(df_ab_sum,
+                                     default_color_sum,
+                                     config['VOC'])
+    else:
+        color_sum = get_color_scheme(df_ab_sum,
+                             default_color_sum,
+                             config=None)
     for j, col in enumerate(df_ab_sum.columns):
         fig.add_trace(go.Scatter(
             x=df_ab_sum.index, y=df_ab_sum[col],
@@ -446,7 +490,14 @@ def make_dashboard(agg_df, meta_df, thresh, title, introText,
         11: px.colors.qualitative.Vivid,
         24: px.colors.qualitative.Dark24
     }
-    color_lin_s = get_color_scheme(df_ab_lin_s, default_color_lin_s, config['Lineages'])
+    if config is not None:
+        color_lin_s = get_color_scheme(df_ab_lin_s,
+                                    default_color_lin_s,
+                                    config['Lineages'])
+    else:
+        color_lin_s = get_color_scheme(df_ab_lin_s,
+                            default_color_lin_s,
+                            config=None)
     for j, col in enumerate(df_ab_lin_s.columns):
 
         fig.add_trace(go.Scatter(
@@ -467,7 +518,14 @@ def make_dashboard(agg_df, meta_df, thresh, title, introText,
         11: px.colors.qualitative.Pastel,
         24: px.colors.qualitative.Light24
     }
-    color_sum_s = get_color_scheme(df_ab_sum, default_color_sum_s, config['VOC'])
+    if config is not None:
+        color_sum_s = get_color_scheme(df_ab_sum,
+                                    default_color_sum_s,
+                                    config['VOC'])
+    else:
+        color_sum_s = get_color_scheme(df_ab_sum,
+                            default_color_sum_s,
+                            config=None)
     for j, col in enumerate(df_ab_sum_s.columns):
         fig.add_trace(go.Scatter(
             x=df_ab_sum_s.index, y=df_ab_sum_s[col],
@@ -626,7 +684,7 @@ def make_dashboard(agg_df, meta_df, thresh, title, introText,
 
 
 if __name__ == '__main__':
-    agg_results = 'jul5_agg.tsv'
+    agg_results = 'freyja/data/test_sweep.tsv'
     agg_df = pd.read_csv(agg_results, skipinitialspace=True, sep='\t',
                          index_col=0)
     lineages = True
@@ -640,7 +698,7 @@ if __name__ == '__main__':
     windowSize = 14
     # # makePlot_time(agg_df, lineages, times_df,
     # #               interval, output, windowSize, [])
-    meta_df = pd.read_csv('jul5_meta.csv', index_col=0)
+    meta_df = pd.read_csv('freyja/data/sweep_metadata.csv', index_col=0)
     meta_df['sample_collection_datetime'] = \
         pd.to_datetime(meta_df['sample_collection_datetime'])
     thresh = 0.01
@@ -657,7 +715,8 @@ if __name__ == '__main__':
         except yaml.YAMLError as exc:
             raise ValueError('Error in config file: ' + str(exc))
     import requests
-    r = requests.get('https://raw.githubusercontent.com/cov-lineages/lineages-website/master/data/lineages.yml')
+    r = requests.get('https://raw.githubusercontent.com/cov-lineages' +
+                     '/lineages-website/master/data/lineages.yml')
     if r.status_code == 200:
         with open('freyja/data/lineages.yml', 'w+') as f:
             f.write(r.text)
@@ -665,18 +724,20 @@ if __name__ == '__main__':
         print('Using existing lineages.yml')
     else:
         raise FileNotFoundError('Could not download or find lineages.yml')
-    
+
     # read linages.yml file
     with open('freyja/data/lineages.yml', 'r') as f:
         try:
             lineages_yml = yaml.safe_load(f)
         except yaml.YAMLError as exc:
             raise ValueError('Error in lineages.yml file: ' + str(exc))
-    
-    # converts lineages_yml to a dictionary where the lineage names are the keys.
+    scale_by_viral_load = False
+    # converts lineages_yml to a dictionary where the lineage names are the
+    # keys.
     lineage_info = {}
     for lineage in lineages_yml:
         lineage_info[lineage['name']] = {'children': lineage['children']}
     config = checkConfig(config)
     make_dashboard(agg_df, meta_df, thresh, title,
-                   introText, outputFn, headerColor, config, lineage_info)
+                   introText, outputFn, headerColor, scale_by_viral_load,
+                   config, lineage_info)
