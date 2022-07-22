@@ -123,7 +123,6 @@ def prepLineageDict(agg_d0, thresh=0.001, config=None, lineage_info=None):
     # Aggregate the lineages specified in config file into a single
     # key/value pair.
     if config is not None:
-        config = config['Lineages']
         # Returns the first name where the queried lineage is present in the
         # config memebers.
         for i, i_config in config.items():
@@ -336,7 +335,7 @@ def make_dashboard(agg_df, meta_df, thresh, title, introText,
                    outputFn, headerColor, scale_by_viral_load,
                    config, lineage_info):
     # beta version of dash output
-    agg_df = prepLineageDict(agg_df, config=config,
+    agg_df = prepLineageDict(agg_df, config=config.get('Lineages'),
                              lineage_info=lineage_info)
     agg_df = prepSummaryDict(agg_df)
 
@@ -428,11 +427,7 @@ def make_dashboard(agg_df, meta_df, thresh, title, introText,
     if config is not None:
         color_lin = get_color_scheme(df_ab_lin,
                                      default_color_lin,
-                                     config['Lineages'])
-    else:
-        color_lin = get_color_scheme(df_ab_lin,
-                                     default_color_lin,
-                                     config=None)
+                                     config.get('Lineages'))
     for j, col in enumerate(df_ab_lin.columns):
 
         fig.add_trace(go.Scatter(
@@ -453,11 +448,7 @@ def make_dashboard(agg_df, meta_df, thresh, title, introText,
     if config is not None:
         color_sum = get_color_scheme(df_ab_sum,
                                      default_color_sum,
-                                     config['VOC'])
-    else:
-        color_sum = get_color_scheme(df_ab_sum,
-                                     default_color_sum,
-                                     config=None)
+                                     config.get('VOC'))
     for j, col in enumerate(df_ab_sum.columns):
         fig.add_trace(go.Scatter(
             x=df_ab_sum.index, y=df_ab_sum[col],
@@ -494,11 +485,7 @@ def make_dashboard(agg_df, meta_df, thresh, title, introText,
     if config is not None:
         color_lin_s = get_color_scheme(df_ab_lin_s,
                                        default_color_lin_s,
-                                       config['Lineages'])
-    else:
-        color_lin_s = get_color_scheme(df_ab_lin_s,
-                                       default_color_lin_s,
-                                       config=None)
+                                       config.get('Lineages'))
     for j, col in enumerate(df_ab_lin_s.columns):
 
         fig.add_trace(go.Scatter(
@@ -522,11 +509,7 @@ def make_dashboard(agg_df, meta_df, thresh, title, introText,
     if config is not None:
         color_sum_s = get_color_scheme(df_ab_sum,
                                        default_color_sum_s,
-                                       config['VOC'])
-    else:
-        color_sum_s = get_color_scheme(df_ab_sum,
-                                       default_color_sum_s,
-                                       config=None)
+                                       config.get('VOC'))
     for j, col in enumerate(df_ab_sum_s.columns):
         fig.add_trace(go.Scatter(
             x=df_ab_sum_s.index, y=df_ab_sum_s[col],

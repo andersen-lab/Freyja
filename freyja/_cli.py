@@ -281,6 +281,8 @@ def dash(agg_results, metadata, title, intro, thresh, headercolor,
                                          'children': lineage['children']}
     if config is not None:
         config = checkConfig(config)
+    else:
+        config = {}
     make_dashboard(agg_df, meta_df, thresh, titleText, introText,
                    output, headercolor, scale_by_viral_load, config,
                    lineage_info)
