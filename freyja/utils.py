@@ -68,9 +68,9 @@ def get_color_scheme(df, default_color_scheme, config=None):
             default_colors = default_color_scheme[i]
             break
 
-    if default_colors is None and len(config.keys()) != df.shape[1]:
+    if default_colors is None and len(config.keys()) < df.shape[1]:
         raise Exception('No default color scheme found for this number of' +
-                        ' samples.')
+                        ' variants.')
 
     for i, col in enumerate(df.columns):
         if any(col == i['name'] for i in config.values()) and config != {}:
@@ -424,10 +424,9 @@ def make_dashboard(agg_df, meta_df, thresh, title, introText,
         11: px.colors.qualitative.Vivid,
         24: px.colors.qualitative.Dark24
     }
-    if config is not None:
-        color_lin = get_color_scheme(df_ab_lin,
-                                     default_color_lin,
-                                     config.get('Lineages'))
+    color_lin = get_color_scheme(df_ab_lin,
+                                 default_color_lin,
+                                 config.get('Lineages'))
     for j, col in enumerate(df_ab_lin.columns):
 
         fig.add_trace(go.Scatter(
@@ -445,10 +444,9 @@ def make_dashboard(agg_df, meta_df, thresh, title, introText,
         11: px.colors.qualitative.Pastel,
         24: px.colors.qualitative.Light24
     }
-    if config is not None:
-        color_sum = get_color_scheme(df_ab_sum,
-                                     default_color_sum,
-                                     config.get('VOC'))
+    color_sum = get_color_scheme(df_ab_sum,
+                                 default_color_sum,
+                                 config.get('VOC'))
     for j, col in enumerate(df_ab_sum.columns):
         fig.add_trace(go.Scatter(
             x=df_ab_sum.index, y=df_ab_sum[col],
@@ -482,10 +480,9 @@ def make_dashboard(agg_df, meta_df, thresh, title, introText,
         11: px.colors.qualitative.Vivid,
         24: px.colors.qualitative.Dark24
     }
-    if config is not None:
-        color_lin_s = get_color_scheme(df_ab_lin_s,
-                                       default_color_lin_s,
-                                       config.get('Lineages'))
+    color_lin_s = get_color_scheme(df_ab_lin_s,
+                                   default_color_lin_s,
+                                   config.get('Lineages'))
     for j, col in enumerate(df_ab_lin_s.columns):
 
         fig.add_trace(go.Scatter(
@@ -506,10 +503,9 @@ def make_dashboard(agg_df, meta_df, thresh, title, introText,
         11: px.colors.qualitative.Pastel,
         24: px.colors.qualitative.Light24
     }
-    if config is not None:
-        color_sum_s = get_color_scheme(df_ab_sum,
-                                       default_color_sum_s,
-                                       config.get('VOC'))
+    color_sum_s = get_color_scheme(df_ab_sum,
+                                   default_color_sum_s,
+                                   config.get('VOC'))
     for j, col in enumerate(df_ab_sum_s.columns):
         fig.add_trace(go.Scatter(
             x=df_ab_sum_s.index, y=df_ab_sum_s[col],
