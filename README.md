@@ -52,6 +52,8 @@ This outputs to a tsv file that includes the lineages present, their correspondi
 
 Where ```summarized``` denotes a sum of all lineage abundances in a particular WHO designation (i.e. B.1.617.2 and AY.6 abundances are summed in the above example), otherwise they are grouped into "Other". The ```lineage``` array lists the identified lineages in descending order, and  ```abundances``` contains the corresponding abundances estimates. The value of ```resid``` corresponds to the residual of the weighted least absolute devation problem used to estimate lineage abundances. The ```coverage``` value provides the 10x coverage estimate (percent of sites with 10 or greater reads- 10 is the default but can be modfied using the ```--covcut``` option in ```demix```). 
 
+NOTE: The ```freyja variants``` output is stable in time, and does not need to be re-run to incorporate updated lineage designations/corresponding mutational barcodes, whereas the outputs of ```freyja demix``` will change as barcodes are updated (and thus ```demix``` should be re-run as new information is made available).
+
 ---
 ### Additional options
 By default, this method ships with an existing "data/usher_barcodes.csv" file for the barcodes, and the [outbreak.info](https://outbreak.info/) curated lineage metadata file for summarizing lineages by WHO designation. To update both of these we recommend running the command
