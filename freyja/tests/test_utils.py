@@ -35,13 +35,13 @@ class UtilsTests(unittest.TestCase):
         valid_configs = [
             {
                 'Lineages': {
-                    'AY.48': {
-                        'name': 'A',
+                    'grp_1': {
+                        'name': 'grp_1',
                         'members': ['B.1.617*', 'B.1.252'],
                         'color': 'orange'
                         },
-                    'Q.3': {
-                        'name': 'B',
+                    'grp_2': {
+                        'name': 'grp_2',
                         'members': ['Q.3'],
                         'color': 'green'
                         }
@@ -55,13 +55,13 @@ class UtilsTests(unittest.TestCase):
             },
             {
                 'Lineages': {
-                    'AY.48': {
-                        'name': 'A',
+                    'grp_1': {
+                        'name': 'grp_1',
                         'members': ['B.1.617*', 'B.1.252'],
                         'color': 'orange'
                         },
-                    'Q.3': {
-                        'name': 'B',
+                    'grp_2': {
+                        'name': 'grp_2',
                         'members': ['Q.3'],
                         'color': 'green'
                         }
@@ -80,13 +80,13 @@ class UtilsTests(unittest.TestCase):
         output_valid_configs = [
             {
                 'Lineages': {
-                    'AY.48': {
-                        'name': 'A',
+                    'grp_1': {
+                        'name': 'grp_1',
                         'members': ['B.1.617*', 'B.1.252'],
                         'color': 'orange'
                         },
-                    'Q.3': {
-                        'name': 'B',
+                    'grp_2': {
+                        'name': 'grp_2',
                         'members': ['Q.3'],
                         'color': 'green'
                         }
@@ -100,13 +100,13 @@ class UtilsTests(unittest.TestCase):
             },
             {
                 'Lineages': {
-                    'AY.48': {
-                        'name': 'A',
+                    'grp_1': {
+                        'name': 'grp_1',
                         'members': ['B.1.617*', 'B.1.252'],
                         'color': 'orange'
                         },
-                    'Q.3': {
-                        'name': 'B',
+                    'grp_2': {
+                        'name': 'grp_2',
                         'members': ['Q.3'],
                         'color': 'green'
                         }
@@ -128,12 +128,12 @@ class UtilsTests(unittest.TestCase):
         invalid_configs = [
             {
                 'Lineages': {
-                    'AY.48': {
-                        'name': 'A',
+                    'grp_1': {
+                        'name': 'grp_1',
                         'members': ['B.1.617*', 'B.1.252'],
                         },
-                    'Q.3': {
-                        'name': 'B',
+                    'grp_2': {
+                        'name': 'grp_2',
                         'members': ['Q.3'],
                         'color': 'green'
                         }
@@ -147,13 +147,13 @@ class UtilsTests(unittest.TestCase):
             },
             {
                 'Lineages': {
-                    'AY.48': {
-                        'name': 'A',
+                    'grp_1': {
+                        'name': 'grp_1',
                         'members': ['B.1.617*', 'B.1.252'],
                         'color': 'orange'
                         },
-                    'Q.3': {
-                        'name': 'B',
+                    'grp_2': {
+                        'name': 'grp_2',
                         'color': 'green'
                         }
                     }

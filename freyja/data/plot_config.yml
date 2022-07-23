@@ -14,13 +14,13 @@
 # Note: if 2 keys in the 'Lineages' key have overlapping members, the one with the highest priority will be used.
 # The priority is determined by the order of the keys in the 'Lineages' key.
 Lineages:
-  A:
-    name: "A"
+  grp_1:
+    name: "grp_1"
     members:
       - "BA.2.12*"
     color: "orange"
-  B:
-    name: "B"
+  grp_2:
+    name: "grp_2"
     members:
       - "BA.2*"
     color: "green"
