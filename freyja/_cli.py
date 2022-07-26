@@ -259,15 +259,15 @@ def dash(agg_results, metadata, title, intro, thresh, headercolor,
                      'lineages-website/master/data/lineages.yml')
     if r.status_code == 200:
         print('Downloading lineages.yml')
-        with open('freyja/data/lineages.yml', 'w+') as f:
+        with open(os.path.join(locDir, 'data/lineages.yml'), 'w+') as f:
             f.write(r.text)
-    elif os.path.exists('freyja/data/lineages.yml'):
+    elif os.path.exists(os.path.join(locDir, 'data/lineages.yml')):
         print('Unable to download. Using existing lineages.yml')
         warnings.warn('Exsiting lineages.yml may not be up to date.')
     else:
         raise FileNotFoundError('Could not download or find lineages.yml')
 
-    with open('freyja/data/lineages.yml', 'r') as f:
+    with open(os.path.join(locDir, 'data/lineages.yml'), 'r') as f:
         try:
             lineages_yml = yaml.safe_load(f)
         except yaml.YAMLError as exc:

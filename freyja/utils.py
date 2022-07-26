@@ -136,6 +136,7 @@ def prepLineageDict(agg_d0, thresh=0.001, config=None, lineage_info=None):
         config_members = [lin for val in config.values() for lin in val[
                           'members']]
         # Aggregate lineages into a single dict key/value pair
+        processed_linDictMod = []
         for j, sampLabel in enumerate(agg_d0.index):
             # This list will contain the keys that have been created
             # in the dict. This is used to ensure that the same key is
@@ -155,7 +156,8 @@ def prepLineageDict(agg_d0, thresh=0.001, config=None, lineage_info=None):
                             get_name(rInd, config)
                             ] = linDictMod.pop(rInd)
                         created_keys.append(get_name(rInd, config))
-            agg_d0.loc[sampLabel, 'linDict'] = [linDictMod]
+            processed_linDictMod.append(linDictMod)
+        agg_d0.loc[:, 'linDict'] = processed_linDictMod
 
     # possibly switch to a max number of lineages
     keepers = [x[0] for x in counter_summary.most_common()
