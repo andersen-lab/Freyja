@@ -17,16 +17,15 @@ Lineages:
   grp_1:
     name: "grp_1"
     members:
-      - "BA.2.12*"
+      - "B.1.1.7*"
     color: "orange"
   grp_2:
     name: "grp_2"
     members:
-      - "BA.2*"
+      - "B.1.617.2*"
     color: "green"
 # Currently users can only change the color and not the legend name.
 VOC:
   Omicron:
-    name: "Omicron"
-    color: "purple"
-    
+    name: "Delta"
+    color: "green"
