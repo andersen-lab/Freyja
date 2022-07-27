@@ -421,7 +421,6 @@ def make_dashboard(agg_df, meta_df, thresh, title, introText,
             .sort_index()
         df_ab_lin = df_ab_lin.groupby(level=0).mean().sort_index()
 
-
     dates_to_keep = meta_df.index[~meta_df['viral_load'].isna()]
     dates_to_keep = dates_to_keep.intersection(df_ab_sum.index)
 
