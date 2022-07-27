@@ -8,11 +8,14 @@ from freyja.sample_deconv import buildLineageMap, build_mix_and_depth_arrays,\
 from freyja.updates import download_tree, convert_tree,\
     get_curated_lineage_data
 from freyja.utils import agg, makePlot_simple, makePlot_time,\
-    make_dashboard
+    make_dashboard, checkConfig
+import requests
 import os
 import glob
 import subprocess
 import sys
+import warnings
+import yaml
 
 locDir = os.path.abspath(os.path.join(os.path.realpath(__file__), os.pardir))
 
@@ -229,9 +232,10 @@ def plot(agg_results, lineages, times, interval, output, windowsize, colors):
 @click.option('--headerColor', default='mediumpurple', help='color of header')
 @click.option('--scale_by_viral_load', is_flag=True,
               help='scale by viral load')
+@click.option('--config', default=None, help='path to yaml file')
 @click.option('--output', default='mydashboard.html', help='Output html file')
 def dash(agg_results, metadata, title, intro, thresh, headercolor,
-         scale_by_viral_load, output):
+         scale_by_viral_load, config, output):
     agg_df = pd.read_csv(agg_results, skipinitialspace=True, sep='\t',
                          index_col=0)
     meta_df = pd.read_csv(metadata, index_col=0)
@@ -242,8 +246,46 @@ def dash(agg_results, metadata, title, intro, thresh, headercolor,
         titleText = ''.join(f.readlines())
     with open(intro, "r") as f:
         introText = ''.join(f.readlines())
+    if config is not None:
+        with open(config, "r") as f:
+            try:
+                config = yaml.safe_load(f)
+            except yaml.YAMLError as exc:
+                raise ValueError('Error in config file: ' + str(exc))
+
+    # Download lineages.yml from cov-lineage repository.
+    # and save it as lineages.yml
+    r = requests.get('https://raw.githubusercontent.com/cov-lineages/' +
+                     'lineages-website/master/data/lineages.yml')
+    if r.status_code == 200:
+        print('Downloading lineages.yml')
+        with open(os.path.join(locDir, 'data/lineages.yml'), 'w+') as f:
+            f.write(r.text)
+    elif os.path.exists(os.path.join(locDir, 'data/lineages.yml')):
+        print('Unable to download. Using existing lineages.yml')
+        warnings.warn('Exsiting lineages.yml may not be up to date.')
+    else:
+        raise FileNotFoundError('Could not download or find lineages.yml')
+
+    with open(os.path.join(locDir, 'data/lineages.yml'), 'r') as f:
+        try:
+            lineages_yml = yaml.safe_load(f)
+        except yaml.YAMLError as exc:
+            raise ValueError('Error in lineages.yml file: ' + str(exc))
+
+    # converts lineages_yml to a dictionary where the lineage names are the
+    # keys.
+    lineage_info = {}
+    for lineage in lineages_yml:
+        lineage_info[lineage['name']] = {'name': lineage['name'],
+                                         'children': lineage['children']}
+    if config is not None:
+        config = checkConfig(config)
+    else:
+        config = {}
     make_dashboard(agg_df, meta_df, thresh, titleText, introText,
-                   output, headercolor, scale_by_viral_load)
+                   output, headercolor, scale_by_viral_load, config,
+                   lineage_info)
 
 
 if __name__ == '__main__':
