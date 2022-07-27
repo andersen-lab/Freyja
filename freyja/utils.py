@@ -357,6 +357,8 @@ def make_dashboard(agg_df, meta_df, thresh, title, introText,
                                            'sample_collection_datetime']))
 
     df_ab_lin = df_ab_lin.fillna(0)
+    if 'Other' not in df_ab_lin.columns:
+        df_ab_lin['Other'] = 0.
     for col in df_ab_lin.columns:
         if col != 'Other':
             if df_ab_lin[col].sum() <= thresh:
@@ -384,6 +386,8 @@ def make_dashboard(agg_df, meta_df, thresh, title, introText,
                                            'sample_collection_datetime']))
 
     df_ab_sum = df_ab_sum.fillna(0)
+    if 'Other' not in df_ab_sum.columns:
+        df_ab_sum['Other'] = 0.
     for col in df_ab_sum.columns:
         # TODO: expand to sum values not in top N lineages, etc.
         if col != 'Other':
@@ -417,7 +421,10 @@ def make_dashboard(agg_df, meta_df, thresh, title, introText,
             .sort_index()
         df_ab_lin = df_ab_lin.groupby(level=0).mean().sort_index()
 
+
     dates_to_keep = meta_df.index[~meta_df['viral_load'].isna()]
+    dates_to_keep = dates_to_keep.intersection(df_ab_sum.index)
+
     df_ab_sum = df_ab_sum.groupby(level=0).mean()
     df_ab_sum = df_ab_sum.sort_index()
     fig = go.Figure()
@@ -526,7 +533,7 @@ def make_dashboard(agg_df, meta_df, thresh, title, introText,
                       x=0.85,
                       y=1.07,
                       buttons=list([
-                                   dict(label="VOC Summary",
+                                   dict(label="Variants",
                                         method="update",
                                         args=[{
                                              "visible":
@@ -568,7 +575,7 @@ def make_dashboard(agg_df, meta_df, thresh, title, introText,
                                                           meta_df['viral_load']
                                                           .max() * 1.1]}}]),
                                    dict(
-                                       label="Load Scaled Summary",
+                                       label="Load Scaled Variants",
                                        method="update",
                                        args=[{
                                               "visible":
@@ -608,7 +615,7 @@ def make_dashboard(agg_df, meta_df, thresh, title, introText,
                                   x=1.1,
                                   itemsizing='constant'))
 
-    fig.update_layout(yaxis_title='VOC Prevalence',
+    fig.update_layout(yaxis_title='Variant Prevalence',
                       yaxis_ticksuffix="%",
                       yaxis_range=[0, 100.],
                       width=1000,

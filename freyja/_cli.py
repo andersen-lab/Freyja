@@ -21,7 +21,7 @@ locDir = os.path.abspath(os.path.join(os.path.realpath(__file__), os.pardir))
 
 
 @click.group()
-@click.version_option('1.3.8')
+@click.version_option('1.3.9')
 def cli():
     pass
 
@@ -188,7 +188,7 @@ def boot(variants, depths, output_base, eps, barcodes, meta,
               type=click.Path(exists=False))
 def aggregate(results, ext, output):
     if ext != '-1':
-        results_ = [fn for fn in glob.glob(results+'*'+ext)]
+        results_ = [fn for fn in glob.glob(results + '*' + ext)]
     else:
         results_ = [results + fn for fn in os.listdir(results)]
     df_demix = agg(results_)
@@ -201,11 +201,20 @@ def aggregate(results, ext, output):
 @click.option('--times', default='-1')
 @click.option('--interval', default='MS')
 @click.option('--colors', default='', help='path to csv of hex codes')
+@click.option('--mincov', default=60., help='min genome coverage included')
 @click.option('--output', default='mix_plot.pdf', help='Output file')
 @click.option('--windowsize', default=14)
-def plot(agg_results, lineages, times, interval, output, windowsize, colors):
+def plot(agg_results, lineages, times, interval, output, windowsize,
+         colors, mincov):
     agg_df = pd.read_csv(agg_results, skipinitialspace=True, sep='\t',
                          index_col=0)
+    # drop poor quality samples
+    if 'coverage' in agg_df.columns:
+        agg_df = agg_df[agg_df['coverage'] > mincov]
+    else:
+        print('WARNING: Freyja should be updated \
+to include coverage estimates.')
+    agg_df = agg_df[agg_df['summarized'] != '[]']
     if len(colors) > 0:
         colors0 = pd.read_csv(colors, header=None).values[0]
     else:
@@ -233,11 +242,20 @@ def plot(agg_results, lineages, times, interval, output, windowsize, colors):
 @click.option('--scale_by_viral_load', is_flag=True,
               help='scale by viral load')
 @click.option('--config', default=None, help='path to yaml file')
+@click.option('--mincov', default=60., help='min genome coverage included')
 @click.option('--output', default='mydashboard.html', help='Output html file')
 def dash(agg_results, metadata, title, intro, thresh, headercolor,
-         scale_by_viral_load, config, output):
+         scale_by_viral_load, config, output, mincov):
     agg_df = pd.read_csv(agg_results, skipinitialspace=True, sep='\t',
                          index_col=0)
+    # drop poor quality samples
+    if 'coverage' in agg_df.columns:
+        agg_df = agg_df[agg_df['coverage'] > mincov]
+    else:
+        print('WARNING: Freyja should be updated \
+to include coverage estimates.')
+    agg_df = agg_df[agg_df['summarized'] != '[]']
+
     meta_df = pd.read_csv(metadata, index_col=0)
     meta_df['sample_collection_datetime'] = \
         pd.to_datetime(meta_df['sample_collection_datetime'])
