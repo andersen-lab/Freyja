@@ -2,6 +2,7 @@ import urllib.request
 import os
 import sys
 import subprocess
+import requests
 
 
 def download_tree(locDir):
@@ -28,6 +29,14 @@ def get_curated_lineage_data(locDir):
     urllib.request.urlretrieve(url2,
                                os.path.join(locDir,
                                             "curated_lineages.json"))
+
+
+def get_cl_lineages(locDir):
+    r = requests.get('https://raw.githubusercontent.com/cov-lineages' +
+                     '/lineages-website/master/data/lineages.yml')
+    if r.status_code == 200:
+        with open(os.path.join(locDir, 'lineages.yml'), 'w+') as f:
+            f.write(r.text)
 
 
 if __name__ == '__main__':
