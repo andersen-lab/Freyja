@@ -61,7 +61,7 @@ By default, this method ships with an existing "data/usher_barcodes.csv" file fo
 ```
 freyja update
 ```
-which downloads new versions of the curated lineage file as well as the UShER global phylogenetic [tree](http://hgdownload.soe.ucsc.edu/goldenPath/wuhCor1/UShER_SARS-CoV-2/), which is subsequently converted into barcodes and saved in "data/usher_barcodes.csv". The ```--outdir``` option can be used to specify a local directory to store the lineage mapping and barcode files. 
+which downloads new versions of the curated lineage file as well as the UShER global phylogenetic [tree](http://hgdownload.soe.ucsc.edu/goldenPath/wuhCor1/UShER_SARS-CoV-2/), which is subsequently converted into barcodes and saved in "data/usher_barcodes.csv". The ```--outdir``` option can be used to specify a local directory to store the lineage mapping and barcode files. By default, Freyja now only includes lineages that are present on [cov-lineages.org](https://cov-lineages.org/). To include proposed lineages and lineages that haven't been released via cov-lineages (usually this lag is no more than a few days), the ``` --noncl``` flag can be used.  
 
 We now provide a fast bootstrapping method for freyja, which can be run using the command
 
@@ -75,7 +75,7 @@ For rapid visualization of results, we also offer two utility methods for manipu
 ```
 freyja aggregate [directory-of-output-files] --output [aggregated-filename.tsv]
 ```
-We also now allow the user to specify a file extension of their choosing, using the ```--ext``` option (for example, for ```demix``` outputs called ```X.output```)
+By default, the minimum genome coverage is set at 60 percent. To adjust this, the ```--mincov``` option can be used (e.g. ```--mincov 75```.We also now allow the user to specify a file extension of their choosing, using the ```--ext``` option (for example, for ```demix``` outputs called ```X.output```)
 
 ```
 freyja aggregate [directory-of-output-files] --output [aggregated-filename.tsv] --ext output
@@ -109,6 +109,6 @@ We are now providing functionality to rapidly prepare a dashboard web page, dire
 ```
 freyja dash [aggregated-filename-tsv] [sample-metadata.csv] [dashboard-title.txt] [introContent.txt] --output [outputname.html]
 ```
-where the metadata file should have this [form](freyja/data/sweep_metadata.csv). See example [title](freyja/data/title.txt) and [intro-text](freyja/data/introContent.txt) files as well. For samples taken the same day, we average the freyja outputs by default. However, averaging can be performed that takes the viral loads into account using the ```--scale_by_viral_load``` flag. The header color can be changed with the ```--headerColor [mycolorname]``` option. The resulting dashboard will look like [this](https://htmlpreview.github.io/?https://github.com/andersen-lab/Freyja/blob/main/freyja/data/test0.html).
+where the metadata file should have this [form](freyja/data/sweep_metadata.csv). See example [title](freyja/data/title.txt) and [intro-text](freyja/data/introContent.txt) files as well. For samples taken the same day, we average the freyja outputs by default. However, averaging can be performed that takes the viral loads into account using the ```--scale_by_viral_load``` flag. The header color can be changed with the ```--headerColor [mycolorname]``` option. The ```--mincov``` option is also available, as in ```plot```. The resulting dashboard will look like [this](https://htmlpreview.github.io/?https://github.com/andersen-lab/Freyja/blob/main/freyja/data/test0.html). 
 
 The plot can now be configured using the ```--config [path-to-plot-config-file]``` option. The [plot config file](freyja/data/plot_config.yml) is a yaml file. More information about the plot config file can be found in the [sample config file](freyja/data/plot_config.yml).
