@@ -79,9 +79,9 @@ def demix(variants, depths, output, eps, barcodes, meta,
 @cli.command()
 @click.option('--outdir', default='-1',
               help='Output directory save updated files')
-@click.option('--cl', default=True,
+@click.option('--noncl', is_flag=True, default=True,
               help='only include lineages in cov-lineages')
-def update(outdir, cl):
+def update(outdir, noncl):
     locDir = os.path.abspath(os.path.join(os.path.realpath(__file__),
                                           os.pardir))
     if outdir != '-1':
@@ -110,7 +110,7 @@ def update(outdir, cl):
     # as default:
     # since usher tree can be ahead of cov-lineages,
     # we drop lineages not in cov-lineages
-    if cl:
+    if noncl:
         # read linages.yml file
         with open(os.path.join(locDir, 'lineages.yml'), 'r') as f:
             try:
@@ -119,6 +119,8 @@ def update(outdir, cl):
                 raise ValueError('Error in lineages.yml file: ' + str(exc))
         lineageNames = [lineage['name'] for lineage in lineages_yml]
         df_barcodes = df_barcodes.loc[df_barcodes.index.isin(lineageNames)]
+    else:
+        print("Including lineages not yet in cov-lineages.")
     df_barcodes.to_csv(os.path.join(locDir, 'usher_barcodes.csv'))
     # delete files generated along the way that aren't needed anymore
     print('Cleaning up')
