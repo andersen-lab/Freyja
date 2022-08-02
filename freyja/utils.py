@@ -630,7 +630,8 @@ def make_dashboard(agg_df, meta_df, thresh, title, introText,
               <head><meta charset='utf-8' /></head>\n\
               <body>\n\
               <style>\n\
-              h1 {background: " + headerColor + "; color: white; height: 62px;\n\
+              h1 {background: " + headerColor +\
+             "; color: white; height: 62px;\n\
                   font-family:  font-family: 'Helvetica Neue', sans-serif;\n\
                    font-size: 50px; font-weight: bold;}\n\
               h2 {background: mediumpurple; font-size: 24px; color: white;\n\
