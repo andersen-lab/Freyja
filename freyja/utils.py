@@ -69,8 +69,7 @@ def get_color_scheme(df, default_color_scheme, config=None):
             break
 
     if default_colors is None and len(config.keys()) < df.shape[1]:
-        raise Exception('No default color scheme found for this number of' +
-                        ' variants.')
+        raise Exception('Too many lineages to show. Use --config to group.')
 
     for i, col in enumerate(df.columns):
         if any(col == i['name'] for i in config.values()) and config != {}:
@@ -702,16 +701,10 @@ if __name__ == '__main__':
             config = yaml.safe_load(f)
         except yaml.YAMLError as exc:
             raise ValueError('Error in config file: ' + str(exc))
-    import requests
-    r = requests.get('https://raw.githubusercontent.com/cov-lineages' +
-                     '/lineages-website/master/data/lineages.yml')
-    if r.status_code == 200:
-        with open('freyja/data/lineages.yml', 'w+') as f:
-            f.write(r.text)
-    elif os.path.exists('freyja/data/lineages.yml'):
+    if os.path.exists('freyja/data/lineages.yml'):
         print('Using existing lineages.yml')
     else:
-        raise FileNotFoundError('Could not download or find lineages.yml')
+        raise FileNotFoundError('Update. Could not find lineages.yml')
 
     # read linages.yml file
     with open('freyja/data/lineages.yml', 'r') as f:

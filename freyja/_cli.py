@@ -6,22 +6,20 @@ from freyja.sample_deconv import buildLineageMap, build_mix_and_depth_arrays,\
     reindex_dfs, map_to_constellation, solve_demixing_problem,\
     perform_bootstrap
 from freyja.updates import download_tree, convert_tree,\
-    get_curated_lineage_data
+    get_curated_lineage_data, get_cl_lineages
 from freyja.utils import agg, makePlot_simple, makePlot_time,\
     make_dashboard, checkConfig
-import requests
 import os
 import glob
 import subprocess
 import sys
-import warnings
 import yaml
 
 locDir = os.path.abspath(os.path.join(os.path.realpath(__file__), os.pardir))
 
 
 @click.group()
-@click.version_option('1.3.9')
+@click.version_option('1.3.10')
 def cli():
     pass
 
@@ -81,7 +79,9 @@ def demix(variants, depths, output, eps, barcodes, meta,
 @cli.command()
 @click.option('--outdir', default='-1',
               help='Output directory save updated files')
-def update(outdir):
+@click.option('--cl', default=True,
+              help='only include lineages in cov-lineages')
+def update(outdir, cl):
     locDir = os.path.abspath(os.path.join(os.path.realpath(__file__),
                                           os.pardir))
     if outdir != '-1':
@@ -89,7 +89,7 @@ def update(outdir):
         locDir = outdir
     else:
         locDir = os.path.join(locDir, 'data')
-    # get data from UShER
+    # # get data from UShER
     print('Downloading a new global tree')
     download_tree(locDir)
     print('Getting outbreak data')
@@ -104,6 +104,21 @@ def update(outdir):
     df_barcodes = convert_to_barcodes(df)
     df_barcodes = reversion_checking(df_barcodes)
     df_barcodes = check_mutation_chain(df_barcodes)
+
+    # get lineage metadata from cov-lineages
+    get_cl_lineages(locDir)
+    # as default:
+    # since usher tree can be ahead of cov-lineages,
+    # we drop lineages not in cov-lineages
+    if cl:
+        # read linages.yml file
+        with open(os.path.join(locDir, 'lineages.yml'), 'r') as f:
+            try:
+                lineages_yml = yaml.safe_load(f)
+            except yaml.YAMLError as exc:
+                raise ValueError('Error in lineages.yml file: ' + str(exc))
+        lineageNames = [lineage['name'] for lineage in lineages_yml]
+        df_barcodes = df_barcodes.loc[df_barcodes.index.isin(lineageNames)]
     df_barcodes.to_csv(os.path.join(locDir, 'usher_barcodes.csv'))
     # delete files generated along the way that aren't needed anymore
     print('Cleaning up')
@@ -271,25 +286,11 @@ to include coverage estimates.')
             except yaml.YAMLError as exc:
                 raise ValueError('Error in config file: ' + str(exc))
 
-    # Download lineages.yml from cov-lineage repository.
-    # and save it as lineages.yml
-    r = requests.get('https://raw.githubusercontent.com/cov-lineages/' +
-                     'lineages-website/master/data/lineages.yml')
-    if r.status_code == 200:
-        print('Downloading lineages.yml')
-        with open(os.path.join(locDir, 'data/lineages.yml'), 'w+') as f:
-            f.write(r.text)
-    elif os.path.exists(os.path.join(locDir, 'data/lineages.yml')):
-        print('Unable to download. Using existing lineages.yml')
-        warnings.warn('Exsiting lineages.yml may not be up to date.')
-    else:
-        raise FileNotFoundError('Could not download or find lineages.yml')
-
     with open(os.path.join(locDir, 'data/lineages.yml'), 'r') as f:
         try:
             lineages_yml = yaml.safe_load(f)
         except yaml.YAMLError as exc:
-            raise ValueError('Error in lineages.yml file: ' + str(exc))
+            raise ValueError('lineages.yml error, run update: ' + str(exc))
 
     # converts lineages_yml to a dictionary where the lineage names are the
     # keys.
