@@ -32,8 +32,11 @@ def get_curated_lineage_data(locDir):
 
 
 def get_cl_lineages(locDir):
-    r = requests.get('https://raw.githubusercontent.com/cov-lineages' +
-                     '/lineages-website/master/data/lineages.yml')
+    # for now, use lineages metadata created using patch
+    r = requests.get('https://raw.githubusercontent.com/outbreak-info/' +
+                     'outbreak.info/master/curated_reports_prep/lineages.yml')
+    # r = requests.get('https://raw.githubusercontent.com/cov-lineages' +
+    #                  '/lineages-website/master/data/lineages.yml')
     if r.status_code == 200:
         with open(os.path.join(locDir, 'lineages.yml'), 'w+') as f:
             f.write(r.text)
