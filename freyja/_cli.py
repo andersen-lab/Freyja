@@ -255,13 +255,14 @@ to include coverage estimates.')
 @click.argument('title', type=click.Path(exists=True))
 @click.argument('intro', type=click.Path(exists=True))
 @click.option('--thresh', default=0.01, help='min lineage abundance included')
-@click.option('--headerColor', default='mediumpurple', help='color of header')
+@click.option('--headerColor', default='#2fdcf5', help='color of header')
+@click.option('--bodyColor', default='#ffffff', help='color of body')
 @click.option('--scale_by_viral_load', is_flag=True,
               help='scale by viral load')
 @click.option('--config', default=None, help='path to yaml file')
 @click.option('--mincov', default=60., help='min genome coverage included')
 @click.option('--output', default='mydashboard.html', help='Output html file')
-def dash(agg_results, metadata, title, intro, thresh, headercolor,
+def dash(agg_results, metadata, title, intro, thresh, headercolor, bodycolor,
          scale_by_viral_load, config, output, mincov):
     agg_df = pd.read_csv(agg_results, skipinitialspace=True, sep='\t',
                          index_col=0)
@@ -305,7 +306,7 @@ to include coverage estimates.')
     else:
         config = {}
     make_dashboard(agg_df, meta_df, thresh, titleText, introText,
-                   output, headercolor, scale_by_viral_load, config,
+                   output, headercolor, bodycolor, scale_by_viral_load, config,
                    lineage_info)
 
 

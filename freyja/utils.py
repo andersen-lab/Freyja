@@ -2,6 +2,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import re
 import copy
+from datetime import datetime
 import matplotlib.dates as mdates
 import plotly.graph_objects as go
 import plotly.express as px
@@ -333,7 +334,7 @@ def makePlot_time(agg_df, lineages, times_df, interval, outputFn,
 
 
 def make_dashboard(agg_df, meta_df, thresh, title, introText,
-                   outputFn, headerColor, scale_by_viral_load,
+                   outputFn, headerColor, bodyColor, scale_by_viral_load,
                    config, lineage_info):
     # beta version of dash output
     agg_df = prepLineageDict(agg_df, config=config.get('Lineages'),
@@ -625,48 +626,24 @@ def make_dashboard(agg_df, meta_df, thresh, title, introText,
     # generate plot as a div, to combine with additional html/css
     fig.write_html("div-plot.html", full_html=False, default_width='50%',
                    config={'displaylogo': False, 'displayModeBar': False})
-    # now assemble into a web page
-    header = "<html>\n \
-              <head><meta charset='utf-8' /></head>\n\
-              <body>\n\
-              <style>\n\
-              h1 {background: " + headerColor +\
-             "; color: white; height: 62px;\n\
-                  font-family:  font-family: 'Helvetica Neue', sans-serif;\n\
-                   font-size: 50px; font-weight: bold;}\n\
-              h2 {background: mediumpurple; font-size: 24px; color: white;\n\
-                  font-family:  font-family: 'Open Sans', sans-serif;}\n\
-              p {font-family: sans-serif}\n\
-              </style>\n\
-              <div class='header' align='center'> \n\
-              <h1>" + title + "</h1> \n\
-              <p>" + introText + "</p> \n\
-              </div>\n"
-    bottom = "</body> \n\
-                <p align='right'>\
-                <img src='https://tinyurl.com/freyjaLogo' \
-                alt='Freyja logo' width=100 height=100> </p>\n\
-                <p align='right'> Made with\
-                <a href= https://github.com/andersen-lab/Freyja> Freyja </a>\
-                </p>\n\
-                <hr>\n\
-                </html>"
+    # Generate a web page with the plot by placing it in the template.
+    locDir = os.path.abspath(os.path.join(os.path.realpath(__file__),
+                             os.pardir))
+    webpage = open(os.path.join(locDir,
+                                'data/dashboard_template.html'),
+                   "r").read()
+    webpage = webpage.replace("{title}", title)
+    webpage = webpage.replace("{introText}", introText)
+    webpage = webpage.replace("{plot}", open("div-plot.html", "r").read())
+    webpage = webpage.replace("{lastUpdated}",
+                              str(datetime.now().strftime("%b-%d-%Y %H:%M")))
+    webpage = webpage.replace("{headerColor}",
+                              headerColor)
+    webpage = webpage.replace("{bodyColor}",
+                              bodyColor)
 
-    centereddiv = "<div align='center'><script type=\
-                  'text/javascript'>window.PlotlyConfig =\
-                  {MathJaxConfig: 'local'};</script>"
-
-    filenames = ['div-plot.html']
     with open(outputFn, 'w') as outfile:
-        outfile.write(header)
-        for fname in filenames:
-            with open(fname) as infile:
-                for j, line in enumerate(infile):
-                    if j == 0:
-                        outfile.write(centereddiv)
-                    else:
-                        outfile.write(line)
-        outfile.write(bottom)
+        outfile.write(webpage)
     os.remove('div-plot.html')
     print("Plot saved to " + outputFn)
 
