@@ -8,7 +8,7 @@ from freyja.sample_deconv import buildLineageMap, build_mix_and_depth_arrays,\
 from freyja.updates import download_tree, convert_tree,\
     get_curated_lineage_data, get_cl_lineages
 from freyja.utils import agg, makePlot_simple, makePlot_time,\
-    make_dashboard, checkConfig
+    make_dashboard, checkConfig, get_abundance, calc_rel_growth_rates
 import os
 import glob
 import subprocess
@@ -259,11 +259,12 @@ to include coverage estimates.')
 @click.option('--bodyColor', default='#ffffff', help='color of body')
 @click.option('--scale_by_viral_load', is_flag=True,
               help='scale by viral load')
+@click.option('--nboots', default=1000, help='Number of Bootstrap iterations')
 @click.option('--config', default=None, help='path to yaml file')
 @click.option('--mincov', default=60., help='min genome coverage included')
 @click.option('--output', default='mydashboard.html', help='Output html file')
 def dash(agg_results, metadata, title, intro, thresh, headercolor, bodycolor,
-         scale_by_viral_load, config, output, mincov):
+         scale_by_viral_load, nboots, config, output, mincov):
     agg_df = pd.read_csv(agg_results, skipinitialspace=True, sep='\t',
                          index_col=0)
     # drop poor quality samples
@@ -307,7 +308,56 @@ to include coverage estimates.')
         config = {}
     make_dashboard(agg_df, meta_df, thresh, titleText, introText,
                    output, headercolor, bodycolor, scale_by_viral_load, config,
-                   lineage_info)
+                   lineage_info, nboots)
+
+
+@cli.command()
+@click.argument('agg_results', type=click.Path(exists=True))
+@click.argument('metadata', type=click.Path(exists=True))
+@click.option('--thresh', default=0.01, help='min lineage abundance included')
+@click.option('--scale_by_viral_load', is_flag=True,
+              help='scale by viral load')
+@click.option('--nboots', default=1000, help='Number of Bootstrap iterations')
+@click.option('--config', default=None, help='path to yaml file')
+@click.option('--mincov', default=60., help='min genome coverage included')
+@click.option('--output', default='rel_growth_rates.csv',
+              help='Output html file')
+def relgrowthrate(agg_results, metadata, thresh, scale_by_viral_load, nboots,
+                  config, mincov, output):
+    agg_df = pd.read_csv(agg_results, skipinitialspace=True, sep='\t',
+                         index_col=0)
+    # drop poor quality samples
+    if 'coverage' in agg_df.columns:
+        agg_df = agg_df[agg_df['coverage'] > mincov]
+    else:
+        print('WARNING: Freyja should be updated \
+to include coverage estimates.')
+    agg_df = agg_df[agg_df['summarized'] != '[]']
+
+    meta_df = pd.read_csv(metadata, index_col=0)
+    meta_df['sample_collection_datetime'] = \
+        pd.to_datetime(meta_df['sample_collection_datetime'])
+    with open(os.path.join(locDir, 'data/lineages.yml'), 'r') as f:
+        try:
+            lineages_yml = yaml.safe_load(f)
+        except yaml.YAMLError as exc:
+            raise ValueError('lineages.yml error, run update: ' + str(exc))
+
+    # converts lineages_yml to a dictionary where the lineage names are the
+    # keys.
+    lineage_info = {}
+    for lineage in lineages_yml:
+        lineage_info[lineage['name']] = {'name': lineage['name'],
+                                         'children': lineage['children']}
+    if config is not None:
+        config = checkConfig(config)
+    else:
+        config = {}
+    df_ab_lin, df_ab_sum, dates_to_keep = get_abundance(agg_df, meta_df,
+                                                        thresh,
+                                                        scale_by_viral_load,
+                                                        config, lineage_info)
+    calc_rel_growth_rates(df_ab_lin.copy(deep=True), nboots, output)
 
 
 if __name__ == '__main__':

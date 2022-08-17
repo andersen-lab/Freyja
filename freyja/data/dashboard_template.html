@@ -36,19 +36,28 @@
                         </div>
                     </div>
                 </div>
-                <div class='row' , style='padding-top: 20px;'>
+                <div class='row'>
                     <div class='col-sm-12'>
-                        <div class='card'>
+                        <div class='card mt-3'>
                             <div class='card-body'>
                                 <h5 class='card-title'>Plot</h5>
                                 <br>
                                 <!-- resize with card height -->
                                 <div id='chart_div' style='overflow: auto'>
-                                    <div align='center'><script type='text/javascript'>window.PlotlyConfig ={MathJaxConfig: 'local'};</script>
-                                    {plot}
+                                    <div align='center'>
+                                        <script
+                                            type='text/javascript'>window.PlotlyConfig = { MathJaxConfig: 'local' };</script>
+                                        {plot}
                                     </div>
                                 </div>
                                 <p class='card-text'><small class='text-muted'>Last updated {lastUpdated}</small></p>
+                            </div>
+                        </div>
+                        <div class='card mt-3'>
+                            <div class='card-body'>
+                                <h5 class='card-title'>Relative Growth Rates</h5>
+                                <br>
+                                {table}
                             </div>
                         </div>
                     </div>
@@ -65,7 +74,7 @@
         </div>
         <div>
             <svg class='waves' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'
-                viewBox='0 8 150 40' preserveAspectRatio='none' shape-rendering='auto'> 
+                viewBox='0 8 150 40' preserveAspectRatio='none' shape-rendering='auto'>
                 <defs>
                     <path id='gentle-wave'
                         d='M-160 44c30 0 58-18 88-18s 58 18 88 18 58-18 88-18 58 18 88 18 v44h-352z' />
@@ -88,6 +97,15 @@
 
     body {
         background-color: {bodyColor};
+    }
+
+    thead>tr>th{
+        background-color: black !important;
+        color: white !important;
+    }
+
+    tr{
+        text-align: right !important;
     }
 
     .waves {

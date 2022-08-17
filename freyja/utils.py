@@ -1,13 +1,17 @@
-import matplotlib.pyplot as plt
-import pandas as pd
-import re
 import copy
-from datetime import datetime
-import matplotlib.dates as mdates
-import plotly.graph_objects as go
-import plotly.express as px
 import os
+import re
+import tqdm
+
+import matplotlib.dates as mdates
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+import plotly.express as px
+import plotly.graph_objects as go
+from datetime import datetime
 import yaml
+from scipy.optimize import curve_fit
 
 
 def agg(results):
@@ -37,6 +41,108 @@ def checkConfig(config):
                         raise ValueError(f'{key} key missing {k} key' +
                                          ' in the config file')
     return config
+
+
+def logistic_growth(ndays, b, r):
+    return 1 / (1 + (b * np.exp(-1 * r * ndays)))
+
+
+# Calcualate the relative growth rates of the lineages and return a dataFrame.
+def calc_rel_growth_rates(df, nboots, outputFn):
+    df.index.name = 'Date'
+    df.reset_index(inplace=True)
+    df['Date'] = pd.to_datetime(df['Date'])
+    df.columns = [dfc.split(' (')[0] for dfc in df.columns]
+    df = df.set_index('Date')
+
+    df = df.dropna(axis=0, how='all')
+    df = df.fillna(0)
+    df = df/100.
+    # df['Other'] = 1. - df['Delta']- df['Omicron']- df['Alpha']
+    # df2 = df[['Alpha','Delta','Omicron','Other']]
+    # df = df.drop(columns=['Alpha','Delta','Omicron','Other'])
+    # df.set_index('Date', inplace=True)
+    nBack = next((x[0]+1 for x in enumerate(df.index[::-1])
+                 if (df.index[-1] - x[1]).days > 56), 0)
+    rel_growth_rate = {
+        'Lineage': [],
+        'Estimated Advantage': [],
+        'Bootstrap 95% interval': [],
+    }
+    # get all lineages present at >0.1% average over last 8 weeks
+    lineages = df.columns[df.iloc[-nBack:].mean(axis=0) > 0.001]
+    for k, lineage in tqdm.tqdm(enumerate(lineages)):
+        days = np.array([(dfi - df.index[-nBack]).days
+                         for j, dfi in enumerate(df.index[-nBack:])])
+        data = df[lineage][-len(days):]
+        fit, covar = curve_fit(
+            f=logistic_growth,
+            xdata=days,
+            ydata=data,
+            p0=[0.003, 0.008],
+            bounds=([-1000] * 2, [1000] * 2)
+        )
+
+        # build 95% CI by bootstrapping.
+
+        bootSims = []
+        coef_ests = []
+        for j in range(nboots):
+            bootInds = np.random.randint(0, len(days), len(days))
+            daysBoot = days[bootInds]
+            dataBoot = data[bootInds]
+            try:
+                fitBoot, covarBoot = curve_fit(
+                    f=logistic_growth,
+                    xdata=daysBoot,
+                    ydata=dataBoot,
+                    p0=[100, 0.1],
+                    bounds=([-1000] * 2, [1000] * 2)
+                )
+            except RuntimeError:
+                print('WARNING: Optimal parameters not found: The maximum' +
+                      ' number of function evaluations is exceeded.')
+
+            bootSims.append([logistic_growth(i, *fitBoot) for i in days])
+            coef_ests.append(fitBoot[1])
+
+        bootSims = np.array(bootSims)
+        # boot_lower = np.percentile(bootSims,2.5,axis=0)
+        # boot_upper = np.percentile(bootSims,97.5,axis=0)
+
+        coef_lower = np.percentile(coef_ests, 2.5)
+        coef_upper = np.percentile(coef_ests, 97.5)
+
+        # fig, ax = plt.subplots()
+        # fit_ = [logistic_growth(i, *fit) for i in days]
+        # ax.plot(df.index[-len(days):],fit_,color=colors[k])
+        # ax.plot(df.index[-len(days):],data,'o',color=colors[k])
+        # ax.fill_between(df.index[-len(days):],boot_lower,boot_upper,alpha=0.4,color=colors[k])
+        # locator =mdates.MonthLocator(bymonthday=1)
+        # ax.xaxis.set_major_locator(locator)
+        # ax.xaxis.set_major_formatter(mdates.ConciseDateFormatter(locator))
+        # ax.set_ylabel('Prevalence')
+        # plt.savefig('fitting_'+lineage+'.pdf')
+
+        rate0 = fit[1]
+        serial_interval = 5.5
+
+        # doub_time = np.log(2) / rate0
+        trans_increase = serial_interval * rate0
+        rel_growth_rate['Lineage'].append(lineage)
+        rel_growth_rate['Estimated Advantage'].append(f'{trans_increase:.1%}')
+        rel_growth_rate['Bootstrap 95% interval'].append(
+            f'[{serial_interval*coef_lower:0.2%} ' +
+            f', {serial_interval*coef_upper:0.2%}]'
+            )
+    pd.DataFrame.from_dict(
+        rel_growth_rate,
+        orient='columns'
+        ).sort_values(
+            by='Estimated Advantage',
+            ascending=False
+            ).to_csv(outputFn.replace('.html', '_rel_growth_rates.csv'),
+                     index=False)
 
 
 # Get value from the config dictionary.
@@ -333,10 +439,8 @@ def makePlot_time(agg_df, lineages, times_df, interval, outputFn,
                and Monthly (MS) time plots.')
 
 
-def make_dashboard(agg_df, meta_df, thresh, title, introText,
-                   outputFn, headerColor, bodyColor, scale_by_viral_load,
-                   config, lineage_info):
-    # beta version of dash output
+def get_abundance(agg_df, meta_df, thresh, scale_by_viral_load, config,
+                  lineage_info):
     agg_df = prepLineageDict(agg_df, config=config.get('Lineages'),
                              lineage_info=lineage_info)
     agg_df = prepSummaryDict(agg_df)
@@ -426,6 +530,20 @@ def make_dashboard(agg_df, meta_df, thresh, title, introText,
 
     df_ab_sum = df_ab_sum.groupby(level=0).mean()
     df_ab_sum = df_ab_sum.sort_index()
+
+    return df_ab_lin, df_ab_sum, dates_to_keep
+
+
+def make_dashboard(agg_df, meta_df, thresh, title, introText,
+                   outputFn, headerColor, bodyColor, scale_by_viral_load,
+                   config, lineage_info, nboots):
+    df_ab_lin, df_ab_sum, dates_to_keep = get_abundance(agg_df, meta_df,
+                                                        thresh,
+                                                        scale_by_viral_load,
+                                                        config, lineage_info)
+
+    calc_rel_growth_rates(df_ab_lin.copy(deep=True), nboots, outputFn)
+
     fig = go.Figure()
 
     default_color_lin = {
@@ -641,6 +759,15 @@ def make_dashboard(agg_df, meta_df, thresh, title, introText,
                               headerColor)
     webpage = webpage.replace("{bodyColor}",
                               bodyColor)
+    webpage = webpage.replace("{table}",
+                              pd.read_csv(
+                                outputFn.replace('.html',
+                                                 '_rel_growth_rates.csv'))
+                                .to_html(index=False)
+                                .replace('dataframe',
+                                         'table table-bordered table-hover' +
+                                         ' table-striped table-light' +
+                                         ' table-bordered'))
 
     with open(outputFn, 'w') as outfile:
         outfile.write(webpage)
@@ -674,6 +801,7 @@ if __name__ == '__main__':
         introText = ''.join(f.readlines())
     outputFn = 'tester0.html'
     headerColor = 'mediumpurple'
+    bodyColor = 'white'
     with open('freyja/data/plot_config.yml', "r") as f:
         try:
             config = yaml.safe_load(f)
