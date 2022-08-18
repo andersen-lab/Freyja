@@ -48,7 +48,8 @@ def logistic_growth(ndays, b, r):
 
 
 # Calcualate the relative growth rates of the lineages and return a dataFrame.
-def calc_rel_growth_rates(df, nboots, serial_interval, outputFn):
+def calc_rel_growth_rates(df, nboots, serial_interval, outputFn,
+                          daysIncluded=56):
     df.index.name = 'Date'
     df.reset_index(inplace=True)
     df['Date'] = pd.to_datetime(df['Date'])
@@ -57,13 +58,10 @@ def calc_rel_growth_rates(df, nboots, serial_interval, outputFn):
 
     df = df.dropna(axis=0, how='all')
     df = df.fillna(0)
-    df = df/100.
-    # df['Other'] = 1. - df['Delta']- df['Omicron']- df['Alpha']
-    # df2 = df[['Alpha','Delta','Omicron','Other']]
-    # df = df.drop(columns=['Alpha','Delta','Omicron','Other'])
-    # df.set_index('Date', inplace=True)
-    nBack = next((x[0]+1 for x in enumerate(df.index[::-1])
-                 if (df.index[-1] - x[1]).days > 56), 0)
+    df = df / 100.
+    # go as far back as we can, within daysIncluded limit
+    nBack = next((x[0] + 1 for x in enumerate(df.index[::-1])
+                 if (df.index[-1] - x[1]).days > daysIncluded), 0)
     rel_growth_rate = {
         'Lineage': [],
         'Estimated Advantage': [],
@@ -71,7 +69,9 @@ def calc_rel_growth_rates(df, nboots, serial_interval, outputFn):
     }
     # get all lineages present at >0.1% average over last 8 weeks
     lineages = df.columns[df.iloc[-nBack:].mean(axis=0) > 0.001]
+    print(f"Starting rate calculations for {len(lineages)} lineages/groups")
     for k, lineage in tqdm.tqdm(enumerate(lineages)):
+        print(f"\nCalculating relative rate for {lineage}")
         days = np.array([(dfi - df.index[-nBack]).days
                          for j, dfi in enumerate(df.index[-nBack:])])
         data = df[lineage][-len(days):]
@@ -79,12 +79,10 @@ def calc_rel_growth_rates(df, nboots, serial_interval, outputFn):
             f=logistic_growth,
             xdata=days,
             ydata=data,
-            p0=[0.003, 0.008],
-            bounds=([-1000] * 2, [1000] * 2)
+            p0=[100, 0.1],
+            bounds=([0, -10], [1000, 10])
         )
-
         # build 95% CI by bootstrapping.
-
         bootSims = []
         coef_ests = []
         for j in range(nboots):
@@ -97,7 +95,7 @@ def calc_rel_growth_rates(df, nboots, serial_interval, outputFn):
                     xdata=daysBoot,
                     ydata=dataBoot,
                     p0=[100, 0.1],
-                    bounds=([-1000] * 2, [1000] * 2)
+                    bounds=([0, -10], [1000, 10])
                 )
             except RuntimeError:
                 print('WARNING: Optimal parameters not found: The maximum' +
@@ -118,17 +116,14 @@ def calc_rel_growth_rates(df, nboots, serial_interval, outputFn):
         rel_growth_rate['Estimated Advantage'].append(f'{trans_increase:.1%}')
         rel_growth_rate['Bootstrap 95% interval'].append(
             f'[{serial_interval*coef_lower:0.2%} ' +
-            f', {serial_interval*coef_upper:0.2%}]'
-            )
+            f', {serial_interval*coef_upper:0.2%}]')
     if outputFn.endswith('.html'):
         outputFn = outputFn.replace('.html', '_rel_growth_rates.csv')
     pd.DataFrame.from_dict(
         rel_growth_rate,
-        orient='columns'
-        ).sort_values(
+        orient='columns').sort_values(
             by='Estimated Advantage',
-            ascending=False
-            ).to_csv(outputFn, index=False)
+            ascending=False).to_csv(outputFn, index=False)
     print("CSV file saved to " + outputFn)
 
 
@@ -523,14 +518,14 @@ def get_abundance(agg_df, meta_df, thresh, scale_by_viral_load, config,
 
 def make_dashboard(agg_df, meta_df, thresh, title, introText,
                    outputFn, headerColor, bodyColor, scale_by_viral_load,
-                   config, lineage_info, nboots, serial_interval):
+                   config, lineage_info, nboots, serial_interval, days):
     df_ab_lin, df_ab_sum, dates_to_keep = get_abundance(agg_df, meta_df,
                                                         thresh,
                                                         scale_by_viral_load,
                                                         config, lineage_info)
 
     calc_rel_growth_rates(df_ab_lin.copy(deep=True), nboots,
-                          serial_interval, outputFn)
+                          serial_interval, outputFn, daysIncluded=days)
 
     fig = go.Figure()
 
@@ -573,6 +568,7 @@ def make_dashboard(agg_df, meta_df, thresh, title, introText,
             stackgroup='one',
         ))
     # if needed, drop dates with missing viral load metadata
+    meta_df = meta_df.set_index('sample_collection_datetime')
     if len(dates_to_keep) < meta_df.shape[0]:
         meta_df = meta_df.loc[dates_to_keep]
         df_ab_sum = df_ab_sum.loc[dates_to_keep]

@@ -19,7 +19,7 @@ locDir = os.path.abspath(os.path.join(os.path.realpath(__file__), os.pardir))
 
 
 @click.group()
-@click.version_option('1.3.10')
+@click.version_option('1.3.11')
 def cli():
     pass
 
@@ -264,8 +264,10 @@ to include coverage estimates.')
 @click.option('--config', default=None, help='path to yaml file')
 @click.option('--mincov', default=60., help='min genome coverage included')
 @click.option('--output', default='mydashboard.html', help='Output html file')
+@click.option('--days', default=56, help='N Days used for growth calc')
 def dash(agg_results, metadata, title, intro, thresh, headercolor, bodycolor,
-         scale_by_viral_load, nboots, serial_interval, config, mincov, output):
+         scale_by_viral_load, nboots, serial_interval, config, mincov, output,
+         days):
     agg_df = pd.read_csv(agg_results, skipinitialspace=True, sep='\t',
                          index_col=0)
     # drop poor quality samples
@@ -309,7 +311,7 @@ to include coverage estimates.')
         config = {}
     make_dashboard(agg_df, meta_df, thresh, titleText, introText,
                    output, headercolor, bodycolor, scale_by_viral_load, config,
-                   lineage_info, nboots, serial_interval)
+                   lineage_info, nboots, serial_interval, days)
 
 
 @cli.command()
@@ -324,8 +326,9 @@ to include coverage estimates.')
 @click.option('--mincov', default=60., help='min genome coverage included')
 @click.option('--output', default='rel_growth_rates.csv',
               help='Output html file')
+@click.option('--days', default=56, help='N Days used for growth calc')
 def relgrowthrate(agg_results, metadata, thresh, scale_by_viral_load, nboots,
-                  serial_interval, config, mincov, output):
+                  serial_interval, config, mincov, output, days):
     agg_df = pd.read_csv(agg_results, skipinitialspace=True, sep='\t',
                          index_col=0)
     # drop poor quality samples
@@ -360,7 +363,7 @@ to include coverage estimates.')
                                                         scale_by_viral_load,
                                                         config, lineage_info)
     calc_rel_growth_rates(df_ab_lin.copy(deep=True), nboots,
-                          serial_interval, output)
+                          serial_interval, output, daysIncluded=days)
 
 
 if __name__ == '__main__':
