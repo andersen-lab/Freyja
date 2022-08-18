@@ -112,7 +112,6 @@ def calc_rel_growth_rates(df, nboots, serial_interval, outputFn):
         coef_upper = np.percentile(coef_ests, 97.5)
 
         rate0 = fit[1]
-        serial_interval = 5.5
 
         trans_increase = serial_interval * rate0
         rel_growth_rate['Lineage'].append(lineage)
