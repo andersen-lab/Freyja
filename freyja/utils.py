@@ -48,7 +48,7 @@ def logistic_growth(ndays, b, r):
 
 
 # Calcualate the relative growth rates of the lineages and return a dataFrame.
-def calc_rel_growth_rates(df, nboots, outputFn):
+def calc_rel_growth_rates(df, nboots, serial_interval, outputFn):
     df.index.name = 'Date'
     df.reset_index(inplace=True)
     df['Date'] = pd.to_datetime(df['Date'])
@@ -107,27 +107,13 @@ def calc_rel_growth_rates(df, nboots, outputFn):
             coef_ests.append(fitBoot[1])
 
         bootSims = np.array(bootSims)
-        # boot_lower = np.percentile(bootSims,2.5,axis=0)
-        # boot_upper = np.percentile(bootSims,97.5,axis=0)
 
         coef_lower = np.percentile(coef_ests, 2.5)
         coef_upper = np.percentile(coef_ests, 97.5)
 
-        # fig, ax = plt.subplots()
-        # fit_ = [logistic_growth(i, *fit) for i in days]
-        # ax.plot(df.index[-len(days):],fit_,color=colors[k])
-        # ax.plot(df.index[-len(days):],data,'o',color=colors[k])
-        # ax.fill_between(df.index[-len(days):],boot_lower,boot_upper,alpha=0.4,color=colors[k])
-        # locator =mdates.MonthLocator(bymonthday=1)
-        # ax.xaxis.set_major_locator(locator)
-        # ax.xaxis.set_major_formatter(mdates.ConciseDateFormatter(locator))
-        # ax.set_ylabel('Prevalence')
-        # plt.savefig('fitting_'+lineage+'.pdf')
-
         rate0 = fit[1]
         serial_interval = 5.5
 
-        # doub_time = np.log(2) / rate0
         trans_increase = serial_interval * rate0
         rel_growth_rate['Lineage'].append(lineage)
         rel_growth_rate['Estimated Advantage'].append(f'{trans_increase:.1%}')
@@ -135,14 +121,16 @@ def calc_rel_growth_rates(df, nboots, outputFn):
             f'[{serial_interval*coef_lower:0.2%} ' +
             f', {serial_interval*coef_upper:0.2%}]'
             )
+    if outputFn.endswith('.html'):
+        outputFn = outputFn.replace('.html', '_rel_growth_rates.csv')
     pd.DataFrame.from_dict(
         rel_growth_rate,
         orient='columns'
         ).sort_values(
             by='Estimated Advantage',
             ascending=False
-            ).to_csv(outputFn.replace('.html', '_rel_growth_rates.csv'),
-                     index=False)
+            ).to_csv(outputFn, index=False)
+    print("CSV file saved to " + outputFn)
 
 
 # Get value from the config dictionary.
@@ -536,13 +524,14 @@ def get_abundance(agg_df, meta_df, thresh, scale_by_viral_load, config,
 
 def make_dashboard(agg_df, meta_df, thresh, title, introText,
                    outputFn, headerColor, bodyColor, scale_by_viral_load,
-                   config, lineage_info, nboots):
+                   config, lineage_info, nboots, serial_interval):
     df_ab_lin, df_ab_sum, dates_to_keep = get_abundance(agg_df, meta_df,
                                                         thresh,
                                                         scale_by_viral_load,
                                                         config, lineage_info)
 
-    calc_rel_growth_rates(df_ab_lin.copy(deep=True), nboots, outputFn)
+    calc_rel_growth_rates(df_ab_lin.copy(deep=True), nboots,
+                          serial_interval, outputFn)
 
     fig = go.Figure()
 
@@ -772,7 +761,7 @@ def make_dashboard(agg_df, meta_df, thresh, title, introText,
     with open(outputFn, 'w') as outfile:
         outfile.write(webpage)
     os.remove('div-plot.html')
-    print("Plot saved to " + outputFn)
+    print("Dashboard html file saved to " + outputFn)
 
 
 if __name__ == '__main__':
