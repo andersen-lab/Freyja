@@ -1,12 +1,17 @@
-import matplotlib.pyplot as plt
-import pandas as pd
-import re
 import copy
-import matplotlib.dates as mdates
-import plotly.graph_objects as go
-import plotly.express as px
 import os
+import re
+import tqdm
+
+import matplotlib.dates as mdates
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+import plotly.express as px
+import plotly.graph_objects as go
+from datetime import datetime
 import yaml
+from scipy.optimize import curve_fit
 
 
 def agg(results):
@@ -36,6 +41,90 @@ def checkConfig(config):
                         raise ValueError(f'{key} key missing {k} key' +
                                          ' in the config file')
     return config
+
+
+def logistic_growth(ndays, b, r):
+    return 1 / (1 + (b * np.exp(-1 * r * ndays)))
+
+
+# Calcualate the relative growth rates of the lineages and return a dataFrame.
+def calc_rel_growth_rates(df, nboots, serial_interval, outputFn,
+                          daysIncluded=56):
+    df.index.name = 'Date'
+    df.reset_index(inplace=True)
+    df['Date'] = pd.to_datetime(df['Date'])
+    df.columns = [dfc.split(' (')[0] for dfc in df.columns]
+    df = df.set_index('Date')
+
+    df = df.dropna(axis=0, how='all')
+    df = df.fillna(0)
+    df = df / 100.
+    # go as far back as we can, within daysIncluded limit
+    nBack = next((x[0] + 1 for x in enumerate(df.index[::-1])
+                 if (df.index[-1] - x[1]).days > daysIncluded), 0)
+    rel_growth_rate = {
+        'Lineage': [],
+        'Estimated Advantage': [],
+        'Bootstrap 95% interval': [],
+    }
+    # get all lineages present at >0.1% average over last 8 weeks
+    lineages = df.columns[df.iloc[-nBack:].mean(axis=0) > 0.001]
+    print(f"Starting rate calculations for {len(lineages)} lineages/groups")
+    for k, lineage in tqdm.tqdm(enumerate(lineages)):
+        print(f"\nCalculating relative rate for {lineage}")
+        days = np.array([(dfi - df.index[-nBack]).days
+                         for j, dfi in enumerate(df.index[-nBack:])])
+        data = df[lineage][-len(days):]
+        fit, covar = curve_fit(
+            f=logistic_growth,
+            xdata=days,
+            ydata=data,
+            p0=[100, 0.1],
+            bounds=([0, -10], [1000, 10])
+        )
+        # build 95% CI by bootstrapping.
+        bootSims = []
+        coef_ests = []
+        for j in range(nboots):
+            bootInds = np.random.randint(0, len(days), len(days))
+            daysBoot = days[bootInds]
+            dataBoot = data[bootInds]
+            try:
+                fitBoot, covarBoot = curve_fit(
+                    f=logistic_growth,
+                    xdata=daysBoot,
+                    ydata=dataBoot,
+                    p0=[100, 0.1],
+                    bounds=([0, -10], [1000, 10])
+                )
+            except RuntimeError:
+                print('WARNING: Optimal parameters not found: The maximum' +
+                      ' number of function evaluations is exceeded.')
+
+            bootSims.append([logistic_growth(i, *fitBoot) for i in days])
+            coef_ests.append(fitBoot[1])
+
+        bootSims = np.array(bootSims)
+
+        coef_lower = np.percentile(coef_ests, 2.5)
+        coef_upper = np.percentile(coef_ests, 97.5)
+
+        rate0 = fit[1]
+
+        trans_increase = serial_interval * rate0
+        rel_growth_rate['Lineage'].append(lineage)
+        rel_growth_rate['Estimated Advantage'].append(f'{trans_increase:.1%}')
+        rel_growth_rate['Bootstrap 95% interval'].append(
+            f'[{serial_interval*coef_lower:0.2%} ' +
+            f', {serial_interval*coef_upper:0.2%}]')
+    if outputFn.endswith('.html'):
+        outputFn = outputFn.replace('.html', '_rel_growth_rates.csv')
+    pd.DataFrame.from_dict(
+        rel_growth_rate,
+        orient='columns').sort_values(
+            by='Estimated Advantage',
+            ascending=False).to_csv(outputFn, index=False)
+    print("CSV file saved to " + outputFn)
 
 
 # Get value from the config dictionary.
@@ -332,10 +421,8 @@ def makePlot_time(agg_df, lineages, times_df, interval, outputFn,
                and Monthly (MS) time plots.')
 
 
-def make_dashboard(agg_df, meta_df, thresh, title, introText,
-                   outputFn, headerColor, scale_by_viral_load,
-                   config, lineage_info):
-    # beta version of dash output
+def get_abundance(agg_df, meta_df, thresh, scale_by_viral_load, config,
+                  lineage_info):
     agg_df = prepLineageDict(agg_df, config=config.get('Lineages'),
                              lineage_info=lineage_info)
     agg_df = prepSummaryDict(agg_df)
@@ -425,6 +512,21 @@ def make_dashboard(agg_df, meta_df, thresh, title, introText,
 
     df_ab_sum = df_ab_sum.groupby(level=0).mean()
     df_ab_sum = df_ab_sum.sort_index()
+
+    return df_ab_lin, df_ab_sum, dates_to_keep
+
+
+def make_dashboard(agg_df, meta_df, thresh, title, introText,
+                   outputFn, headerColor, bodyColor, scale_by_viral_load,
+                   config, lineage_info, nboots, serial_interval, days):
+    df_ab_lin, df_ab_sum, dates_to_keep = get_abundance(agg_df, meta_df,
+                                                        thresh,
+                                                        scale_by_viral_load,
+                                                        config, lineage_info)
+
+    calc_rel_growth_rates(df_ab_lin.copy(deep=True), nboots,
+                          serial_interval, outputFn, daysIncluded=days)
+
     fig = go.Figure()
 
     default_color_lin = {
@@ -466,6 +568,7 @@ def make_dashboard(agg_df, meta_df, thresh, title, introText,
             stackgroup='one',
         ))
     # if needed, drop dates with missing viral load metadata
+    meta_df = meta_df.set_index('sample_collection_datetime')
     if len(dates_to_keep) < meta_df.shape[0]:
         meta_df = meta_df.loc[dates_to_keep]
         df_ab_sum = df_ab_sum.loc[dates_to_keep]
@@ -625,50 +728,35 @@ def make_dashboard(agg_df, meta_df, thresh, title, introText,
     # generate plot as a div, to combine with additional html/css
     fig.write_html("div-plot.html", full_html=False, default_width='50%',
                    config={'displaylogo': False, 'displayModeBar': False})
-    # now assemble into a web page
-    header = "<html>\n \
-              <head><meta charset='utf-8' /></head>\n\
-              <body>\n\
-              <style>\n\
-              h1 {background: " + headerColor +\
-             "; color: white; height: 62px;\n\
-                  font-family:  font-family: 'Helvetica Neue', sans-serif;\n\
-                   font-size: 50px; font-weight: bold;}\n\
-              h2 {background: mediumpurple; font-size: 24px; color: white;\n\
-                  font-family:  font-family: 'Open Sans', sans-serif;}\n\
-              p {font-family: sans-serif}\n\
-              </style>\n\
-              <div class='header' align='center'> \n\
-              <h1>" + title + "</h1> \n\
-              <p>" + introText + "</p> \n\
-              </div>\n"
-    bottom = "</body> \n\
-                <p align='right'>\
-                <img src='https://tinyurl.com/freyjaLogo' \
-                alt='Freyja logo' width=100 height=100> </p>\n\
-                <p align='right'> Made with\
-                <a href= https://github.com/andersen-lab/Freyja> Freyja </a>\
-                </p>\n\
-                <hr>\n\
-                </html>"
+    # Generate a web page with the plot by placing it in the template.
+    locDir = os.path.abspath(os.path.join(os.path.realpath(__file__),
+                             os.pardir))
+    webpage = open(os.path.join(locDir,
+                                'data/dashboard_template.html'),
+                   "r").read()
+    webpage = webpage.replace("{title}", title)
+    webpage = webpage.replace("{introText}", introText)
+    webpage = webpage.replace("{plot}", open("div-plot.html", "r").read())
+    webpage = webpage.replace("{lastUpdated}",
+                              str(datetime.now().strftime("%b-%d-%Y %H:%M")))
+    webpage = webpage.replace("{headerColor}",
+                              headerColor)
+    webpage = webpage.replace("{bodyColor}",
+                              bodyColor)
+    webpage = webpage.replace("{table}",
+                              pd.read_csv(
+                                outputFn.replace('.html',
+                                                 '_rel_growth_rates.csv'))
+                                .to_html(index=False)
+                                .replace('dataframe',
+                                         'table table-bordered table-hover' +
+                                         ' table-striped table-light' +
+                                         ' table-bordered'))
 
-    centereddiv = "<div align='center'><script type=\
-                  'text/javascript'>window.PlotlyConfig =\
-                  {MathJaxConfig: 'local'};</script>"
-
-    filenames = ['div-plot.html']
     with open(outputFn, 'w') as outfile:
-        outfile.write(header)
-        for fname in filenames:
-            with open(fname) as infile:
-                for j, line in enumerate(infile):
-                    if j == 0:
-                        outfile.write(centereddiv)
-                    else:
-                        outfile.write(line)
-        outfile.write(bottom)
+        outfile.write(webpage)
     os.remove('div-plot.html')
-    print("Plot saved to " + outputFn)
+    print("Dashboard html file saved to " + outputFn)
 
 
 if __name__ == '__main__':
@@ -697,6 +785,7 @@ if __name__ == '__main__':
         introText = ''.join(f.readlines())
     outputFn = 'tester0.html'
     headerColor = 'mediumpurple'
+    bodyColor = 'white'
     with open('freyja/data/plot_config.yml', "r") as f:
         try:
             config = yaml.safe_load(f)
