@@ -69,9 +69,11 @@ def calc_rel_growth_rates(df, nboots, serial_interval, outputFn,
     }
     # get all lineages present at >0.1% average over last 8 weeks
     lineages = df.columns[df.iloc[-nBack:].mean(axis=0) > 0.001]
-    print(f"Starting rate calculations for {len(lineages)} lineages/groups")
-    for k, lineage in tqdm.tqdm(enumerate(lineages)):
-        print(f"\nCalculating relative rate for {lineage}")
+    rate_cal = tqdm.tqdm(enumerate(lineages), total=len(lineages),
+                         desc='Rate calculations for lineages/groups')
+    for k, lineage in rate_cal:
+        # print(f"\nCalculating relative rate for {lineage}")
+        rate_cal.set_postfix({"Calculating relative rate for": lineage})
         days = np.array([(dfi - df.index[-nBack]).days
                          for j, dfi in enumerate(df.index[-nBack:])])
         data = df[lineage][-len(days):]
