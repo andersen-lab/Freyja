@@ -48,8 +48,8 @@ def logistic_growth(ndays, b, r):
 
 
 # Calcualate the relative growth rates of the lineages and return a dataFrame.
-def calc_rel_growth_rates(df, nboots, serial_interval, outputFn,
-                          daysIncluded=56):
+def calc_rel_growth_rates(df, nboots=1000, serial_interval=5.5,
+                          outputFn='rel_growth_rates.csv', daysIncluded=56):
     df.index.name = 'Date'
     df.reset_index(inplace=True)
     df['Date'] = pd.to_datetime(df['Date'])
