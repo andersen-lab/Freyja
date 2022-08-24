@@ -6,6 +6,7 @@ import os
 import plotly.express as px
 import yaml
 
+
 class UtilsTests(unittest.TestCase):
     def setUp(self):
         self.df_ab_lin = pd.DataFrame.from_dict({
@@ -111,17 +112,17 @@ class UtilsTests(unittest.TestCase):
                 }
             })
         self.dates_to_keep = ['2021-03-01 00:00:00',
-                        '2021-03-03 00:00:00',
-                        '2021-03-08 00:00:00',
-                        '2021-03-10 00:00:00',
-                        '2021-03-12 00:00:00',
-                        '2021-03-14 00:00:00',
-                        '2021-03-17 00:00:00',
-                        '2021-03-20 00:00:00',
-                        '2021-03-25 00:00:00',
-                        '2021-03-30 00:00:00',
-                        '2021-03-31 00:00:00',
-                        '2021-04-04 00:00:00']
+                              '2021-03-03 00:00:00',
+                              '2021-03-08 00:00:00',
+                              '2021-03-10 00:00:00',
+                              '2021-03-12 00:00:00',
+                              '2021-03-14 00:00:00',
+                              '2021-03-17 00:00:00',
+                              '2021-03-20 00:00:00',
+                              '2021-03-25 00:00:00',
+                              '2021-03-30 00:00:00',
+                              '2021-03-31 00:00:00',
+                              '2021-04-04 00:00:00']
         agg_results = 'freyja/data/test_sweep.tsv'
         metadata = 'freyja/data/sweep_metadata.csv'
         config_file = 'freyja/data/plot_config.yml'
@@ -358,7 +359,7 @@ class UtilsTests(unittest.TestCase):
             ), color_scheme_without_config)
 
         self.df_ab_lin.rename(columns={'Q.3': 'grp_1', 'AY.48': 'grp_2'},
-                         inplace=True)
+                              inplace=True)
         self.df_ab_lin.drop(columns=['B.1.617.2'], inplace=True)
         color_scheme_with_config = {
             'grp_1': 'orange',
@@ -373,7 +374,8 @@ class UtilsTests(unittest.TestCase):
             ), color_scheme_with_config)
 
     def test_calc_rel_growth_rates(self):
-        df_rel_growth_rates_expected = pd.read_csv('freyja/data/rel_growth_rates.csv')
+        df_rel_growth_rates_expected = pd.read_csv(
+            'freyja/data/rel_growth_rates.csv')
         self.df_ab_lin.index = pd.to_datetime(self.df_ab_lin.index)
         nboots = 1000
         serial_interval = 5.5
@@ -395,6 +397,7 @@ class UtilsTests(unittest.TestCase):
 
         # Clean up
         os.remove('rel_growth_rates.csv')
+
 
 if __name__ == '__main__':
     unittest.main()
