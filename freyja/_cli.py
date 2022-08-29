@@ -274,8 +274,8 @@ def dash(agg_results, metadata, title, intro, thresh, headercolor, bodycolor,
     if 'coverage' in agg_df.columns:
         agg_df = agg_df[agg_df['coverage'] > mincov]
     else:
-        print('WARNING: Freyja should be updated \
-to include coverage estimates.')
+        print('WARNING: Freyja should be updated ' +
+              'to include coverage estimates.')
     agg_df = agg_df[agg_df['summarized'] != '[]']
 
     meta_df = pd.read_csv(metadata, index_col=0)
@@ -335,13 +335,20 @@ def relgrowthrate(agg_results, metadata, thresh, scale_by_viral_load, nboots,
     if 'coverage' in agg_df.columns:
         agg_df = agg_df[agg_df['coverage'] > mincov]
     else:
-        print('WARNING: Freyja should be updated \
-to include coverage estimates.')
+        print('WARNING: Freyja should be updated ' +
+              'to include coverage estimates.')
     agg_df = agg_df[agg_df['summarized'] != '[]']
 
     meta_df = pd.read_csv(metadata, index_col=0)
     meta_df['sample_collection_datetime'] = \
         pd.to_datetime(meta_df['sample_collection_datetime'])
+    if config is not None:
+        with open(config, "r") as f:
+            try:
+                config = yaml.safe_load(f)
+            except yaml.YAMLError as exc:
+                raise ValueError('Error in config file: ' + str(exc))
+
     with open(os.path.join(locDir, 'data/lineages.yml'), 'r') as f:
         try:
             lineages_yml = yaml.safe_load(f)

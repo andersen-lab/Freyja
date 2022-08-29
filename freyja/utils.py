@@ -48,8 +48,8 @@ def logistic_growth(ndays, b, r):
 
 
 # Calcualate the relative growth rates of the lineages and return a dataFrame.
-def calc_rel_growth_rates(df, nboots, serial_interval, outputFn,
-                          daysIncluded=56):
+def calc_rel_growth_rates(df, nboots=1000, serial_interval=5.5,
+                          outputFn='rel_growth_rates.csv', daysIncluded=56):
     df.index.name = 'Date'
     df.reset_index(inplace=True)
     df['Date'] = pd.to_datetime(df['Date'])
@@ -69,9 +69,11 @@ def calc_rel_growth_rates(df, nboots, serial_interval, outputFn,
     }
     # get all lineages present at >0.1% average over last 8 weeks
     lineages = df.columns[df.iloc[-nBack:].mean(axis=0) > 0.001]
-    print(f"Starting rate calculations for {len(lineages)} lineages/groups")
-    for k, lineage in tqdm.tqdm(enumerate(lineages)):
-        print(f"\nCalculating relative rate for {lineage}")
+    rate_cal = tqdm.tqdm(enumerate(lineages), total=len(lineages),
+                         desc='Rate calculations for lineages/groups')
+    for k, lineage in rate_cal:
+        # print(f"\nCalculating relative rate for {lineage}")
+        rate_cal.set_postfix({"Calculating relative rate for": lineage})
         days = np.array([(dfi - df.index[-nBack]).days
                          for j, dfi in enumerate(df.index[-nBack:])])
         data = df[lineage][-len(days):]

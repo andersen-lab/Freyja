@@ -26,6 +26,6 @@ Lineages:
     color: "green"
 # Currently users can only change the color and not the legend name.
 VOC:
-  Omicron:
+  Delta:
     name: "Delta"
     color: "green"
