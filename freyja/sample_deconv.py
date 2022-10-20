@@ -230,6 +230,22 @@ def perform_bootstrap(df_barcodes, mix, depths_,
                                   for jj0 in tqdm(range(numBootstraps)))
     for i in range(len(out)):
         sample_lins, abundances, localDict = out[i]
+
+        # merge intra-lineage diversity if multiple hits.
+        if len(set(sample_lins)) < len(sample_lins):
+            localDict = {}
+            for jj, lin in enumerate(sample_lins):
+                if lin not in localDict.keys():
+                    localDict[lin] = abundances[jj]
+                else:
+                    localDict[lin] += abundances[jj]
+            # ensure descending order
+            localDict = dict(sorted(localDict.items(),
+                                    key=lambda x: x[1],
+                                    reverse=True))
+            sample_lins = list(localDict.keys())
+            abundances = list(localDict.values())
+
         lin_df = pd.concat([lin_df,
                            pd.DataFrame({sample_lins[j]:
                                          abundances[j]

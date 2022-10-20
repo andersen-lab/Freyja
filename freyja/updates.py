@@ -13,6 +13,14 @@ def download_tree(locDir):
     return treePath
 
 
+def download_barcodes_wgisaid(locDir):
+    url = "https://raw.githubusercontent.com/andersen-lab/"\
+          "Freyja/main/freyja/data/usher_barcodes_with_gisaid.csv"
+    bPath = os.path.join(locDir, "usher_barcodes_with_gisaid.csv")
+    urllib.request.urlretrieve(url, bPath)
+    return bPath
+
+
 def convert_tree(locDir):
     print(locDir)
     treePath = os.path.join(locDir, "public-latest.all.masked.pb.gz")

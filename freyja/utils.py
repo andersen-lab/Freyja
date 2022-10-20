@@ -49,7 +49,8 @@ def logistic_growth(ndays, b, r):
 
 # Calcualate the relative growth rates of the lineages and return a dataFrame.
 def calc_rel_growth_rates(df, nboots=1000, serial_interval=5.5,
-                          outputFn='rel_growth_rates.csv', daysIncluded=56):
+                          outputFn='rel_growth_rates.csv', daysIncluded=56,
+                          grThresh=0.05):
     df.index.name = 'Date'
     df.reset_index(inplace=True)
     df['Date'] = pd.to_datetime(df['Date'])
@@ -59,6 +60,9 @@ def calc_rel_growth_rates(df, nboots=1000, serial_interval=5.5,
     df = df.dropna(axis=0, how='all')
     df = df.fillna(0)
     df = df / 100.
+    # print(df.mean(axis=0))
+    # print('hoi',grThresh,df.mean(axis=0) > grThresh)
+    df = df.loc[:, df.mean(axis=0) > grThresh]
     # go as far back as we can, within daysIncluded limit
     nBack = next((x[0] + 1 for x in enumerate(df.index[::-1])
                  if (df.index[-1] - x[1]).days > daysIncluded), 0)
@@ -520,14 +524,16 @@ def get_abundance(agg_df, meta_df, thresh, scale_by_viral_load, config,
 
 def make_dashboard(agg_df, meta_df, thresh, title, introText,
                    outputFn, headerColor, bodyColor, scale_by_viral_load,
-                   config, lineage_info, nboots, serial_interval, days):
+                   config, lineage_info, nboots, serial_interval, days,
+                   grThresh):
     df_ab_lin, df_ab_sum, dates_to_keep = get_abundance(agg_df, meta_df,
                                                         thresh,
                                                         scale_by_viral_load,
                                                         config, lineage_info)
 
     calc_rel_growth_rates(df_ab_lin.copy(deep=True), nboots,
-                          serial_interval, outputFn, daysIncluded=days)
+                          serial_interval, outputFn,
+                          daysIncluded=days, grThresh=grThresh)
 
     fig = go.Figure()
 

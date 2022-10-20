@@ -386,7 +386,8 @@ class UtilsTests(unittest.TestCase):
             nboots,
             serial_interval,
             'rel_growth_rates.csv',
-            daysIncluded
+            daysIncluded,
+            grThresh=0.01
         )
         df_rel_growth_rates = pd.read_csv('rel_growth_rates.csv')
 
@@ -394,7 +395,6 @@ class UtilsTests(unittest.TestCase):
             df_rel_growth_rates[['Lineage', 'Estimated Advantage']],
             df_rel_growth_rates_expected[['Lineage', 'Estimated Advantage']]
         )
-
         # Clean up
         os.remove('rel_growth_rates.csv')
 

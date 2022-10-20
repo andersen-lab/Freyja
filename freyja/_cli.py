@@ -6,7 +6,7 @@ from freyja.sample_deconv import buildLineageMap, build_mix_and_depth_arrays,\
     reindex_dfs, map_to_constellation, solve_demixing_problem,\
     perform_bootstrap
 from freyja.updates import download_tree, convert_tree,\
-    get_curated_lineage_data, get_cl_lineages
+    get_curated_lineage_data, get_cl_lineages, download_barcodes_wgisaid
 from freyja.utils import agg, makePlot_simple, makePlot_time,\
     make_dashboard, checkConfig, get_abundance, calc_rel_growth_rates
 import os
@@ -19,7 +19,7 @@ locDir = os.path.abspath(os.path.join(os.path.realpath(__file__), os.pardir))
 
 
 @click.group()
-@click.version_option('1.3.11')
+@click.version_option('1.3.12')
 def cli():
     pass
 
@@ -35,20 +35,31 @@ def cli():
 @click.option('--covcut', default=10, help='depth cutoff for\
                                             coverage estimate')
 @click.option('--confirmedonly', is_flag=True, default=False)
+@click.option('--wgisaid', is_flag=True, default=False,
+              help='larger library with non-public lineages')
 def demix(variants, depths, output, eps, barcodes, meta,
-          covcut, confirmedonly):
+          covcut, confirmedonly, wgisaid):
     locDir = os.path.abspath(os.path.join(os.path.realpath(__file__),
                              os.pardir))
     # option for custom barcodes
     if barcodes != '-1':
         df_barcodes = pd.read_csv(barcodes, index_col=0)
     else:
-        df_barcodes = pd.read_csv(os.path.join(locDir,
-                                  'data/usher_barcodes.csv'), index_col=0)
+        if not wgisaid:
+            df_barcodes = pd.read_csv(os.path.join(locDir,
+                                      'data/usher_barcodes.csv'), index_col=0)
+        else:
+            df_barcodes = pd.read_csv(os.path.join(locDir,
+                                      'data/usher_barcodes_with_gisaid.csv'),
+                                      index_col=0)
     if confirmedonly:
         confirmed = [dfi for dfi in df_barcodes.index
                      if 'proposed' not in dfi and 'misc' not in dfi]
         df_barcodes = df_barcodes.loc[confirmed, :]
+
+    # drop intra-lineage diversity naming (keeps separate barcodes)
+    indexSimplified = [dfi.split('_')[0] for dfi in df_barcodes.index]
+    df_barcodes = df_barcodes.loc[indexSimplified, :]
 
     muts = list(df_barcodes.columns)
     mapDict = buildLineageMap(meta)
@@ -62,6 +73,21 @@ def demix(variants, depths, output, eps, barcodes, meta,
                                                                mix,
                                                                depths_,
                                                                eps)
+    # merge intra-lineage diversity if multiple hits.
+    if len(set(sample_strains)) < len(sample_strains):
+        localDict = {}
+        for jj, lin in enumerate(sample_strains):
+            if lin not in localDict.keys():
+                localDict[lin] = abundances[jj]
+            else:
+                localDict[lin] += abundances[jj]
+        # ensure descending order
+        localDict = dict(sorted(localDict.items(),
+                                key=lambda x: x[1],
+                                reverse=True))
+        sample_strains = list(localDict.keys())
+        abundances = list(localDict.values())
+
     localDict = map_to_constellation(sample_strains, abundances, mapDict)
     # assemble into series and write.
     sols_df = pd.Series(data=(localDict, sample_strains, abundances,
@@ -81,7 +107,9 @@ def demix(variants, depths, output, eps, barcodes, meta,
               help='Output directory save updated files')
 @click.option('--noncl', is_flag=True, default=True,
               help='only include lineages in cov-lineages')
-def update(outdir, noncl):
+@click.option('--wgisaid', is_flag=True, default=False,
+              help='larger library with non-public lineages')
+def update(outdir, noncl, wgisaid):
     locDir = os.path.abspath(os.path.join(os.path.realpath(__file__),
                                           os.pardir))
     if outdir != '-1':
@@ -89,43 +117,47 @@ def update(outdir, noncl):
         locDir = outdir
     else:
         locDir = os.path.join(locDir, 'data')
-    # # get data from UShER
-    print('Downloading a new global tree')
-    download_tree(locDir)
+
     print('Getting outbreak data')
     get_curated_lineage_data(locDir)
-    print("Converting tree info to barcodes")
-    convert_tree(locDir)  # returns paths for each lineage
-    # Now parse into barcode form
-    lineagePath = os.path.join(os.curdir, "lineagePaths.txt")
-    print('Building barcodes from global phylogenetic tree')
-    df = pd.read_csv(lineagePath, sep='\t')
-    df = parse_tree_paths(df)
-    df_barcodes = convert_to_barcodes(df)
-    df_barcodes = reversion_checking(df_barcodes)
-    df_barcodes = check_mutation_chain(df_barcodes)
+    # # get data from UShER
+    if not wgisaid:
+        print('Downloading a new global tree')
+        download_tree(locDir)
+        print("Converting tree info to barcodes")
+        convert_tree(locDir)  # returns paths for each lineage
+        # Now parse into barcode form
+        lineagePath = os.path.join(os.curdir, "lineagePaths.txt")
+        print('Building barcodes from global phylogenetic tree')
+        df = pd.read_csv(lineagePath, sep='\t')
+        df = parse_tree_paths(df)
+        df_barcodes = convert_to_barcodes(df)
+        df_barcodes = reversion_checking(df_barcodes)
+        df_barcodes = check_mutation_chain(df_barcodes)
 
-    # get lineage metadata from cov-lineages
-    get_cl_lineages(locDir)
-    # as default:
-    # since usher tree can be ahead of cov-lineages,
-    # we drop lineages not in cov-lineages
-    if noncl:
-        # read linages.yml file
-        with open(os.path.join(locDir, 'lineages.yml'), 'r') as f:
-            try:
-                lineages_yml = yaml.safe_load(f)
-            except yaml.YAMLError as exc:
-                raise ValueError('Error in lineages.yml file: ' + str(exc))
-        lineageNames = [lineage['name'] for lineage in lineages_yml]
-        df_barcodes = df_barcodes.loc[df_barcodes.index.isin(lineageNames)]
+        # get lineage metadata from cov-lineages
+        get_cl_lineages(locDir)
+        # as default:
+        # since usher tree can be ahead of cov-lineages,
+        # we drop lineages not in cov-lineages
+        if noncl:
+            # read linages.yml file
+            with open(os.path.join(locDir, 'lineages.yml'), 'r') as f:
+                try:
+                    lineages_yml = yaml.safe_load(f)
+                except yaml.YAMLError as exc:
+                    raise ValueError('Error in lineages.yml file: ' + str(exc))
+            lineageNames = [lineage['name'] for lineage in lineages_yml]
+            df_barcodes = df_barcodes.loc[df_barcodes.index.isin(lineageNames)]
+        else:
+            print("Including lineages not yet in cov-lineages.")
+        df_barcodes.to_csv(os.path.join(locDir, 'usher_barcodes.csv'))
+        # delete files generated along the way that aren't needed anymore
+        print('Cleaning up')
+        os.remove(lineagePath)
+        os.remove(os.path.join(locDir, "public-latest.all.masked.pb.gz"))
     else:
-        print("Including lineages not yet in cov-lineages.")
-    df_barcodes.to_csv(os.path.join(locDir, 'usher_barcodes.csv'))
-    # delete files generated along the way that aren't needed anymore
-    print('Cleaning up')
-    os.remove(lineagePath)
-    os.remove(os.path.join(locDir, "public-latest.all.masked.pb.gz"))
+        download_barcodes_wgisaid(locDir)
 
 
 @cli.command()
@@ -167,20 +199,31 @@ def variants(bamfile, ref, variants, depths, refname):
 @click.option('--boxplot', default='',
               help='file format of boxplot output (e.g. pdf or png)')
 @click.option('--confirmedonly', is_flag=True, default=False)
+@click.option('--wgisaid', is_flag=True, default=False,
+              help='larger library with non-public lineages')
 def boot(variants, depths, output_base, eps, barcodes, meta,
-         nb, nt, boxplot, confirmedonly):
+         nb, nt, boxplot, confirmedonly, wgisaid):
     locDir = os.path.abspath(os.path.join(os.path.realpath(__file__),
                              os.pardir))
     # option for custom barcodes
     if barcodes != '-1':
         df_barcodes = pd.read_csv(barcodes, index_col=0)
     else:
-        df_barcodes = pd.read_csv(os.path.join(locDir,
-                                  'data/usher_barcodes.csv'), index_col=0)
+        if not wgisaid:
+            df_barcodes = pd.read_csv(os.path.join(locDir,
+                                      'data/usher_barcodes.csv'), index_col=0)
+        else:
+            df_barcodes = pd.read_csv(os.path.join(locDir,
+                                      'data/usher_barcodes_with_gisaid.csv'),
+                                      index_col=0)
     if confirmedonly:
         confirmed = [dfi for dfi in df_barcodes.index
                      if 'proposed' not in dfi and 'misc' not in dfi]
         df_barcodes = df_barcodes.loc[confirmed, :]
+
+    # drop intra-lineage diversity naming (keeps separate barcodes)
+    indexSimplified = [dfi.split('_')[0] for dfi in df_barcodes.index]
+    df_barcodes = df_barcodes.loc[indexSimplified, :]
 
     muts = list(df_barcodes.columns)
     mapDict = buildLineageMap(meta)
@@ -254,7 +297,7 @@ to include coverage estimates.')
 @click.argument('metadata', type=click.Path(exists=True))
 @click.argument('title', type=click.Path(exists=True))
 @click.argument('intro', type=click.Path(exists=True))
-@click.option('--thresh', default=0.01, help='min lineage abundance included')
+@click.option('--thresh', default=0.5, help='min lineage abundance included')
 @click.option('--headerColor', default='#2fdcf5', help='color of header')
 @click.option('--bodyColor', default='#ffffff', help='color of body')
 @click.option('--scale_by_viral_load', is_flag=True,
@@ -265,9 +308,10 @@ to include coverage estimates.')
 @click.option('--mincov', default=60., help='min genome coverage included')
 @click.option('--output', default='mydashboard.html', help='Output html file')
 @click.option('--days', default=56, help='N Days used for growth calc')
+@click.option('--grthresh', default=0.05, help='min avg prev. for growth')
 def dash(agg_results, metadata, title, intro, thresh, headercolor, bodycolor,
          scale_by_viral_load, nboots, serial_interval, config, mincov, output,
-         days):
+         days, grthresh):
     agg_df = pd.read_csv(agg_results, skipinitialspace=True, sep='\t',
                          index_col=0)
     # drop poor quality samples
@@ -311,13 +355,13 @@ def dash(agg_results, metadata, title, intro, thresh, headercolor, bodycolor,
         config = {}
     make_dashboard(agg_df, meta_df, thresh, titleText, introText,
                    output, headercolor, bodycolor, scale_by_viral_load, config,
-                   lineage_info, nboots, serial_interval, days)
+                   lineage_info, nboots, serial_interval, days, grthresh)
 
 
 @cli.command()
 @click.argument('agg_results', type=click.Path(exists=True))
 @click.argument('metadata', type=click.Path(exists=True))
-@click.option('--thresh', default=0.01, help='min lineage abundance included')
+@click.option('--thresh', default=0.5, help='min lineage abundance in plot')
 @click.option('--scale_by_viral_load', is_flag=True,
               help='scale by viral load')
 @click.option('--nboots', default=1000, help='Number of Bootstrap iterations')
@@ -327,8 +371,9 @@ def dash(agg_results, metadata, title, intro, thresh, headercolor, bodycolor,
 @click.option('--output', default='rel_growth_rates.csv',
               help='Output html file')
 @click.option('--days', default=56, help='N Days used for growth calc')
+@click.option('--grthresh', default=0.05, help='min avg prev. for growth')
 def relgrowthrate(agg_results, metadata, thresh, scale_by_viral_load, nboots,
-                  serial_interval, config, mincov, output, days):
+                  serial_interval, config, mincov, output, days, grthresh):
     agg_df = pd.read_csv(agg_results, skipinitialspace=True, sep='\t',
                          index_col=0)
     # drop poor quality samples
@@ -370,7 +415,8 @@ def relgrowthrate(agg_results, metadata, thresh, scale_by_viral_load, nboots,
                                                         scale_by_viral_load,
                                                         config, lineage_info)
     calc_rel_growth_rates(df_ab_lin.copy(deep=True), nboots,
-                          serial_interval, output, daysIncluded=days)
+                          serial_interval, output, daysIncluded=days,
+                          grThresh=grthresh)
 
 
 if __name__ == '__main__':
