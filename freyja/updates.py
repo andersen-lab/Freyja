@@ -6,7 +6,7 @@ import requests
 
 
 def download_tree(locDir):
-    url = "http://hgdownload.soe.ucsc.edu/goldenPath/wuhCor1/"\
+    url = "https://hgdownload.soe.ucsc.edu/goldenPath/wuhCor1/"\
           "UShER_SARS-CoV-2/public-latest.all.masked.pb.gz"
     treePath = os.path.join(locDir, "public-latest.all.masked.pb.gz")
     urllib.request.urlretrieve(url, treePath)
