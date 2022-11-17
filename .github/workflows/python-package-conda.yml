@@ -22,11 +22,11 @@ jobs:
       - name: Install
         shell: bash -l {0}
         run: |
-          conda create --yes -n freyja python=3.7
+          mamba create --yes -n freyja python=3.7
           conda activate freyja
-          conda config --add channels bioconda
-          conda config --add channels conda-forge          
-          conda install --yes --file ci/conda_requirements.txt
+          mamba config --add channels bioconda
+          mamba config --add channels conda-forge          
+          mamba install --yes --file ci/conda_requirements.txt
           pip install -e . --no-deps 
           
       - name: Test
