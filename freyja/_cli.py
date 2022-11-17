@@ -19,7 +19,7 @@ locDir = os.path.abspath(os.path.join(os.path.realpath(__file__), os.pardir))
 
 
 @click.group()
-@click.version_option('1.3.11')
+@click.version_option('1.3.12')
 def cli():
     pass
 
