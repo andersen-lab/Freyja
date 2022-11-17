@@ -14,14 +14,13 @@ def download_tree(locDir):
 
 
 def convert_tree(loc_dir):
-    print(loc_dir)
+    print(f"Writing updated files to: {loc_dir}")
     tree_path = os.path.join(loc_dir, "public-latest.all.masked.pb.gz")
     var_cmd = f"matUtils extract -i {tree_path} -C lineagePaths.txt"
     sys.stdout.flush()  # force python to flush
-    # note we could add check=True here in order to immediately raise if this command fails
-    # instead, how we have it, we just log the response code
     return_code = subprocess.run(var_cmd, shell=True, executable="/bin/bash",
-                               stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
+                                 stdout=subprocess.DEVNULL,
+                                 stderr=subprocess.PIPE)
     return return_code
 
 

@@ -100,7 +100,7 @@ def update(outdir, noncl):
         print('Successfully converted tree')
     else:
         print(f'Unable to convert tree. {p.stderr}')
-        return 
+        return
     # Now parse into barcode form
     lineage_path = os.path.join(os.curdir, "lineagePaths.txt")
     print('Building barcodes from global phylogenetic tree')
