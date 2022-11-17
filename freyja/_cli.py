@@ -19,7 +19,7 @@ locDir = os.path.abspath(os.path.join(os.path.realpath(__file__), os.pardir))
 
 
 @click.group()
-@click.version_option('1.3.11')
+@click.version_option('1.3.12')
 def cli():
     pass
 
@@ -95,11 +95,16 @@ def update(outdir, noncl):
     print('Getting outbreak data')
     get_curated_lineage_data(locDir)
     print("Converting tree info to barcodes")
-    convert_tree(locDir)  # returns paths for each lineage
+    p = convert_tree(locDir)  # returns paths for each lineage
+    if p.returncode == 0:
+        print('Successfully converted tree')
+    else:
+        print(f'Unable to convert tree. {p.stderr}')
+        return
     # Now parse into barcode form
-    lineagePath = os.path.join(os.curdir, "lineagePaths.txt")
+    lineage_path = os.path.join(os.curdir, "lineagePaths.txt")
     print('Building barcodes from global phylogenetic tree')
-    df = pd.read_csv(lineagePath, sep='\t')
+    df = pd.read_csv(lineage_path, sep='\t')
     df = parse_tree_paths(df)
     df_barcodes = convert_to_barcodes(df)
     df_barcodes = reversion_checking(df_barcodes)
@@ -124,7 +129,7 @@ def update(outdir, noncl):
     df_barcodes.to_csv(os.path.join(locDir, 'usher_barcodes.csv'))
     # delete files generated along the way that aren't needed anymore
     print('Cleaning up')
-    os.remove(lineagePath)
+    os.remove(lineage_path)
     os.remove(os.path.join(locDir, "public-latest.all.masked.pb.gz"))
 
 

@@ -6,21 +6,22 @@ import requests
 
 
 def download_tree(locDir):
-    url = "http://hgdownload.soe.ucsc.edu/goldenPath/wuhCor1/"\
+    url = "https://hgdownload.soe.ucsc.edu/goldenPath/wuhCor1/"\
           "UShER_SARS-CoV-2/public-latest.all.masked.pb.gz"
     treePath = os.path.join(locDir, "public-latest.all.masked.pb.gz")
     urllib.request.urlretrieve(url, treePath)
     return treePath
 
 
-def convert_tree(locDir):
-    print(locDir)
-    treePath = os.path.join(locDir, "public-latest.all.masked.pb.gz")
-    varCmd = f"matUtils extract -i {treePath} -C lineagePaths.txt"
+def convert_tree(loc_dir):
+    print(f"Writing updated files to: {loc_dir}")
+    tree_path = os.path.join(loc_dir, "public-latest.all.masked.pb.gz")
+    var_cmd = f"matUtils extract -i {tree_path} -C lineagePaths.txt"
     sys.stdout.flush()  # force python to flush
-    completed = subprocess.run(varCmd, shell=True, executable="/bin/bash",
-                               stdout=subprocess.DEVNULL)
-    return completed
+    return_code = subprocess.run(var_cmd, shell=True, executable="/bin/bash",
+                                 stdout=subprocess.DEVNULL,
+                                 stderr=subprocess.PIPE)
+    return return_code
 
 
 def get_curated_lineage_data(locDir):
