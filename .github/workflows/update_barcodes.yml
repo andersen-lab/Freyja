@@ -1,7 +1,6 @@
 name: barcode update
 
 on:
-  push:
   schedule:
     - cron: '0 0 * * *'
 
@@ -54,7 +53,7 @@ jobs:
             git add freyja/data/usher_barcodes.csv
             git add freyja/data/curated_lineages.json
             git commit -m "updating barcodes and metadata"
-            git push origin barcode_updater
+            git push origin main
           else
               echo "no changes were made, doing nothing."
           fi; 
