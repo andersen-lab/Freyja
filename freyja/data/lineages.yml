@@ -2319,6 +2319,7 @@
       - CT.1
       - CU.1
       - CV.1
+      - CV.2
       - CW.1
       - CY.1
       - CZ.1
@@ -4458,6 +4459,7 @@
       - CT.1
       - CU.1
       - CV.1
+      - CV.2
       - CW.1
       - CY.1
       - CZ.1
@@ -5659,6 +5661,7 @@
       - CT.1
       - CU.1
       - CV.1
+      - CV.2
       - CW.1
       - CY.1
       - CZ.1
@@ -9330,6 +9333,7 @@
       - CT.1
       - CU.1
       - CV.1
+      - CV.2
       - CW.1
       - CY.1
       - CZ.1
@@ -9964,6 +9968,7 @@
       - CM.8.1
       - CM.9
       - CV.1
+      - CV.2
       - DD.1
   parent: B.1.1.529
 - name: BA.2.1
@@ -10889,6 +10894,7 @@
       - CH.3
       - CJ.1
       - CV.1
+      - CV.2
   parent: BA.2
 - name: BA.2.75.1
   alias: B.1.1.529.2.75.1
@@ -11041,6 +11047,7 @@
       - CH.3
       - CJ.1
       - CV.1
+      - CV.2
   parent: BA.2.75
 - name: BM.1
   alias: B.1.1.529.2.75.3.1
@@ -11052,6 +11059,7 @@
       - BM.1.1.3
       - CJ.1
       - CV.1
+      - CV.2
   parent: BA.2.75.3
 - name: BM.1.1
   alias: B.1.1.529.2.75.3.1.1
@@ -11062,6 +11070,7 @@
       - BM.1.1.3
       - CJ.1
       - CV.1
+      - CV.2
   parent: BM.1
 - name: BM.1.1.1
   alias: B.1.1.529.2.75.3.1.1.1
@@ -11084,11 +11093,17 @@
   children:
       - BM.1.1.3
       - CV.1
+      - CV.2
   parent: BM.1.1
 - name: CV.1
   alias: B.1.1.529.2.75.3.1.1.3.1
   children:
       - CV.1
+  parent: BM.1.1.3
+- name: CV.2
+  alias: B.1.1.529.2.75.3.1.1.3.2
+  children:
+      - CV.2
   parent: BM.1.1.3
 - name: BM.2
   alias: B.1.1.529.2.75.3.2
