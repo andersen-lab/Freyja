@@ -283,6 +283,8 @@ def plot(agg_results, lineages, times, interval, output, windowsize,
     else:
         print('WARNING: Freyja should be updated \
 to include coverage estimates.')
+    agg_df['abundances'] = agg_df['abundances'].astype(str)
+    agg_df['summarized'] = agg_df['summarized'].astype(str)
     agg_df = agg_df[agg_df['summarized'] != '[]']
     if len(colors) > 0:
         colors0 = pd.read_csv(colors, header=None).values[0]

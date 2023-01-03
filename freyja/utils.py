@@ -344,7 +344,8 @@ def makePlot_simple(agg_df, lineages, outputFn, colors0):
                     ax.bar(k, loc[label],
                            width=0.75,
                            bottom=loc.iloc[0:i].sum(), color=colors0[i])
-    ax.legend(loc='center left', bbox_to_anchor=(1, 0.5), prop={'size': 4})
+    handles, labels = ax.get_legend_handles_labels()
+    ax.legend(handles[::-1], labels[::-1],loc='center left', bbox_to_anchor=(1, 0.5), prop={'size': 4})
     ax.set_ylabel('Variant Prevalence')
     ax.set_xticks(range(0, agg_df.shape[0]))
     ax.set_xticklabels([sd.split('_')[0] for sd in agg_df.index],
@@ -382,6 +383,9 @@ def makePlot_time(agg_df, lineages, times_df, interval, outputFn,
                           name=times_df.loc[sampLabel,
                                             'sample_collection_datetime']))
     df_abundances = df_abundances.fillna(0)
+    if interval == 'W':
+        # epiweek ends on sat, starts on sun
+        interval = 'W-SAT'
     df_abundances = df_abundances.groupby(pd.Grouper(freq=interval)).mean()
     fig, ax = plt.subplots()
     if interval == 'D':
@@ -393,7 +397,9 @@ def makePlot_time(agg_df, lineages, times_df, interval, outputFn,
         else:
             ax.stackplot(df_abundances.index, df_abundances.to_numpy().T,
                          labels=df_abundances.columns, colors=colors0)
-        ax.legend(loc='center left', bbox_to_anchor=(1, 0.5), prop={'size': 4})
+        handles, labels = ax.get_legend_handles_labels()
+        ax.legend(handles[::-1], labels[::-1],loc='center left',
+                  bbox_to_anchor=(1, 0.5), prop={'size': 4})
         ax.set_ylabel('Variant Prevalence')
         ax.set_ylim([0, 1])
         plt.setp(ax.get_xticklabels(), rotation=90)
@@ -412,7 +418,9 @@ def makePlot_time(agg_df, lineages, times_df, interval, outputFn,
                 ax.bar(df_abundances.index, df_abundances.iloc[:, i],
                        width=14, bottom=df_abundances.iloc[:, 0:i].sum(axis=1),
                        label=label, color=colors0[i])
-        ax.legend(loc='center left', bbox_to_anchor=(1, 0.5), prop={'size': 4})
+        handles, labels = ax.get_legend_handles_labels()
+        ax.legend(handles[::-1], labels[::-1],loc='center left',
+                  bbox_to_anchor=(1, 0.5), prop={'size': 4})
         ax.set_ylabel('Variant Prevalence')
         locator = mdates.MonthLocator(bymonthday=1)
         ax.xaxis.set_major_locator(locator)
@@ -422,8 +430,30 @@ def makePlot_time(agg_df, lineages, times_df, interval, outputFn,
         fig.tight_layout()
         plt.savefig(outputFn)
         plt.close()
+    elif interval == 'W-SAT':
+        df_abundances.index = df_abundances.index.strftime("%U")
+        for i in range(0, df_abundances.shape[1]):
+            label = df_abundances.columns[i]
+            # color = colorDict[label]
+            if len(colors0) == 0:
+                ax.bar(df_abundances.index, df_abundances.iloc[:, i],
+                       width=0.5, bottom=df_abundances.iloc[:, 0:i].sum(axis=1),
+                       label=label, color=cmap(i / 20.))
+            else:
+                ax.bar(df_abundances.index, df_abundances.iloc[:, i],
+                       width=0.5, bottom=df_abundances.iloc[:, 0:i].sum(axis=1),
+                       label=label, color=colors0[i])
+        handles, labels = ax.get_legend_handles_labels()
+        ax.legend(handles[::-1], labels[::-1],loc='center left',
+                  bbox_to_anchor=(1, 0.5), prop={'size': 4})
+        ax.set_ylabel('Variant Prevalence')
+        ax.set_xlabel('Epiweek')
+        ax.set_ylim([0, 1])
+        fig.tight_layout()
+        plt.savefig(outputFn)
+        plt.close()
     else:
-        print('Error. Currently we only support Daily (D) \
+        print('Error. Currently we only support Daily (D), Weekly (W), \
                and Monthly (MS) time plots.')
 
 
