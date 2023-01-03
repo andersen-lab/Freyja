@@ -132,6 +132,7 @@ def update(outdir, noncl):
     os.remove(lineage_path)
     os.remove(os.path.join(locDir, "public-latest.all.masked.pb.gz"))
 
+
 @cli.command()
 @click.argument('bamfile', type=click.Path(exists=True))
 @click.option('--ref', help='Reference',
