@@ -132,7 +132,6 @@ def update(outdir, noncl):
     os.remove(lineage_path)
     os.remove(os.path.join(locDir, "public-latest.all.masked.pb.gz"))
 
-
 @cli.command()
 @click.argument('bamfile', type=click.Path(exists=True))
 @click.option('--ref', help='Reference',
@@ -144,15 +143,17 @@ def update(outdir, noncl):
               type=click.Path())
 @click.option('--refname', help='Ref name (for bams with multiple sequences)',
               default='')
-def variants(bamfile, ref, variants, depths, refname):
+@click.option('--minq', help='Minimum base quality score',
+              default=20)
+def variants(bamfile, ref, variants, depths, refname, minq):
     if len(refname) == 0:
-        bashCmd = f"samtools mpileup -aa -A -d 600000 -Q 20 -q 0 -B -f "\
+        bashCmd = f"samtools mpileup -aa -A -d 600000 -Q {minq} -q 0 -B -f "\
                   f"{ref} {bamfile} | tee >(cut -f1-4 > {depths}) |"\
-                  f" ivar variants -p {variants} -q 20 -t 0.0 -r {ref}"
+                  f" ivar variants -p {variants} -q {minq} -t 0.0 -r {ref}"
     else:
-        bashCmd = f"samtools mpileup -aa -A -d 600000 -Q 20 -q 0 -B -f "\
+        bashCmd = f"samtools mpileup -aa -A -d 600000 -Q {minq} -q 0 -B -f "\
                   f"{ref} {bamfile} -r {refname} | tee >(cut -f1-4 > {depths}"\
-                  f") | ivar variants -p {variants} -q 20 -t 0.0 -r {ref}"
+                  f") | ivar variants -p {variants} -q {minq} -t 0.0 -r {ref}"
     sys.stdout.flush()  # force python to flush
     completed = subprocess.run(bashCmd, shell=True, executable="/bin/bash",
                                stdout=subprocess.PIPE)
