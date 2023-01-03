@@ -159,6 +159,7 @@ def update(outdir, noncl, wgisaid):
     else:
         download_barcodes_wgisaid(locDir)
 
+
 @cli.command()
 @click.argument('bamfile', type=click.Path(exists=True))
 @click.option('--ref', help='Reference',
