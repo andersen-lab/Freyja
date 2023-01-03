@@ -1,0 +1,59 @@
+name: barcode update
+
+on:
+  schedule:
+    - cron: '0 0 * * *'
+
+jobs:
+  testsuite:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@main
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup for conda
+        uses: conda-incubator/setup-miniconda@v2
+        with:        
+          auto-update-conda: true
+          mamba-version: "*"
+          channels: bioconda,conda-forge
+          channel-priority: true
+          python-version: 3.7 
+
+      - name: Install
+        shell: bash -l {0}
+        run: |
+          mamba create --yes -n freyja python=3.7
+          conda activate freyja
+          conda config --add channels bioconda
+          conda config --add channels conda-forge          
+          mamba install --yes --file ci/conda_requirements.txt
+          pip install -e . --no-deps 
+          
+      - name: update
+        shell: bash -l {0}
+        run: |
+          conda activate freyja
+          freyja update
+
+      - name: commit if output is different 
+        run: |
+          echo "running git diff, committing if different"
+          if [[($(git status freyja/data/usher_barcodes.csv --porcelain | wc -c) -ne 0)]]; then
+            echo "changes were made, updating barcodes"
+            git config --local user.name "$GITHUB_ACTOR"
+            git config --local user.email "$GITHUB_ACTOR@users.noreply.github.com"
+            git add freyja/data/lineages.yml
+            git add freyja/data/usher_barcodes.csv
+            git add freyja/data/curated_lineages.json
+            git commit -m "updating barcodes and metadata"
+            git push origin main
+          else
+              echo "no changes were made, doing nothing."
+          fi; 

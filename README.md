@@ -61,7 +61,7 @@ By default, this method ships with an existing "data/usher_barcodes.csv" file fo
 ```
 freyja update
 ```
-which downloads new versions of the curated lineage file as well as the UShER global phylogenetic [tree](http://hgdownload.soe.ucsc.edu/goldenPath/wuhCor1/UShER_SARS-CoV-2/), which is subsequently converted into barcodes and saved in "data/usher_barcodes.csv". The ```--outdir``` option can be used to specify a local directory to store the lineage mapping and barcode files. By default, Freyja now only includes lineages that are present on [cov-lineages.org](https://cov-lineages.org/). To include proposed lineages and lineages that haven't been released via cov-lineages (usually this lag is no more than a few days), the ``` --noncl``` flag can be used.  
+which downloads new versions of the curated lineage file as well as the UShER global phylogenetic [tree](http://hgdownload.soe.ucsc.edu/goldenPath/wuhCor1/UShER_SARS-CoV-2/), which is subsequently converted into barcodes and saved in "data/usher_barcodes.csv". The ```--outdir``` option can be used to specify a local directory to store the lineage mapping and barcode files. By default, Freyja now only includes lineages that are present on [cov-lineages.org](https://cov-lineages.org/). To include proposed lineages and lineages that haven't been released via cov-lineages (usually this lag is no more than a few days), the ``` --noncl``` flag can be used.  NOTE: Due to the large size of the global tree, this step can be somewhat memory intensive. Providing somewhere in the range of 10GB should be sufficient to ensure the update runs to completion. 
 
 We now provide a fast bootstrapping method for freyja, which can be run using the command
 
