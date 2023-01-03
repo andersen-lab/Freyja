@@ -345,7 +345,8 @@ def makePlot_simple(agg_df, lineages, outputFn, colors0):
                            width=0.75,
                            bottom=loc.iloc[0:i].sum(), color=colors0[i])
     handles, labels = ax.get_legend_handles_labels()
-    ax.legend(handles[::-1], labels[::-1],loc='center left', bbox_to_anchor=(1, 0.5), prop={'size': 4})
+    ax.legend(handles[::-1], labels[::-1], loc='center left',
+              bbox_to_anchor=(1, 0.5), prop={'size': 4})
     ax.set_ylabel('Variant Prevalence')
     ax.set_xticks(range(0, agg_df.shape[0]))
     ax.set_xticklabels([sd.split('_')[0] for sd in agg_df.index],
@@ -398,7 +399,7 @@ def makePlot_time(agg_df, lineages, times_df, interval, outputFn,
             ax.stackplot(df_abundances.index, df_abundances.to_numpy().T,
                          labels=df_abundances.columns, colors=colors0)
         handles, labels = ax.get_legend_handles_labels()
-        ax.legend(handles[::-1], labels[::-1],loc='center left',
+        ax.legend(handles[::-1], labels[::-1], loc='center left',
                   bbox_to_anchor=(1, 0.5), prop={'size': 4})
         ax.set_ylabel('Variant Prevalence')
         ax.set_ylim([0, 1])
@@ -419,7 +420,7 @@ def makePlot_time(agg_df, lineages, times_df, interval, outputFn,
                        width=14, bottom=df_abundances.iloc[:, 0:i].sum(axis=1),
                        label=label, color=colors0[i])
         handles, labels = ax.get_legend_handles_labels()
-        ax.legend(handles[::-1], labels[::-1],loc='center left',
+        ax.legend(handles[::-1], labels[::-1], loc='center left',
                   bbox_to_anchor=(1, 0.5), prop={'size': 4})
         ax.set_ylabel('Variant Prevalence')
         locator = mdates.MonthLocator(bymonthday=1)
@@ -437,14 +438,16 @@ def makePlot_time(agg_df, lineages, times_df, interval, outputFn,
             # color = colorDict[label]
             if len(colors0) == 0:
                 ax.bar(df_abundances.index, df_abundances.iloc[:, i],
-                       width=0.5, bottom=df_abundances.iloc[:, 0:i].sum(axis=1),
+                       width=0.5,
+                       bottom=df_abundances.iloc[:, 0:i].sum(axis=1),
                        label=label, color=cmap(i / 20.))
             else:
                 ax.bar(df_abundances.index, df_abundances.iloc[:, i],
-                       width=0.5, bottom=df_abundances.iloc[:, 0:i].sum(axis=1),
+                       width=0.5,
+                       bottom=df_abundances.iloc[:, 0:i].sum(axis=1),
                        label=label, color=colors0[i])
         handles, labels = ax.get_legend_handles_labels()
-        ax.legend(handles[::-1], labels[::-1],loc='center left',
+        ax.legend(handles[::-1], labels[::-1], loc='center left',
                   bbox_to_anchor=(1, 0.5), prop={'size': 4})
         ax.set_ylabel('Variant Prevalence')
         ax.set_xlabel('Epiweek')
