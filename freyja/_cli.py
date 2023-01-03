@@ -6,7 +6,8 @@ from freyja.sample_deconv import buildLineageMap, build_mix_and_depth_arrays,\
     reindex_dfs, map_to_constellation, solve_demixing_problem,\
     perform_bootstrap
 from freyja.updates import download_tree, convert_tree,\
-    get_curated_lineage_data, get_cl_lineages, download_barcodes_wgisaid
+    get_curated_lineage_data, get_cl_lineages,\
+    download_barcodes, download_barcodes_wgisaid
 from freyja.utils import agg, makePlot_simple, makePlot_time,\
     make_dashboard, checkConfig, get_abundance, calc_rel_growth_rates
 import os
@@ -108,8 +109,10 @@ def demix(variants, depths, output, eps, barcodes, meta,
 @click.option('--noncl', is_flag=True, default=True,
               help='only include lineages in cov-lineages')
 @click.option('--wgisaid', is_flag=True, default=False,
-              help='larger library with non-public lineages')
-def update(outdir, noncl, wgisaid):
+              help='Larger library with non-public lineages')
+@click.option('--buildlocal', is_flag=True, default=False,
+              help='Perform barcode building locally')
+def update(outdir, noncl, wgisaid, buildlocal):
     locDir = os.path.abspath(os.path.join(os.path.realpath(__file__),
                                           os.pardir))
     if outdir != '-1':
@@ -121,7 +124,7 @@ def update(outdir, noncl, wgisaid):
     print('Getting outbreak data')
     get_curated_lineage_data(locDir)
     # # get data from UShER
-    if not wgisaid:
+    if buildlocal:
         print('Downloading a new global tree')
         download_tree(locDir)
         print("Converting tree info to barcodes")
@@ -156,7 +159,11 @@ def update(outdir, noncl, wgisaid):
         print('Cleaning up')
         os.remove(lineagePath)
         os.remove(os.path.join(locDir, "public-latest.all.masked.pb.gz"))
+    elif not wgisaid:
+        print('Downloading barcodes')
+        download_barcodes(locDir)
     else:
+        print('Downloading barcodes with GISAID-only (non-public) lineages')
         download_barcodes_wgisaid(locDir)
 
 
