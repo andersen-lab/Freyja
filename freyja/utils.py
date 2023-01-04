@@ -432,7 +432,10 @@ def makePlot_time(agg_df, lineages, times_df, interval, outputFn,
         plt.savefig(outputFn)
         plt.close()
     elif interval == 'W-SAT':
-        df_abundances.index = df_abundances.index.strftime("%U")
+        from epiweeks import Week
+        weekInfo = [Week.fromdate(dfi).weektuple() for dfi in df_abundances.index] #strftime("%Y-%U")
+        df_abundances.index = [str(wi[0])+'-'+str(wi[1]) for wi in weekInfo]
+        print(df_abundances)
         for i in range(0, df_abundances.shape[1]):
             label = df_abundances.columns[i]
             # color = colorDict[label]
@@ -449,6 +452,9 @@ def makePlot_time(agg_df, lineages, times_df, interval, outputFn,
         handles, labels = ax.get_legend_handles_labels()
         ax.legend(handles[::-1], labels[::-1], loc='center left',
                   bbox_to_anchor=(1, 0.5), prop={'size': 4})
+        labelsAx = [item.split('-')[1] for item in df_abundances.index]
+        ax.set_xticks(range(0,len(labelsAx)))
+        ax.set_xticklabels(labelsAx)
         ax.set_ylabel('Variant Prevalence')
         ax.set_xlabel('Epiweek')
         ax.set_ylim([0, 1])
