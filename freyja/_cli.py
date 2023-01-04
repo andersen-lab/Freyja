@@ -123,6 +123,7 @@ def update(outdir, noncl, wgisaid, buildlocal):
 
     print('Getting outbreak data')
     get_curated_lineage_data(locDir)
+    get_cl_lineages(locDir)
     # # get data from UShER
     if buildlocal:
         print('Downloading a new global tree')
@@ -138,8 +139,6 @@ def update(outdir, noncl, wgisaid, buildlocal):
         df_barcodes = reversion_checking(df_barcodes)
         df_barcodes = check_mutation_chain(df_barcodes)
 
-        # get lineage metadata from cov-lineages
-        get_cl_lineages(locDir)
         # as default:
         # since usher tree can be ahead of cov-lineages,
         # we drop lineages not in cov-lineages
@@ -284,7 +283,6 @@ def plot(agg_results, lineages, times, interval, output, windowsize,
         print('WARNING: Freyja should be updated \
 to include coverage estimates.')
     agg_df['abundances'] = agg_df['abundances'].astype(str)
-    agg_df['summarized'] = agg_df['summarized'].astype(str)
     agg_df = agg_df[agg_df['summarized'] != '[]']
     if len(colors) > 0:
         colors0 = pd.read_csv(colors, header=None).values[0]
@@ -320,9 +318,11 @@ to include coverage estimates.')
 @click.option('--output', default='mydashboard.html', help='Output html file')
 @click.option('--days', default=56, help='N Days used for growth calc')
 @click.option('--grthresh', default=0.05, help='min avg prev. for growth')
+@click.argument('hierarchy', type=click.Path(),
+                default=os.path.join(locDir, 'data/lineages.yml'))
 def dash(agg_results, metadata, title, intro, thresh, headercolor, bodycolor,
          scale_by_viral_load, nboots, serial_interval, config, mincov, output,
-         days, grthresh):
+         days, grthresh, hierarchy):
     agg_df = pd.read_csv(agg_results, skipinitialspace=True, sep='\t',
                          index_col=0)
     # drop poor quality samples
@@ -348,7 +348,7 @@ def dash(agg_results, metadata, title, intro, thresh, headercolor, bodycolor,
             except yaml.YAMLError as exc:
                 raise ValueError('Error in config file: ' + str(exc))
 
-    with open(os.path.join(locDir, 'data/lineages.yml'), 'r') as f:
+    with open(hierarchy, 'r') as f:
         try:
             lineages_yml = yaml.safe_load(f)
         except yaml.YAMLError as exc:
