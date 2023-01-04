@@ -40,7 +40,7 @@ jobs:
         shell: bash -l {0}
         run: |
           conda activate freyja
-          freyja update
+          freyja update --buildlocal
 
       - name: commit if output is different 
         run: |
