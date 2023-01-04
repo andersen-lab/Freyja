@@ -49,7 +49,8 @@ def logistic_growth(ndays, b, r):
 
 # Calcualate the relative growth rates of the lineages and return a dataFrame.
 def calc_rel_growth_rates(df, nboots=1000, serial_interval=5.5,
-                          outputFn='rel_growth_rates.csv', daysIncluded=56):
+                          outputFn='rel_growth_rates.csv', daysIncluded=56,
+                          grThresh=0.05):
     df.index.name = 'Date'
     df.reset_index(inplace=True)
     df['Date'] = pd.to_datetime(df['Date'])
@@ -59,6 +60,9 @@ def calc_rel_growth_rates(df, nboots=1000, serial_interval=5.5,
     df = df.dropna(axis=0, how='all')
     df = df.fillna(0)
     df = df / 100.
+    # print(df.mean(axis=0))
+    # print('hoi',grThresh,df.mean(axis=0) > grThresh)
+    df = df.loc[:, df.mean(axis=0) > grThresh]
     # go as far back as we can, within daysIncluded limit
     nBack = next((x[0] + 1 for x in enumerate(df.index[::-1])
                  if (df.index[-1] - x[1]).days > daysIncluded), 0)
@@ -340,7 +344,9 @@ def makePlot_simple(agg_df, lineages, outputFn, colors0):
                     ax.bar(k, loc[label],
                            width=0.75,
                            bottom=loc.iloc[0:i].sum(), color=colors0[i])
-    ax.legend(loc='center left', bbox_to_anchor=(1, 0.5), prop={'size': 4})
+    handles, labels = ax.get_legend_handles_labels()
+    ax.legend(handles[::-1], labels[::-1], loc='center left',
+              bbox_to_anchor=(1, 0.5), prop={'size': 4})
     ax.set_ylabel('Variant Prevalence')
     ax.set_xticks(range(0, agg_df.shape[0]))
     ax.set_xticklabels([sd.split('_')[0] for sd in agg_df.index],
@@ -378,6 +384,9 @@ def makePlot_time(agg_df, lineages, times_df, interval, outputFn,
                           name=times_df.loc[sampLabel,
                                             'sample_collection_datetime']))
     df_abundances = df_abundances.fillna(0)
+    if interval == 'W':
+        # epiweek ends on sat, starts on sun
+        interval = 'W-SAT'
     df_abundances = df_abundances.groupby(pd.Grouper(freq=interval)).mean()
     fig, ax = plt.subplots()
     if interval == 'D':
@@ -389,7 +398,9 @@ def makePlot_time(agg_df, lineages, times_df, interval, outputFn,
         else:
             ax.stackplot(df_abundances.index, df_abundances.to_numpy().T,
                          labels=df_abundances.columns, colors=colors0)
-        ax.legend(loc='center left', bbox_to_anchor=(1, 0.5), prop={'size': 4})
+        handles, labels = ax.get_legend_handles_labels()
+        ax.legend(handles[::-1], labels[::-1], loc='center left',
+                  bbox_to_anchor=(1, 0.5), prop={'size': 4})
         ax.set_ylabel('Variant Prevalence')
         ax.set_ylim([0, 1])
         plt.setp(ax.get_xticklabels(), rotation=90)
@@ -408,7 +419,9 @@ def makePlot_time(agg_df, lineages, times_df, interval, outputFn,
                 ax.bar(df_abundances.index, df_abundances.iloc[:, i],
                        width=14, bottom=df_abundances.iloc[:, 0:i].sum(axis=1),
                        label=label, color=colors0[i])
-        ax.legend(loc='center left', bbox_to_anchor=(1, 0.5), prop={'size': 4})
+        handles, labels = ax.get_legend_handles_labels()
+        ax.legend(handles[::-1], labels[::-1], loc='center left',
+                  bbox_to_anchor=(1, 0.5), prop={'size': 4})
         ax.set_ylabel('Variant Prevalence')
         locator = mdates.MonthLocator(bymonthday=1)
         ax.xaxis.set_major_locator(locator)
@@ -418,8 +431,39 @@ def makePlot_time(agg_df, lineages, times_df, interval, outputFn,
         fig.tight_layout()
         plt.savefig(outputFn)
         plt.close()
+    elif interval == 'W-SAT':
+        from epiweeks import Week
+        weekInfo = [Week.fromdate(dfi).weektuple()
+                    for dfi in df_abundances.index]
+        df_abundances.index = [str(wi[0])+'-'+str(wi[1]) for wi in weekInfo]
+        print(df_abundances)
+        for i in range(0, df_abundances.shape[1]):
+            label = df_abundances.columns[i]
+            # color = colorDict[label]
+            if len(colors0) == 0:
+                ax.bar(df_abundances.index, df_abundances.iloc[:, i],
+                       width=0.5,
+                       bottom=df_abundances.iloc[:, 0:i].sum(axis=1),
+                       label=label, color=cmap(i / 20.))
+            else:
+                ax.bar(df_abundances.index, df_abundances.iloc[:, i],
+                       width=0.5,
+                       bottom=df_abundances.iloc[:, 0:i].sum(axis=1),
+                       label=label, color=colors0[i])
+        handles, labels = ax.get_legend_handles_labels()
+        ax.legend(handles[::-1], labels[::-1], loc='center left',
+                  bbox_to_anchor=(1, 0.5), prop={'size': 4})
+        labelsAx = [item.split('-')[1] for item in df_abundances.index]
+        ax.set_xticks(range(0, len(labelsAx)))
+        ax.set_xticklabels(labelsAx)
+        ax.set_ylabel('Variant Prevalence')
+        ax.set_xlabel('Epiweek')
+        ax.set_ylim([0, 1])
+        fig.tight_layout()
+        plt.savefig(outputFn)
+        plt.close()
     else:
-        print('Error. Currently we only support Daily (D) \
+        print('Error. Currently we only support Daily (D), Weekly (W), \
                and Monthly (MS) time plots.')
 
 
@@ -520,14 +564,16 @@ def get_abundance(agg_df, meta_df, thresh, scale_by_viral_load, config,
 
 def make_dashboard(agg_df, meta_df, thresh, title, introText,
                    outputFn, headerColor, bodyColor, scale_by_viral_load,
-                   config, lineage_info, nboots, serial_interval, days):
+                   config, lineage_info, nboots, serial_interval, days,
+                   grThresh):
     df_ab_lin, df_ab_sum, dates_to_keep = get_abundance(agg_df, meta_df,
                                                         thresh,
                                                         scale_by_viral_load,
                                                         config, lineage_info)
 
     calc_rel_growth_rates(df_ab_lin.copy(deep=True), nboots,
-                          serial_interval, outputFn, daysIncluded=days)
+                          serial_interval, outputFn,
+                          daysIncluded=days, grThresh=grThresh)
 
     fig = go.Figure()
 
