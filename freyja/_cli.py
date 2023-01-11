@@ -1,5 +1,6 @@
 import click
 import pandas as pd
+import pysam
 from freyja.convert_paths2barcodes import parse_tree_paths,\
     convert_to_barcodes, reversion_checking, check_mutation_chain
 from freyja.sample_deconv import buildLineageMap, build_mix_and_depth_arrays,\
@@ -431,10 +432,30 @@ def relgrowthrate(agg_results, metadata, thresh, scale_by_viral_load, nboots,
                           grThresh=grthresh)
 
 @click.argument('query_mutations', type=click.Path(exists=True))
-@click.argument('bam_dir', type=click.Path(exists=True))
-@click.option('--output', default='extracted_reads.txt', help='Output txt file')
-def extract(query_mutations, bam_dir, output):
-    pass
+@click.argument('bam_input_dir', type=click.Path(exists=True))
+@click.option('--output', default='extracted_reads.bam', 
+              help='Output bam file')
+def extract(query_mutations, bam_input_dir, output):
+    # Load data
+    df = pd.read_csv(query_mutations, index_col=0)
+
+    nt_muts = df.loc[0,:].values.tolist() # 'G22992A','C22995A','A23013C'...
+    insertions = df.loc[1,:].values.tolist() # (22204, 'GAGCCAGAA')...
+    deletions = df.loc[2,:].values.tolist() # (6512,3),(11285,9),(11286,9)...
+
+    for bam in os.listdir(bam_input_dir):
+        bam_path = os.path.join(bam_input_dir, bam)
+        sam_file = pysam.AlignmentFile(bam_path, 'rb')
+        
+        reads_considered = []
+
+        sites = [int(m[1:len(m)-1])-1 for m in nt_muts] # Include indel sites?
+
+        itr = sam_file.fetch("NC_045512.2", min(sites), max(sites)+1)
+        for i, x in enumerate(itr):
+            seq = x.query_alignment_sequence
+            
+        
 
 if __name__ == '__main__':
     cli()
