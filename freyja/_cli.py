@@ -430,6 +430,11 @@ def relgrowthrate(agg_results, metadata, thresh, scale_by_viral_load, nboots,
                           serial_interval, output, daysIncluded=days,
                           grThresh=grthresh)
 
+@click.argument('query_mutations', type=click.Path(exists=True))
+@click.argument('bam_dir', type=click.Path(exists=True))
+@click.option('--output', default='extracted_reads.txt', help='Output txt file')
+def extract(query_mutations, bam_dir, output):
+    pass
 
 if __name__ == '__main__':
     cli()
