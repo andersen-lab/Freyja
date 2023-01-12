@@ -440,10 +440,9 @@ def relgrowthrate(agg_results, metadata, thresh, scale_by_viral_load, nboots,
 def filter(query_mutations, bam_input_dir, output):
     # Load data
     df = pd.read_csv(query_mutations, header=None, index_col=False)
-    print(df)
 
     # from usher barcodes (1-based indexing)
-    nt_muts = [s for s in df.iloc[0,:].values.tolist() if str(s) != 'nan']
+    snps = [s for s in df.iloc[0,:].values.tolist() if str(s) != 'nan']
 
     # user inputted (0-based indexing)
     insertions = [s for s in df.iloc[1,:].values.tolist() if str(s) != 'nan']
@@ -456,7 +455,7 @@ def filter(query_mutations, bam_input_dir, output):
                  for s in deletions]
 
     # get loci for all mutations
-    sites = [int(m[1:len(m)-1])-1 for m in nt_muts] 
+    snp_sites = [int(m[1:len(m)-1])-1 for m in snps] 
     indel_sites = [s[0] for s in insertions] + [s[0] for s in deletions]
     
     
@@ -468,14 +467,17 @@ def filter(query_mutations, bam_input_dir, output):
         
         reads_considered = []
         
-        itr = sam_file.fetch("NC_045512.2", min(sites), max(sites)+1) # Include indel sites?
+        #TODO: Only fetch reads that contain mutations of interest
+        # e.g. loop over samfile.fetch("NC_045512.2", mySite,mySite+1) for each mySite in sites
+        itr = sam_file.fetch("NC_045512.2", min(snp_sites), max(snp_sites)+1) # Include indel sites?
         for x in itr:
+            print(len(set(snp_sites)&ref_pos))
             ref_pos = set(x.get_reference_positions())
-            if not len(set(sites)&ref_pos) or len(set(indel_sites)&ref_pos):
+            if not len(set(snp_sites)&ref_pos) or len(set(indel_sites)&ref_pos):
+                print('skipping read...')
                 continue
 
             seq = x.query_alignment_sequence
-            print(seq)
 
             
         
