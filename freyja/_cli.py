@@ -13,6 +13,7 @@ from freyja.utils import agg, makePlot_simple, makePlot_time,\
     make_dashboard, checkConfig, get_abundance, calc_rel_growth_rates
 import os
 import glob
+import re
 import subprocess
 import sys
 import yaml
@@ -431,29 +432,51 @@ def relgrowthrate(agg_results, metadata, thresh, scale_by_viral_load, nboots,
                           serial_interval, output, daysIncluded=days,
                           grThresh=grthresh)
 
+@cli.command()
 @click.argument('query_mutations', type=click.Path(exists=True))
 @click.argument('bam_input_dir', type=click.Path(exists=True))
 @click.option('--output', default='extracted_reads.bam', 
               help='Output bam file')
-def extract(query_mutations, bam_input_dir, output):
+def filter(query_mutations, bam_input_dir, output):
     # Load data
-    df = pd.read_csv(query_mutations, index_col=0)
+    df = pd.read_csv(query_mutations, header=None, index_col=False)
+    print(df)
 
-    nt_muts = df.loc[0,:].values.tolist() # 'G22992A','C22995A','A23013C'...
-    insertions = df.loc[1,:].values.tolist() # (22204, 'GAGCCAGAA')...
-    deletions = df.loc[2,:].values.tolist() # (6512,3),(11285,9),(11286,9)...
+    # from usher barcodes (1-based indexing)
+    nt_muts = [s for s in df.iloc[0,:].values.tolist() if str(s) != 'nan']
 
+    # user inputted (0-based indexing)
+    insertions = [s for s in df.iloc[1,:].values.tolist() if str(s) != 'nan']
+    deletions = [s for s in df.iloc[2,:].values.tolist() if str(s) != 'nan'] 
+
+    # parse tuples from indels
+    insertions = [(int(s.split(':')[0][1:]), s.split(':')[1][1:-2].strip('\''))
+                  for s in insertions]
+    deletions = [(int(s.split(':')[0][1:]),int(s.split(':')[1][:-1]))
+                 for s in deletions]
+
+    # get loci for all mutations
+    sites = [int(m[1:len(m)-1])-1 for m in nt_muts] 
+    indel_sites = [s[0] for s in insertions] + [s[0] for s in deletions]
+    
+    
     for bam in os.listdir(bam_input_dir):
-        bam_path = os.path.join(bam_input_dir, bam)
-        sam_file = pysam.AlignmentFile(bam_path, 'rb')
+        if not bam.endswith('.bam'):
+            continue
+
+        sam_file = pysam.AlignmentFile(os.path.join(bam_input_dir, bam), 'rb')
         
         reads_considered = []
+        
+        itr = sam_file.fetch("NC_045512.2", min(sites), max(sites)+1) # Include indel sites?
+        for x in itr:
+            ref_pos = set(x.get_reference_positions())
+            if not len(set(sites)&ref_pos) or len(set(indel_sites)&ref_pos):
+                continue
 
-        sites = [int(m[1:len(m)-1])-1 for m in nt_muts] # Include indel sites?
-
-        itr = sam_file.fetch("NC_045512.2", min(sites), max(sites)+1)
-        for i, x in enumerate(itr):
             seq = x.query_alignment_sequence
+            print(seq)
+
             
         
 
