@@ -469,12 +469,15 @@ def filter(query_mutations, bam_input_dir, output):
         
         #TODO: Only fetch reads that contain mutations of interest
         # e.g. loop over samfile.fetch("NC_045512.2", mySite,mySite+1) for each mySite in sites
-        itr = sam_file.fetch("NC_045512.2", min(snp_sites), max(snp_sites)+1) # Include indel sites?
+
+        min_site = min(min(snp_sites),min(indel_sites))
+        max_site = max(max(snp_sites),max(indel_sites))
+        itr = sam_file.fetch("NC_045512.2", min_site, max_site) # Include indel sites?
         for x in itr:
-            print(len(set(snp_sites)&ref_pos))
+            #print(len(set(snp_sites)&ref_pos))
             ref_pos = set(x.get_reference_positions())
             if not len(set(snp_sites)&ref_pos) or len(set(indel_sites)&ref_pos):
-                print('skipping read...')
+                #print('skipping read...')
                 continue
 
             seq = x.query_alignment_sequence
