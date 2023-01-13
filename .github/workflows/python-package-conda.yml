@@ -19,14 +19,13 @@ jobs:
           auto-update-conda: true
           channels: bioconda,conda-forge
           channel-priority: true
-          python-version: 3.7 
+          python-version: 3.7
+          activate-environment: test
       
       - name: Install
         shell: bash -l {0}
         run: |
-          conda create --yes -n freyja python=3.7
-          conda activate freyja
-          conda install conda-libmamba-solver
+          conda install -n base conda-libmamba-solver
           conda config --set solver libmamba
           conda config --add channels bioconda
           conda config --add channels conda-forge          
@@ -36,7 +35,7 @@ jobs:
       - name: Test
         shell: bash -l {0}
         run: |
-          conda activate freyja
+          conda activate test
           make test
 
   lint:
