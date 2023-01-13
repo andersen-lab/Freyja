@@ -1,6 +1,7 @@
 name: barcode update
 
 on:
+  push:
   schedule:
     - cron: '0 0 * * *'
 
