@@ -458,7 +458,6 @@ def filter(query_mutations, bam_input_dir, output):
     snp_sites = [int(m[1:len(m)-1])-1 for m in snps] 
     indel_sites = [s[0] for s in insertions] + [s[0] for s in deletions]
     
-    
     for bam in os.listdir(bam_input_dir):
         if not bam.endswith('.bam'):
             continue
@@ -467,20 +466,28 @@ def filter(query_mutations, bam_input_dir, output):
         
         reads_considered = []
         
-        #TODO: Only fetch reads that contain mutations of interest
-        # e.g. loop over samfile.fetch("NC_045512.2", mySite,mySite+1) for each mySite in sites
+        # TODO: Only fetch reads that contain mutations of interest
+        # e.g. loop over samfile.fetch("NC_045512.2", mySite,mySite+1)
+        # for each mySite in sites
 
         min_site = min(min(snp_sites),min(indel_sites))
         max_site = max(max(snp_sites),max(indel_sites))
-        itr = sam_file.fetch("NC_045512.2", min_site, max_site) # Include indel sites?
+        itr = sam_file.fetch("NC_045512.2", min_site, max_site)
         for x in itr:
-            #print(len(set(snp_sites)&ref_pos))
             ref_pos = set(x.get_reference_positions())
+            start = x.reference_start
+            # skip the current read if it doesn't contain any sites of interest
             if not len(set(snp_sites)&ref_pos) or len(set(indel_sites)&ref_pos):
-                #print('skipping read...')
                 continue
-
             seq = x.query_alignment_sequence
+            cigar = re.findall(r'(\d+)([A-Z]{1})', x.cigarstring)
+
+            # note: inserts add to read length, but not alignment coordinate
+            
+
+
+
+
 
             
         
