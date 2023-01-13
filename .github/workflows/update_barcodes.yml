@@ -21,25 +21,26 @@ jobs:
       - name: Setup for conda
         uses: conda-incubator/setup-miniconda@v2
         with:        
-          mamba-version: "*"
+          auto-update-conda: true
           channels: bioconda,conda-forge
           channel-priority: true
-          python-version: "3.7" 
+          python-version: 3.7
+          activate-environment: test
 
       - name: Install
         shell: bash -l {0}
         run: |
-          mamba create --yes -n freyja python=3.7
-          conda activate freyja
+          conda install -n base conda-libmamba-solver
+          conda config --set solver libmamba
           conda config --add channels bioconda
           conda config --add channels conda-forge          
-          mamba install --yes --file ci/conda_requirements.txt
+          conda install --yes --file ci/conda_requirements.txt
           pip install -e . --no-deps 
           
       - name: update
         shell: bash -l {0}
         run: |
-          conda activate freyja
+          conda activate test
           freyja update --buildlocal
 
       - name: commit if output is different 
