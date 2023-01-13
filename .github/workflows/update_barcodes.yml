@@ -1,6 +1,7 @@
 name: barcode update
 
 on:
+  push:
   schedule:
     - cron: '0 0 * * *'
 
@@ -23,7 +24,7 @@ jobs:
           auto-update-conda: true
           channels: bioconda,conda-forge
           channel-priority: true
-          python-version: 3.7 
+          python-version: "3.7" 
 
       - name: Install
         shell: bash -l {0}
