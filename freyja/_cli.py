@@ -432,65 +432,127 @@ def relgrowthrate(agg_results, metadata, thresh, scale_by_viral_load, nboots,
                           serial_interval, output, daysIncluded=days,
                           grThresh=grthresh)
 
+
 @cli.command()
 @click.argument('query_mutations', type=click.Path(exists=True))
 @click.argument('bam_input_dir', type=click.Path(exists=True))
-@click.option('--output', default='extracted_reads.bam', 
+@click.option('--output', default='filtered_reads.bam',
               help='Output bam file')
 def filter(query_mutations, bam_input_dir, output):
     # Load data
-    df = pd.read_csv(query_mutations, header=None, index_col=False)
+    with open(query_mutations) as infile:
+        mutations = [line[:-1] for line in infile.readlines()]
 
-    # from usher barcodes (1-based indexing)
-    snps = [s for s in df.iloc[0,:].values.tolist() if str(s) != 'nan']
+        snps = [s for s in mutations[0].split(',')]
+        insertions = [s for s in mutations[1].split(',')]
+        deletions = [s for s in mutations[2].split(',')]
 
-    # user inputted (0-based indexing)
-    insertions = [s for s in df.iloc[1,:].values.tolist() if str(s) != 'nan']
-    deletions = [s for s in df.iloc[2,:].values.tolist() if str(s) != 'nan'] 
-
+    
     # parse tuples from indels
-    insertions = [(int(s.split(':')[0][1:]), s.split(':')[1][1:-2].strip('\''))
-                  for s in insertions]
-    deletions = [(int(s.split(':')[0][1:]),int(s.split(':')[1][:-1]))
-                 for s in deletions]
+    if len(insertions[0]) > 0:
+        insertions = [(int(s.split(':')[0][1:]), s.split(':')[1][1:-2].strip('\''))
+                      for s in insertions]
+    if len(deletions[0]) > 0:
+        deletions = [(int(s.split(':')[0][1:]), int(s.split(':')[1][:-1]))
+                     for s in deletions]
 
     # get loci for all mutations
-    snp_sites = [int(m[1:len(m)-1])-1 for m in snps] 
-    indel_sites = [s[0] for s in insertions] + [s[0] for s in deletions]
-    
+    snp_sites = [int(m[1:len(m)-1])-1 for m in snps if m] # account for 1-based indexing
+    indel_sites = [s[0] for s in insertions if s] +\
+                  [s[0] for s in deletions if s]
+
     for bam in os.listdir(bam_input_dir):
         if not bam.endswith('.bam'):
             continue
 
-        sam_file = pysam.AlignmentFile(os.path.join(bam_input_dir, bam), 'rb')
-        
+        samfile = pysam.AlignmentFile(os.path.join(bam_input_dir, bam), 'rb')
+
         reads_considered = []
-        
+
         # TODO: Only fetch reads that contain mutations of interest
         # e.g. loop over samfile.fetch("NC_045512.2", mySite,mySite+1)
         # for each mySite in sites
-
-        min_site = min(min(snp_sites),min(indel_sites))
-        max_site = max(max(snp_sites),max(indel_sites))
-        itr = sam_file.fetch("NC_045512.2", min_site, max_site)
+        if len(snp_sites) == 0:
+            snp_sites = [0]
+        if len(indel_sites) == 0:
+            indel_sites = [0]
+        min_site = min(min(snp_sites), min(indel_sites))
+        max_site = max(max(snp_sites), max(indel_sites))
+        itr = samfile.fetch("NC_045512.2", min_site, max_site+1)
         for x in itr:
             ref_pos = set(x.get_reference_positions())
             start = x.reference_start
-            # skip the current read if it doesn't contain any sites of interest
-            if not len(set(snp_sites)&ref_pos) or len(set(indel_sites)&ref_pos):
-                continue
+            sites_in = list(ref_pos & set(snp_sites))
+            
             seq = x.query_alignment_sequence
             cigar = re.findall(r'(\d+)([A-Z]{1})', x.cigarstring)
 
             # note: inserts add to read length, but not alignment coordinate
-            
+            if 'I' in x.cigarstring:
+                i = 0
+                del_spacing = 0
+                ins_spacing = 0
+                ranges = []  # keep track of read without insertions to find snp matches
+                insert_found = False
+                for m in cigar:
+                    if m[1] == 'I':
+                        if (start+i+del_spacing-ins_spacing, seq[i:i+int(m[0])]) in insertions:
+                            reads_considered.append(x.query_name)
+                            print('insertion found')
+                            insert_found = True
+                            break
+                        i += int(m[0])
+                        ins_spacing += int(m[0])
+                    elif m[1] == 'D':
+                        del_spacing += int(m[0])
+                        continue
+                    elif m[1] == 'M':
+                        ranges.append([i,i+int(m[0])])
+                        i += int(m[0])
+                seq = ''.join([seq[r[0]:r[1]] for r in ranges])
+                if insert_found:
+                    continue
+            if 'D' in x.cigarstring:
+                #c_dict = dict(zip(x.get_reference_positions), seq)
+                i = x.reference_start
+                deletions_found = []
 
+                for m in cigar:
+                    if m[1] == 'M':
+                        i += int(m[0])
+                    elif m[1] == 'D':
+                        if (i, int(m[0])) in deletions:
+                            print('del found')
+                            reads_considered.append((i, int(m[0])))
+                        i += int(m[0])
+                #for s in sites_in:
+                    #if len(deletions_found)>0: 
+                        #if sum([1 for d in deletions_found if d in deletions]) > 0:
+                            #reads_considered.append(x.query_name)
+                            #print('del found')
+                            #continue
+            else:
+                snp_dict = {int(mut[1:len(mut)-1])-1 : mut[-1] for mut in snps}
+                read_dict = dict(zip(x.get_reference_positions(), seq))
 
+                for s in sites_in:
+                    if snp_dict[s] == read_dict[s]:
+                        print('snp found')
+                        reads_considered.append(x.query_name)
+                        break
+        print(len(reads_considered))
+        samfile.close()
 
+        # Run again, this time also getting the paired read
+        samfile = pysam.AlignmentFile(os.path.join(bam_input_dir, bam), 'rb')
+        outfile = pysam.AlignmentFile(output, 'wb', template=samfile)
 
-
-            
-        
-
+        itr = samfile.fetch('NC_045512.2', min_site, max_site+1)
+        for x in itr:
+            if x.query_name not in reads_considered:
+                continue
+            outfile.write(x)
+        samfile.close()
+        outfile.close()
 if __name__ == '__main__':
     cli()
