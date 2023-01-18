@@ -450,14 +450,15 @@ def filter(query_mutations, bam_input_dir, output):
     
     # parse tuples from indels
     if len(insertions[0]) > 0:
-        insertions = [(int(s.split(':')[0][1:]), s.split(':')[1][1:-2].strip('\''))
+        insertions = [(int(s.split(':')[0][1:]),
+                       s.split(':')[1][1:-2].strip('\''))
                       for s in insertions]
     if len(deletions[0]) > 0:
         deletions = [(int(s.split(':')[0][1:]), int(s.split(':')[1][:-1]))
                      for s in deletions]
 
     # get loci for all mutations
-    snp_sites = [int(m[1:len(m)-1])-1 for m in snps if m] # account for 1-based indexing
+    snp_sites = [int(m[1:len(m)-1])-1 for m in snps if m]
     indel_sites = [s[0] for s in insertions if s] +\
                   [s[0] for s in deletions if s]
 
@@ -492,11 +493,12 @@ def filter(query_mutations, bam_input_dir, output):
                 i = 0
                 del_spacing = 0
                 ins_spacing = 0
-                ranges = []  # keep track of read without insertions to find snp matches
+                ranges = [] 
                 insert_found = False
                 for m in cigar:
                     if m[1] == 'I':
-                        if (start+i+del_spacing-ins_spacing, seq[i:i+int(m[0])]) in insertions:
+                        if (start+i+del_spacing-ins_spacing,seq[i:i+int(m[0])])\
+                           in insertions:
                             reads_considered.append(x.query_name)
                             print('insertion found')
                             insert_found = True
@@ -513,9 +515,9 @@ def filter(query_mutations, bam_input_dir, output):
                 if insert_found:
                     continue
             if 'D' in x.cigarstring:
-                #c_dict = dict(zip(x.get_reference_positions), seq)
+                read_dict = dict(zip(x.get_reference_positions), seq)
                 i = x.reference_start
-                deletions_found = []
+                del_found = False
 
                 for m in cigar:
                     if m[1] == 'M':
@@ -523,24 +525,22 @@ def filter(query_mutations, bam_input_dir, output):
                     elif m[1] == 'D':
                         if (i, int(m[0])) in deletions:
                             print('del found')
+                            print(x.cigarstring)
                             reads_considered.append((i, int(m[0])))
+                            continue
                         i += int(m[0])
-                #for s in sites_in:
-                    #if len(deletions_found)>0: 
-                        #if sum([1 for d in deletions_found if d in deletions]) > 0:
-                            #reads_considered.append(x.query_name)
-                            #print('del found')
-                            #continue
-            else:
-                snp_dict = {int(mut[1:len(mut)-1])-1 : mut[-1] for mut in snps}
-                read_dict = dict(zip(x.get_reference_positions(), seq))
+                
+                
+            snp_dict = {int(mut[1:len(mut)-1])-1 : mut[-1] for mut in snps if mut}
+            read_dict = dict(zip(x.get_reference_positions(), seq))
 
-                for s in sites_in:
-                    if snp_dict[s] == read_dict[s]:
-                        print('snp found')
-                        reads_considered.append(x.query_name)
-                        break
-        print(len(reads_considered))
+            for s in sites_in:
+                if snp_dict[s] == read_dict[s]:
+                    print('snp found')
+                    print(x.cigarstring)
+                    reads_considered.append(x.query_name)
+                    break
+        print('reads considered: ',len(reads_considered))
         samfile.close()
 
         # Run again, this time also getting the paired read
