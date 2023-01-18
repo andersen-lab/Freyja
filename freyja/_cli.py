@@ -439,14 +439,13 @@ def relgrowthrate(agg_results, metadata, thresh, scale_by_viral_load, nboots,
 @click.option('--output', default='filtered_reads.bam',
               help='Output bam file')
 def filter(query_mutations, bam_input_dir, output):
+
     # Load data
     with open(query_mutations) as infile:
-        mutations = [line[:-1] for line in infile.readlines()]
-
+        mutations = infile.read().splitlines()
         snps = [s for s in mutations[0].split(',')]
         insertions = [s for s in mutations[1].split(',')]
         deletions = [s for s in mutations[2].split(',')]
-
     
     # parse tuples from indels
     if len(insertions[0]) > 0:
@@ -467,7 +466,7 @@ def filter(query_mutations, bam_input_dir, output):
     for bam in os.listdir(bam_input_dir):
         if not bam.endswith('.bam'):
             continue
-
+        print(f'Searching {bam}')
         samfile = pysam.AlignmentFile(os.path.join(bam_input_dir, bam), 'rb')
 
         reads_considered = []
@@ -475,6 +474,7 @@ def filter(query_mutations, bam_input_dir, output):
         # TODO: Only fetch reads that contain mutations of interest
         # e.g. loop over samfile.fetch("NC_045512.2", mySite,mySite+1)
         # for each mySite in sites
+
         if len(snp_sites) == 0:
             snp_sites = [0]
         if len(indel_sites) == 0:
@@ -482,6 +482,7 @@ def filter(query_mutations, bam_input_dir, output):
         min_site = min(min(snp_sites), min(indel_sites))
         max_site = max(max(snp_sites), max(indel_sites))
         itr = samfile.fetch("NC_045512.2", min_site, max_site+1)
+
         for x in itr:
             ref_pos = set(x.get_reference_positions())
             start = x.reference_start
@@ -502,8 +503,6 @@ def filter(query_mutations, bam_input_dir, output):
                         if (start+i+del_spacing-ins_spacing,
                             seq[i:i+int(m[0])]) in insertions:
                             reads_considered.append(x.query_name)
-                            print('insertion found')
-                            print(x.cigarstring)
                             insert_found = True
                             break
                         i += int(m[0])
@@ -514,9 +513,12 @@ def filter(query_mutations, bam_input_dir, output):
                     elif m[1] == 'M':
                         ranges.append([i,i+int(m[0])])
                         i += int(m[0])
+
                 seq = ''.join([seq[r[0]:r[1]] for r in ranges])
+
                 if insert_found:
                     continue
+                    
             if 'D' in x.cigarstring:
                 c_dict = dict(zip(x.get_reference_positions(), seq))
                 i = x.reference_start
@@ -529,30 +531,26 @@ def filter(query_mutations, bam_input_dir, output):
                                 c_dict[k] = '-'
                         
                         if (i, int(m[0])) in deletions:
-                            print('del found')
-                            print(x.cigarstring)
-                            reads_considered.append((i, int(m[0])))
+                            reads_considered.append(x.query_name)
                             continue
+
                         i += int(m[0])
+                
                 for s in sites_in:
                     if c_dict[s] == snp_dict[s]:
                         reads_considered.append(x.query_name)
-                        print('snp found')
-                        print(x.cigarstring)
                         break
                         
             else:
                 c_dict = dict(zip(x.get_reference_positions(), seq))
                 for s in sites_in:
                     if snp_dict[s] == c_dict[s]:
-                        print('snp found')
-                        print(x.cigarstring)
                         reads_considered.append(x.query_name)
                         break
-        print('reads considered: ',len(reads_considered))
+        
         samfile.close()
 
-        # Run again, this time getting the paired read
+        # Run again, this time also getting the paired read
         samfile = pysam.AlignmentFile(os.path.join(bam_input_dir, bam), 'rb')
         outfile = pysam.AlignmentFile(output, 'wb', template=samfile)
 
@@ -564,5 +562,8 @@ def filter(query_mutations, bam_input_dir, output):
         
         samfile.close()
         outfile.close()
+
+        print(f'Output saved to {output}')
+
 if __name__ == '__main__':
     cli()
