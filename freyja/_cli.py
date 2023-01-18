@@ -462,6 +462,8 @@ def filter(query_mutations, bam_input_dir, output):
     indel_sites = [s[0] for s in insertions if s] +\
                   [s[0] for s in deletions if s]
 
+    snp_dict = {int(mut[1:len(mut)-1])-1 : mut[-1] for mut in snps if mut}
+
     for bam in os.listdir(bam_input_dir):
         if not bam.endswith('.bam'):
             continue
@@ -497,10 +499,11 @@ def filter(query_mutations, bam_input_dir, output):
                 insert_found = False
                 for m in cigar:
                     if m[1] == 'I':
-                        if (start+i+del_spacing-ins_spacing,seq[i:i+int(m[0])])\
-                           in insertions:
+                        if (start+i+del_spacing-ins_spacing,
+                            seq[i:i+int(m[0])]) in insertions:
                             reads_considered.append(x.query_name)
                             print('insertion found')
+                            print(x.cigarstring)
                             insert_found = True
                             break
                         i += int(m[0])
@@ -515,35 +518,41 @@ def filter(query_mutations, bam_input_dir, output):
                 if insert_found:
                     continue
             if 'D' in x.cigarstring:
-                read_dict = dict(zip(x.get_reference_positions), seq)
+                c_dict = dict(zip(x.get_reference_positions(), seq))
                 i = x.reference_start
-                del_found = False
 
                 for m in cigar:
                     if m[1] == 'M':
                         i += int(m[0])
                     elif m[1] == 'D':
+                        for k in range(i,i+int(m[0])):
+                                c_dict[k] = '-'
+                        
                         if (i, int(m[0])) in deletions:
                             print('del found')
                             print(x.cigarstring)
                             reads_considered.append((i, int(m[0])))
                             continue
                         i += int(m[0])
-                
-                
-            snp_dict = {int(mut[1:len(mut)-1])-1 : mut[-1] for mut in snps if mut}
-            read_dict = dict(zip(x.get_reference_positions(), seq))
-
-            for s in sites_in:
-                if snp_dict[s] == read_dict[s]:
-                    print('snp found')
-                    print(x.cigarstring)
-                    reads_considered.append(x.query_name)
-                    break
+                for s in sites_in:
+                    if c_dict[s] == snp_dict[s]:
+                        reads_considered.append(x.query_name)
+                        print('snp found')
+                        print(x.cigarstring)
+                        break
+                        
+            else:
+                c_dict = dict(zip(x.get_reference_positions(), seq))
+                for s in sites_in:
+                    if snp_dict[s] == c_dict[s]:
+                        print('snp found')
+                        print(x.cigarstring)
+                        reads_considered.append(x.query_name)
+                        break
         print('reads considered: ',len(reads_considered))
         samfile.close()
 
-        # Run again, this time also getting the paired read
+        # Run again, this time getting the paired read
         samfile = pysam.AlignmentFile(os.path.join(bam_input_dir, bam), 'rb')
         outfile = pysam.AlignmentFile(output, 'wb', template=samfile)
 
@@ -552,6 +561,7 @@ def filter(query_mutations, bam_input_dir, output):
             if x.query_name not in reads_considered:
                 continue
             outfile.write(x)
+        
         samfile.close()
         outfile.close()
 if __name__ == '__main__':
