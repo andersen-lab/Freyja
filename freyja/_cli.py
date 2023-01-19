@@ -10,7 +10,7 @@ from freyja.updates import download_tree, convert_tree,\
     download_barcodes, download_barcodes_wgisaid
 from freyja.utils import agg, makePlot_simple, makePlot_time,\
     make_dashboard, checkConfig, get_abundance, calc_rel_growth_rates
-from read_analysis_tools import filter
+from freyja.read_analysis_tools import filter
 import os
 import glob
 import subprocess
@@ -433,8 +433,8 @@ def relgrowthrate(agg_results, metadata, thresh, scale_by_viral_load, nboots,
 
 
 @cli.command()
-@click.argument('query_mutations', type=click.Path(exists=True))
-@click.argument('bam_input_dir', type=click.Path(exists=True))
+@click.argument('query_mutations', type=click.Path(), nargs=1)
+@click.argument('bam_input_dir', type=click.Path(), nargs=1)
 @click.option('--output', default='filtered_reads.bam',
               help='Output bam file')
 def filter(query_mutations, bam_input_dir, output):

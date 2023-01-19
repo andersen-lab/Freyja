@@ -29,7 +29,7 @@ def filter(query_mutations, bam_input_dir, output):
 
     snp_dict = {int(mut[1:len(mut)-1])-1 : mut[-1] for mut in snps if mut}
 
-    for bam in os.listdir(bam_input_dir):
+    for bam in tqdm(os.listdir(bam_input_dir)):
         if not bam.endswith('.bam'):
             continue
         print(f'Searching {bam}')
