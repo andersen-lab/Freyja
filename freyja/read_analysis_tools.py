@@ -1,7 +1,7 @@
 import os
 import re
 import pysam
-import tqdm
+from tqdm import tqdm
 
 
 def filter(query_mutations, bam_input_dir, output):
