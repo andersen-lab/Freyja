@@ -433,13 +433,12 @@ def relgrowthrate(agg_results, metadata, thresh, scale_by_viral_load, nboots,
 
 
 @cli.command()
-@click.argument('query_mutations', type=click.Path(exists=True))
-@click.argument('bam_input_dir', type=click.Path(exists=True))
-@click.option('--output', default='filtered_reads.bam',
-              help='Output bam file')
-def filter(query_mutations, bam_input_dir, output):
-    print(query_mutations)
-    _filter(query_mutations, bam_input_dir, output)
+@click.argument('query_mutations_file', type=click.Path(exists=True))
+@click.argument('input_bam', type=click.Path(exists=True))
+@click.option('--output', default='freyja/data/outputs',
+              help='Path to write filtered reads file')
+def filter(query_mutations_file, input_bam, output):
+    _filter(query_mutations_file, input_bam, output)
 
 if __name__ == '__main__':
     cli()
