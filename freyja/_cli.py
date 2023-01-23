@@ -2,6 +2,7 @@ import click
 import pandas as pd
 from freyja.convert_paths2barcodes import parse_tree_paths,\
     convert_to_barcodes, reversion_checking, check_mutation_chain
+from freyja.read_analysis_tools import extract as _extract, filter as _filter
 from freyja.sample_deconv import buildLineageMap, build_mix_and_depth_arrays,\
     reindex_dfs, map_to_constellation, solve_demixing_problem,\
     perform_bootstrap
@@ -10,7 +11,6 @@ from freyja.updates import download_tree, convert_tree,\
     download_barcodes, download_barcodes_wgisaid
 from freyja.utils import agg, makePlot_simple, makePlot_time,\
     make_dashboard, checkConfig, get_abundance, calc_rel_growth_rates
-from freyja.read_analysis_tools import filter as _filter
 import os
 import glob
 import subprocess
@@ -433,12 +433,32 @@ def relgrowthrate(agg_results, metadata, thresh, scale_by_viral_load, nboots,
 
 
 @cli.command()
-@click.argument('query_mutations_file', type=click.Path(exists=True))
+@click.argument('query_mutations', type=click.Path(exists=True))
 @click.argument('input_bam', type=click.Path(exists=True))
-@click.option('--output', default='freyja/data/outputs',
-              help='Path to write filtered reads file')
-def filter(query_mutations_file, input_bam, output):
-    _filter(query_mutations_file, input_bam, output)
+@click.option('--output', type= click.Path(exists=True),
+              default='freyja/data/outputs',
+              help='path to save extracted reads')
+def extract(query_mutations, input_bam, output):
+    '''
+    Extracts a subset of reads from INPUT_BAM containing at least one
+    mutation specified in QUERY_MUTATIONS.csv.
+    '''
+    _extract(query_mutations, input_bam, output)
 
+@cli.command()
+@click.argument('query_mutations', type=click.Path(exists=True))
+@click.argument('input_bam', type=click.Path(exists=True))
+@click.argument('min_site')
+@click.argument('max_site')
+@click.option('--output', type= click.Path(exists=True),
+              default='freyja/data/outputs',
+              help='path to save extracted reads')
+def filter(query_mutations, input_bam, min_site, max_site, output):
+    '''
+    Filters out reads containing at least one mutation specified in\
+    QUERY_MUTATIONS.csv, within the range (min_site, max_site)
+    '''
+    _filter(query_mutations, input_bam, min_site, max_site, output)
+    
 if __name__ == '__main__':
     cli()
