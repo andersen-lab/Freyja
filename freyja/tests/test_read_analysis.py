@@ -4,7 +4,7 @@ from freyja.read_analysis_tools import extract as _extract, filter as _filter
 class ReadAnalysisTests(unittest.TestCase):
 
     def test_extract_snps(self):
-        query_file = 'freyja/data/example_query.csv'
+        query_file = 'freyja/data/test_query.csv'
         input_bam = 'freyja/data/test.bam'
         output = 'freyja/data/outputs'
 
@@ -31,7 +31,7 @@ class ReadAnalysisTests(unittest.TestCase):
             self.assertTrue(read in reads_found)
 
     def test_extract_insertions(self):
-        query_file = 'freyja/data/example_query.csv'
+        query_file = 'freyja/data/test_query.csv'
         input_bam = 'freyja/data/test.bam'
         output = 'freyja/data/outputs'
 
@@ -58,7 +58,7 @@ class ReadAnalysisTests(unittest.TestCase):
             self.assertTrue(read in reads_found)
 
     def test_extract_dels(self):
-        query_file = 'freyja/data/example_query.csv'
+        query_file = 'freyja/data/test_query.csv'
         input_bam = 'freyja/data/test.bam'
         output = 'freyja/data/outputs'
 
@@ -84,7 +84,7 @@ class ReadAnalysisTests(unittest.TestCase):
             self.assertTrue(read in reads_found)
     
     def test_filter_snps(self):
-        query_file = 'freyja/data/example_query.csv'
+        query_file = 'freyja/data/test_query.csv'
         input_bam = 'freyja/data/test.bam'
         output = 'freyja/data/outputs'
 
@@ -106,7 +106,7 @@ class ReadAnalysisTests(unittest.TestCase):
             self.assertFalse(read in reads_found)
 
     def test_filter_insertions(self):
-        query_file = 'freyja/data/example_query.csv'
+        query_file = 'freyja/data/test_query.csv'
         input_bam = 'freyja/data/test.bam'
         output = 'freyja/data/outputs'
 
@@ -130,7 +130,7 @@ class ReadAnalysisTests(unittest.TestCase):
             self.assertFalse(read in reads_found)
 
     def test_filter_deletions(self):
-        query_file = 'freyja/data/example_query.csv'
+        query_file = 'freyja/data/test_query.csv'
         input_bam = 'freyja/data/test.bam'
         output = 'freyja/data/outputs'
 
