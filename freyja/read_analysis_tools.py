@@ -42,78 +42,76 @@ def extract(query_mutations, input_bam, output):
     # e.g. loop over samfile.fetch("NC_045512.2", mySite,mySite+1)
     # for each mySite in sites
 
-    if len(snp_sites) == 0:
-        snp_sites = [0]
-    if len(indel_sites) == 0:
-        indel_sites = [0]
-    min_site = min(min(snp_sites), min(indel_sites))
-    max_site = max(max(snp_sites), max(indel_sites))
-    itr = samfile.fetch("NC_045512.2", min_site, max_site+1)
+    all_sites = snp_sites + indel_sites
+    all_sites.sort()
 
-    for x in itr:
-        ref_pos = set(x.get_reference_positions())
-        start = x.reference_start
-        sites_in = list(ref_pos & set(snp_sites))
-        
-        seq = x.query_alignment_sequence
-        cigar = re.findall(r'(\d+)([A-Z]{1})', x.cigarstring)
+    for site in all_sites:
+        itr = samfile.fetch("NC_045512.2", site, site+1)
 
-        # note: inserts add to read length, but not alignment coordinate
-        if 'I' in x.cigarstring:
-            i = 0
-            del_spacing = 0
-            ins_spacing = 0
-            ranges = [] 
-            insert_found = False
-            for m in cigar:
-                if m[1] == 'I':
-                    if (start+i+del_spacing-ins_spacing,
-                        seq[i:i+int(m[0])]) in insertions:
-                        reads_considered.append(x.query_name)
-                        insert_found = True
-                        break
-                    i += int(m[0])
-                    ins_spacing += int(m[0])
-                elif m[1] == 'D':
-                    del_spacing += int(m[0])
-                    continue
-                elif m[1] == 'M':
-                    ranges.append([i,i+int(m[0])])
-                    i += int(m[0])
-
-            seq = ''.join([seq[r[0]:r[1]] for r in ranges])
-
-            if insert_found:
-                continue
-                
-        if 'D' in x.cigarstring:
-            c_dict = dict(zip(x.get_reference_positions(), seq))
-            i = x.reference_start
-
-            for m in cigar:
-                if m[1] == 'M':
-                    i += int(m[0])
-                elif m[1] == 'D':
-                    for k in range(i,i+int(m[0])):
-                            c_dict[k] = '-'
-                    
-                    if (i, int(m[0])) in deletions:
-                        reads_considered.append(x.query_name)
-                        continue
-
-                    i += int(m[0])
+        for x in itr:
+            ref_pos = set(x.get_reference_positions())
+            start = x.reference_start
+            sites_in = list(ref_pos & set(snp_sites))
             
-            for s in sites_in:
-                if c_dict[s] == snp_dict[s]:
-                    reads_considered.append(x.query_name)
-                    break
+            seq = x.query_alignment_sequence
+            cigar = re.findall(r'(\d+)([A-Z]{1})', x.cigarstring)
+
+            # note: inserts add to read length, but not alignment coordinate
+            if 'I' in x.cigarstring:
+                i = 0
+                del_spacing = 0
+                ins_spacing = 0
+                ranges = [] 
+                insert_found = False
+                for m in cigar:
+                    if m[1] == 'I':
+                        if (start+i+del_spacing-ins_spacing,
+                            seq[i:i+int(m[0])]) in insertions:
+                            reads_considered.append(x.query_name)
+                            insert_found = True
+                            break
+                        i += int(m[0])
+                        ins_spacing += int(m[0])
+                    elif m[1] == 'D':
+                        del_spacing += int(m[0])
+                        continue
+                    elif m[1] == 'M':
+                        ranges.append([i,i+int(m[0])])
+                        i += int(m[0])
+
+                seq = ''.join([seq[r[0]:r[1]] for r in ranges])
+
+                if insert_found:
+                    continue
                     
-        else:
-            c_dict = dict(zip(x.get_reference_positions(), seq))
-            for s in sites_in:
-                if snp_dict[s] == c_dict[s]:
-                    reads_considered.append(x.query_name)
-                    break
+            if 'D' in x.cigarstring:
+                c_dict = dict(zip(x.get_reference_positions(), seq))
+                i = x.reference_start
+
+                for m in cigar:
+                    if m[1] == 'M':
+                        i += int(m[0])
+                    elif m[1] == 'D':
+                        for k in range(i,i+int(m[0])):
+                                c_dict[k] = '-'
+                        
+                        if (i, int(m[0])) in deletions:
+                            reads_considered.append(x.query_name)
+                            continue
+
+                        i += int(m[0])
+                
+                for s in sites_in:
+                    if c_dict[s] == snp_dict[s]:
+                        reads_considered.append(x.query_name)
+                        break
+                        
+            else:
+                c_dict = dict(zip(x.get_reference_positions(), seq))
+                for s in sites_in:
+                    if snp_dict[s] == c_dict[s]:
+                        reads_considered.append(x.query_name)
+                        break
     
     samfile.close()
 
@@ -126,7 +124,7 @@ def extract(query_mutations, input_bam, output):
     outfile = pysam.AlignmentFile(outfile_path,'wb',template=samfile)
     final_reads = []
     
-    itr = samfile.fetch('NC_045512.2', min_site, max_site+1)
+    itr = samfile.fetch("NC_045512.2", min(all_sites), max(all_sites))
 
     for x in itr:
         if x.query_name not in reads_considered:
