@@ -4,7 +4,6 @@ import pysam
 
 
 def filter(query_mutations_file, input_bam, output):
-
     # Load data
     with open(query_mutations_file) as infile:
         mutations = infile.read().splitlines()
@@ -15,26 +14,24 @@ def filter(query_mutations_file, input_bam, output):
         snps = [s.strip() for s in mutations[0] .split(',')]
         insertions = [s.strip() for s in mutations[1].split(',')]
         deletions = [s.strip() for s in mutations[2].split(',')]
-    
-    # parse tuples from indels
-    if len(insertions[0]) > 0:
-        insertions = [(int(s.split(':')[0][1:]),
-                       s.split(':')[1][1:-2].strip('\''))
-                      for s in insertions]
-    if len(deletions[0]) > 0:
-        deletions = [(int(s.split(':')[0][1:]), int(s.split(':')[1][:-1]))
-                     for s in deletions]
-
-    # get loci for all mutations
     try:
+        # parse tuples from indels
+        if len(insertions[0]) > 0:
+            insertions = [(int(s.split(':')[0][1:]),
+                        s.split(':')[1][1:-2].strip('\''))
+                        for s in insertions]
+        if len(deletions[0]) > 0:
+            deletions = [(int(s.split(':')[0][1:]), int(s.split(':')[1][:-1]))
+                        for s in deletions]
+
+        # get loci for all mutations
         snp_sites = [int(m[1:len(m)-1])-1 for m in snps if m]
         indel_sites = [s[0] for s in insertions if s] +\
                     [s[0] for s in deletions if s]
     except:
-        print('filter: Error in parsing',query_mutations_file)
+        print('filter: Error parsing',query_mutations_file)
         print('filter: See README for formatting requirements.')
         return -1
-        
 
     snp_dict = {int(mut[1:len(mut)-1])-1 : mut[-1] for mut in snps if mut}
 

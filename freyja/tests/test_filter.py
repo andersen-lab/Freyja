@@ -73,5 +73,6 @@ class FilterTests(unittest.TestCase):
 
         for read in reads:
             self.assertTrue(read in reads_found)
+            
 if __name__ == '__main__':
     unittest.main()
