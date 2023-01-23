@@ -38,10 +38,6 @@ def extract(query_mutations, input_bam, output):
 
     reads_considered = []
 
-    # TODO: Only fetch reads that contain mutations of interest
-    # e.g. loop over samfile.fetch("NC_045512.2", mySite,mySite+1)
-    # for each mySite in sites
-
     all_sites = snp_sites + indel_sites
     all_sites.sort()
 

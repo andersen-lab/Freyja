@@ -123,3 +123,20 @@ The above command will generate the relative growth rates for each Lineage and o
 - Lineage
 - Estimated Advantage
 - Bootstrap 95% interval
+---
+### Read analysis tools
+We now provide tools for the analysis of bam files given a set of mutations of interest.
+```
+freyja extract [query-mutations.csv] [input-bam] --output [directory-of-output-file]
+```
+The above command will extract reads containing one or more mutations of interest and save them to `[input-bam]_extracted.bam`. In order to exclude reads containing one or more mutations, use the following:
+```
+freyja filter [query-mutations.csv] [input-bam] [min-site] [max-site] --output [directory-of-output-file]
+```
+Where ```[min-site]``` and ```[max-site]``` specify the range of reads to include. Formatting requirements for `[query-mutations.csv]` can be found below.
+```
+C75T,G230A,A543C
+(732:'TT'),(1349:'A'),(12333:'A')
+(1443:32),(1599:2),(2036:3)
+```
+Where SNPs (UShER format), insertions, and deletions are listed in separate lines in that order.
