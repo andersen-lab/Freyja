@@ -17,18 +17,22 @@ def extract(query_mutations, input_bam, output):
     try:
         # parse tuples from indels
         if len(insertions[0]) > 0:
-            insertions = [(int(s.split(':')[0][1:]),
-                           s.split(':')[1][1:-2].strip('\''))
-                          for s in insertions]
+            insertions = [
+                (int(s.split(':')[0][1:]), s.split(':')[1][1:-2].strip('\''))
+                for s in insertions
+            ]
+
         if len(deletions[0]) > 0:
-            deletions = [(int(s.split(':')[0][1:]), int(s.split(':')[1][:-1]))
-                         for s in deletions]
+            deletions = [
+                (int(s.split(':')[0][1:]), int(s.split(':')[1][:-1]))
+                for s in deletions
+            ]
 
         # get loci for all mutations
         snp_sites = [int(m[1:len(m)-1])-1 for m in snps if m]
         indel_sites = [s[0] for s in insertions if s] +\
             [s[0] for s in deletions if s]
-    except:
+    except ValueError:
         print('extract: Error parsing', query_mutations)
         print('extract: See README for formatting requirements.')
         return -1
@@ -161,9 +165,7 @@ def filter(query_mutations, input_bam, min_site, max_site, output):
 
         # get loci for all mutations
         snp_sites = [int(m[1:len(m)-1])-1 for m in snps if m]
-        indel_sites = [s[0] for s in insertions if s] +\
-            [s[0] for s in deletions if s]
-    except:
+    except ValueError:
         print('filter: Error parsing', query_mutations)
         print('filter: See README for formatting requirements.')
         return -1
