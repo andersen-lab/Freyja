@@ -3,26 +3,33 @@ import re
 import pysam
 
 
-def extract(query_mutations, input_bam, output):
+def extract(query_mutations, input_bam, output, refname):
+
     # Load data
     with open(query_mutations) as infile:
-        mutations = infile.read().splitlines()
+        lines = infile.read().splitlines()
+        snps = []
+        insertions = []
+        deletions = []
+        for line in lines:
+            line = [s.strip() for s in line.split(',')]
+            if any(n in line[0] for n in 'ACGT'):
+                if ':' in line[0]:
+                    insertions = line
+                elif len(line) > 0:
+                    snps = line
+            elif ':' in line[0]:
+                deletions = line
 
-        if len(mutations) < 3:
-            for i in range(3 - len(mutations)):
-                mutations.append('')
-        snps = [s.strip() for s in mutations[0] .split(',')]
-        insertions = [s.strip() for s in mutations[1].split(',')]
-        deletions = [s.strip() for s in mutations[2].split(',')]
     try:
-        # parse tuples from indels
-        if len(insertions[0]) > 0:
+        # parse tuples from indel strings
+        if len(insertions) > 0:
             insertions = [
                 (int(s.split(':')[0][1:]), s.split(':')[1][1:-2].strip('\''))
                 for s in insertions
             ]
 
-        if len(deletions[0]) > 0:
+        if len(deletions) > 0:
             deletions = [
                 (int(s.split(':')[0][1:]), int(s.split(':')[1][:-1]))
                 for s in deletions
@@ -32,14 +39,19 @@ def extract(query_mutations, input_bam, output):
         snp_sites = [int(m[1:len(m)-1])-1 for m in snps if m]
         indel_sites = [s[0] for s in insertions if s] +\
             [s[0] for s in deletions if s]
-    except ValueError:
+    except Exception:
         print('extract: Error parsing', query_mutations)
         print('extract: See README for formatting requirements.')
         return -1
 
     snp_dict = {int(mut[1:len(mut)-1])-1: mut[-1] for mut in snps if mut}
 
-    samfile = pysam.AlignmentFile(input_bam, 'rb')
+    try:
+        samfile = pysam.AlignmentFile(input_bam, 'rb')
+    except ValueError:
+        print('extract: Missing index file, try running samtools index',
+              input_bam)
+        return -1
 
     reads_considered = []
 
@@ -47,7 +59,7 @@ def extract(query_mutations, input_bam, output):
     all_sites.sort()
 
     for site in all_sites:
-        itr = samfile.fetch("NC_045512.2", site, site+1)
+        itr = samfile.fetch(refname, site, site+1)
 
         for x in itr:
             ref_pos = set(x.get_reference_positions())
@@ -86,34 +98,21 @@ def extract(query_mutations, input_bam, output):
                     continue
 
             if 'D' in x.cigarstring:
-                c_dict = dict(zip(x.get_reference_positions(), seq))
                 i = x.reference_start
-
                 for m in cigar:
                     if m[1] == 'M':
                         i += int(m[0])
                     elif m[1] == 'D':
-                        for k in range(i, i+int(m[0])):
-                            c_dict[k] = '-'
-
                         if (i, int(m[0])) in deletions:
                             reads_considered.append(x.query_name)
                             continue
-
                         i += int(m[0])
-
-                for s in sites_in:
-                    if c_dict[s] == snp_dict[s]:
-                        reads_considered.append(x.query_name)
-                        break
-
             else:
                 c_dict = dict(zip(x.get_reference_positions(), seq))
                 for s in sites_in:
                     if snp_dict[s] == c_dict[s]:
                         reads_considered.append(x.query_name)
                         break
-
     samfile.close()
 
     # Run again, this time also getting the paired read
@@ -125,7 +124,7 @@ def extract(query_mutations, input_bam, output):
     outfile = pysam.AlignmentFile(outfile_path, 'wb', template=samfile)
     final_reads = []
 
-    itr = samfile.fetch("NC_045512.2", min(all_sites), max(all_sites))
+    itr = samfile.fetch(refname, min(all_sites), max(all_sites))
 
     for x in itr:
         if x.query_name not in reads_considered:
@@ -141,25 +140,30 @@ def extract(query_mutations, input_bam, output):
     return final_reads
 
 
-def filter(query_mutations, input_bam, min_site, max_site, output):
+def filter(query_mutations, input_bam, min_site, max_site, output, refname):
 
     # Load data
     with open(query_mutations) as infile:
-        mutations = infile.read().splitlines()
-
-        if len(mutations) < 3:
-            for i in range(3 - len(mutations)):
-                mutations.append('')
-        snps = [s.strip() for s in mutations[0] .split(',')]
-        insertions = [s.strip() for s in mutations[1].split(',')]
-        deletions = [s.strip() for s in mutations[2].split(',')]
+        lines = infile.read().splitlines()
+        snps = []
+        insertions = []
+        deletions = []
+        for line in lines:
+            line = [s.strip() for s in line.split(',')]
+            if any(n in line[0] for n in 'ACGT'):
+                if ':' in line[0]:
+                    insertions = line
+                elif len(line) > 0:
+                    snps = line
+            elif ':' in line[0]:
+                deletions = line
     try:
         # parse tuples from indels
-        if len(insertions[0]) > 0:
+        if len(insertions) > 0:
             insertions = [(int(s.split(':')[0][1:]),
                            s.split(':')[1][1:-2].strip('\''))
                           for s in insertions]
-        if len(deletions[0]) > 0:
+        if len(deletions) > 0:
             deletions = [(int(s.split(':')[0][1:]), int(s.split(':')[1][:-1]))
                          for s in deletions]
 
@@ -173,8 +177,14 @@ def filter(query_mutations, input_bam, min_site, max_site, output):
     snp_dict = {int(mut[1:len(mut)-1])-1: mut[-1] for mut in snps if mut}
     reads_considered = []
 
-    samfile = pysam.AlignmentFile(input_bam, 'rb')
-    itr = samfile.fetch("NC_045512.2", int(min_site), int(max_site)+1)
+    try:
+        samfile = pysam.AlignmentFile(input_bam, 'rb')
+    except ValueError:
+        print('extract: Missing index file, try running samtools index',
+              input_bam)
+        return -1
+
+    itr = samfile.fetch(refname, int(min_site), int(max_site)+1)
 
     for x in itr:
         ref_pos = set(x.get_reference_positions())
@@ -213,34 +223,21 @@ def filter(query_mutations, input_bam, min_site, max_site, output):
                 continue
 
         if 'D' in x.cigarstring:
-            c_dict = dict(zip(x.get_reference_positions(), seq))
             i = x.reference_start
-
             for m in cigar:
                 if m[1] == 'M':
                     i += int(m[0])
                 elif m[1] == 'D':
-                    for k in range(i, i+int(m[0])):
-                        c_dict[k] = '-'
-
                     if (i, int(m[0])) in deletions:
                         reads_considered.append(x.query_name)
                         continue
-
                     i += int(m[0])
-
-            for s in sites_in:
-                if c_dict[s] == snp_dict[s]:
-                    reads_considered.append(x.query_name)
-                    break
-
         else:
             c_dict = dict(zip(x.get_reference_positions(), seq))
             for s in sites_in:
                 if snp_dict[s] == c_dict[s]:
                     reads_considered.append(x.query_name)
                     break
-
     samfile.close()
 
     # Run again, this time also getting the paired read
@@ -252,7 +249,7 @@ def filter(query_mutations, input_bam, min_site, max_site, output):
     outfile = pysam.AlignmentFile(outfile_path, 'wb', template=samfile)
     final_reads = []
 
-    itr = samfile.fetch('NC_045512.2', int(min_site), int(max_site)+1)
+    itr = samfile.fetch(refname, int(min_site), int(max_site)+1)
 
     for x in itr:
         if x.query_name in reads_considered:

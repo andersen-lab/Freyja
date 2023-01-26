@@ -8,7 +8,7 @@ class ReadAnalysisTests(unittest.TestCase):
         query_file = 'freyja/data/test_query.csv'
         input_bam = 'freyja/data/test.bam'
         output = 'freyja/data'
-
+        refname = 'NC_045512.2'
         snps = 'C75T,G230A,A543C'
         reads = [
             'A01535:8:HJ3YYDSX2:4:1377:5177:13182',
@@ -20,7 +20,7 @@ class ReadAnalysisTests(unittest.TestCase):
         with open(query_file, 'w') as f:
             f.write(snps)
 
-        reads_found = _extract(query_file, input_bam, output)
+        reads_found = _extract(query_file, input_bam, output, refname)
 
         self.assertFalse('A01535:8:HJ3YYDSX2:4:1235:12427:11052'
                          in reads_found)
@@ -35,7 +35,7 @@ class ReadAnalysisTests(unittest.TestCase):
         query_file = 'freyja/data/test_query.csv'
         input_bam = 'freyja/data/test.bam'
         output = 'freyja/data'
-
+        refname = 'NC_045512.2'
         insertions = "(732:'TT'),(1349:'A'),(12333:'A')"
 
         reads = [
@@ -46,9 +46,9 @@ class ReadAnalysisTests(unittest.TestCase):
         ]
 
         with open(query_file, 'w') as f:
-            f.write('\n' + insertions)
+            f.write(insertions)
 
-        reads_found = _extract(query_file, input_bam, output)
+        reads_found = _extract(query_file, input_bam, output, refname)
 
         self.assertTrue('A01535:8:HJ3YYDSX2:4:1158:32669:6809'
                         not in reads_found)
@@ -62,6 +62,7 @@ class ReadAnalysisTests(unittest.TestCase):
         query_file = 'freyja/data/test_query.csv'
         input_bam = 'freyja/data/test.bam'
         output = 'freyja/data'
+        refname = 'NC_045512.2'
 
         deletions = "(1443:32),(1599:2),(2036:3)"
 
@@ -72,9 +73,9 @@ class ReadAnalysisTests(unittest.TestCase):
         ]
 
         with open(query_file, 'w') as f:
-            f.write('\n\n' + deletions)
+            f.write(deletions)
 
-        reads_found = _extract(query_file, input_bam, output)
+        reads_found = _extract(query_file, input_bam, output, refname)
 
         self.assertFalse('A01535:8:HJ3YYDSX2:4:1123:4707:5165'
                          in reads_found)
@@ -88,6 +89,7 @@ class ReadAnalysisTests(unittest.TestCase):
         query_file = 'freyja/data/test_query.csv'
         input_bam = 'freyja/data/test.bam'
         output = 'freyja/data'
+        refname = 'NC_045512.2'
 
         snps = 'C75T,G230A,A543C'
         reads = [
@@ -100,7 +102,7 @@ class ReadAnalysisTests(unittest.TestCase):
         with open(query_file, 'w') as f:
             f.write(snps)
 
-        reads_found = _filter(query_file, input_bam, 75, 600, output)
+        reads_found = _filter(query_file, input_bam, 75, 600, output, refname)
         self.assertTrue('A01535:8:HJ3YYDSX2:4:1235:12427:11052'
                         in reads_found)
         for read in reads:
@@ -110,6 +112,7 @@ class ReadAnalysisTests(unittest.TestCase):
         query_file = 'freyja/data/test_query.csv'
         input_bam = 'freyja/data/test.bam'
         output = 'freyja/data'
+        refname = 'NC_045512.2'
 
         insertions = "(732:'TT'),(1349:'A'),(12333:'A')"
 
@@ -121,9 +124,10 @@ class ReadAnalysisTests(unittest.TestCase):
         ]
 
         with open(query_file, 'w') as f:
-            f.write('\n' + insertions)
+            f.write(insertions)
 
-        reads_found = _filter(query_file, input_bam, 730, 12340, output)
+        reads_found = _filter(query_file, input_bam, 730, 12340, output,
+                              refname)
 
         self.assertTrue('A01535:8:HJ3YYDSX2:4:1158:32669:6809'
                         in reads_found)
@@ -134,6 +138,7 @@ class ReadAnalysisTests(unittest.TestCase):
         query_file = 'freyja/data/test_query.csv'
         input_bam = 'freyja/data/test.bam'
         output = 'freyja/data'
+        refname = 'NC_045512.2'
 
         deletions = "(1443:32),(1599:2),(2036:3)"
 
@@ -144,9 +149,10 @@ class ReadAnalysisTests(unittest.TestCase):
         ]
 
         with open(query_file, 'w') as f:
-            f.write('\n\n' + deletions)
+            f.write(deletions)
 
-        reads_found = _filter(query_file, input_bam, 1400, 2100, output)
+        reads_found = _filter(query_file, input_bam, 1400, 2100, output,
+                              refname)
 
         self.assertTrue('A01535:8:HJ3YYDSX2:4:1123:4707:5165'
                         in reads_found)

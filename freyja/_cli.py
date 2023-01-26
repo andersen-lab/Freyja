@@ -436,30 +436,32 @@ def relgrowthrate(agg_results, metadata, thresh, scale_by_viral_load, nboots,
 @click.argument('query_mutations', type=click.Path(exists=True))
 @click.argument('input_bam', type=click.Path(exists=True))
 @click.option('--output', type=click.Path(exists=True),
-              default='freyja/data/outputs',
+              default='freyja/data',
               help='path to save extracted reads')
-def extract(query_mutations, input_bam, output):
+@click.option('--refname', default='NC_045512.2')
+def extract(query_mutations, input_bam, output, refname):
     '''
     Extracts a subset of reads from INPUT_BAM containing at least one
     mutation specified in QUERY_MUTATIONS.csv.
     '''
-    _extract(query_mutations, input_bam, output)
+    _extract(query_mutations, input_bam, output, refname)
 
 
 @cli.command()
 @click.argument('query_mutations', type=click.Path(exists=True))
 @click.argument('input_bam', type=click.Path(exists=True))
-@click.argument('min_site')
-@click.argument('max_site')
+@click.argument('min_site', default=0)
+@click.argument('max_site', default=29903)
 @click.option('--output', type=click.Path(exists=True),
-              default='freyja/data/outputs',
+              default='freyja/data',
               help='path to save filtered reads')
-def filter(query_mutations, input_bam, min_site, max_site, output):
+@click.option('--refname', default='NC_045512.2')
+def filter(query_mutations, input_bam, min_site, max_site, output, refname):
     '''
     Filters out reads containing at least one mutation specified in
     QUERY_MUTATIONS.csv, within the range (min_site, max_site)
     '''
-    _filter(query_mutations, input_bam, min_site, max_site, output)
+    _filter(query_mutations, input_bam, min_site, max_site, output, refname)
 
 
 if __name__ == '__main__':

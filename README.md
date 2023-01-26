@@ -125,7 +125,7 @@ The above command will generate the relative growth rates for each Lineage and o
 - Bootstrap 95% interval
 ---
 ### Read analysis tools
-We now provide tools for the analysis of bam files given a set of mutations of interest.
+We now provide tools for the analysis of indexed bam files given a set of mutations of interest.
 ```
 freyja extract [query-mutations.csv] [input-bam] --output [directory-of-output-file]
 ```
@@ -139,4 +139,4 @@ C75T,G230A,A543C
 (732:'TT'),(1349:'A'),(12333:'A')
 (1443:32),(1599:2),(2036:3)
 ```
-Where SNPs (UShER format), insertions, and deletions are listed in separate lines in that order.
+Where SNPs, insertions, and deletions are listed in separate lines.
