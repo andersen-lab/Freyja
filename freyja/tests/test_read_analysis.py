@@ -7,7 +7,7 @@ class ReadAnalysisTests(unittest.TestCase):
     def test_extract_snps(self):
         query_file = 'freyja/data/test_query.csv'
         input_bam = 'freyja/data/test.bam'
-        output = 'freyja/data'
+        output = 'freyja/data/extracted.bam'
         refname = 'NC_045512.2'
         snps = 'C75T,G230A,A543C'
         reads = [
@@ -34,7 +34,7 @@ class ReadAnalysisTests(unittest.TestCase):
     def test_extract_insertions(self):
         query_file = 'freyja/data/test_query.csv'
         input_bam = 'freyja/data/test.bam'
-        output = 'freyja/data'
+        output = 'freyja/data/extracted.bam'
         refname = 'NC_045512.2'
         insertions = "(732:'TT'),(1349:'A'),(12333:'A')"
 
@@ -61,7 +61,7 @@ class ReadAnalysisTests(unittest.TestCase):
     def test_extract_dels(self):
         query_file = 'freyja/data/test_query.csv'
         input_bam = 'freyja/data/test.bam'
-        output = 'freyja/data'
+        output = 'freyja/data/extracted.bam'
         refname = 'NC_045512.2'
 
         deletions = "(1443:32),(1599:2),(2036:3)"
@@ -88,7 +88,7 @@ class ReadAnalysisTests(unittest.TestCase):
     def test_filter_snps(self):
         query_file = 'freyja/data/test_query.csv'
         input_bam = 'freyja/data/test.bam'
-        output = 'freyja/data'
+        output = 'freyja/data/filtered.bam'
         refname = 'NC_045512.2'
 
         snps = 'C75T,G230A,A543C'
@@ -111,7 +111,7 @@ class ReadAnalysisTests(unittest.TestCase):
     def test_filter_insertions(self):
         query_file = 'freyja/data/test_query.csv'
         input_bam = 'freyja/data/test.bam'
-        output = 'freyja/data'
+        output = 'freyja/data/filtered.bam'
         refname = 'NC_045512.2'
 
         insertions = "(732:'TT'),(1349:'A'),(12333:'A')"
@@ -137,7 +137,7 @@ class ReadAnalysisTests(unittest.TestCase):
     def test_filter_deletions(self):
         query_file = 'freyja/data/test_query.csv'
         input_bam = 'freyja/data/test.bam'
-        output = 'freyja/data'
+        output = 'freyja/data/filtered.bam'
         refname = 'NC_045512.2'
 
         deletions = "(1443:32),(1599:2),(2036:3)"

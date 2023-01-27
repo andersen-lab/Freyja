@@ -21,7 +21,7 @@ locDir = os.path.abspath(os.path.join(os.path.realpath(__file__), os.pardir))
 
 
 @click.group()
-@click.version_option('1.3.12')
+@click.version_option('1.3.13')
 def cli():
     pass
 
@@ -435,8 +435,7 @@ def relgrowthrate(agg_results, metadata, thresh, scale_by_viral_load, nboots,
 @cli.command()
 @click.argument('query_mutations', type=click.Path(exists=True))
 @click.argument('input_bam', type=click.Path(exists=True))
-@click.option('--output', type=click.Path(exists=True),
-              default='freyja/data',
+@click.option('--output', default='extracted.bam',
               help='path to save extracted reads')
 @click.option('--refname', default='NC_045512.2')
 def extract(query_mutations, input_bam, output, refname):
@@ -452,8 +451,7 @@ def extract(query_mutations, input_bam, output, refname):
 @click.argument('input_bam', type=click.Path(exists=True))
 @click.argument('min_site', default=0)
 @click.argument('max_site', default=29903)
-@click.option('--output', type=click.Path(exists=True),
-              default='freyja/data',
+@click.option('--output', default='filtered.bam',
               help='path to save filtered reads')
 @click.option('--refname', default='NC_045512.2')
 def filter(query_mutations, input_bam, min_site, max_site, output, refname):
