@@ -41,10 +41,13 @@ freyja/data/test0.png
 freyja/data/test0_rel_growth_rates.csv
 freyja/data/test2.png
 freyja/data/testSummary.png
+freyja/data/test_filter.csv
 freyja/data/test_sweep.tsv
 freyja/data/times_metadata.csv
+freyja/data/times_metadata0.csv
 freyja/data/title.txt
 freyja/data/usher_barcodes.csv
+freyja/data/usher_barcodes_with_gisaid.csv
 freyja/tests/__init__.py
 freyja/tests/test_barcoding.py
 freyja/tests/test_deconv.py

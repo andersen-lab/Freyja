@@ -2,6 +2,7 @@ import click
 import pandas as pd
 from freyja.convert_paths2barcodes import parse_tree_paths,\
     convert_to_barcodes, reversion_checking, check_mutation_chain
+from freyja.read_analysis_tools import extract as _extract, filter as _filter
 from freyja.sample_deconv import buildLineageMap, build_mix_and_depth_arrays,\
     reindex_dfs, map_to_constellation, solve_demixing_problem,\
     perform_bootstrap
@@ -20,7 +21,7 @@ locDir = os.path.abspath(os.path.join(os.path.realpath(__file__), os.pardir))
 
 
 @click.group()
-@click.version_option('1.3.12')
+@click.version_option('1.3.13')
 def cli():
     pass
 
@@ -429,6 +430,36 @@ def relgrowthrate(agg_results, metadata, thresh, scale_by_viral_load, nboots,
     calc_rel_growth_rates(df_ab_lin.copy(deep=True), nboots,
                           serial_interval, output, daysIncluded=days,
                           grThresh=grthresh)
+
+
+@cli.command()
+@click.argument('query_mutations', type=click.Path(exists=True))
+@click.argument('input_bam', type=click.Path(exists=True))
+@click.option('--output', default='extracted.bam',
+              help='path to save extracted reads')
+@click.option('--refname', default='NC_045512.2')
+def extract(query_mutations, input_bam, output, refname):
+    '''
+    Extracts a subset of reads from INPUT_BAM containing at least one
+    mutation specified in QUERY_MUTATIONS.csv.
+    '''
+    _extract(query_mutations, input_bam, output, refname)
+
+
+@cli.command()
+@click.argument('query_mutations', type=click.Path(exists=True))
+@click.argument('input_bam', type=click.Path(exists=True))
+@click.argument('min_site', default=0)
+@click.argument('max_site', default=29903)
+@click.option('--output', default='filtered.bam',
+              help='path to save filtered reads')
+@click.option('--refname', default='NC_045512.2')
+def filter(query_mutations, input_bam, min_site, max_site, output, refname):
+    '''
+    Filters out reads containing at least one mutation specified in
+    QUERY_MUTATIONS.csv, within the range (min_site, max_site)
+    '''
+    _filter(query_mutations, input_bam, min_site, max_site, output, refname)
 
 
 if __name__ == '__main__':
