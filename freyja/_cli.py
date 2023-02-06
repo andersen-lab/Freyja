@@ -438,13 +438,12 @@ def relgrowthrate(agg_results, metadata, thresh, scale_by_viral_load, nboots,
 @click.option('--output', type=click.Path(exists=True),
               default='freyja/data',
               help='path to save extracted reads')
+@click.option('--same_read', is_flag=True,
+              help='include to specify that query reads must all occur on the\
+                    same read')
 @click.option('--refname', default='NC_045512.2')
-def extract(query_mutations, input_bam, output, refname):
-    '''
-    Extracts a subset of reads from INPUT_BAM containing at least one
-    mutation specified in QUERY_MUTATIONS.csv.
-    '''
-    _extract(query_mutations, input_bam, output, refname)
+def extract(query_mutations, input_bam, output, refname, same_read):
+    _extract(query_mutations, input_bam, output, refname, same_read)
 
 
 @cli.command()
@@ -457,10 +456,6 @@ def extract(query_mutations, input_bam, output, refname):
               help='path to save filtered reads')
 @click.option('--refname', default='NC_045512.2')
 def filter(query_mutations, input_bam, min_site, max_site, output, refname):
-    '''
-    Filters out reads containing at least one mutation specified in
-    QUERY_MUTATIONS.csv, within the range (min_site, max_site)
-    '''
     _filter(query_mutations, input_bam, min_site, max_site, output, refname)
 
 
