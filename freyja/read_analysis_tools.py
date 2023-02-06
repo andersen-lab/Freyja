@@ -105,6 +105,7 @@ def extract(query_mutations, input_bam, output, refname, same_read):
                     elif m[1] == 'D':
                         if (i, int(m[0])) in deletions:
                             reads_considered.append(x)
+                            print('del found')
                             continue
                         i += int(m[0])
             else:
@@ -188,13 +189,13 @@ def extract(query_mutations, input_bam, output, refname, same_read):
     outfile_path = os.path.join(output, outfile_name)
     outfile = pysam.AlignmentFile(outfile_path, 'wb', template=samfile)
     final_reads = []
+    query_names = [x.query_name for x in reads_considered]
 
-    itr = samfile.fetch(refname, min(all_sites), max(all_sites))
+    itr = samfile.fetch(refname, min(all_sites), max(all_sites)+1)
 
     for x in itr:
-        if x not in reads_considered:
+        if x.query_name not in query_names:
             continue
-        print('reverse read found!')
         outfile.write(x)
         final_reads.append(x.query_name)
 
