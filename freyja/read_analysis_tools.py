@@ -2,7 +2,6 @@ import re
 import pysam
 
 
-
 def extract(query_mutations, input_bam, output, refname, same_read):
     # Load data
     with open(query_mutations) as infile:
@@ -188,7 +187,6 @@ def extract(query_mutations, input_bam, output, refname, same_read):
     query_names = [x.query_name for x in reads_considered]
 
     itr = samfile.fetch(refname, min(all_sites), max(all_sites)+1)
-
     for x in itr:
         if x.query_name not in query_names:
             continue
@@ -200,7 +198,6 @@ def extract(query_mutations, input_bam, output, refname, same_read):
 
     print(f'Output saved to {output}')
 
-    print('final reads:', len(final_reads))
     return final_reads
 
 
