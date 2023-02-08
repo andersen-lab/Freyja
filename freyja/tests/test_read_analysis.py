@@ -77,7 +77,7 @@ class ReadAnalysisTests(unittest.TestCase):
         with open(query_file, 'w') as f:
             f.write(deletions)
 
-        reads_found = _extract(query_file, input_bam, output, refname, 
+        reads_found = _extract(query_file, input_bam, output, refname,
                                same_read=False)
 
         self.assertFalse('A01535:8:HJ3YYDSX2:4:1123:4707:5165'

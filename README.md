@@ -127,9 +127,9 @@ The above command will generate the relative growth rates for each Lineage and o
 ### Read analysis tools
 We now provide tools for the analysis of indexed bam files given a set of mutations of interest.
 ```
-freyja extract [query-mutations.csv] [input-bam] --output [directory-of-output-file]
+freyja extract [query-mutations.csv] [input-bam] --output [directory-of-output-file] --same_read
 ```
-The above command will extract reads containing one or more mutations of interest and save them to `[input-bam]_extracted.bam`. In order to exclude reads containing one or more mutations, use the following:
+The above command will extract reads containing one or more mutations of interest and save them to `[input-bam]_extracted.bam`. Additionally, the `--same_read` flag can be included to specify that all query mutations must occur on the same read. In order to exclude reads containing one or more mutations, use the following:
 ```
 freyja filter [query-mutations.csv] [input-bam] [min-site] [max-site] --output [directory-of-output-file]
 ```
