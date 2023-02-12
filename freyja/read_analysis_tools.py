@@ -2,7 +2,7 @@ import re
 import pysam
 
 
-def extract(query_mutations, input_bam, output, refname):
+def extract(query_mutations, input_bam, output, refname, same_read):
     # Load data
     with open(query_mutations) as infile:
         lines = infile.read().splitlines()
@@ -82,7 +82,7 @@ def extract(query_mutations, input_bam, output, refname):
                     if m[1] == 'I':
                         if (start+i+del_spacing-ins_spacing,
                                 seq[i:i+int(m[0])]) in insertions:
-                            reads_considered.append(x.query_name)
+                            reads_considered.append(x)
                             insert_found = True
                             break
                         i += int(m[0])
@@ -106,26 +106,89 @@ def extract(query_mutations, input_bam, output, refname):
                         i += int(m[0])
                     elif m[1] == 'D':
                         if (i, int(m[0])) in deletions:
-                            reads_considered.append(x.query_name)
+                            reads_considered.append(x)
                             continue
                         i += int(m[0])
             else:
                 c_dict = dict(zip(x.get_reference_positions(), seq))
                 for s in sites_in:
                     if snp_dict[s] == c_dict[s]:
-                        reads_considered.append(x.query_name)
+                        reads_considered.append(x)
                         break
     samfile.close()
+
+    # Same process, this time removing reads that don't contain all
+    # query mutations.
+
+    if same_read:
+        temp = reads_considered
+        reads_considered = []
+
+        for x in temp:
+            ref_pos = set(x.get_reference_positions())
+            start = x.reference_start
+            sites_in = list(ref_pos & set(snp_sites))
+            seq = x.query_alignment_sequence
+            cigar = re.findall(r'(\d+)([A-Z]{1})', x.cigarstring)
+
+            for ins in insertions:
+                i = 0
+                del_spacing = 0
+                ins_spacing = 0
+                insert_found = False
+                for m in cigar:
+                    if m[1] == 'I':
+                        if (start+i+del_spacing-ins_spacing,
+                                seq[i:i+int(m[0])]) == ins:
+                            insert_found = True
+                            break
+                        i += int(m[0])
+                        ins_spacing += int(m[0])
+                    elif m[1] == 'D':
+                        del_spacing += int(m[0])
+                    elif m[1] == 'M':
+                        i += int(m[0])
+                if not insert_found:
+                    break
+            if len(insertions) > 0 and not insert_found:
+                continue
+
+            for _del in deletions:
+                deletion_found = False
+                i = x.reference_start
+                for m in cigar:
+                    if m[1] == 'M':
+                        i += int(m[0])
+                    elif m[1] == 'D':
+                        if (i, int(m[0])) == _del:
+                            deletion_found = True
+                            break
+                        i += int(m[0])
+                if not deletion_found:
+                    break
+            if len(deletions) > 0 and not deletion_found:
+                continue
+
+            all_snps_found = True
+            c_dict = dict(zip(x.get_reference_positions(), seq))
+            for s in snp_sites:
+                if s not in sites_in or snp_dict[s] != c_dict[s]:
+                    all_snps_found = False
+                    break
+            if not all_snps_found:
+                continue
+
+            reads_considered.append(x)
 
     # Run again, this time also getting the paired read
     samfile = pysam.AlignmentFile(input_bam, 'rb')
     outfile = pysam.AlignmentFile(output, 'wb', template=samfile)
     final_reads = []
+    query_names = [x.query_name for x in reads_considered]
 
     itr = samfile.fetch(refname, min(all_sites), max(all_sites)+1)
-
     for x in itr:
-        if x.query_name not in reads_considered:
+        if x.query_name not in query_names:
             continue
         outfile.write(x)
         final_reads.append(x.query_name)
