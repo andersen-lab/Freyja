@@ -269,12 +269,12 @@ def aggregate(results, ext, output):
 @click.option('--lineages', is_flag=True)
 @click.option('--times', default='-1')
 @click.option('--interval', default='MS')
-@click.option('--colors', default='', help='path to csv of hex codes')
+@click.option('--config', default=None, help='path to yaml file')
 @click.option('--mincov', default=60., help='min genome coverage included')
 @click.option('--output', default='mix_plot.pdf', help='Output file')
 @click.option('--windowsize', default=14)
 def plot(agg_results, lineages, times, interval, output, windowsize,
-         colors, mincov):
+         config, mincov):
     agg_df = pd.read_csv(agg_results, skipinitialspace=True, sep='\t',
                          index_col=0)
     # drop poor quality samples
@@ -283,16 +283,35 @@ def plot(agg_results, lineages, times, interval, output, windowsize,
     else:
         print('WARNING: Freyja should be updated \
 to include coverage estimates.')
+    if config is not None:
+        with open(config, "r") as f:
+            try:
+                config = yaml.safe_load(f)
+            except yaml.YAMLError as exc:
+                raise ValueError('Error in config file: ' + str(exc))
+
+    with open(os.path.join(locDir, 'data/lineages.yml'), 'r') as f:
+        try:
+            lineages_yml = yaml.safe_load(f)
+        except yaml.YAMLError as exc:
+            raise ValueError('lineages.yml error, run update: ' + str(exc))
+
+    # converts lineages_yml to a dictionary where the lineage names are the
+    # keys.
+    lineage_info = {}
+    for lineage in lineages_yml:
+        lineage_info[lineage['name']] = {'name': lineage['name'],
+                                         'children': lineage['children']}
+    if config is not None:
+        config = checkConfig(config)
+    else:
+        config = {}
     agg_df['abundances'] = agg_df['abundances'].astype(str)
     agg_df['summarized'] = agg_df['summarized'].astype(str)
     agg_df = agg_df[agg_df['summarized'] != '[]']
-    if len(colors) > 0:
-        colors0 = pd.read_csv(colors, header=None).values[0]
-    else:
-        colors0 = colors
     if times == '-1':
         # make basic plot, without time info
-        makePlot_simple(agg_df, lineages, output, colors0)
+        makePlot_simple(agg_df, lineages, output, config, lineage_info)
     else:
         # make time aware plot
         times_df = pd.read_csv(times, skipinitialspace=True,
@@ -300,7 +319,7 @@ to include coverage estimates.')
         times_df['sample_collection_datetime'] = \
             pd.to_datetime(times_df['sample_collection_datetime'])
         makePlot_time(agg_df, lineages, times_df, interval, output,
-                      windowsize, colors0)
+                      windowsize, config, lineage_info)
 
 
 @cli.command()
