@@ -85,7 +85,7 @@ This resulting aggregated data can analyzed directly as a tsv file, or can be vi
 ```
 freyja plot [aggregated-filename-tsv] --output [plot-filename(.pdf,.png,etc.)]
 ```
-which provides a fractional abundance estimate for all aggregated samples. To modify the provide a lineage specific breakdown, the `--lineages` flag can be used. We now provide a `--colors [path-to-csv-of-hex-codes]` option so users can control the colors of the plot (see `freyja/data/colors.csv` for an [example input file](https://github.com/andersen-lab/Freyja/blob/main/freyja/data/colors.csv).   Example outputs:
+which provides a fractional abundance estimate for all aggregated samples. To modify the provide a lineage specific breakdown, the `--lineages` flag can be used. We now provide a `--config [path-to-plot-config-file]` option that allows users to control the colors and grouping of lineages in the plot. The [plot config file](freyja/data/plot_config.yml) is a yaml file. More information about the plot config file can be found in the [sample config file](freyja/data/plot_config.yml).   Example outputs:
 
 |**Summarized** | **Lineage-Specific**|
 |     :---:      |     :---:      |
