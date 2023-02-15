@@ -2,7 +2,8 @@ import click
 import pandas as pd
 from freyja.convert_paths2barcodes import parse_tree_paths,\
     convert_to_barcodes, reversion_checking, check_mutation_chain
-from freyja.read_analysis_tools import extract as _extract, filter as _filter
+from freyja.read_analysis_tools import extract as _extract, filter as _filter,\
+    get_cooccurrences as _get_cooccurrences
 from freyja.sample_deconv import buildLineageMap, build_mix_and_depth_arrays,\
     reindex_dfs, map_to_constellation, solve_demixing_problem,\
     perform_bootstrap
@@ -456,6 +457,19 @@ def extract(query_mutations, input_bam, output, refname, same_read):
 def filter(query_mutations, input_bam, min_site, max_site, output, refname):
     _filter(query_mutations, input_bam, min_site, max_site, output, refname)
 
+@cli.command()
+@click.argument('input_bam', type=click.Path(exists=True))
+@click.argument('min_site', default=0)
+@click.argument('max_site', default=29903)
+@click.option('--output', default='cooccurrences.tsv',
+              help='path to save co-occurring mutations')
+@click.option('--refname', default='NC_045512.2')
+@click.option('--gff-file', default=None,
+              help='include to save mutations in gene-aa notation\
+                (e.g. A23063T(S:N501Y)')
+def get_cooccurences(input_bam, min_site, max_site, output, refname, gff_file):
+    _get_cooccurrences(input_bam, min_site, max_site, output, refname, gff_file)
+    
 
 if __name__ == '__main__':
     cli()

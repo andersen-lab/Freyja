@@ -1,6 +1,7 @@
 import re
 import pysam
-
+import gffpandas.gffpandas as gffpd
+from Bio.Seq import Seq
 
 def extract(query_mutations, input_bam, output, refname, same_read):
     # Load data
@@ -109,12 +110,12 @@ def extract(query_mutations, input_bam, output, refname, same_read):
                             reads_considered.append(x)
                             continue
                         i += int(m[0])
-            else:
-                c_dict = dict(zip(x.get_reference_positions(), seq))
-                for s in sites_in:
-                    if snp_dict[s] == c_dict[s]:
-                        reads_considered.append(x)
-                        break
+
+            c_dict = dict(zip(x.get_reference_positions(), seq))
+            for s in sites_in:
+                if snp_dict[s] == c_dict[s]:
+                    reads_considered.append(x)
+                    break
     samfile.close()
 
     # Same process, this time removing reads that don't contain all
@@ -304,12 +305,11 @@ def filter(query_mutations, input_bam, min_site, max_site, output, refname):
                             reads_considered.append(x.query_name)
                             continue
                         i += int(m[0])
-            else:
-                c_dict = dict(zip(x.get_reference_positions(), seq))
-                for s in sites_in:
-                    if snp_dict[s] == c_dict[s]:
-                        reads_considered.append(x.query_name)
-                        break
+            c_dict = dict(zip(x.get_reference_positions(), seq))
+            for s in sites_in:
+                if snp_dict[s] == c_dict[s]:
+                    reads_considered.append(x.query_name)
+                    break
     samfile.close()
 
     # performance-wise since we have to look at ALL reads.
@@ -391,3 +391,124 @@ def filter(query_mutations, input_bam, min_site, max_site, output, refname):
     print(f'Output saved to {output}')
 
     return final_reads
+
+
+def get_cooccurrences(input_bam, min_site, max_site, output, refname, gff_file):
+    
+    if gff_file is not None:
+        gene_positions = {}
+        gff = gffpd.read_gff3(gff_file).filter_feature_of_type(['gene'])
+        for i, attr in enumerate(gff.df['attributes']):
+            attr = attr.split(';')
+            gene_name = attr[2][5:]
+            start_pos = gff.df['start'].iloc[i]
+            end_pos = gff.df['end'].iloc[i]
+
+            gene_positions[gene_name] = (start_pos, end_pos)
+        
+        if refname == 'NC_045512.2' and 'ORF1ab' in gene_positions:
+            del gene_positions['ORF1ab']
+            gene_positions['ORF1a'] = (266, 13468) 
+            gene_positions['ORF1b'] = (13468, 21555)
+
+    print(gene_positions)
+    def get_gene(locus):
+        for gene in gene_positions:
+            start, end = gene_positions[gene]
+            if locus in range(start, end+1):
+                return gene, start
+
+    try:
+        samfile = pysam.AlignmentFile(input_bam, 'rb')
+    except ValueError:
+        print('get_cooccurrences: Missing index file. Try running samtools\
+              index',
+              input_bam)
+        return -1
+    
+
+
+    co_muts = {}
+    itr = samfile.fetch(refname, min_site, max_site+1)
+    for x in itr:
+        muts_found = []
+        ref_seq = x.get_reference_sequence()
+        start = x.reference_start
+        seq = x.query_alignment_sequence
+
+        if x.cigarstring is None:
+            # checks for a possible fail case
+            continue
+        cigar = re.findall(r'(\d+)([A-Z]{1})', x.cigarstring)
+
+        if 'I' in x.cigarstring:
+                i = 0
+                del_spacing = 0
+                ins_spacing = 0
+                ranges = []
+    
+                for m in cigar:
+                    if m[1] == 'I':
+                        muts_found.append(
+                            (start+i+del_spacing-ins_spacing,
+                             seq[i:i+int(m[0])])
+                        )
+                        i += int(m[0])
+                        ins_spacing += int(m[0])
+                    elif m[1] == 'D':
+                        del_spacing += int(m[0])
+                        continue
+                    elif m[1] == 'M':
+                        ranges.append([i, i+int(m[0])])
+                        i += int(m[0])
+
+                seq = ''.join([seq[r[0]:r[1]] for r in ranges])
+        if 'D' in x.cigarstring:
+                i = 0
+                for m in cigar:
+                    if m[1] == 'M':
+                        i += int(m[0])
+                    elif m[1] == 'D':
+                        muts_found.append((start+i, int(m[0])))
+                        i += int(m[0])
+        
+        seq = x.query_alignment_sequence
+        # Find SNPs
+        if ('S' not in x.cigarstring): # Ignore softclipped reads for now
+            for tup in x.get_aligned_pairs(matches_only=True, with_seq=True):
+                
+                read_site, ref_site, ref_base = tup
+                if ref_base != seq[read_site]:
+                    muts_found.append(f'{ref_base.upper()}{ref_site+1}{seq[read_site]}')
+
+        # Add gene-aa info to muts
+        ref_seq  = Seq(x.get_reference_sequence())
+        if gff_file is not None:
+            for mut in muts_found:
+                if type(mut) == tuple: 
+                    if any(n in str(mut) for n in 'ACGT'): # Insertion
+                        pass
+                    else: # Deletion
+                        pass
+                else: # SNP
+                    locus = int(mut[1:-1])
+                    gene_info = get_gene(locus)
+                    if gene_info is None: # locus occurs outside a gene
+                        continue
+
+                    gene, start_site = gene_info
+
+
+        name = ','.join([str(mut) for mut in muts_found])
+        if len(name) > 1:
+            if name not in co_muts:
+                co_muts[name] = 1
+            else:
+                co_muts[name] += 1
+            
+
+    thresh = 250
+    for k in co_muts:
+        if co_muts[k] > thresh:
+            print(k, co_muts[k])
+    samfile.close()

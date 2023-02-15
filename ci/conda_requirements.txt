@@ -17,3 +17,4 @@ requests
 scipy
 epiweeks
 pysam
+gffpandas
