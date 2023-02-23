@@ -1987,6 +1987,7 @@
       - BA.5.2.61
       - BA.5.2.62
       - BA.5.2.63
+      - BA.5.2.64
       - BA.5.3
       - BA.5.3.1
       - BA.5.3.2
@@ -4355,6 +4356,7 @@
       - BA.5.2.61
       - BA.5.2.62
       - BA.5.2.63
+      - BA.5.2.64
       - BA.5.3
       - BA.5.3.1
       - BA.5.3.2
@@ -5787,6 +5789,7 @@
       - BA.5.2.61
       - BA.5.2.62
       - BA.5.2.63
+      - BA.5.2.64
       - BA.5.3
       - BA.5.3.1
       - BA.5.3.2
@@ -9743,6 +9746,7 @@
       - BA.5.2.61
       - BA.5.2.62
       - BA.5.2.63
+      - BA.5.2.64
       - BA.5.3
       - BA.5.3.1
       - BA.5.3.2
@@ -13331,6 +13335,7 @@
       - BA.5.2.61
       - BA.5.2.62
       - BA.5.2.63
+      - BA.5.2.64
       - BA.5.3
       - BA.5.3.1
       - BA.5.3.2
@@ -14128,6 +14133,7 @@
       - BA.5.2.61
       - BA.5.2.62
       - BA.5.2.63
+      - BA.5.2.64
       - BF.1
       - BF.1.1
       - BF.2
@@ -15547,6 +15553,11 @@
   alias: B.1.1.529.5.2.63
   children:
       - BA.5.2.63
+  parent: BA.5.2
+- name: BA.5.2.64
+  alias: B.1.1.529.5.2.64
+  children:
+      - BA.5.2.64
   parent: BA.5.2
 - name: BA.5.3
   alias: B.1.1.529.5.3
@@ -23942,7 +23953,7 @@
       - XAY.2.1
       - XAY.2.2
       - XAY.3
-  recombinant_parents: AY.45,BA.4/5*
+  recombinant_parents: BA.2*,AY.45,BA.2*,AY.45,BA.2*
 - name: XAY.1
   alias: XAY.1
   children:
@@ -23998,12 +24009,13 @@
   alias: XBA
   children:
       - XBA
-  recombinant_parents: AY.45,BA.4/5
+  recombinant_parents: BA.2*,AY.45,BA.2*,AY.45,BA.2*
 - name: XBB
   alias: XBB
   children:
       - EG.1
       - EK.1
+      - EL.1
       - XBB
       - XBB.1
       - XBB.1.1
@@ -24025,6 +24037,7 @@
       - XBB.1.5.11
       - XBB.1.5.12
       - XBB.1.5.13
+      - XBB.1.5.14
       - XBB.1.6
       - XBB.1.7
       - XBB.1.8
@@ -24061,6 +24074,7 @@
   children:
       - EG.1
       - EK.1
+      - EL.1
       - XBB.1
       - XBB.1.1
       - XBB.1.2
@@ -24081,6 +24095,7 @@
       - XBB.1.5.11
       - XBB.1.5.12
       - XBB.1.5.13
+      - XBB.1.5.14
       - XBB.1.6
       - XBB.1.7
       - XBB.1.8
@@ -24126,6 +24141,7 @@
   alias: XBB.1.5
   children:
       - EK.1
+      - EL.1
       - XBB.1.5
       - XBB.1.5.1
       - XBB.1.5.2
@@ -24140,6 +24156,7 @@
       - XBB.1.5.11
       - XBB.1.5.12
       - XBB.1.5.13
+      - XBB.1.5.14
   parent: XBB.1
 - name: XBB.1.5.1
   alias: XBB.1.5.1
@@ -24212,6 +24229,17 @@
   children:
       - EK.1
   parent: XBB.1.5.13
+- name: XBB.1.5.14
+  alias: XBB.1.5.14
+  children:
+      - EL.1
+      - XBB.1.5.14
+  parent: XBB.1.5
+- name: EL.1
+  alias: XBB.1.5.14.1
+  children:
+      - EL.1
+  parent: XBB.1.5.14
 - name: XBB.1.6
   alias: XBB.1.6
   children:
