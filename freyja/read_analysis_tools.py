@@ -396,7 +396,13 @@ def filter(query_mutations, input_bam, min_site, max_site, output, refname):
 
 
 def get_cooccurrences(input_bam, min_site, max_site, output, refname,
-                      ref_fasta, gff_file):
+                      ref_fasta, gff_file, min_quality):
+    def get_gene(locus):
+        for gene in gene_positions:
+            start, end = gene_positions[gene]
+            if locus in range(start, end+1):
+                return gene, start
+            
     # Load gene annotations
     if gff_file is not None:
         gene_positions = {}
@@ -414,17 +420,10 @@ def get_cooccurrences(input_bam, min_site, max_site, output, refname,
             gene_positions['ORF1a'] = (266, 13468)
             gene_positions['ORF1b'] = (13468, 21555)
 
-    def get_gene(locus):
-        for gene in gene_positions:
-            start, end = gene_positions[gene]
-            if locus in range(start, end+1):
-                return gene, start
-
     # Load reference genome
-    for seq_record in SeqIO.parse(ref_fasta, 'fasta'):
-        ref_genome = seq_record.seq
-    ref_genome = MutableSeq(ref_genome)
+    ref_genome = MutableSeq(next(SeqIO.parse(ref_fasta, 'fasta')).seq)
 
+    # Open input bam file for reading
     try:
         samfile = pysam.AlignmentFile(input_bam, 'rb')
     except ValueError:
@@ -432,9 +431,10 @@ def get_cooccurrences(input_bam, min_site, max_site, output, refname,
               index',
               input_bam)
         return -1
-
+    soft_count = 0
     co_muts = {}
     nt_to_aa = {}
+   
     itr = samfile.fetch(refname, min_site, max_site+1)
     for x in itr:
         snps_found = []
@@ -443,12 +443,15 @@ def get_cooccurrences(input_bam, min_site, max_site, output, refname,
 
         start = x.reference_start
         seq = x.query_alignment_sequence
+        quals = x.query_alignment_qualities
+
+        seq = ''.join([seq[i] if quals[i] >= min_quality else 'N' for i in range(len(seq))])
 
         if x.cigarstring is None:
             # checks for a possible fail case
             continue
-        cigar = re.findall(r'(\d+)([A-Z]{1})', x.cigarstring)
 
+        cigar = re.findall(r'(\d+)([A-Z]{1})', x.cigarstring)
         if 'I' in x.cigarstring:
             i = 0
             del_spacing = 0
@@ -457,6 +460,8 @@ def get_cooccurrences(input_bam, min_site, max_site, output, refname,
 
             for m in cigar:
                 if m[1] == 'I':
+                    if 'N' in seq[i:i+int(m[0])]:
+                        continue 
                     insertions_found.append(
                         (start+i+del_spacing-ins_spacing,
                          seq[i:i+int(m[0])])
@@ -470,7 +475,6 @@ def get_cooccurrences(input_bam, min_site, max_site, output, refname,
                     ranges.append([i, i+int(m[0])])
                     i += int(m[0])
 
-            seq = ''.join([seq[r[0]:r[1]] for r in ranges])
         if 'D' in x.cigarstring:
             i = 0
             for m in cigar:
@@ -480,86 +484,84 @@ def get_cooccurrences(input_bam, min_site, max_site, output, refname,
                     deletions_found.append((start+i, int(m[0])))
                     i += int(m[0])
 
-        seq = x.query_alignment_sequence
         # Find SNPs
-        if ('S' not in x.cigarstring):  # Ignore softclipped reads for now
+        if 'S' not in x.cigarstring:
             for tup in x.get_aligned_pairs(matches_only=True, with_seq=True):
-
                 read_site, ref_site, ref_base = tup
-                if ref_base != seq[read_site]:
+                if seq[read_site] != 'N' and ref_base != seq[read_site]:
                     snps_found.append(
                         f'{ref_base.upper()}{ref_site+1}{seq[read_site]}')
-
+                    
         muts_final = []
-        if gff_file is not None:
-            for ins in insertions_found:
-                if ins in nt_to_aa:
-                    muts_final.append(nt_to_aa[ins])
-                    continue
-                locus = ins[0]
-                gene_info = get_gene(locus)
-                if gene_info is None:
-                    continue
-                gene, start_site = gene_info
-                aa_locus = ((locus - start_site) // 3) + 2
+        for ins in insertions_found:
+            # if ins in nt_to_aa:
+            #     muts_final.append(nt_to_aa[ins])
+            #     continue
+            locus = ins[0]
+            gene_info = get_gene(locus)
+            if gene_info is None:
+                continue
+            gene, start_site = gene_info
+            aa_locus = ((locus - start_site) // 3) + 2
 
+            if len(ins[1]) % 3 == 0:
                 insertion_seq = MutableSeq(ins[1]).translate()
+            else:
+                insertion_seq = ''
 
-                aa_mut = f'{ins}({gene}:INS{aa_locus}{insertion_seq})'
-                nt_to_aa[ins] = aa_mut
-                muts_final.append(aa_mut)
-            for deletion in deletions_found:
-                if deletion in nt_to_aa:
-                    muts_final.append(nt_to_aa[deletion])
-                    continue
-                locus = deletion[0]
-                gene_info = get_gene(locus)
-                if gene_info is None:
-                    continue
-                gene, start_site = gene_info
-                aa_locus = ((locus - start_site) // 3) + 2
+            aa_mut = f'{ins}({gene}:INS{aa_locus}{insertion_seq})'
+            nt_to_aa[ins] = aa_mut
+            muts_final.append(aa_mut)
 
-                del_length = deletion[1] // 3
-                if del_length > 1:
-                    aa_mut = f'{deletion}({gene}:DEL{aa_locus}/{aa_locus+del_length-1})'
-                else:
-                    aa_mut = f'{deletion}({gene}:DEL{aa_locus})'
-                nt_to_aa[deletion] = aa_mut
-                muts_final.append(aa_mut)
+        for deletion in deletions_found:
+            # if deletion in nt_to_aa:
+            #     muts_final.append(nt_to_aa[deletion])
+            #     continue
 
-            for snp in snps_found:
-                if snp in nt_to_aa:
-                    muts_final.append(nt_to_aa[snp])
-                    continue
+            locus = deletion[0]
+            gene_info = get_gene(locus)
+            if gene_info is None:
+                continue
+            gene, start_site = gene_info
+            aa_locus = ((locus - start_site) // 3) + 2
 
-                locus = int(snp[1:-1])
+            del_length = deletion[1] // 3
+            if del_length > 1:
+                aa_mut = f'{deletion}({gene}:DEL{aa_locus}/{aa_locus+del_length-1})'
+            else:
+                aa_mut = f'{deletion}({gene}:DEL{aa_locus})'
+            nt_to_aa[deletion] = aa_mut
+            muts_final.append(aa_mut)
 
-                gene_info = get_gene(locus)
-                if gene_info is None:
-                    continue
+        for snp in snps_found:
+            # if snp in nt_to_aa:
+            #     muts_final.append(nt_to_aa[snp])
+            #     continue
 
-                gene, start_site = gene_info
-                codon_position = (locus - start_site) % 3
-                aa_locus = ((locus - codon_position - start_site) // 3) + 1
+            locus = int(snp[1:-1])
 
-                ref_codon = ref_genome[locus - codon_position-1:locus-codon_position+2]
-                ref_aa = ref_codon.translate()
-                
-                alt_codon = MutableSeq(seq[(locus-start) - codon_position-1:
-                                           (locus-start)-codon_position+2])
+            gene_info = get_gene(locus)
+            if gene_info is None:
+                continue
 
-                # Skip if this codon spans multiple reads
-                if len(alt_codon) < 3:
-                    continue
-                alt_aa = alt_codon.translate()
+            gene, start_site = gene_info
+            codon_position = (locus - start_site) % 3
+            aa_locus = ((locus - codon_position - start_site) // 3) + 1
 
-    
-                aa_mut = f'{snp}({gene}:{ref_aa}{aa_locus}{alt_aa})'
-                if aa_mut.startswith('A23234T(S:K558'):
-                    read_position = locus-start
+            ref_codon = ref_genome[locus - codon_position - 1:
+                                   locus - codon_position + 2]
+            ref_aa = ref_codon.translate()
+            
+            read_start = (locus - start) - codon_position - 1
+            read_end = (locus - start) - codon_position + 2
 
-                nt_to_aa[snp] = aa_mut
-                muts_final.append(aa_mut)
+            alt_codon = MutableSeq(seq[read_start:read_end])
+            if len(alt_codon) % 3 != 0 or len(alt_codon) == 0:
+                continue
+            alt_aa = alt_codon.translate()
+            aa_mut = f'{snp}({gene}:{ref_aa}{aa_locus}{alt_aa})'
+            nt_to_aa[snp] = aa_mut
+            muts_final.append(aa_mut)
 
         name = ','.join([str(mut) for mut in muts_final])
         if len(name) > 1:
@@ -568,12 +570,13 @@ def get_cooccurrences(input_bam, min_site, max_site, output, refname,
             else:
                 co_muts[name] += 1
 
-    thresh = 100
+    thresh = 10
     with open(output, 'w') as outfile:
         for k in co_muts:
             if co_muts[k] > thresh:
                 outfile.write(f'{k}\t{co_muts[k]}\n')
     print(f'get-cooccurrences: Output saved to {output}')
+    print(soft_count)
     samfile.close()
 
 def plot_cooccurrences():
