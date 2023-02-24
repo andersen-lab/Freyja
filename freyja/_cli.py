@@ -462,7 +462,7 @@ def filter(query_mutations, input_bam, min_site, max_site, output, refname):
 @click.argument('input_bam', type=click.Path(exists=True))
 @click.argument('min_site', default=0)
 @click.argument('max_site', default=29903)
-@click.argument('gff-file',
+@click.argument('gff-file', type=click.Path(exists=True),
                 default='freyja/data/GCF_009858895.2_ASM985889v3_genomic.gff',
                )
 @click.option('--output', default='cooccurrences.tsv',
@@ -472,10 +472,16 @@ def filter(query_mutations, input_bam, min_site, max_site, output, refname):
               default='freyja/data/NC_045512_Hu-1.fasta')
 @click.option('--min_quality', default=20,
               help='minimum quality for a base to be considered')
+@click.option('--min_count', default = 10,
+              help='minimum count for a set of mutations to be saved')
 def get_cooccurrences(input_bam, min_site, max_site, output, refname,
-                     ref_fasta, gff_file, min_quality):
+                     ref_fasta, gff_file, min_quality, min_count):
+    from datetime import datetime
+    start = datetime.now()
     _get_cooccurrences(input_bam, min_site, max_site, output, refname,
-                       ref_fasta, gff_file, min_quality)
+                       ref_fasta, gff_file, min_quality, min_count)
+    end = datetime.now()
 
+    print('process finished in',end-start)
 if __name__ == '__main__':
     cli()
