@@ -3,7 +3,7 @@ import pandas as pd
 from freyja.convert_paths2barcodes import parse_tree_paths,\
     convert_to_barcodes, reversion_checking, check_mutation_chain
 from freyja.read_analysis_tools import extract as _extract, filter as _filter,\
-    get_cooccurrences as _get_cooccurrences
+    cooccurrences as _cooccurrences
 from freyja.sample_deconv import buildLineageMap, build_mix_and_depth_arrays,\
     reindex_dfs, map_to_constellation, solve_demixing_problem,\
     perform_bootstrap
@@ -464,7 +464,7 @@ def filter(query_mutations, input_bam, min_site, max_site, output, refname):
 @click.argument('max_site', default=29903)
 @click.argument('gff-file', type=click.Path(exists=True),
                 default='freyja/data/GCF_009858895.2_ASM985889v3_genomic.gff',
-               )
+                )
 @click.option('--output', default='cooccurrences.tsv',
               help='path to save co-occurring mutations')
 @click.option('--refname', default='NC_045512.2')
@@ -472,16 +472,13 @@ def filter(query_mutations, input_bam, min_site, max_site, output, refname):
               default='freyja/data/NC_045512_Hu-1.fasta')
 @click.option('--min_quality', default=20,
               help='minimum quality for a base to be considered')
-@click.option('--min_count', default = 10,
+@click.option('--min_count', default=10,
               help='minimum count for a set of mutations to be saved')
-def get_cooccurrences(input_bam, min_site, max_site, output, refname,
-                     ref_fasta, gff_file, min_quality, min_count):
-    from datetime import datetime
-    start = datetime.now()
-    _get_cooccurrences(input_bam, min_site, max_site, output, refname,
-                       ref_fasta, gff_file, min_quality, min_count)
-    end = datetime.now()
+def cooccurrences(input_bam, min_site, max_site, output, refname,
+                  ref_fasta, gff_file, min_quality, min_count):
+    _cooccurrences(input_bam, min_site, max_site, output, refname,
+                   ref_fasta, gff_file, min_quality, min_count)
 
-    print('process finished in',end-start)
+
 if __name__ == '__main__':
     cli()

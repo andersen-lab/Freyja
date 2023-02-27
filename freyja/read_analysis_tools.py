@@ -395,14 +395,14 @@ def filter(query_mutations, input_bam, min_site, max_site, output, refname):
     return final_reads
 
 
-def get_cooccurrences(input_bam, min_site, max_site, output, refname,
-                      ref_fasta, gff_file, min_quality, min_count):
+def cooccurrences(input_bam, min_site, max_site, output, refname,
+                  ref_fasta, gff_file, min_quality, min_count):
     def get_gene(locus):
         for gene in gene_positions:
             start, end = gene_positions[gene]
             if locus in range(start, end+1):
                 return gene, start
-            
+
     # Load gene annotations
     if gff_file is not None:
         gene_positions = {}
@@ -428,27 +428,29 @@ def get_cooccurrences(input_bam, min_site, max_site, output, refname,
     try:
         samfile = pysam.AlignmentFile(input_bam, 'rb')
     except ValueError:
-        print(f'get_cooccurrences: Missing index file. Try running samtools\
-              index {input_bam}')
+        print((f'cooccurrences: Missing index file. Try running samtools'
+               f'index {input_bam}'))
         return -1
-    
-    read_count = 0
-    soft_count = 0
-    co_muts = {}
-    nt_to_aa = {}
-   
+
+    co_muts = {}  # track co-occurring muts
+    nt_to_aa = {}  # dict to speed up translation of muts
+
     itr = samfile.fetch(refname, min_site, max_site+1)
     for x in itr:
-        read_count += 1
-        snps_found = []
-        insertions_found = []
-        deletions_found = []
-
         start = x.reference_start
         seq = x.query_alignment_sequence
         quals = x.query_alignment_qualities
 
-        seq = ''.join([seq[i] if quals[i] >= min_quality else 'N' for i in range(len(seq))])
+        seq = ''.join(
+            [seq[i] if quals[i] >= min_quality else 'N'
+             for i in range(len(seq))])
+
+        snps_found = []
+        insertions_found = []
+        deletions_found = []
+        del_offsets = {}
+        offset = 0
+        last_del_site = 0
 
         if x.cigarstring is None:
             # checks for a possible fail case
@@ -464,7 +466,7 @@ def get_cooccurrences(input_bam, min_site, max_site, output, refname,
             for m in cigar:
                 if m[1] == 'I':
                     if 'N' in seq[i:i+int(m[0])]:
-                        continue 
+                        continue
                     insertions_found.append(
                         (start+i+del_spacing-ins_spacing,
                          seq[i:i+int(m[0])])
@@ -480,20 +482,19 @@ def get_cooccurrences(input_bam, min_site, max_site, output, refname,
 
         if 'D' in x.cigarstring:
             i = 0
-            offset = 0
-            last_del_site = start
-            del_offsets = {}
             for m in cigar:
                 if m[1] == 'M':
                     i += int(m[0])
                 elif m[1] == 'D':
                     deletions_found.append((start+i, int(m[0])))
-                    del_offsets[(last_del_site,start+i)] = offset
-                    last_del_site = start+i
-                    offset += int(m[0])
+                    if int(m[0]) % 3 == 0:
+                        del_offsets[(last_del_site, start+i)] = offset
+                        last_del_site = start+i
+                        offset += int(m[0])
 
                     i += int(m[0])
-            del_offsets[(last_del_site,start+i)] = offset
+            del_offsets[(last_del_site, start+i)] = offset
+
         # Find SNPs
         if 'S' not in x.cigarstring:
             for tup in x.get_aligned_pairs(matches_only=True, with_seq=True):
@@ -501,33 +502,17 @@ def get_cooccurrences(input_bam, min_site, max_site, output, refname,
                 if seq[read_site] != 'N' and ref_base != seq[read_site]:
                     snps_found.append(
                         f'{ref_base.upper()}{ref_site+1}{seq[read_site]}'
-                        )
-        elif 'D' not in x.cigarstring and 'I' not in x.cigarstring:
+                    )
+        elif 'S' in x.cigarstring and 'D' not in x.cigarstring\
+             and 'I' not in x.cigarstring:
             for i in enumerate(ref_genome[start:start+len(seq)]):
                 if seq[i[0]] != 'N' and seq[i[0]] != i[1]:
                     snps_found.append(
                         f'{i[1].upper()}{start+i[0]+1}{seq[i[0]]}'
-                        )
-        else:
-            # i = 0
-            # del_spacing = 0
-            # ins_spacing = 0
-            
-            # for m in cigar:
-            #     if m[1] == 'M':
-            #         for i in range(i,i+m[0]):
-            #             if seq[i] != ref_genome[start+i+ins_spacing-del_spacing]:
-            #                 snps_found.append(
-            #                     f'{ref_genome[i].upper}{start+i+1}{seq[i+ins_spacing-del_spacing]}'
-            #                     )
-            #         i += m[0]
-            #     if m[1] == 'I':
-            #         ins_spacing += m[0]
-            # print(seq)
-            # print(ref_genome[start:start+len(seq)])
-            # print()
+                    )
+        else:  # Handle softclipped reads containing indels (~0.06% of reads)
             pass
-                 
+
         muts_final = []
         for ins in insertions_found:
             if ins in nt_to_aa:
@@ -554,6 +539,7 @@ def get_cooccurrences(input_bam, min_site, max_site, output, refname,
                 muts_final.append(nt_to_aa[deletion])
                 continue
 
+            # Translate nucleotide muts to amino acid muts
             locus = deletion[0]
             gene_info = get_gene(locus)
             if gene_info is None:
@@ -563,7 +549,10 @@ def get_cooccurrences(input_bam, min_site, max_site, output, refname,
 
             del_length = deletion[1] // 3
             if del_length > 1:
-                aa_mut = f'{deletion}({gene}:DEL{aa_locus}/{aa_locus+del_length-1})'
+                aa_mut = (
+                    f'{deletion}({gene}:DEL{aa_locus}/'
+                    f'{aa_locus+del_length-1})'
+                )
             else:
                 aa_mut = f'{deletion}({gene}:DEL{aa_locus})'
             nt_to_aa[deletion] = aa_mut
@@ -574,6 +563,7 @@ def get_cooccurrences(input_bam, min_site, max_site, output, refname,
                 muts_final.append(nt_to_aa[snp])
                 continue
 
+            # Translate nucleotide muts to amino acid muts
             locus = int(snp[1:-1])
 
             gene_info = get_gene(locus)
@@ -584,11 +574,11 @@ def get_cooccurrences(input_bam, min_site, max_site, output, refname,
             codon_position = (locus - start_site) % 3
             aa_locus = ((locus - codon_position - start_site) // 3) + 1
 
-
             ref_codon = ref_genome[locus - codon_position - 1:
                                    locus - codon_position + 2]
             ref_aa = ref_codon.translate()
-            
+
+            # Adjust for deletions
             del_offset = 0
             if 'D' in x.cigarstring:
                 for r in del_offsets:
@@ -598,13 +588,14 @@ def get_cooccurrences(input_bam, min_site, max_site, output, refname,
             read_end = (locus - start) - codon_position - del_offset + 2
 
             alt_codon = MutableSeq(seq[read_start:read_end])
+
             if len(alt_codon) % 3 != 0 or len(alt_codon) == 0:
-                continue
+                continue  # Possible fail case: codon spans multiple reads
+
             alt_aa = alt_codon.translate()
             aa_mut = f'{snp}({gene}:{ref_aa}{aa_locus}{alt_aa})'
             nt_to_aa[snp] = aa_mut
-            if aa_locus == 486:
-                pass
+
             muts_final.append(aa_mut)
 
         name = ','.join([str(mut) for mut in muts_final])
@@ -616,13 +607,14 @@ def get_cooccurrences(input_bam, min_site, max_site, output, refname,
 
     # Write to output file
     with open(output, 'w') as outfile:
-        outfile.write('CO-OCCURRENCES\tCOUNT\n')
+        outfile.write('COOCCURRENCES\tCOUNT\n')
         for k in co_muts:
             if co_muts[k] > min_count:
                 outfile.write(f'{k}\t{co_muts[k]}\n')
-    print(f'get-cooccurrences: Output saved to {output}')
-    print(soft_count / read_count)
+    print(f'cooccurrences: Output saved to {output}')
+
     samfile.close()
+
 
 def plot_cooccurrences():
     pass
