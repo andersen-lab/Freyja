@@ -2498,6 +2498,7 @@
       - CV.2
       - CW.1
       - CY.1
+      - CY.2
       - CZ.1
       - CZ.2
       - D.2
@@ -2576,6 +2577,7 @@
       - EN.1
       - EP.1
       - EP.2
+      - EQ.1
       - G.1
       - K.1
       - K.2
@@ -4873,6 +4875,7 @@
       - CV.2
       - CW.1
       - CY.1
+      - CY.2
       - CZ.1
       - CZ.2
       - D.2
@@ -4951,6 +4954,7 @@
       - EN.1
       - EP.1
       - EP.2
+      - EQ.1
       - G.1
       - K.1
       - K.2
@@ -6311,6 +6315,7 @@
       - CV.2
       - CW.1
       - CY.1
+      - CY.2
       - CZ.1
       - CZ.2
       - D.2
@@ -6389,6 +6394,7 @@
       - EN.1
       - EP.1
       - EP.2
+      - EQ.1
       - K.1
       - K.2
       - K.3
@@ -10227,6 +10233,7 @@
       - CV.2
       - CW.1
       - CY.1
+      - CY.2
       - CZ.1
       - CZ.2
       - DA.1
@@ -10301,6 +10308,7 @@
       - EN.1
       - EP.1
       - EP.2
+      - EQ.1
   parent: B.1.1
 - name: BA.1
   alias: B.1.1.529.1
@@ -13710,6 +13718,7 @@
       - CU.1
       - CW.1
       - CY.1
+      - CY.2
       - CZ.1
       - CZ.2
       - DA.1
@@ -13770,6 +13779,7 @@
       - EF.2
       - EH.1
       - EN.1
+      - EQ.1
   parent: B.1.1.529
 - name: BA.5.1
   alias: B.1.1.529.5.1
@@ -13830,6 +13840,7 @@
       - DJ.1.3
       - DL.1
       - EB.1
+      - EQ.1
   parent: BA.5
 - name: BA.5.1.1
   alias: B.1.1.529.5.1.1
@@ -14100,7 +14111,13 @@
   alias: B.1.1.529.5.1.33
   children:
       - BA.5.1.33
+      - EQ.1
   parent: BA.5.1
+- name: EQ.1
+  alias: B.1.1.529.5.1.33.1
+  children:
+      - EQ.1
+  parent: BA.5.1.33
 - name: BA.5.1.34
   alias: B.1.1.529.5.1.34
   children:
@@ -14333,6 +14350,7 @@
       - CR.2
       - CT.1
       - CY.1
+      - CY.2
       - DA.1
       - DB.1
       - DB.2
@@ -15117,11 +15135,17 @@
   children:
       - BA.5.2.7
       - CY.1
+      - CY.2
   parent: BA.5.2
 - name: CY.1
   alias: B.1.1.529.5.2.7.1
   children:
       - CY.1
+  parent: BA.5.2.7
+- name: CY.2
+  alias: B.1.1.529.5.2.7.2
+  children:
+      - CY.2
   parent: BA.5.2.7
 - name: BA.5.2.8
   alias: B.1.1.529.5.2.8
