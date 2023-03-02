@@ -497,12 +497,20 @@ def cooccurrences(input_bam, min_site, max_site, output, refname,
 
         # Find SNPs
         if 'S' not in x.cigarstring:
-            for tup in x.get_aligned_pairs(matches_only=True, with_seq=True):
+            try:
+                pairs = x.get_aligned_pairs(matches_only=True, with_seq=True)
+            except ValueError:
+                print((f'cooccurrences: Input bam file missing MD tag. '
+                       f'Try running samtools view -t {input_bam} | samtools calmd -b'))
+                return -1
+            
+            for tup in pairs:
                 read_site, ref_site, ref_base = tup
                 if seq[read_site] != 'N' and ref_base != seq[read_site]:
                     snps_found.append(
                         f'{ref_base.upper()}{ref_site+1}{seq[read_site]}'
                     )
+
         elif 'S' in x.cigarstring and 'D' not in x.cigarstring\
              and 'I' not in x.cigarstring:
             for i in enumerate(ref_genome[start:start+len(seq)]):
@@ -510,8 +518,6 @@ def cooccurrences(input_bam, min_site, max_site, output, refname,
                     snps_found.append(
                         f'{i[1].upper()}{start+i[0]+1}{seq[i[0]]}'
                     )
-        else:  # Handle softclipped reads containing indels (~0.06% of reads)
-            pass
 
         muts_final = []
         for ins in insertions_found:
