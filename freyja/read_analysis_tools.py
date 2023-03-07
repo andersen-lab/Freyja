@@ -445,12 +445,17 @@ def cooccurrences(input_bam, min_site, max_site, output, refname,
             [seq[i] if quals[i] >= min_quality else 'N'
              for i in range(len(seq))])
 
-        snps_found = []
         insertions_found = []
+        ins_offsets = {}
+        ins_offset = 0
+        last_ins_site = 0
+
         deletions_found = []
         del_offsets = {}
-        offset = 0
+        del_offset = 0
         last_del_site = 0
+
+        snps_found = []
 
         if x.cigarstring is None:
             # checks for a possible fail case
@@ -461,14 +466,17 @@ def cooccurrences(input_bam, min_site, max_site, output, refname,
             i = 0
             del_spacing = 0
             ins_spacing = 0
-            ranges = []
 
             for m in cigar:
                 if m[1] == 'I':
+                    insertion_site = start+i+del_spacing-ins_spacing
+                    ins_offsets[(last_ins_site, insertion_site)] = ins_offset
+                    last_ins_site = insertion_site
+                    ins_offset += int(m[0])
                     if 'N' in seq[i:i+int(m[0])]:
                         continue
                     insertions_found.append(
-                        (start+i+del_spacing-ins_spacing,
+                        (insertion_site,
                          seq[i:i+int(m[0])])
                     )
                     i += int(m[0])
@@ -477,8 +485,10 @@ def cooccurrences(input_bam, min_site, max_site, output, refname,
                     del_spacing += int(m[0])
                     continue
                 elif m[1] == 'M':
-                    ranges.append([i, i+int(m[0])])
                     i += int(m[0])
+                
+            ins_offsets[(last_ins_site, start+i+del_spacing-ins_spacing)] = ins_offset
+            last_ins_site = start+i+del_spacing-ins_spacing
 
         if 'D' in x.cigarstring:
             i = 0
@@ -487,25 +497,22 @@ def cooccurrences(input_bam, min_site, max_site, output, refname,
                     i += int(m[0])
                 elif m[1] == 'D':
                     deletions_found.append((start+i, int(m[0])))
-                    if int(m[0]) % 3 == 0:
-                        del_offsets[(last_del_site, start+i)] = offset
-                        last_del_site = start+i
-                        offset += int(m[0])
+                    del_offsets[(last_del_site, start+i)] = del_offset
+                    last_del_site = start+i
+                    del_offset += int(m[0])
 
                     i += int(m[0])
-            del_offsets[(last_del_site, start+i)] = offset
+            del_offsets[(last_del_site, start+i)] = del_offset
+            last_del_site = start+i
 
         # Find SNPs
         if 'S' not in x.cigarstring:
-            try:
-                pairs = x.get_aligned_pairs(matches_only=True, with_seq=True)
-            except ValueError:
-                print((f'cooccurrences: Input bam file missing MD tag. '
-                       f'Try running samtools view -t {input_bam} | samtools calmd -b'))
-                return -1
+
+            pairs = x.get_aligned_pairs(matches_only=True)
             
             for tup in pairs:
-                read_site, ref_site, ref_base = tup
+                read_site, ref_site = tup
+                ref_base = ref_genome[ref_site]
                 if seq[read_site] != 'N' and ref_base != seq[read_site]:
                     snps_found.append(
                         f'{ref_base.upper()}{ref_site+1}{seq[read_site]}'
@@ -584,20 +591,25 @@ def cooccurrences(input_bam, min_site, max_site, output, refname,
                                    locus - codon_position + 2]
             ref_aa = ref_codon.translate()
 
-            # Adjust for deletions
+            # Adjust for indels
+            ins_offset = 0
+            if 'I' in x.cigarstring:
+                for r in ins_offsets:
+                    if locus in range(r[0], r[1]) or locus == r[1]:
+                        ins_offset = ins_offsets[r]
             del_offset = 0
             if 'D' in x.cigarstring:
                 for r in del_offsets:
-                    if locus in range(r[0], r[1]):
+                    if locus in range(r[0], r[1]) or locus == r[1]:
                         del_offset = del_offsets[r]
-            read_start = (locus - start) - codon_position - del_offset - 1
-            read_end = (locus - start) - codon_position - del_offset + 2
+
+            read_start = (locus - start) - codon_position + ins_offset - del_offset - 1
+            read_end = (locus - start) - codon_position + ins_offset - del_offset + 2
 
             alt_codon = MutableSeq(seq[read_start:read_end])
 
             if len(alt_codon) % 3 != 0 or len(alt_codon) == 0:
                 continue  # Possible fail case: codon spans multiple reads
-
             alt_aa = alt_codon.translate()
             aa_mut = f'{snp}({gene}:{ref_aa}{aa_locus}{alt_aa})'
             nt_to_aa[snp] = aa_mut
@@ -620,7 +632,7 @@ def cooccurrences(input_bam, min_site, max_site, output, refname,
     print(f'cooccurrences: Output saved to {output}')
 
     samfile.close()
-
+    
 
 def plot_cooccurrences():
     pass

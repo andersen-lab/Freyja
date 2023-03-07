@@ -463,7 +463,7 @@ def filter(query_mutations, input_bam, min_site, max_site, output, refname):
 @click.argument('min_site', default=0)
 @click.argument('max_site', default=29903)
 @click.argument('gff-file', type=click.Path(exists=True),
-                default='freyja/data/GCF_009858895.2_ASM985889v3_genomic.gff',
+                default='freyja/data/NC_045512_Hu-1.gff',
                 )
 @click.option('--output', default='cooccurrences.tsv',
               help='path to save co-occurring mutations')
