@@ -2580,6 +2580,8 @@
       - EP.1
       - EP.2
       - EQ.1
+      - ER.1
+      - ER.1.1
       - G.1
       - K.1
       - K.2
@@ -4959,6 +4961,8 @@
       - EP.1
       - EP.2
       - EQ.1
+      - ER.1
+      - ER.1.1
       - G.1
       - K.1
       - K.2
@@ -6401,6 +6405,8 @@
       - EP.1
       - EP.2
       - EQ.1
+      - ER.1
+      - ER.1.1
       - K.1
       - K.2
       - K.3
@@ -10317,6 +10323,8 @@
       - EP.1
       - EP.2
       - EQ.1
+      - ER.1
+      - ER.1.1
   parent: B.1.1
 - name: BA.1
   alias: B.1.1.529.1
@@ -13790,6 +13798,8 @@
       - EH.1
       - EN.1
       - EQ.1
+      - ER.1
+      - ER.1.1
   parent: B.1.1.529
 - name: BA.5.1
   alias: B.1.1.529.5.1
@@ -15862,6 +15872,8 @@
       - EF.2
       - EH.1
       - EN.1
+      - ER.1
+      - ER.1.1
   parent: BA.5
 - name: BA.5.3.1
   alias: B.1.1.529.5.3.1
@@ -16046,6 +16058,8 @@
       - EF.2
       - EH.1
       - EN.1
+      - ER.1
+      - ER.1.1
   parent: BA.5.3
 - name: BE.1
   alias: B.1.1.529.5.3.1.1
@@ -16214,6 +16228,8 @@
       - EF.2
       - EH.1
       - EN.1
+      - ER.1
+      - ER.1.1
   parent: BA.5.3.1
 - name: BE.1.1
   alias: B.1.1.529.5.3.1.1.1
@@ -16372,6 +16388,8 @@
       - EF.2
       - EH.1
       - EN.1
+      - ER.1
+      - ER.1.1
   parent: BE.1
 - name: BE.1.1.1
   alias: B.1.1.529.5.3.1.1.1.1
@@ -16527,6 +16545,8 @@
       - EF.2
       - EH.1
       - EN.1
+      - ER.1
+      - ER.1.1
   parent: BE.1.1
 - name: BQ.1
   alias: B.1.1.529.5.3.1.1.1.1.1
@@ -16680,6 +16700,8 @@
       - EF.2
       - EH.1
       - EN.1
+      - ER.1
+      - ER.1.1
   parent: BE.1.1.1
 - name: BQ.1.1
   alias: B.1.1.529.5.3.1.1.1.1.1.1
@@ -16788,6 +16810,8 @@
       - EF.2
       - EH.1
       - EN.1
+      - ER.1
+      - ER.1.1
   parent: BQ.1
 - name: BQ.1.1.1
   alias: B.1.1.529.5.3.1.1.1.1.1.1.1
@@ -17064,7 +17088,20 @@
   alias: B.1.1.529.5.3.1.1.1.1.1.1.22
   children:
       - BQ.1.1.22
+      - ER.1
+      - ER.1.1
   parent: BQ.1.1
+- name: ER.1
+  alias: B.1.1.529.5.3.1.1.1.1.1.1.22.1
+  children:
+      - ER.1
+      - ER.1.1
+  parent: BQ.1.1.22
+- name: ER.1.1
+  alias: B.1.1.529.5.3.1.1.1.1.1.1.22.1.1
+  children:
+      - ER.1.1
+  parent: ER.1
 - name: BQ.1.1.23
   alias: B.1.1.529.5.3.1.1.1.1.1.1.23
   children:
@@ -24206,6 +24243,7 @@
       - XBB.1.13
       - XBB.1.14
       - XBB.1.15
+      - XBB.1.16
       - XBB.2
       - XBB.2.1
       - XBB.2.2
@@ -24275,6 +24313,7 @@
       - XBB.1.13
       - XBB.1.14
       - XBB.1.15
+      - XBB.1.16
   parent: XBB
 - name: XBB.1.1
   alias: XBB.1.1
@@ -24541,6 +24580,11 @@
   alias: XBB.1.15
   children:
       - XBB.1.15
+  parent: XBB.1
+- name: XBB.1.16
+  alias: XBB.1.16
+  children:
+      - XBB.1.16
   parent: XBB.1
 - name: XBB.2
   alias: XBB.2
