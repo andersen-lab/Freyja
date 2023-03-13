@@ -26,6 +26,17 @@ def cli():
     pass
 
 
+def print_barcode_version(ctx, param, value):
+    if not value or ctx.resilient_parsing:
+        return
+    locDir = os.path.abspath(os.path.join(os.path.realpath(__file__),
+                             os.pardir))
+    f = open(os.path.join(locDir, 'data/last_barcode_update.txt'), 'r')
+    click.echo('Barcode version:')
+    click.echo(f.readline())
+    ctx.exit()
+
+
 @cli.command()
 @click.argument('variants', type=click.Path(exists=True))
 @click.argument('depths', type=click.Path(exists=True))
@@ -39,6 +50,8 @@ def cli():
 @click.option('--confirmedonly', is_flag=True, default=False)
 @click.option('--wgisaid', is_flag=True, default=False,
               help='larger library with non-public lineages')
+@click.option('--version', is_flag=True, callback=print_barcode_version,
+              expose_value=False, is_eager=True)
 def demix(variants, depths, output, eps, barcodes, meta,
           covcut, confirmedonly, wgisaid):
     locDir = os.path.abspath(os.path.join(os.path.realpath(__file__),
