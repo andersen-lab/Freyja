@@ -1,4 +1,5 @@
 import re
+from collections import defaultdict
 import pysam
 import gffpandas.gffpandas as gffpd
 from Bio.Seq import MutableSeq
@@ -395,8 +396,32 @@ def filter(query_mutations, input_bam, min_site, max_site, output, refname):
     return final_reads
 
 
-def cooccurrences(input_bam, min_site, max_site, output, refname,
+def covariants(input_bam, min_site, max_site, output, refname,
                   ref_fasta, gff_file, min_quality, min_count):
+    
+    def read_pair_generator(bam):
+        """
+        Generate read pairs in a BAM file or within a region string.
+        Reads are added to read_dict until a pair is found.
+        """
+        read_dict = defaultdict(lambda: [None, None])
+        for read in bam.fetch(refname, min_site, max_site+1):
+            if not read.is_proper_pair:
+                yield read, None
+                continue
+            qname = read.query_name
+            if qname not in read_dict:
+                if read.is_read1:
+                    read_dict[qname][0] = read
+                else:
+                    read_dict[qname][1] = read
+            else:
+                if read.is_read1:
+                    yield read, read_dict[qname][1]
+                else:
+                    yield read_dict[qname][0], read
+                del read_dict[qname]
+    
     def get_gene(locus):
         for gene in gene_positions:
             start, end = gene_positions[gene]
@@ -428,195 +453,199 @@ def cooccurrences(input_bam, min_site, max_site, output, refname,
     try:
         samfile = pysam.AlignmentFile(input_bam, 'rb')
     except ValueError:
-        print((f'cooccurrences: Missing index file. Try running samtools'
+        print((f'covariants: Missing index file. Try running samtools'
                f'index {input_bam}'))
         return -1
 
     co_muts = {}  # track co-occurring muts
     nt_to_aa = {}  # dict to speed up translation of muts
 
-    itr = samfile.fetch(refname, min_site, max_site+1)
-    for x in itr:
-        start = x.reference_start
-        seq = x.query_alignment_sequence
-        quals = x.query_alignment_qualities
-
-        seq = ''.join(
-            [seq[i] if quals[i] >= min_quality else 'N'
-             for i in range(len(seq))])
-
-        insertions_found = []
-        ins_offsets = {}
-        ins_offset = 0
-        last_ins_site = 0
-
-        deletions_found = []
-        del_offsets = {}
-        del_offset = 0
-        last_del_site = 0
-
-        snps_found = []
-
-        if x.cigarstring is None:
-            # checks for a possible fail case
-            continue
-
-        cigar = re.findall(r'(\d+)([A-Z]{1})', x.cigarstring)
-        if 'I' in x.cigarstring:
-            i = 0
-            del_spacing = 0
-            ins_spacing = 0
-
-            for m in cigar:
-                if m[1] == 'I':
-                    insertion_site = start+i+del_spacing-ins_spacing
-                    ins_offsets[(last_ins_site, insertion_site)] = ins_offset
-                    last_ins_site = insertion_site
-                    ins_offset += int(m[0])
-                    if 'N' in seq[i:i+int(m[0])]:
-                        continue
-                    insertions_found.append(
-                        (insertion_site,
-                         seq[i:i+int(m[0])])
-                    )
-                    i += int(m[0])
-                    ins_spacing += int(m[0])
-                elif m[1] == 'D':
-                    del_spacing += int(m[0])
-                    continue
-                elif m[1] == 'M':
-                    i += int(m[0])
-                
-            ins_offsets[(last_ins_site, start+i+del_spacing-ins_spacing)] = ins_offset
-            last_ins_site = start+i+del_spacing-ins_spacing
-
-        if 'D' in x.cigarstring:
-            i = 0
-            for m in cigar:
-                if m[1] == 'M':
-                    i += int(m[0])
-                elif m[1] == 'D':
-                    deletions_found.append((start+i, int(m[0])))
-                    del_offsets[(last_del_site, start+i)] = del_offset
-                    last_del_site = start+i
-                    del_offset += int(m[0])
-
-                    i += int(m[0])
-            del_offsets[(last_del_site, start+i)] = del_offset
-            last_del_site = start+i
-
-        # Find SNPs
-        if 'S' not in x.cigarstring:
-
-            pairs = x.get_aligned_pairs(matches_only=True)
-            
-            for tup in pairs:
-                read_site, ref_site = tup
-                ref_base = ref_genome[ref_site]
-                if seq[read_site] != 'N' and ref_base != seq[read_site]:
-                    snps_found.append(
-                        f'{ref_base.upper()}{ref_site+1}{seq[read_site]}'
-                    )
-
-        elif 'S' in x.cigarstring and 'D' not in x.cigarstring\
-             and 'I' not in x.cigarstring:
-            for i in enumerate(ref_genome[start:start+len(seq)]):
-                if seq[i[0]] != 'N' and seq[i[0]] != i[1]:
-                    snps_found.append(
-                        f'{i[1].upper()}{start+i[0]+1}{seq[i[0]]}'
-                    )
+    for read1, read2 in read_pair_generator(samfile):
 
         muts_final = []
-        for ins in insertions_found:
-            if ins in nt_to_aa:
-                muts_final.append(nt_to_aa[ins])
-                continue
-            locus = ins[0]
-            gene_info = get_gene(locus)
-            if gene_info is None:
-                continue
-            gene, start_site = gene_info
-            aa_locus = ((locus - start_site) // 3) + 2
+        for x in [read1, read2]:
+            if x is None:
+                break
+            start = x.reference_start
+            seq = x.query_alignment_sequence
+            quals = x.query_alignment_qualities
 
-            if len(ins[1]) % 3 == 0:
-                insertion_seq = MutableSeq(ins[1]).translate()
-            else:
-                insertion_seq = ''
+            seq = ''.join(
+                [seq[i] if quals[i] >= min_quality else 'N'
+                for i in range(len(seq))])
 
-            aa_mut = f'{ins}({gene}:INS{aa_locus}{insertion_seq})'
-            nt_to_aa[ins] = aa_mut
-            muts_final.append(aa_mut)
-
-        for deletion in deletions_found:
-            if deletion in nt_to_aa:
-                muts_final.append(nt_to_aa[deletion])
-                continue
-
-            # Translate nucleotide muts to amino acid muts
-            locus = deletion[0]
-            gene_info = get_gene(locus)
-            if gene_info is None:
-                continue
-            gene, start_site = gene_info
-            aa_locus = ((locus - start_site) // 3) + 2
-
-            del_length = deletion[1] // 3
-            if del_length > 1:
-                aa_mut = (
-                    f'{deletion}({gene}:DEL{aa_locus}/'
-                    f'{aa_locus+del_length-1})'
-                )
-            else:
-                aa_mut = f'{deletion}({gene}:DEL{aa_locus})'
-            nt_to_aa[deletion] = aa_mut
-            muts_final.append(aa_mut)
-
-        for snp in snps_found:
-            if snp in nt_to_aa:
-                muts_final.append(nt_to_aa[snp])
-                continue
-
-            # Translate nucleotide muts to amino acid muts
-            locus = int(snp[1:-1])
-
-            gene_info = get_gene(locus)
-            if gene_info is None:
-                continue
-
-            gene, start_site = gene_info
-            codon_position = (locus - start_site) % 3
-            aa_locus = ((locus - codon_position - start_site) // 3) + 1
-
-            ref_codon = ref_genome[locus - codon_position - 1:
-                                   locus - codon_position + 2]
-            ref_aa = ref_codon.translate()
-
-            # Adjust for indels
+            insertions_found = []
+            ins_offsets = {}
             ins_offset = 0
-            if 'I' in x.cigarstring:
-                for r in ins_offsets:
-                    if locus in range(r[0], r[1]) or locus == r[1]:
-                        ins_offset = ins_offsets[r]
+            last_ins_site = 0
+
+            deletions_found = []
+            del_offsets = {}
             del_offset = 0
+            last_del_site = 0
+
+            snps_found = []
+
+            if x.cigarstring is None:
+                # checks for a possible fail case
+                continue
+
+            cigar = re.findall(r'(\d+)([A-Z]{1})', x.cigarstring)
+            if 'I' in x.cigarstring:
+                i = 0
+                del_spacing = 0
+                ins_spacing = 0
+
+                for m in cigar:
+                    if m[1] == 'I':
+                        insertion_site = start+i+del_spacing-ins_spacing
+                        ins_offsets[(last_ins_site, insertion_site)] = ins_offset
+                        last_ins_site = insertion_site
+                        ins_offset += int(m[0])
+                        if 'N' in seq[i:i+int(m[0])]:
+                            continue
+                        insertions_found.append(
+                            (insertion_site,
+                            seq[i:i+int(m[0])])
+                        )
+                        i += int(m[0])
+                        ins_spacing += int(m[0])
+                    elif m[1] == 'D':
+                        del_spacing += int(m[0])
+                        continue
+                    elif m[1] == 'M':
+                        i += int(m[0])
+                    
+                ins_offsets[(last_ins_site, start+i+del_spacing-ins_spacing)] = ins_offset
+                last_ins_site = start+i+del_spacing-ins_spacing
+
             if 'D' in x.cigarstring:
-                for r in del_offsets:
-                    if locus in range(r[0], r[1]) or locus == r[1]:
-                        del_offset = del_offsets[r]
+                i = 0
+                for m in cigar:
+                    if m[1] == 'M':
+                        i += int(m[0])
+                    elif m[1] == 'D':
+                        deletions_found.append((start+i, int(m[0])))
+                        del_offsets[(last_del_site, start+i)] = del_offset
+                        last_del_site = start+i
+                        del_offset += int(m[0])
 
-            read_start = (locus - start) - codon_position + ins_offset - del_offset - 1
-            read_end = (locus - start) - codon_position + ins_offset - del_offset + 2
+                        i += int(m[0])
+                del_offsets[(last_del_site, start+i)] = del_offset
+                last_del_site = start+i
 
-            alt_codon = MutableSeq(seq[read_start:read_end])
+            # Find SNPs
+            if 'S' not in x.cigarstring:
 
-            if len(alt_codon) % 3 != 0 or len(alt_codon) == 0:
-                continue  # Possible fail case: codon spans multiple reads
-            alt_aa = alt_codon.translate()
-            aa_mut = f'{snp}({gene}:{ref_aa}{aa_locus}{alt_aa})'
-            nt_to_aa[snp] = aa_mut
+                pairs = x.get_aligned_pairs(matches_only=True)
+                
+                for tup in pairs:
+                    read_site, ref_site = tup
+                    ref_base = ref_genome[ref_site]
+                    if seq[read_site] != 'N' and ref_base != seq[read_site]:
+                        snps_found.append(
+                            f'{ref_base.upper()}{ref_site+1}{seq[read_site]}'
+                        )
 
-            muts_final.append(aa_mut)
+            elif 'S' in x.cigarstring and 'D' not in x.cigarstring\
+                and 'I' not in x.cigarstring:
+                for i in enumerate(ref_genome[start:start+len(seq)]):
+                    if seq[i[0]] != 'N' and seq[i[0]] != i[1]:
+                        snps_found.append(
+                            f'{i[1].upper()}{start+i[0]+1}{seq[i[0]]}'
+                        )
 
-        name = ','.join([str(mut) for mut in muts_final])
+            
+            for ins in insertions_found:
+                if ins in nt_to_aa:
+                    muts_final.append(nt_to_aa[ins])
+                    continue
+                locus = ins[0]
+                gene_info = get_gene(locus)
+                if gene_info is None:
+                    continue
+                gene, start_site = gene_info
+                aa_locus = ((locus - start_site) // 3) + 2
+
+                if len(ins[1]) % 3 == 0:
+                    insertion_seq = MutableSeq(ins[1]).translate()
+                else:
+                    insertion_seq = ''
+
+                aa_mut = f'{ins}({gene}:INS{aa_locus}{insertion_seq})'
+                nt_to_aa[ins] = aa_mut
+                muts_final.append(aa_mut)
+
+            for deletion in deletions_found:
+                if deletion in nt_to_aa:
+                    muts_final.append(nt_to_aa[deletion])
+                    continue
+
+                # Translate nucleotide muts to amino acid muts
+                locus = deletion[0]
+                gene_info = get_gene(locus)
+                if gene_info is None:
+                    continue
+                gene, start_site = gene_info
+                aa_locus = ((locus - start_site) // 3) + 2
+
+                del_length = deletion[1] // 3
+                if del_length > 1:
+                    aa_mut = (
+                        f'{deletion}({gene}:DEL{aa_locus}/'
+                        f'{aa_locus+del_length-1})'
+                    )
+                else:
+                    aa_mut = f'{deletion}({gene}:DEL{aa_locus})'
+                nt_to_aa[deletion] = aa_mut
+                muts_final.append(aa_mut)
+
+            for snp in snps_found:
+                if snp in nt_to_aa:
+                    muts_final.append(nt_to_aa[snp])
+                    continue
+
+                # Translate nucleotide muts to amino acid muts
+                locus = int(snp[1:-1])
+
+                gene_info = get_gene(locus)
+                if gene_info is None:
+                    continue
+
+                gene, start_site = gene_info
+                codon_position = (locus - start_site) % 3
+                aa_locus = ((locus - codon_position - start_site) // 3) + 1
+
+                ref_codon = ref_genome[locus - codon_position - 1:
+                                    locus - codon_position + 2]
+                ref_aa = ref_codon.translate()
+
+                # Adjust for indels
+                ins_offset = 0
+                if 'I' in x.cigarstring:
+                    for r in ins_offsets:
+                        if locus in range(r[0], r[1]) or locus == r[1]:
+                            ins_offset = ins_offsets[r]
+                del_offset = 0
+                if 'D' in x.cigarstring:
+                    for r in del_offsets:
+                        if locus in range(r[0], r[1]) or locus == r[1]:
+                            del_offset = del_offsets[r]
+
+                read_start = (locus - start) - codon_position + ins_offset - del_offset - 1
+                read_end = (locus - start) - codon_position + ins_offset - del_offset + 2
+
+                alt_codon = MutableSeq(seq[read_start:read_end])
+
+                if len(alt_codon) % 3 != 0 or len(alt_codon) == 0:
+                    continue  # Possible fail case: codon spans multiple reads
+                alt_aa = alt_codon.translate()
+                aa_mut = f'{snp}({gene}:{ref_aa}{aa_locus}{alt_aa})'
+                nt_to_aa[snp] = aa_mut
+
+                muts_final.append(aa_mut)
+        muts_final = sorted(list(set(muts_final)), key=lambda x:x[1:6])
+        name = ' '.join([str(mut) for mut in muts_final])
         if len(name) > 1:
             if name not in co_muts:
                 co_muts[name] = 1
@@ -625,14 +654,11 @@ def cooccurrences(input_bam, min_site, max_site, output, refname,
 
     # Write to output file
     with open(output, 'w') as outfile:
-        outfile.write('COOCCURRENCES\tCOUNT\n')
+        outfile.write('Covariants\tCount\n')
         for k in co_muts:
             if co_muts[k] > min_count:
                 outfile.write(f'{k}\t{co_muts[k]}\n')
-    print(f'cooccurrences: Output saved to {output}')
-
+    print(f'covariants: Output saved to {output}')
+    
     samfile.close()
     
-
-def plot_cooccurrences():
-    pass
