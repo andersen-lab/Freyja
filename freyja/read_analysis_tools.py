@@ -1,10 +1,14 @@
 import re
+import os
 from collections import defaultdict
 import pysam
 import gffpandas.gffpandas as gffpd
 from Bio.Seq import MutableSeq
 from Bio import SeqIO
-
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+import matplotlib.colors as clr
 
 def extract(query_mutations, input_bam, output, refname, same_read):
     # Load data
@@ -397,15 +401,15 @@ def filter(query_mutations, input_bam, min_site, max_site, output, refname):
 
 
 def covariants(input_bam, min_site, max_site, output, refname,
-                  ref_fasta, gff_file, min_quality, min_count):
+                  ref_fasta, gff_file, min_quality, min_count, spans_region):
     
     def read_pair_generator(bam):
         """
-        Generate read pairs in a BAM file or within a region string.
+        Generate read pairs in a BAM file or within a region.
         Reads are added to read_dict until a pair is found.
         """
         read_dict = defaultdict(lambda: [None, None])
-        for read in bam.fetch(refname, min_site, max_site+1):
+        for read in bam.fetch(refname, min_site-50, max_site+51):
             if not read.is_proper_pair:
                 yield read, None
                 continue
@@ -458,7 +462,6 @@ def covariants(input_bam, min_site, max_site, output, refname,
         return -1
 
     co_muts = {}  # track co-occurring muts
-    nt_to_aa = {}  # dict to speed up translation of muts
 
     for read1, read2 in read_pair_generator(samfile):
 
@@ -469,10 +472,13 @@ def covariants(input_bam, min_site, max_site, output, refname,
             start = x.reference_start
             seq = x.query_alignment_sequence
             quals = x.query_alignment_qualities
-
             seq = ''.join(
                 [seq[i] if quals[i] >= min_quality else 'N'
                 for i in range(len(seq))])
+            
+            if spans_region:
+                if start > min_site or (start + len(seq)) < max_site:
+                    continue
 
             insertions_found = []
             ins_offsets = {}
@@ -557,9 +563,6 @@ def covariants(input_bam, min_site, max_site, output, refname,
 
             
             for ins in insertions_found:
-                if ins in nt_to_aa:
-                    muts_final.append(nt_to_aa[ins])
-                    continue
                 locus = ins[0]
                 gene_info = get_gene(locus)
                 if gene_info is None:
@@ -573,15 +576,10 @@ def covariants(input_bam, min_site, max_site, output, refname,
                     insertion_seq = ''
 
                 aa_mut = f'{ins}({gene}:INS{aa_locus}{insertion_seq})'
-                nt_to_aa[ins] = aa_mut
                 muts_final.append(aa_mut)
 
             for deletion in deletions_found:
-                if deletion in nt_to_aa:
-                    muts_final.append(nt_to_aa[deletion])
-                    continue
 
-                # Translate nucleotide muts to amino acid muts
                 locus = deletion[0]
                 gene_info = get_gene(locus)
                 if gene_info is None:
@@ -597,20 +595,16 @@ def covariants(input_bam, min_site, max_site, output, refname,
                     )
                 else:
                     aa_mut = f'{deletion}({gene}:DEL{aa_locus})'
-                nt_to_aa[deletion] = aa_mut
                 muts_final.append(aa_mut)
 
             for snp in snps_found:
-                if snp in nt_to_aa:
-                    muts_final.append(nt_to_aa[snp])
-                    continue
 
                 # Translate nucleotide muts to amino acid muts
                 locus = int(snp[1:-1])
 
                 gene_info = get_gene(locus)
                 if gene_info is None:
-                    continue
+                    break
 
                 gene, start_site = gene_info
                 codon_position = (locus - start_site) % 3
@@ -641,7 +635,8 @@ def covariants(input_bam, min_site, max_site, output, refname,
                     continue  # Possible fail case: codon spans multiple reads
                 alt_aa = alt_codon.translate()
                 aa_mut = f'{snp}({gene}:{ref_aa}{aa_locus}{alt_aa})'
-                nt_to_aa[snp] = aa_mut
+                if 'S:T470' in aa_mut:
+                    pass
 
                 muts_final.append(aa_mut)
         muts_final = sorted(list(set(muts_final)), key=lambda x:x[1:6])
@@ -662,3 +657,49 @@ def covariants(input_bam, min_site, max_site, output, refname,
     
     samfile.close()
     
+def plot_covariants(covar_file, outfile, min_mutations):
+    # Define columns (mutations in samples)
+    covars = pd.read_csv(covar_file, sep='\t', header=0)
+    nt_muts = []
+    patterns = []
+    for c in covars.iloc[:, 0]:
+        sample = c.split(') ')
+        for mut in sample:
+            if not mut[-1] == ')':
+                mut += ')'
+            if mut not in nt_muts:
+                nt_muts.append(mut)
+        patterns.append(sample)
+
+    nt_muts = sorted(nt_muts, key=lambda x: int(x[1:6]))
+    colnames = []
+    for mut in nt_muts: # remove duplicates
+        if mut[mut.index('S:'):-1] not in colnames:
+            colnames.append(mut[mut.index('S:'):-1])
+
+    data = {}
+    
+    for pattern in enumerate(patterns):
+        if len(pattern[1]) >= min_mutations:
+            data[f'CP{pattern[0]}'] = [0 for c in colnames]
+            for i in range(len(colnames)):
+                for mut in pattern[1]:
+                    if colnames[i] in mut:
+                        data[f'CP{pattern[0]}'][i] = 1
+
+    df = pd.DataFrame.from_dict(data, orient='index')
+    df.columns = colnames
+    df = df.loc[:, (df != 0).any(axis=0)] # drop empty cols
+
+    fig, ax = plt.subplots(figsize=(15, 10))
+    cmap = clr.LinearSegmentedColormap.from_list(
+        'rdgray', ['#D3D3D3', '#FF6347'], N=256)
+
+    plot = sns.heatmap(df, ax=ax, cbar=False, square=True,
+                    fmt='', linewidths=0.5, cmap=cmap, vmin=0, vmax=1,
+                    linecolor='gray')
+    plot.set_yticklabels(plot.get_yticklabels(),rotation=0)
+    for _, spine in plot.spines.items():
+        spine.set_visible(True)
+
+    plt.savefig(outfile)
