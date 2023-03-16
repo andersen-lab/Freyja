@@ -475,17 +475,22 @@ def filter(query_mutations, input_bam, min_site, max_site, output, refname):
 @click.option('--min_count', default=10,
               help='minimum count for a set of mutations to be saved')
 @click.option('--spans_region', is_flag=True,
-              help='If included, consider only reads that span the region defined by (min_site, max_site)')
-def covariants(input_bam, min_site, max_site, output, refname, 
-               ref_fasta, gff_file, min_quality, min_count, spans_region ):
-    _covariants(input_bam, min_site, max_site, output, refname, 
-                   ref_fasta, gff_file, min_quality, min_count, spans_region )
+              help=('If included, consider only reads that span the region'
+                    'defined by (min_site, max_site)'))
+def covariants(input_bam, min_site, max_site, output, refname,
+               ref_fasta, gff_file, min_quality, min_count, spans_region):
+    _covariants(input_bam, min_site, max_site, output, refname,
+                ref_fasta, gff_file, min_quality, min_count, spans_region)
+
 
 @cli.command()
 @click.argument('covar_file', type=click.Path(exists=True))
-@click.argument('outfile', default='covariants_plot.pdf')
-@click.option('--min_mutations', default=1)
-def plot_covariants(covar_file, outfile, min_mutations):
-    _plot_covariants(covar_file, outfile, min_mutations)
+@click.option('--output', default='covariants_plot.pdf')
+@click.option('--min_mutations', default=1,
+              help='Minimum number of unique covariants to display')
+def plot_covariants(covar_file, output, min_mutations):
+    _plot_covariants(covar_file, output, min_mutations)
+
+
 if __name__ == '__main__':
     cli()

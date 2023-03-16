@@ -1,5 +1,4 @@
 import re
-import os
 from collections import defaultdict
 import pysam
 import gffpandas.gffpandas as gffpd
@@ -9,6 +8,7 @@ import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 import matplotlib.colors as clr
+
 
 def extract(query_mutations, input_bam, output, refname, same_read):
     # Load data
@@ -204,7 +204,7 @@ def extract(query_mutations, input_bam, output, refname, same_read):
     samfile.close()
     outfile.close()
 
-    print(f'Output saved to {output}')
+    print(f'extract: Output saved to {output}')
 
     return final_reads
 
@@ -251,10 +251,10 @@ def filter(query_mutations, input_bam, min_site, max_site, output, refname):
     try:
         samfile = pysam.AlignmentFile(input_bam, 'rb')
     except ValueError:
-        print('extract: Missing index file, try running samtools index',
+        print('filter: Missing index file, try running samtools index',
               input_bam)
         return -1
-    print("Filtering out reads with specified mutations")
+    print("filter: Filtering out reads with specified mutations")
 
     all_sites = snp_sites + indel_sites
     all_sites.sort()
@@ -395,37 +395,40 @@ def filter(query_mutations, input_bam, min_site, max_site, output, refname):
     samfile.close()
     outfile.close()
 
-    print(f'Output saved to {output}')
+    print(f'filter: Output saved to {output}')
 
     return final_reads
 
 
 def covariants(input_bam, min_site, max_site, output, refname,
-                  ref_fasta, gff_file, min_quality, min_count, spans_region):
-    
+               ref_fasta, gff_file, min_quality, min_count, spans_region):
+
     def read_pair_generator(bam):
         """
         Generate read pairs in a BAM file or within a region.
         Reads are added to read_dict until a pair is found.
         """
-        read_dict = defaultdict(lambda: [None, None])
-        for read in bam.fetch(refname, min_site-50, max_site+51):
-            if not read.is_proper_pair:
+        is_paired = {}
+        for read in bam.fetch(refname, min_site, max_site):
+            qname = read.query_name[:-1]
+            if qname not in is_paired:
+                is_paired[qname] = False
+            else:
+                is_paired[qname] = True
+            
+        read_dict = {}
+        for read in bam.fetch(refname, min_site, max_site):
+            if not is_paired[read.query_name[:-1]]:
                 yield read, None
                 continue
-            qname = read.query_name
+            qname = read.query_name[:-1]
+            
             if qname not in read_dict:
-                if read.is_read1:
-                    read_dict[qname][0] = read
-                else:
-                    read_dict[qname][1] = read
+                read_dict[qname] = read
             else:
-                if read.is_read1:
-                    yield read, read_dict[qname][1]
-                else:
-                    yield read_dict[qname][0], read
+                yield read, read_dict[qname]
                 del read_dict[qname]
-    
+
     def get_gene(locus):
         for gene in gene_positions:
             start, end = gene_positions[gene]
@@ -462,20 +465,23 @@ def covariants(input_bam, min_site, max_site, output, refname,
         return -1
 
     co_muts = {}  # track co-occurring muts
+    coverage = {}
 
     for read1, read2 in read_pair_generator(samfile):
-
+        coverage_start = None
+        coverage_end = None
         muts_final = []
         for x in [read1, read2]:
             if x is None:
                 break
+              
             start = x.reference_start
             seq = x.query_alignment_sequence
             quals = x.query_alignment_qualities
             seq = ''.join(
                 [seq[i] if quals[i] >= min_quality else 'N'
-                for i in range(len(seq))])
-            
+                 for i in range(len(seq))])
+
             if spans_region:
                 if start > min_site or (start + len(seq)) < max_site:
                     continue
@@ -505,14 +511,15 @@ def covariants(input_bam, min_site, max_site, output, refname,
                 for m in cigar:
                     if m[1] == 'I':
                         insertion_site = start+i+del_spacing-ins_spacing
-                        ins_offsets[(last_ins_site, insertion_site)] = ins_offset
+                        ins_offsets[(last_ins_site, insertion_site)
+                                    ] = ins_offset
                         last_ins_site = insertion_site
                         ins_offset += int(m[0])
                         if 'N' in seq[i:i+int(m[0])]:
                             continue
                         insertions_found.append(
                             (insertion_site,
-                            seq[i:i+int(m[0])])
+                             seq[i:i+int(m[0])])
                         )
                         i += int(m[0])
                         ins_spacing += int(m[0])
@@ -521,8 +528,9 @@ def covariants(input_bam, min_site, max_site, output, refname,
                         continue
                     elif m[1] == 'M':
                         i += int(m[0])
-                    
-                ins_offsets[(last_ins_site, start+i+del_spacing-ins_spacing)] = ins_offset
+
+                ins_offsets[(last_ins_site, start+i+del_spacing -
+                             ins_spacing)] = ins_offset
                 last_ins_site = start+i+del_spacing-ins_spacing
 
             if 'D' in x.cigarstring:
@@ -544,7 +552,7 @@ def covariants(input_bam, min_site, max_site, output, refname,
             if 'S' not in x.cigarstring:
 
                 pairs = x.get_aligned_pairs(matches_only=True)
-                
+
                 for tup in pairs:
                     read_site, ref_site = tup
                     ref_base = ref_genome[ref_site]
@@ -554,14 +562,13 @@ def covariants(input_bam, min_site, max_site, output, refname,
                         )
 
             elif 'S' in x.cigarstring and 'D' not in x.cigarstring\
-                and 'I' not in x.cigarstring:
+                    and 'I' not in x.cigarstring:
                 for i in enumerate(ref_genome[start:start+len(seq)]):
                     if seq[i[0]] != 'N' and seq[i[0]] != i[1]:
                         snps_found.append(
                             f'{i[1].upper()}{start+i[0]+1}{seq[i[0]]}'
                         )
 
-            
             for ins in insertions_found:
                 locus = ins[0]
                 gene_info = get_gene(locus)
@@ -611,7 +618,7 @@ def covariants(input_bam, min_site, max_site, output, refname,
                 aa_locus = ((locus - codon_position - start_site) // 3) + 1
 
                 ref_codon = ref_genome[locus - codon_position - 1:
-                                    locus - codon_position + 2]
+                                       locus - codon_position + 2]
                 ref_aa = ref_codon.translate()
 
                 # Adjust for indels
@@ -626,8 +633,10 @@ def covariants(input_bam, min_site, max_site, output, refname,
                         if locus in range(r[0], r[1]) or locus == r[1]:
                             del_offset = del_offsets[r]
 
-                read_start = (locus - start) - codon_position + ins_offset - del_offset - 1
-                read_end = (locus - start) - codon_position + ins_offset - del_offset + 2
+                read_start = (locus - start) - codon_position + \
+                    ins_offset - del_offset - 1
+                read_end = (locus - start) - codon_position + \
+                    ins_offset - del_offset + 2
 
                 alt_codon = MutableSeq(seq[read_start:read_end])
 
@@ -635,29 +644,33 @@ def covariants(input_bam, min_site, max_site, output, refname,
                     continue  # Possible fail case: codon spans multiple reads
                 alt_aa = alt_codon.translate()
                 aa_mut = f'{snp}({gene}:{ref_aa}{aa_locus}{alt_aa})'
-                if 'S:T470' in aa_mut:
-                    pass
 
                 muts_final.append(aa_mut)
-        muts_final = sorted(list(set(muts_final)), key=lambda x:x[1:6])
+            if coverage_start is None or start < coverage_start:
+                coverage_start = start
+            if coverage_end is None or start + len(seq) > coverage_end:
+                coverage_end = start + len(seq)
+        muts_final = sorted(list(set(muts_final)), key=lambda x: x[1:6])
         name = ' '.join([str(mut) for mut in muts_final])
         if len(name) > 1:
             if name not in co_muts:
                 co_muts[name] = 1
             else:
                 co_muts[name] += 1
-
+            coverage[name] = (coverage_start, coverage_end)
     # Write to output file
     with open(output, 'w') as outfile:
-        outfile.write('Covariants\tCount\n')
+        outfile.write('Covariants\tCount\tCoverage_start\tCoverage_end\n')
         for k in co_muts:
             if co_muts[k] > min_count:
-                outfile.write(f'{k}\t{co_muts[k]}\n')
+                outfile.write(
+                    f'{k}\t{co_muts[k]}\t{coverage[k][0]}\t{coverage[k][1]}\n')
     print(f'covariants: Output saved to {output}')
-    
+
     samfile.close()
-    
-def plot_covariants(covar_file, outfile, min_mutations):
+
+
+def plot_covariants(covar_file, output, min_mutations):
     # Define columns (mutations in samples)
     covars = pd.read_csv(covar_file, sep='\t', header=0)
     nt_muts = []
@@ -671,14 +684,20 @@ def plot_covariants(covar_file, outfile, min_mutations):
                 nt_muts.append(mut)
         patterns.append(sample)
 
+    coverage_start = [int(i) for i in covars.iloc[:, 2]]
+    coverage_end = [int(i) for i in covars.iloc[:, 3]]
+    coverage_ranges = {str(patterns[i]): (
+        coverage_start[i], coverage_end[i]) for i in range(len(patterns))}
+
     nt_muts = sorted(nt_muts, key=lambda x: int(x[1:6]))
     colnames = []
-    for mut in nt_muts: # remove duplicates
+    sites = {}
+    for mut in nt_muts:  # remove duplicates
         if mut[mut.index('S:'):-1] not in colnames:
             colnames.append(mut[mut.index('S:'):-1])
+            sites[mut[mut.index('S:'):-1]] = int(mut[1:6])
 
     data = {}
-    
     for pattern in enumerate(patterns):
         if len(pattern[1]) >= min_mutations:
             data[f'CP{pattern[0]}'] = [0 for c in colnames]
@@ -686,20 +705,25 @@ def plot_covariants(covar_file, outfile, min_mutations):
                 for mut in pattern[1]:
                     if colnames[i] in mut:
                         data[f'CP{pattern[0]}'][i] = 1
+                if data[f'CP{pattern[0]}'][i] == 0 and sites[colnames[i]]\
+                    in range(
+                        coverage_ranges[str(pattern[1])][0],
+                        coverage_ranges[str(pattern[1])][1]):
+                    data[f'CP{pattern[0]}'][i] = 0.5
 
     df = pd.DataFrame.from_dict(data, orient='index')
     df.columns = colnames
-    df = df.loc[:, (df != 0).any(axis=0)] # drop empty cols
+    df = df.loc[:, (df > 0.5).any(axis=0)]  # drop empty cols
 
     fig, ax = plt.subplots(figsize=(15, 10))
     cmap = clr.LinearSegmentedColormap.from_list(
-        'rdgray', ['#D3D3D3', '#FF6347'], N=256)
+        'rdgray', ['#D3D3D3', '#9E9E9E', '#FF6347'], N=256)
 
     plot = sns.heatmap(df, ax=ax, cbar=False, square=True,
-                    fmt='', linewidths=0.5, cmap=cmap, vmin=0, vmax=1,
-                    linecolor='gray')
-    plot.set_yticklabels(plot.get_yticklabels(),rotation=0)
+                       fmt='', linewidths=0.5, cmap=cmap, vmin=0, vmax=1,
+                       linecolor='gray')
+    plot.set_yticklabels(plot.get_yticklabels(), rotation=0)
     for _, spine in plot.spines.items():
         spine.set_visible(True)
 
-    plt.savefig(outfile)
+    plt.savefig(output)
