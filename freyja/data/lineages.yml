@@ -24312,6 +24312,10 @@
       - XBB.1.5.19
       - XBB.1.5.20
       - XBB.1.5.21
+      - XBB.1.5.22
+      - XBB.1.5.23
+      - XBB.1.5.24
+      - XBB.1.5.25
       - XBB.1.6
       - XBB.1.7
       - XBB.1.8
@@ -24327,6 +24331,11 @@
       - XBB.1.14
       - XBB.1.15
       - XBB.1.16
+      - XBB.1.17
+      - XBB.1.17.1
+      - XBB.1.17.2
+      - XBB.1.18
+      - XBB.1.18.1
       - XBB.2
       - XBB.2.1
       - XBB.2.2
@@ -24382,6 +24391,10 @@
       - XBB.1.5.19
       - XBB.1.5.20
       - XBB.1.5.21
+      - XBB.1.5.22
+      - XBB.1.5.23
+      - XBB.1.5.24
+      - XBB.1.5.25
       - XBB.1.6
       - XBB.1.7
       - XBB.1.8
@@ -24397,6 +24410,11 @@
       - XBB.1.14
       - XBB.1.15
       - XBB.1.16
+      - XBB.1.17
+      - XBB.1.17.1
+      - XBB.1.17.2
+      - XBB.1.18
+      - XBB.1.18.1
   parent: XBB
 - name: XBB.1.1
   alias: XBB.1.1
@@ -24453,6 +24471,10 @@
       - XBB.1.5.19
       - XBB.1.5.20
       - XBB.1.5.21
+      - XBB.1.5.22
+      - XBB.1.5.23
+      - XBB.1.5.24
+      - XBB.1.5.25
   parent: XBB.1
 - name: XBB.1.5.1
   alias: XBB.1.5.1
@@ -24583,6 +24605,26 @@
   children:
       - XBB.1.5.21
   parent: XBB.1.5
+- name: XBB.1.5.22
+  alias: XBB.1.5.22
+  children:
+      - XBB.1.5.22
+  parent: XBB.1.5
+- name: XBB.1.5.23
+  alias: XBB.1.5.23
+  children:
+      - XBB.1.5.23
+  parent: XBB.1.5
+- name: XBB.1.5.24
+  alias: XBB.1.5.24
+  children:
+      - XBB.1.5.24
+  parent: XBB.1.5
+- name: XBB.1.5.25
+  alias: XBB.1.5.25
+  children:
+      - XBB.1.5.25
+  parent: XBB.1.5
 - name: XBB.1.6
   alias: XBB.1.6
   children:
@@ -24669,6 +24711,34 @@
   children:
       - XBB.1.16
   parent: XBB.1
+- name: XBB.1.17
+  alias: XBB.1.17
+  children:
+      - XBB.1.17
+      - XBB.1.17.1
+      - XBB.1.17.2
+  parent: XBB.1
+- name: XBB.1.17.1
+  alias: XBB.1.17.1
+  children:
+      - XBB.1.17.1
+  parent: XBB.1.17
+- name: XBB.1.17.2
+  alias: XBB.1.17.2
+  children:
+      - XBB.1.17.2
+  parent: XBB.1.17
+- name: XBB.1.18
+  alias: XBB.1.18
+  children:
+      - XBB.1.18
+      - XBB.1.18.1
+  parent: XBB.1
+- name: XBB.1.18.1
+  alias: XBB.1.18.1
+  children:
+      - XBB.1.18.1
+  parent: XBB.1.18
 - name: XBB.2
   alias: XBB.2
   children:
@@ -24782,6 +24852,7 @@
       - XBC.1.3
       - XBC.1.4
       - XBC.1.5
+      - XBC.1.6
       - XBC.2
   recombinant_parents: BA.2*,B.1.617.2*,BA.2*,B.1.617.2*
 - name: XBC.1
@@ -24795,6 +24866,7 @@
       - XBC.1.3
       - XBC.1.4
       - XBC.1.5
+      - XBC.1.6
   parent: XBC
 - name: XBC.1.1
   alias: XBC.1.1
@@ -24832,6 +24904,11 @@
   alias: XBC.1.5
   children:
       - XBC.1.5
+  parent: XBC.1
+- name: XBC.1.6
+  alias: XBC.1.6
+  children:
+      - XBC.1.6
   parent: XBC.1
 - name: XBC.2
   alias: XBC.2
