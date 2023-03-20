@@ -462,14 +462,14 @@ def filter(query_mutations, input_bam, min_site, max_site, output, refname):
 @click.argument('input_bam', type=click.Path(exists=True))
 @click.argument('min_site', default=0)
 @click.argument('max_site', default=29903)
-@click.argument('gff-file', type=click.Path(exists=True),
-                default='freyja/data/NC_045512_Hu-1.gff',
-                )
 @click.option('--output', default='covariants.tsv',
               help='path to save co-occurring mutations')
 @click.option('--refname', default='NC_045512.2')
 @click.option('--ref-fasta', type=click.Path(exists=True),
               default='freyja/data/NC_045512_Hu-1.fasta')
+@click.option('--gff-file', type=click.Path(exists=True),
+                default='freyja/data/NC_045512_Hu-1.gff',
+                )
 @click.option('--min_quality', default=20,
               help='minimum quality for a base to be considered')
 @click.option('--min_count', default=10,

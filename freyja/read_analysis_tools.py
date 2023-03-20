@@ -1,13 +1,13 @@
 import re
-from collections import defaultdict
-import pysam
-import gffpandas.gffpandas as gffpd
-from Bio.Seq import MutableSeq
-from Bio import SeqIO
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 import matplotlib.colors as clr
+import pysam
+import gffpandas.gffpandas as gffpd
+from Bio.Seq import MutableSeq
+from Bio import SeqIO
+from matplotlib.patches import Patch
 
 
 def extract(query_mutations, input_bam, output, refname, same_read):
@@ -404,25 +404,21 @@ def covariants(input_bam, min_site, max_site, output, refname,
                ref_fasta, gff_file, min_quality, min_count, spans_region):
 
     def read_pair_generator(bam):
-        """
-        Generate read pairs in a BAM file or within a region.
-        Reads are added to read_dict until a pair is found.
-        """
         is_paired = {}
-        for read in bam.fetch(refname, min_site, max_site):
+        for read in bam.fetch(refname, min_site, max_site+1):
             qname = read.query_name[:-1]
             if qname not in is_paired:
                 is_paired[qname] = False
             else:
                 is_paired[qname] = True
-            
+
         read_dict = {}
-        for read in bam.fetch(refname, min_site, max_site):
+        for read in bam.fetch(refname, min_site, max_site+1):
             if not is_paired[read.query_name[:-1]]:
                 yield read, None
                 continue
             qname = read.query_name[:-1]
-            
+
             if qname not in read_dict:
                 read_dict[qname] = read
             else:
@@ -464,7 +460,8 @@ def covariants(input_bam, min_site, max_site, output, refname,
                f'index {input_bam}'))
         return -1
 
-    co_muts = {}  # track co-occurring muts
+    all_reads_count = samfile.count(start=min_site, stop=max_site+1)
+    co_muts = {}
     coverage = {}
 
     for read1, read2 in read_pair_generator(samfile):
@@ -474,17 +471,13 @@ def covariants(input_bam, min_site, max_site, output, refname,
         for x in [read1, read2]:
             if x is None:
                 break
-              
+
             start = x.reference_start
             seq = x.query_alignment_sequence
             quals = x.query_alignment_qualities
             seq = ''.join(
                 [seq[i] if quals[i] >= min_quality else 'N'
                  for i in range(len(seq))])
-
-            if spans_region:
-                if start > min_site or (start + len(seq)) < max_site:
-                    continue
 
             insertions_found = []
             ins_offsets = {}
@@ -650,6 +643,11 @@ def covariants(input_bam, min_site, max_site, output, refname,
                 coverage_start = start
             if coverage_end is None or start + len(seq) > coverage_end:
                 coverage_end = start + len(seq)
+
+        if spans_region:
+            if coverage_start > min_site or coverage_end < max_site:
+                continue
+
         muts_final = sorted(list(set(muts_final)), key=lambda x: x[1:6])
         name = ' '.join([str(mut) for mut in muts_final])
         if len(name) > 1:
@@ -660,11 +658,13 @@ def covariants(input_bam, min_site, max_site, output, refname,
             coverage[name] = (coverage_start, coverage_end)
     # Write to output file
     with open(output, 'w') as outfile:
-        outfile.write('Covariants\tCount\tCoverage_start\tCoverage_end\n')
+        outfile.write(('Covariants\tCount\tFrequency\tCoverage_start\t'
+                       'Coverage_end\n'))
         for k in co_muts:
             if co_muts[k] > min_count:
                 outfile.write(
-                    f'{k}\t{co_muts[k]}\t{coverage[k][0]}\t{coverage[k][1]}\n')
+                    (f'{k}\t{co_muts[k]}\t{co_muts[k]/all_reads_count}\t'
+                     f'{coverage[k][0]}\t{coverage[k][1]}\n'))
     print(f'covariants: Output saved to {output}')
 
     samfile.close()
@@ -673,14 +673,21 @@ def covariants(input_bam, min_site, max_site, output, refname,
 def plot_covariants(covar_file, output, min_mutations):
     # Define columns (mutations in samples)
     covars = pd.read_csv(covar_file, sep='\t', header=0)
+
+    # Sort by site of first mutation
+    covars['sort_col'] = [s.split(':')[1].split(')')[0][1:-1]
+                          for s in covars.Covariants]
+    covars = covars.sort_values('sort_col').drop('sort_col', 1)
+
+    print(covars)
     nt_muts = []
     patterns = []
     for c in covars.iloc[:, 0]:
         sample = c.split(') ')
         for mut in sample:
-            if not mut[-1] == ')':
+             if not mut[-1] == ')':
                 mut += ')'
-            if mut not in nt_muts:
+             if mut not in nt_muts:
                 nt_muts.append(mut)
         patterns.append(sample)
 
@@ -717,13 +724,22 @@ def plot_covariants(covar_file, output, min_mutations):
 
     fig, ax = plt.subplots(figsize=(15, 10))
     cmap = clr.LinearSegmentedColormap.from_list(
-        'rdgray', ['#D3D3D3', '#9E9E9E', '#FF6347'], N=256)
-
+        'rdgray', ['#EEEEEE', '#9E9E9E', '#FF6347'], N=256)
     plot = sns.heatmap(df, ax=ax, cbar=False, square=True,
                        fmt='', linewidths=0.5, cmap=cmap, vmin=0, vmax=1,
                        linecolor='gray')
     plot.set_yticklabels(plot.get_yticklabels(), rotation=0)
     for _, spine in plot.spines.items():
         spine.set_visible(True)
-
+    legend_elements = [
+        Patch(facecolor='#FF6347', edgecolor='black', label='Alternate base'),
+        Patch(facecolor='#9E9E9E', edgecolor='black', label='Reference base'),
+        Patch(facecolor='#EEEEEE', edgecolor='black', label='No coverage')
+    ]
+    ax.legend(handles=legend_elements,
+              bbox_to_anchor=(1.04, 1), loc="upper left")
+    fig.tight_layout()
+    plt.title(label=covar_file.split('.tsv')[0])
     plt.savefig(output)
+
+    print(f'plot-covariants: Output saved to {output}')
