@@ -3,7 +3,9 @@
 
 Freyja is a tool to recover relative lineage abundances from mixed SARS-CoV-2 samples from a sequencing dataset (BAM aligned to the Hu-1 reference). The method uses  lineage-determining mutational "barcodes" derived from the UShER global phylogenetic tree as a basis set to solve the constrained (unit sum, non-negative) de-mixing problem. 
 
-Freyja is intended as a post-processing step after primer trimming and variant calling in [iVar (Grubaugh and Gangavaparu et al., 2019)](https://github.com/andersen-lab/ivar). From measurements of SNV freqency and sequencing depth at each position in the genome, Freyja returns an estimate of the true lineage abundances in the sample.   
+Freyja is intended as a post-processing step after primer trimming and variant calling in [iVar (Grubaugh and Gangavaparu et al., 2019)](https://github.com/andersen-lab/ivar). From measurements of SNV freqency and sequencing depth at each position in the genome, Freyja returns an estimate of the true lineage abundances in the sample.
+
+To ensure reproducibility of results, we provide old (timestamped) barcodes and metadata in the separate [Freyja-data](https://github.com/andersen-lab/Freyja-data) repository. Barcode version can be checked using the `freyja demix --version` command. 
 
 ## Installation via conda
 Freyja is entirely written in Python 3, but requires preprocessing by tools like iVar and [samtools](https://github.com/samtools/samtools) mpileup to generate the required input data. We recommend using python3.7, but Freyja has been tested on python versions up to 3.10.  First, create an environment for freyja
@@ -85,7 +87,7 @@ This resulting aggregated data can analyzed directly as a tsv file, or can be vi
 ```
 freyja plot [aggregated-filename-tsv] --output [plot-filename(.pdf,.png,etc.)]
 ```
-which provides a fractional abundance estimate for all aggregated samples. To modify the provide a lineage specific breakdown, the `--lineages` flag can be used. We now provide a `--colors [path-to-csv-of-hex-codes]` option so users can control the colors of the plot (see `freyja/data/colors.csv` for an [example input file](https://github.com/andersen-lab/Freyja/blob/main/freyja/data/colors.csv).   Example outputs:
+which provides a fractional abundance estimate for all aggregated samples. To modify the provide a lineage specific breakdown, the `--lineages` flag can be used. We now provide a `--config [path-to-plot-config-file]` option that allows users to control the colors and grouping of lineages in the plot. The [plot config file](freyja/data/plot_config.yml) is a yaml file. More information about the plot config file can be found in the [sample config file](freyja/data/plot_config.yml).   Example outputs:
 
 |**Summarized** | **Lineage-Specific**|
 |     :---:      |     :---:      |
