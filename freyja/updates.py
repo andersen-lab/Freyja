@@ -26,6 +26,10 @@ def download_barcodes(locDir):
           "Freyja/main/freyja/data/usher_barcodes.csv"
     bPath = os.path.join(locDir, "usher_barcodes.csv")
     urllib.request.urlretrieve(url, bPath)
+    url2 = "https://raw.githubusercontent.com/andersen-lab/"\
+           "Freyja/main/freyja/data/last_barcode_update.txt"
+    bPath = os.path.join(locDir, "last_barcode_update.txt")
+    urllib.request.urlretrieve(url2, bPath)
     return bPath
 
 
