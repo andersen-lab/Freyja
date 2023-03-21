@@ -468,14 +468,14 @@ def filter(query_mutations, input_bam, min_site, max_site, output, refname):
 @click.option('--ref-fasta', type=click.Path(exists=True),
               default='freyja/data/NC_045512_Hu-1.fasta')
 @click.option('--gff-file', type=click.Path(exists=True),
-                default='freyja/data/NC_045512_Hu-1.gff',
-                )
-@click.option('--min_quality', default=20,
+              default='freyja/data/NC_045512_Hu-1.gff',
+              )
+@click.option('--min_quality', default=30,
               help='minimum quality for a base to be considered')
 @click.option('--min_count', default=10,
               help='minimum count for a set of mutations to be saved')
 @click.option('--spans_region', is_flag=True,
-              help=('If included, consider only reads that span the region'
+              help=('if included, consider only reads that span the region '
                     'defined by (min_site, max_site)'))
 def covariants(input_bam, min_site, max_site, output, refname,
                ref_fasta, gff_file, min_quality, min_count, spans_region):

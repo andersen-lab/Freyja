@@ -119,7 +119,7 @@ A CSV file will also be created along with the html dashboard which will contain
 freyja relgrowthrate [aggregated-filename-tsv] [sample-metadata.csv] --output [outputname.html] --config [path-to-plot-config-file]
 ```
 
-The above command will generate the relative growth rates for each Lineage and output it as a CSV file. The lineages can also be grouped together by passing the `--config [path-to-plot-config-file]` option. This uses the same configuration file as the `dash` command. THe lineages are grouped together based on the `Lineage:` field in the config file. The number of bootstraps can be specified with the `--nboots [number-of-bootstraps]` option and the serial interval can be specified with the `--serial_interval` option. The output will be a CSV file with the following columns:
+The above command will generate the relative growth rates for each Lineage and output it as a CSV file. The lineages can also be grouped together by passing the `--config [path-to-plot-config-file]` option. This uses the same configuration file as the `dash` command. The lineages are grouped together based on the `Lineage:` field in the config file. The number of bootstraps can be specified with the `--nboots [number-of-bootstraps]` option and the serial interval can be specified with the `--serial_interval` option. The output will be a CSV file with the following columns:
 - Lineage
 - Estimated Advantage
 - Bootstrap 95% interval
@@ -127,11 +127,11 @@ The above command will generate the relative growth rates for each Lineage and o
 ### Read analysis tools
 We now provide tools for the analysis of indexed bam files given a set of mutations of interest.
 ```
-freyja extract [query-mutations.csv] [input-bam] --output [directory-of-output-file] --same_read
+freyja extract [query-mutations.csv] [input-bam] --output [outputname.bam] --same_read
 ```
 The above command will extract reads containing one or more mutations of interest and save them to `[input-bam]_extracted.bam`. Additionally, the `--same_read` flag can be included to specify that all query mutations must occur on the same read. In order to exclude reads containing one or more mutations, use the following:
 ```
-freyja filter [query-mutations.csv] [input-bam] [min-site] [max-site] --output [directory-of-output-file]
+freyja filter [query-mutations.csv] [input-bam] [min-site] [max-site] --output [outputname.bam]
 ```
 Where ```[min-site]``` and ```[max-site]``` specify the range of reads to include. Formatting requirements for `[query-mutations.csv]` can be found below.
 ```
@@ -139,4 +139,12 @@ C75T,G230A,A543C
 (732:'TT'),(1349:'A'),(12333:'A')
 (1443:32),(1599:2),(2036:3)
 ```
-Where SNPs, insertions, and deletions are listed in separate lines.
+Where SNPs, insertions, and deletions are listed in separate lines. In many cases, it can be useful to study covariant mutations (i.e. mutations occurring on the same read). This can be performed with the command:
+```
+freyja covariants [input_bam] [min_site] [max_site] --output [outputname.tsv]
+```
+This outputs to a tsv file that includes the mutations present in each set of covariants, their frequency (with respect to the total number of reads between `min_site` and `max_site`, inclusively), as well as the coverage ranges. Should the user wish to only consider reads that span the entire genomic region defined by (min_site, max_site), they may include the `--spans_region` flag. Inclusion thresholds for read-mapping quality and the number of observed instances of a set of covariants can be set using `--min_quality` and `--min_count` respectively. The output can then be passed into:
+```
+freyja plot-covariants [covariant_file.tsv] --output [plot-filename(.pdf,.png,etc.)]
+```
+An additional threshold, `--min_mutations`, sets a minimum number of mutations per set of covariants for inclusion in the plot. Example output: 
