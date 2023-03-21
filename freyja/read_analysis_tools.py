@@ -9,6 +9,10 @@ from Bio.Seq import MutableSeq
 from Bio import SeqIO
 from matplotlib.patches import Patch
 
+def nt_position(x):
+        if ',' in x:
+            return int(x.split(',')[0][1:])
+        return int(x.split('(')[0][1:-1])
 
 def extract(query_mutations, input_bam, output, refname, same_read):
     # Load data
@@ -648,61 +652,67 @@ def covariants(input_bam, min_site, max_site, output, refname,
             if coverage_start > min_site or coverage_end < max_site:
                 continue
 
-        muts_final = sorted(list(set(muts_final)), key=lambda x: x[1:6])
-        name = ' '.join([str(mut) for mut in muts_final])
+        muts_final = sorted(list(set(muts_final)), key=nt_position)
+        name = ' '.join([str(mut).replace(' ','') for mut in muts_final])
         if len(name) > 1:
             if name not in co_muts:
                 co_muts[name] = 1
             else:
                 co_muts[name] += 1
             coverage[name] = (coverage_start, coverage_end)
-    # Write to output file
-    with open(output, 'w') as outfile:
-        outfile.write(('Covariants\tCount\tFrequency\tCoverage_start\t'
-                       'Coverage_end\n'))
-        for k in co_muts:
-            if co_muts[k] > min_count:
-                outfile.write(
-                    (f'{k}\t{co_muts[k]}\t{co_muts[k]/all_reads_count}\t'
-                     f'{coverage[k][0]}\t{coverage[k][1]}\n'))
-    print(f'covariants: Output saved to {output}')
-
     samfile.close()
+    
+    df = pd.DataFrame()
+    df['Covariants'] = [k for k in co_muts]
+    df['Count'] = [co_muts[k] for k in co_muts]
+    df['Frequency'] = df['Count'] / all_reads_count
+    df['Coverage_start'] = [coverage[k][0] for k in co_muts]
+    df['Coverage_end'] = [coverage[k][1] for k in co_muts]
+
+    df = df[df['Count'] >= min_count]
+    
+    df.to_csv(output, sep='\t')
+    print(f'covariants: Output saved to {output}')
+    return df
 
 
 def plot_covariants(covar_file, output, min_mutations):
+
     # Define columns (mutations in samples)
     covars = pd.read_csv(covar_file, sep='\t', header=0)
 
     # Sort by site of first mutation
     covars['sort_col'] = [s.split(':')[1].split(')')[0][1:-1]
                           for s in covars.Covariants]
-    covars = covars.sort_values('sort_col').drop('sort_col', 1)
+    covars = covars.sort_values('sort_col').drop(labels='sort_col', axis=1)
 
-    print(covars)
+    # Get covariants and unique mutations
     nt_muts = []
     patterns = []
     for c in covars.iloc[:, 0]:
-        sample = c.split(') ')
+        sample = c.split(' ')
         for mut in sample:
-             if not mut[-1] == ')':
-                mut += ')'
-             if mut not in nt_muts:
+            if mut not in nt_muts:
                 nt_muts.append(mut)
         patterns.append(sample)
 
-    coverage_start = [int(i) for i in covars.iloc[:, 2]]
-    coverage_end = [int(i) for i in covars.iloc[:, 3]]
+    coverage_start = [int(i) for i in covars.iloc[:, 3]]
+    coverage_end = [int(i) for i in covars.iloc[:, 4]]
     coverage_ranges = {str(patterns[i]): (
         coverage_start[i], coverage_end[i]) for i in range(len(patterns))}
-
-    nt_muts = sorted(nt_muts, key=lambda x: int(x[1:6]))
+    
+    nt_muts = sorted(nt_muts, key=nt_position)
     colnames = []
     sites = {}
     for mut in nt_muts:  # remove duplicates
-        if mut[mut.index('S:'):-1] not in colnames:
-            colnames.append(mut[mut.index('S:'):-1])
-            sites[mut[mut.index('S:'):-1]] = int(mut[1:6])
+        nt_site = nt_position(mut)
+        if ',' in mut:
+            aa_site = mut.split(')(')[1][:-1]
+        else:
+            aa_site = mut.split('(')[1][:-1]
+        if aa_site not in colnames:
+            colnames.append(aa_site)
+            sites[aa_site] = nt_site
 
     data = {}
     for pattern in enumerate(patterns):
