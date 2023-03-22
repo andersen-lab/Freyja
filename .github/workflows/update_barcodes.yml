@@ -49,6 +49,8 @@ jobs:
             echo "changes were made, updating barcodes"
             git config --local user.name "$GITHUB_ACTOR"
             git config --local user.email "$GITHUB_ACTOR@users.noreply.github.com"
+            echo $(date +"%m_%d_%Y-%H-%M")> freyja/data/last_barcode_update.txt
+            git add freyja/data/last_barcode_update.txt
             git add freyja/data/lineages.yml
             git add freyja/data/usher_barcodes.csv
             git add freyja/data/curated_lineages.json
