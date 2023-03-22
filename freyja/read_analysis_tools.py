@@ -406,7 +406,6 @@ def filter(query_mutations, input_bam, min_site, max_site, output, refname):
 
 def covariants(input_bam, min_site, max_site, output, refname,
                ref_fasta, gff_file, min_quality, min_count, spans_region):
-
     def read_pair_generator(bam):
         is_paired = {}
         for read in bam.fetch(refname, min_site, max_site+1):
@@ -426,7 +425,7 @@ def covariants(input_bam, min_site, max_site, output, refname,
             if qname not in read_dict:
                 read_dict[qname] = read
             else:
-                yield read, read_dict[qname]
+                yield read_dict[qname], read
                 del read_dict[qname]
 
     def get_gene(locus):
@@ -469,6 +468,7 @@ def covariants(input_bam, min_site, max_site, output, refname,
     coverage = {}
 
     for read1, read2 in read_pair_generator(samfile):
+
         coverage_start = None
         coverage_end = None
         muts_final = []
@@ -522,13 +522,12 @@ def covariants(input_bam, min_site, max_site, output, refname,
                         ins_spacing += int(m[0])
                     elif m[1] == 'D':
                         del_spacing += int(m[0])
-                        continue
                     elif m[1] == 'M':
                         i += int(m[0])
 
-                ins_offsets[(last_ins_site, start+i+del_spacing -
-                             ins_spacing)] = ins_offset
-                last_ins_site = start+i+del_spacing-ins_spacing
+                current_ins_site = start+i+del_spacing-ins_spacing
+                ins_offsets[(last_ins_site, current_ins_site)] = ins_offset
+                last_ins_site = current_ins_site
 
             if 'D' in x.cigarstring:
                 i = 0
@@ -566,6 +565,7 @@ def covariants(input_bam, min_site, max_site, output, refname,
                             f'{i[1].upper()}{start+i[0]+1}{seq[i[0]]}'
                         )
 
+            # Get corresponding amino acid mutations
             for ins in insertions_found:
                 locus = ins[0]
                 gene_info = get_gene(locus)
@@ -640,6 +640,8 @@ def covariants(input_bam, min_site, max_site, output, refname,
                 if len(alt_codon) % 3 != 0 or len(alt_codon) == 0:
                     continue  # Possible fail case: codon spans multiple reads
                 alt_aa = alt_codon.translate()
+                if alt_aa == 'X':
+                    continue
                 aa_mut = f'{snp}({gene}:{ref_aa}{aa_locus}{alt_aa})'
 
                 muts_final.append(aa_mut)
@@ -671,7 +673,11 @@ def covariants(input_bam, min_site, max_site, output, refname,
 
     df = df[df['Count'] >= min_count]
     
-    df.to_csv(output, sep='\t')
+    # Sort by site of first mutation
+    df['sort_col'] = [nt_position(s.split(' ')[0]) for s in df.Covariants]
+    df = df.sort_values('sort_col').drop(labels='sort_col', axis=1)
+
+    df.to_csv(output, sep='\t', index=False)
     print(f'covariants: Output saved to {output}')
     return df
 
@@ -680,11 +686,6 @@ def plot_covariants(covar_file, output, min_mutations):
 
     # Define columns (mutations in samples)
     covars = pd.read_csv(covar_file, sep='\t', header=0)
-
-    # Sort by site of first mutation
-    covars['sort_col'] = [s.split(':')[1].split(')')[0][1:-1]
-                          for s in covars.Covariants]
-    covars = covars.sort_values('sort_col').drop(labels='sort_col', axis=1)
 
     # Get covariants and unique mutations
     nt_muts = []
@@ -750,6 +751,6 @@ def plot_covariants(covar_file, output, min_mutations):
               bbox_to_anchor=(1.04, 1), loc="upper left")
     fig.tight_layout()
     plt.title(label=covar_file.split('.tsv')[0])
-    plt.savefig(output)
+    plt.savefig(output, bbox_inches='tight')
 
     print(f'plot-covariants: Output saved to {output}')
