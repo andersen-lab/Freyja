@@ -446,8 +446,9 @@ def covariants(input_bam, min_site, max_site, output, refname,
                     if attr.startswith('gene='):
                         gene_name = attr.split('=')[1]
 
-                        gene_positions[gene_name] = (int(line[3]),int(line[4]))
-        
+                        gene_positions[gene_name] = (int(line[3]),
+                                                     int(line[4]))
+
         # Split ORF1ab for SARS-CoV-2
         if refname == 'NC_045512.2' and 'ORF1ab' in gene_positions:
             del gene_positions['ORF1ab']
