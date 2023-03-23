@@ -18,3 +18,4 @@ scipy
 epiweeks
 pysam
 biopython
+seaborn
