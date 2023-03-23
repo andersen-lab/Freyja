@@ -4,6 +4,7 @@ setup.py
 freyja/__init__.py
 freyja/_cli.py
 freyja/convert_paths2barcodes.py
+freyja/read_analysis_tools.py
 freyja/sample_deconv.py
 freyja/updates.py
 freyja/utils.py
@@ -16,11 +17,15 @@ freyja.egg-info/top_level.txt
 freyja/data/NC_045512_Hu-1.fasta
 freyja/data/NC_045512_Hu-1.fasta.fai
 freyja/data/NC_045512_Hu-1.fasta.mmi
+freyja/data/NC_045512_Hu-1.gff
 freyja/data/agg_outputs.tsv
 freyja/data/aggregated_result.tsv
 freyja/data/colors.csv
 freyja/data/curated_lineages.json
 freyja/data/dashboard_template.html
+freyja/data/example_query.csv
+freyja/data/extracted.bam
+freyja/data/filtered.bam
 freyja/data/introContent.txt
 freyja/data/lineages.yml
 freyja/data/mixture.depth
@@ -42,6 +47,7 @@ freyja/data/test0_rel_growth_rates.csv
 freyja/data/test2.png
 freyja/data/testSummary.png
 freyja/data/test_filter.csv
+freyja/data/test_query.csv
 freyja/data/test_sweep.tsv
 freyja/data/times_metadata.csv
 freyja/data/times_metadata0.csv
@@ -51,5 +57,6 @@ freyja/data/usher_barcodes_with_gisaid.csv
 freyja/tests/__init__.py
 freyja/tests/test_barcoding.py
 freyja/tests/test_deconv.py
+freyja/tests/test_read_analysis.py
 freyja/tests/test_utils.py
 freyja/tests/test_variants.py
