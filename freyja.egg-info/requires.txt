@@ -2,3 +2,7 @@ click
 numpy
 pandas
 cvxpy
+seaborn
+pysam
+gffpandas
+Bio
