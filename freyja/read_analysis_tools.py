@@ -9,10 +9,12 @@ from Bio.Seq import MutableSeq
 from Bio import SeqIO
 from matplotlib.patches import Patch
 
+
 def nt_position(x):
-        if ',' in x:
-            return int(x.split(',')[0][1:])
-        return int(x.split('(')[0][1:-1])
+    if ',' in x:
+        return int(x.split(',')[0][1:])
+    return int(x.split('(')[0][1:-1])
+
 
 def extract(query_mutations, input_bam, output, refname, same_read):
     # Load data
@@ -655,7 +657,7 @@ def covariants(input_bam, min_site, max_site, output, refname,
                 continue
 
         muts_final = sorted(list(set(muts_final)), key=nt_position)
-        name = ' '.join([str(mut).replace(' ','') for mut in muts_final])
+        name = ' '.join([str(mut).replace(' ', '') for mut in muts_final])
         if len(name) > 1:
             if name not in co_muts:
                 co_muts[name] = 1
@@ -663,7 +665,7 @@ def covariants(input_bam, min_site, max_site, output, refname,
                 co_muts[name] += 1
             coverage[name] = (coverage_start, coverage_end)
     samfile.close()
-    
+
     df = pd.DataFrame()
     df['Covariants'] = [k for k in co_muts]
     df['Count'] = [co_muts[k] for k in co_muts]
@@ -672,7 +674,7 @@ def covariants(input_bam, min_site, max_site, output, refname,
     df['Coverage_end'] = [coverage[k][1] for k in co_muts]
 
     df = df[df['Count'] >= min_count]
-    
+
     # Sort by site of first mutation
     df['sort_col'] = [nt_position(s.split(' ')[0]) for s in df.Covariants]
     df = df.sort_values('sort_col').drop(labels='sort_col', axis=1)
@@ -701,7 +703,7 @@ def plot_covariants(covar_file, output, min_mutations):
     coverage_end = [int(i) for i in covars.iloc[:, 4]]
     coverage_ranges = {str(patterns[i]): (
         coverage_start[i], coverage_end[i]) for i in range(len(patterns))}
-    
+
     nt_muts = sorted(nt_muts, key=nt_position)
     colnames = []
     sites = {}
