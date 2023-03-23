@@ -159,7 +159,6 @@ class ReadAnalysisTests(unittest.TestCase):
         for read in reads:
             self.assertFalse(read in reads_found)
         os.remove(self.output)
-        
 
     def test_covariants(self):
         cmd = ['freyja', 'covariants', self.input_bam,
