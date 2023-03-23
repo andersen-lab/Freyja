@@ -4,5 +4,4 @@ pandas
 cvxpy
 seaborn
 pysam
-gffpandas
-Bio
+biopython

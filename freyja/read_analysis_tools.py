@@ -4,7 +4,6 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import matplotlib.colors as clr
 import pysam
-import gffpandas.gffpandas as gffpd
 from Bio.Seq import MutableSeq
 from Bio import SeqIO
 from matplotlib.patches import Patch
@@ -437,17 +436,18 @@ def covariants(input_bam, min_site, max_site, output, refname,
                 return gene, start
 
     # Load gene annotations
-    if gff_file is not None:
-        gene_positions = {}
-        gff = gffpd.read_gff3(gff_file).filter_feature_of_type(['gene'])
-        for i, attr in enumerate(gff.df['attributes']):
-            attr = attr.split(';')
-            gene_name = attr[2][5:]
-            start_pos = gff.df['start'].iloc[i]
-            end_pos = gff.df['end'].iloc[i]
+    gene_positions = {}
+    with open(gff_file) as f:
+        for line in f.readlines():
+            line = line.split('\t')
+            if 'gene' in line:
+                attrs = line[-1].split(';')
+                for attr in attrs:
+                    if attr.startswith('gene='):
+                        gene_name = attr.split('=')[1]
 
-            gene_positions[gene_name] = (start_pos, end_pos)
-
+                        gene_positions[gene_name] = (int(line[3]),int(line[4]))
+        
         # Split ORF1ab for SARS-CoV-2
         if refname == 'NC_045512.2' and 'ORF1ab' in gene_positions:
             del gene_positions['ORF1ab']

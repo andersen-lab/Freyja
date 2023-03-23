@@ -17,5 +17,4 @@ requests
 scipy
 epiweeks
 pysam
-gffpandas
-seaborn
+biopython
