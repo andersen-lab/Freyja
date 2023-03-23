@@ -149,5 +149,7 @@ This outputs to a tsv file that includes the mutations present in each set of co
 ```
 freyja plot-covariants [covariant_file.tsv] --output [plot-filename(.pdf,.png,etc.)]
 ```
-An additional threshold, `--min_mutations`, sets a minimum number of mutations per set of covariants for inclusion in the plot. Example output: 
-![](freyja/data/example_covariants_plot.png)
+This generates an informative heatmap visualization, showing variants as well as coverage across different reads. The threshold, `--min_mutations`, sets a minimum number of mutations per set of covariants for inclusion in the plot. Example output: 
+| **Covariants Plot**|
+|     :---:      |
+|![](freyja/data/example_covariants_plot.png)|
