@@ -40,6 +40,7 @@ class ReadAnalysisTests(unittest.TestCase):
 
         for read in reads:
             self.assertTrue(read in reads_found)
+        os.remove(self.output)
 
     def test_extract_insertions(self):
 
@@ -64,6 +65,7 @@ class ReadAnalysisTests(unittest.TestCase):
 
         for read in reads:
             self.assertTrue(read in reads_found)
+        os.remove(self.output)
 
     def test_extract_dels(self):
 
@@ -88,6 +90,7 @@ class ReadAnalysisTests(unittest.TestCase):
 
         for read in reads:
             self.assertTrue(read in reads_found)
+        os.remove(self.output)
 
     def test_filter_snps(self):
 
@@ -109,6 +112,7 @@ class ReadAnalysisTests(unittest.TestCase):
                         in reads_found)
         for read in reads:
             self.assertFalse(read in reads_found)
+        os.remove(self.output)
 
     def test_filter_insertions(self):
 
@@ -131,6 +135,7 @@ class ReadAnalysisTests(unittest.TestCase):
                         in reads_found)
         for read in reads:
             self.assertFalse(read in reads_found)
+        os.remove(self.output)
 
     def test_filter_deletions(self):
 
@@ -153,6 +158,8 @@ class ReadAnalysisTests(unittest.TestCase):
 
         for read in reads:
             self.assertFalse(read in reads_found)
+        os.remove(self.output)
+        
 
     def test_covariants(self):
         cmd = ['freyja', 'covariants', self.input_bam,
