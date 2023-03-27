@@ -509,10 +509,15 @@ def filter(query_mutations, input_bam, min_site, max_site, output, refname):
 @click.option('--spans_region', is_flag=True,
               help=('if included, consider only reads that span the region '
                     'defined by (min_site, max_site)'))
+@click.option('--sort_by', default='count',
+              help=('method by which to sort covariants patterns(in descending'
+                    'order). Set to "site" to sort pattenrs by start site'))
 def covariants(input_bam, min_site, max_site, output, refname,
-               ref_fasta, gff_file, min_quality, min_count, spans_region):
+               ref_fasta, gff_file, min_quality, min_count, spans_region,
+               sort_by):
     _covariants(input_bam, min_site, max_site, output, refname,
-                ref_fasta, gff_file, min_quality, min_count, spans_region)
+                ref_fasta, gff_file, min_quality, min_count, spans_region,
+                sort_by)
 
 
 @cli.command()
@@ -520,8 +525,11 @@ def covariants(input_bam, min_site, max_site, output, refname,
 @click.option('--output', default='covariants_plot.pdf')
 @click.option('--min_mutations', default=1,
               help='Minimum number of unique covariants to display')
-def plot_covariants(covar_file, output, min_mutations):
-    _plot_covariants(covar_file, output, min_mutations)
+@click.option('--nt_muts', is_flag=True,
+              help=('if included, include nucleotide mutations in mut labels'
+                    ))
+def plot_covariants(covar_file, output, min_mutations, nt_muts):
+    _plot_covariants(covar_file, output, min_mutations, nt_muts)
 
 
 if __name__ == '__main__':

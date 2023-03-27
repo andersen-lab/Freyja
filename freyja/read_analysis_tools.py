@@ -56,7 +56,7 @@ def extract(query_mutations, input_bam, output, refname, same_read):
         return -1
 
     snp_dict = {int(mut[1:len(mut)-1])-1: mut[-1] for mut in snps if mut}
-    print("Extracting read pairs with specified mutations")
+    print("extract: Extracting read pairs with specified mutations")
     try:
         samfile = pysam.AlignmentFile(input_bam, 'rb')
     except ValueError:
@@ -197,11 +197,11 @@ def extract(query_mutations, input_bam, output, refname, same_read):
     samfile = pysam.AlignmentFile(input_bam, 'rb')
     outfile = pysam.AlignmentFile(output, 'wb', template=samfile)
     final_reads = []
-    query_names = [x.query_name for x in reads_considered]
+    query_names = [x.query_name[:-1] for x in reads_considered]
 
     itr = samfile.fetch(refname, min(all_sites), max(all_sites)+1)
     for x in itr:
-        if x.query_name not in query_names:
+        if x.query_name[:-1] not in query_names:
             continue
         outfile.write(x)
         final_reads.append(x.query_name)
@@ -406,7 +406,8 @@ def filter(query_mutations, input_bam, min_site, max_site, output, refname):
 
 
 def covariants(input_bam, min_site, max_site, output, refname,
-               ref_fasta, gff_file, min_quality, min_count, spans_region):
+               ref_fasta, gff_file, min_quality, min_count, spans_region,
+               sort_by):
     def read_pair_generator(bam):
         is_paired = {}
         for read in bam.fetch(refname, min_site, max_site+1):
@@ -454,6 +455,10 @@ def covariants(input_bam, min_site, max_site, output, refname,
             del gene_positions['ORF1ab']
             gene_positions['ORF1a'] = (266, 13468)
             gene_positions['ORF1b'] = (13468, 21555)
+        elif refname == 'MN908947.3' and 'orf1ab':
+            del gene_positions['orf1ab']
+            gene_positions['orf1a'] = (266, 13468)
+            gene_positions['orf1b'] = (13468, 21555)
 
     # Load reference genome
     ref_genome = MutableSeq(next(SeqIO.parse(ref_fasta, 'fasta')).seq)
@@ -466,7 +471,6 @@ def covariants(input_bam, min_site, max_site, output, refname,
                f'index {input_bam}'))
         return -1
 
-    all_reads_count = samfile.count(start=min_site, stop=max_site+1)
     co_muts = {}
     coverage = {}
 
@@ -670,67 +674,74 @@ def covariants(input_bam, min_site, max_site, output, refname,
     df = pd.DataFrame()
     df['Covariants'] = [k for k in co_muts]
     df['Count'] = [co_muts[k] for k in co_muts]
-    df['Frequency'] = df['Count'] / all_reads_count
     df['Coverage_start'] = [coverage[k][0] for k in co_muts]
     df['Coverage_end'] = [coverage[k][1] for k in co_muts]
 
     df = df[df['Count'] >= min_count]
 
-    # Sort by site of first mutation
-    df['sort_col'] = [nt_position(s.split(' ')[0]) for s in df.Covariants]
-    df = df.sort_values('sort_col').drop(labels='sort_col', axis=1)
+    # Sort patterns
+    if sort_by == 'count':
+        df = df.sort_values('Count', ascending=False)
+    elif sort_by == 'site':
+        df['sort_col'] = [nt_position(s.split(' ')[0]) for s in df.Covariants]
+        df = df.sort_values('sort_col').drop(labels='sort_col', axis=1)
 
     df.to_csv(output, sep='\t', index=False)
     print(f'covariants: Output saved to {output}')
     return df
 
 
-def plot_covariants(covar_file, output, min_mutations):
+def plot_covariants(covar_file, output, min_mutations, nt_muts):
 
     # Define columns (mutations in samples)
     covars = pd.read_csv(covar_file, sep='\t', header=0)
 
     # Get covariants and unique mutations
-    nt_muts = []
+    all_nt_muts = []
     patterns = []
     for c in covars.iloc[:, 0]:
         sample = c.split(' ')
         for mut in sample:
-            if mut not in nt_muts:
-                nt_muts.append(mut)
+            if mut not in all_nt_muts:
+                all_nt_muts.append(mut)
         patterns.append(sample)
 
-    coverage_start = [int(i) for i in covars.iloc[:, 3]]
-    coverage_end = [int(i) for i in covars.iloc[:, 4]]
+    coverage_start = [int(i) for i in covars.iloc[:, 2]]
+    coverage_end = [int(i) for i in covars.iloc[:, 3]]
     coverage_ranges = {str(patterns[i]): (
         coverage_start[i], coverage_end[i]) for i in range(len(patterns))}
 
-    nt_muts = sorted(nt_muts, key=nt_position)
+    counts = {str(patterns[i]): covars.iloc[:, 1][i]
+              for i in range(len(patterns))}
+    all_nt_muts = sorted(all_nt_muts, key=nt_position)
     colnames = []
     sites = {}
-    for mut in nt_muts:  # remove duplicates
+    for mut in all_nt_muts:  # remove duplicates
         nt_site = nt_position(mut)
-        if ',' in mut:
-            aa_site = mut.split(')(')[1][:-1]
+        if nt_muts:
+            aa_site = mut
         else:
-            aa_site = mut.split('(')[1][:-1]
+            if ',' in mut:
+                aa_site = mut.split(')(')[1][:-1]
+            else:
+                aa_site = mut.split('(')[1][:-1]
         if aa_site not in colnames:
             colnames.append(aa_site)
             sites[aa_site] = nt_site
-
     data = {}
     for pattern in enumerate(patterns):
         if len(pattern[1]) >= min_mutations:
-            data[f'CP{pattern[0]}'] = [0 for c in colnames]
+            sample_name = f'CP{pattern[0]}({counts[str(pattern[1])]})'
+            data[sample_name] = [0 for c in colnames]
             for i in range(len(colnames)):
                 for mut in pattern[1]:
                     if colnames[i] in mut:
-                        data[f'CP{pattern[0]}'][i] = 1
-                if data[f'CP{pattern[0]}'][i] == 0 and sites[colnames[i]]\
+                        data[sample_name][i] = 1
+                if data[sample_name][i] == 0 and sites[colnames[i]]\
                     in range(
                         coverage_ranges[str(pattern[1])][0],
                         coverage_ranges[str(pattern[1])][1]):
-                    data[f'CP{pattern[0]}'][i] = 0.5
+                    data[sample_name][i] = 0.5
 
     df = pd.DataFrame.from_dict(data, orient='index')
     df.columns = colnames

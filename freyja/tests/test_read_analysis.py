@@ -174,8 +174,8 @@ class ReadAnalysisTests(unittest.TestCase):
         self.assertTrue(['A23403G(S:D614G)', 'C23604G(S:P681R)'] in patterns)
 
         # Test coverage ranges
-        cov_start = df.iloc[:, 3]
-        cov_end = df.iloc[:, 4]
+        cov_start = df.iloc[:, 2]
+        cov_end = df.iloc[:, 3]
 
         for i in range(len(patterns)):
             for mut in patterns[i]:
@@ -191,8 +191,8 @@ class ReadAnalysisTests(unittest.TestCase):
         patterns = []
         for c in df.iloc[:, 0]:
             patterns.append(c.split(' '))
-        cov_start = df.iloc[:, 3]
-        cov_end = df.iloc[:, 4]
+        cov_start = df.iloc[:, 2]
+        cov_end = df.iloc[:, 3]
 
         for i in range(len(patterns)):
             for mut in patterns[i]:
@@ -203,7 +203,7 @@ class ReadAnalysisTests(unittest.TestCase):
 
     def test_plot_covariants(self):
         cmd = ['freyja', 'plot-covariants',
-               'freyja/data/example_covariants.tsv',
+               'freyja/data/example_covariants0.tsv',
                '--output', 'freyja/data/test_covar_plot.png']
         subprocess.run(cmd)
 

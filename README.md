@@ -143,13 +143,13 @@ C75T,G230A,A543C
 ```
 In many cases, it can be useful to study covariant mutations (i.e. mutations co-occurring on the same read). This can be performed with the command:
 ```
-freyja covariants [input_bam] [min_site] [max_site] --output [outputname.tsv]
+freyja covariants [input_bam] [min_site] [max_site] --output [outputname.tsv] --sort_by [count OR site]
 ```
-This outputs to a tsv file that includes the mutations present in each set of covariants, their frequency (with respect to the total number of reads between `min_site` and `max_site`, inclusively), as well as the coverage ranges. Should the user wish to only consider reads that span the entire genomic region defined by (min_site, max_site), they may include the `--spans_region` flag. Inclusion thresholds for read-mapping quality and the number of observed instances of a set of covariants can be set using `--min_quality` and `--min_count` respectively. The output can then be passed into:
+This outputs to a tsv file that includes the mutations present in each set of covariants, their absolute counts, as well as the coverage ranges for reads covering that set of mutations. Should the user wish to only consider reads that span the entire genomic region defined by (min_site, max_site), they may include the `--spans_region` flag. By default, the covariant patterns are sorted in descending order by count, however they can also by sorted sequentially by mutation site by setting the `--sort_by` option to "site". Inclusion thresholds for read-mapping quality and the number of observed instances of a set of covariants can be set using `--min_quality` and `--min_count` respectively. The output can then be passed into:
 ```
 freyja plot-covariants [covariant_file.tsv] --output [plot-filename(.pdf,.png,etc.)]
 ```
-This generates an informative heatmap visualization, showing variants as well as coverage across different reads. The threshold, `--min_mutations`, sets a minimum number of mutations per set of covariants for inclusion in the plot. Example output: 
-| **Covariants Plot**|
-|     :---:      |
-|![](freyja/data/example_covariants_plot.png)|
+This generates an informative heatmap visualization, showing variants as well as coverage across different reads. Each covariant pattern is listed in the format CPx(# occurrences of pattern x). The threshold `--min_mutations` sets a minimum number of mutations per set of covariants for inclusion in the plot. The flag `--nt_muts` can be included to provide nucleotide-specific information in the plot (e.g. C22995A(S:T478K) as opposed to S:T478K), making it easier to view non-synonymous mutations. Example output: 
+| **Sorted by Count** | **Sorted by Site** |
+|     :---:      |      :---:      |
+|![--sort_by count](freyja/data/example_covariants_plot0.png)|![--sort_by site](freyja/data/example_covariants_plot1.png)|
