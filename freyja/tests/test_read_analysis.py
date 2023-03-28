@@ -31,6 +31,7 @@ class ReadAnalysisTests(unittest.TestCase):
 
         reads_found = _extract(self.query_file, self.input_bam, self.output,
                                self.refname, same_read=False)
+        reads_found = [x.query_name for x in reads_found]
 
         self.assertFalse('A01535:8:HJ3YYDSX2:4:1235:12427:11052'
                          in reads_found)
@@ -57,7 +58,7 @@ class ReadAnalysisTests(unittest.TestCase):
 
         reads_found = _extract(self.query_file, self.input_bam, self.output,
                                self.refname, same_read=False)
-
+        reads_found = [x.query_name for x in reads_found]
         self.assertTrue('A01535:8:HJ3YYDSX2:4:1158:32669:6809'
                         not in reads_found)
         self.assertTrue(len(reads_found) == 8)
@@ -82,7 +83,7 @@ class ReadAnalysisTests(unittest.TestCase):
 
         reads_found = _extract(self.query_file, self.input_bam, self.output,
                                self.refname, same_read=False)
-
+        reads_found = [x.query_name for x in reads_found]
         self.assertFalse('A01535:8:HJ3YYDSX2:4:1123:4707:5165'
                          in reads_found)
         self.assertTrue(len(reads_found) == 6)

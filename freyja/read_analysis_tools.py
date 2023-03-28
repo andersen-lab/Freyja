@@ -8,15 +8,36 @@ from Bio.Seq import MutableSeq
 from Bio import SeqIO
 from matplotlib.patches import Patch
 
-
 def nt_position(x):
     if ',' in x:
         return int(x.split(',')[0][1:])
     return int(x.split('(')[0][1:-1])
 
 
+def read_pair_generator(bam, refname, min_site, max_site):
+        is_paired = {}
+        for read in bam.fetch(refname, min_site, max_site+1):
+            qname = read.query_name[:-1]
+            if qname not in is_paired:
+                is_paired[qname] = False
+            else:
+                is_paired[qname] = True
+
+        read_dict = {}
+        for read in bam.fetch(refname, min_site, max_site+1):
+            if not is_paired[read.query_name[:-1]]:
+                yield read, None
+                continue
+            qname = read.query_name[:-1]
+
+            if qname not in read_dict:
+                read_dict[qname] = read
+            else:
+                yield read_dict[qname], read
+                del read_dict[qname]
+
 def extract(query_mutations, input_bam, output, refname, same_read):
-    # Load data
+    # Parse SNPs and Indels from query_mutations
     with open(query_mutations) as infile:
         lines = infile.read().splitlines()
         snps = []
@@ -31,22 +52,17 @@ def extract(query_mutations, input_bam, output, refname, same_read):
                     snps = line
             elif ':' in line[0]:
                 deletions = line
-
     try:
-        # parse tuples from indel strings
         if len(insertions) > 0:
             insertions = [
                 (int(s.split(':')[0][1:]), s.split(':')[1][1:-2].strip('\''))
                 for s in insertions
             ]
-
         if len(deletions) > 0:
             deletions = [
                 (int(s.split(':')[0][1:]), int(s.split(':')[1][:-1]))
                 for s in deletions
             ]
-
-        # get loci for all mutations
         snp_sites = [int(m[1:len(m)-1])-1 for m in snps if m]
         indel_sites = [s[0] for s in insertions if s] +\
             [s[0] for s in deletions if s]
@@ -55,7 +71,11 @@ def extract(query_mutations, input_bam, output, refname, same_read):
         print('extract: See README for formatting requirements.')
         return -1
 
+    all_sites = snp_sites + indel_sites
+    all_sites.sort()
     snp_dict = {int(mut[1:len(mut)-1])-1: mut[-1] for mut in snps if mut}
+
+    # Open input_bam and output for reading/writing
     print("extract: Extracting read pairs with specified mutations")
     try:
         samfile = pysam.AlignmentFile(input_bam, 'rb')
@@ -63,16 +83,26 @@ def extract(query_mutations, input_bam, output, refname, same_read):
         print('extract: Missing index file, try running samtools index',
               input_bam)
         return -1
+    outfile = pysam.AlignmentFile(output, 'wb', template=samfile)
 
     reads_considered = []
+    min_site = min(all_sites) - 150
+    if min_site < 0:
+        min_site = 0
+    max_site = max(all_sites) + 150
+    if max_site > samfile.get_reference_length(refname):
+        max_site = samfile.get_reference_length(refname)
+        
+    for read1, read2 in read_pair_generator(samfile, refname, min_site, max_site):
+        indels_found = {mut: False for mut in insertions + deletions}
+        snps_found = {site: False for site in snp_dict}
 
-    all_sites = snp_sites + indel_sites
-    all_sites.sort()
-
-    for site in all_sites:
-        itr = samfile.fetch(refname, site, site+1)
-
-        for x in itr:
+        for x in [read1, read2]:
+            if x is None:
+                break
+            
+            if x.query_name == 'A01535:8:HJ3YYDSX2:4:1274:3631:24909':
+                pass
             ref_pos = set(x.get_reference_positions())
             start = x.reference_start
             sites_in = list(ref_pos & set(snp_sites))
@@ -84,134 +114,94 @@ def extract(query_mutations, input_bam, output, refname, same_read):
                 continue
             cigar = re.findall(r'(\d+)([A-Z]{1})', x.cigarstring)
 
-            # note: inserts add to read length, but not alignment coordinate
+            # Find insertions
             if 'I' in x.cigarstring:
                 i = 0
                 del_spacing = 0
                 ins_spacing = 0
                 ranges = []
-                insert_found = False
+                
                 for m in cigar:
                     if m[1] == 'I':
-                        if (start+i+del_spacing-ins_spacing,
-                                seq[i:i+int(m[0])]) in insertions:
-                            reads_considered.append(x)
-                            insert_found = True
-                            break
+                        current_ins = (start+i+del_spacing-ins_spacing,
+                                seq[i:i+int(m[0])])
+                        if current_ins in indels_found:
+                            indels_found[current_ins] = True
                         i += int(m[0])
                         ins_spacing += int(m[0])
                     elif m[1] == 'D':
                         del_spacing += int(m[0])
-                        continue
                     elif m[1] == 'M':
                         ranges.append([i, i+int(m[0])])
                         i += int(m[0])
 
                 seq = ''.join([seq[r[0]:r[1]] for r in ranges])
 
-                if insert_found:
-                    continue
-
+            # Find deletions
             if 'D' in x.cigarstring:
                 i = x.reference_start
                 for m in cigar:
                     if m[1] == 'M':
                         i += int(m[0])
                     elif m[1] == 'D':
-                        if (i, int(m[0])) in deletions:
-                            reads_considered.append(x)
-                            continue
+                        current_del = (i, int(m[0]))
+                        if current_del in deletions:
+                            indels_found[current_del] = True
                         i += int(m[0])
 
+            # Find SNPs
             c_dict = dict(zip(x.get_reference_positions(), seq))
             for s in sites_in:
                 if snp_dict[s] == c_dict[s]:
-                    reads_considered.append(x)
+                    snps_found[s] = True
+
+        if same_read: # check that ALL muts are present
+            mut_missing = False
+            for mut in indels_found:
+                if not indels_found[mut]:
+                    mut_missing = True
                     break
-    samfile.close()
 
-    # Same process, this time removing reads that don't contain all
-    # query mutations.
-
-    if same_read:
-        temp = reads_considered
-        reads_considered = []
-
-        for x in temp:
-            ref_pos = set(x.get_reference_positions())
-            start = x.reference_start
-            sites_in = list(ref_pos & set(snp_sites))
-            seq = x.query_alignment_sequence
-            cigar = re.findall(r'(\d+)([A-Z]{1})', x.cigarstring)
-
-            for ins in insertions:
-                i = 0
-                del_spacing = 0
-                ins_spacing = 0
-                insert_found = False
-                for m in cigar:
-                    if m[1] == 'I':
-                        if (start+i+del_spacing-ins_spacing,
-                                seq[i:i+int(m[0])]) == ins:
-                            insert_found = True
-                            break
-                        i += int(m[0])
-                        ins_spacing += int(m[0])
-                    elif m[1] == 'D':
-                        del_spacing += int(m[0])
-                    elif m[1] == 'M':
-                        i += int(m[0])
-                if not insert_found:
+            for site in snps_found:
+                if not snps_found[site]:
+                    mut_missing = True
                     break
-            if len(insertions) > 0 and not insert_found:
-                continue
+            
+            if not mut_missing:
+                if read1 not in reads_considered:
+                    outfile.write(read1)
+                    reads_considered.append(read1)
+                if read2 is not None:
+                    outfile.write(read2)
+                    reads_considered.append(read2)
 
-            for _del in deletions:
-                deletion_found = False
-                i = x.reference_start
-                for m in cigar:
-                    if m[1] == 'M':
-                        i += int(m[0])
-                    elif m[1] == 'D':
-                        if (i, int(m[0])) == _del:
-                            deletion_found = True
-                            break
-                        i += int(m[0])
-                if not deletion_found:
+        else: # at least 1 mutation present
+            mut_found = False 
+            for mut in indels_found:
+                if indels_found[mut]:
+                    mut_found = True
                     break
-            if len(deletions) > 0 and not deletion_found:
-                continue
 
-            all_snps_found = True
-            c_dict = dict(zip(x.get_reference_positions(), seq))
-            for s in snp_sites:
-                if s not in sites_in or snp_dict[s] != c_dict[s]:
-                    all_snps_found = False
+            for site in snps_found:
+                if snps_found[site]:
+                    mut_found = True
                     break
-            if not all_snps_found:
-                continue
-
-            reads_considered.append(x)
-
-    # Run again, this time also getting the paired read
-    samfile = pysam.AlignmentFile(input_bam, 'rb')
-    outfile = pysam.AlignmentFile(output, 'wb', template=samfile)
-    final_reads = []
-    query_names = [x.query_name[:-1] for x in reads_considered]
-
-    itr = samfile.fetch(refname, min(all_sites), max(all_sites)+1)
-    for x in itr:
-        if x.query_name[:-1] not in query_names:
-            continue
-        outfile.write(x)
-        final_reads.append(x.query_name)
+            
+            if mut_found:
+                if read1 not in reads_considered:
+                    outfile.write(read1)
+                    reads_considered.append(read1)
+                if read2 is not None:
+                    if read2 not in reads_considered:
+                        outfile.write(read2)
+                        reads_considered.append(read2)
 
     samfile.close()
     outfile.close()
 
     print(f'extract: Output saved to {output}')
 
-    return final_reads
+    return reads_considered
 
 
 def filter(query_mutations, input_bam, min_site, max_site, output, refname):
@@ -408,27 +398,6 @@ def filter(query_mutations, input_bam, min_site, max_site, output, refname):
 def covariants(input_bam, min_site, max_site, output, refname,
                ref_fasta, gff_file, min_quality, min_count, spans_region,
                sort_by):
-    def read_pair_generator(bam):
-        is_paired = {}
-        for read in bam.fetch(refname, min_site, max_site+1):
-            qname = read.query_name[:-1]
-            if qname not in is_paired:
-                is_paired[qname] = False
-            else:
-                is_paired[qname] = True
-
-        read_dict = {}
-        for read in bam.fetch(refname, min_site, max_site+1):
-            if not is_paired[read.query_name[:-1]]:
-                yield read, None
-                continue
-            qname = read.query_name[:-1]
-
-            if qname not in read_dict:
-                read_dict[qname] = read
-            else:
-                yield read_dict[qname], read
-                del read_dict[qname]
 
     def get_gene(locus):
         for gene in gene_positions:
@@ -474,7 +443,8 @@ def covariants(input_bam, min_site, max_site, output, refname,
     co_muts = {}
     coverage = {}
 
-    for read1, read2 in read_pair_generator(samfile):
+    for read1, read2 in read_pair_generator(samfile, refname, min_site,
+                                            max_site+1):
 
         coverage_start = None
         coverage_end = None
@@ -663,6 +633,8 @@ def covariants(input_bam, min_site, max_site, output, refname,
 
         muts_final = sorted(list(set(muts_final)), key=nt_position)
         name = ' '.join([str(mut).replace(' ', '') for mut in muts_final])
+        if name == 'A23403G(S:D614G) C23604G(S:P681R)':
+            print(x.query_name)
         if len(name) > 1:
             if name not in co_muts:
                 co_muts[name] = 1
