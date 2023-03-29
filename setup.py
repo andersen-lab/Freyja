@@ -33,5 +33,6 @@ setup(
     package_data={
         'freyja': ['data/*', ],
         },
-    install_requires=["click", "numpy", "pandas", "cvxpy"],
+    install_requires=["click", "numpy", "pandas", "cvxpy", "seaborn", "pysam",
+                      "biopython"],
 )

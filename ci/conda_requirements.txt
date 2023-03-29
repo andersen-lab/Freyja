@@ -17,3 +17,5 @@ requests
 scipy
 epiweeks
 pysam
+biopython
+seaborn
