@@ -131,7 +131,7 @@ We now provide tools for the analysis of indexed bam files given a set of mutati
 ```
 freyja extract [query-mutations.csv] [input-bam] --output [outputname.bam] --same_read
 ```
-The above command will extract reads containing one or more mutations of interest and save them to `[input-bam]_extracted.bam`. Additionally, the `--same_read` flag can be included to specify that all query mutations must occur on the same read. In order to exclude reads containing one or more mutations, use the following:
+The above command will extract reads containing one or more mutations of interest and save them to `[input-bam]_extracted.bam`. Additionally, the `--same_read` flag can be included to specify that all query mutations must occur on the same set of paired reads (same UMI). In order to **exclude** reads containing one or more mutations, use the following:
 ```
 freyja filter [query-mutations.csv] [input-bam] [min-site] [max-site] --output [outputname.bam]
 ```
@@ -141,11 +141,11 @@ C75T,G230A,A543C
 (732:'TT'),(1349:'A'),(12333:'A')
 (1443:32),(1599:2),(2036:3)
 ```
-In many cases, it can be useful to study covariant mutations (i.e. mutations co-occurring on the same read). This can be performed with the command:
+In many cases, it can be useful to study covariant mutations (i.e. mutations co-occurring on the same read pair). This can be performed with the command:
 ```
 freyja covariants [input_bam] [min_site] [max_site] --output [outputname.tsv] --sort_by [count OR site]
 ```
-This outputs to a tsv file that includes the mutations present in each set of covariants, their absolute counts, as well as the coverage ranges for reads covering that set of mutations. Should the user wish to only consider reads that span the entire genomic region defined by (min_site, max_site), they may include the `--spans_region` flag. By default, the covariant patterns are sorted in descending order by count, however they can also by sorted sequentially by mutation site by setting the `--sort_by` option to "site". Inclusion thresholds for read-mapping quality and the number of observed instances of a set of covariants can be set using `--min_quality` and `--min_count` respectively. The output can then be passed into:
+This outputs to a tsv file that includes the mutations present in each set of covariants, their absolute counts, as well as the coverage ranges for reads covering that set of mutations. Should the user wish to only consider read pairs that span the entire genomic region defined by (min_site, max_site), they may include the `--spans_region` flag. By default, the covariant patterns are sorted in descending order by count, however they can also by sorted sequentially by mutation site by setting the `--sort_by` option to "site". Inclusion thresholds for read-mapping quality and the number of observed instances of a set of covariants can be set using `--min_quality` and `--min_count` respectively. The output can then be passed into:
 ```
 freyja plot-covariants [covariant_file.tsv] --output [plot-filename(.pdf,.png,etc.)]
 ```
