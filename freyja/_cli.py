@@ -500,7 +500,7 @@ def filter(query_mutations, input_bam, min_site, max_site, output, refname):
 @click.option('--ref-fasta', type=click.Path(exists=True),
               default=os.path.join(locDir, 'data/NC_045512_Hu-1.fasta'))
 @click.option('--gff-file', type=click.Path(exists=True),
-              default=os.path.join(locDir, 'freyja/data/NC_045512_Hu-1.gff'),
+              default=os.path.join(locDir, 'data/NC_045512_Hu-1.gff'),
               )
 @click.option('--min_quality', default=30,
               help='minimum quality for a base to be considered')
