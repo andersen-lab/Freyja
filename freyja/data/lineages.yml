@@ -26179,6 +26179,7 @@
   children:
       - XBF
       - XBF.1
+      - XBF.1.1
       - XBF.2
       - XBF.3
       - XBF.4
@@ -26189,12 +26190,19 @@
       - XBF.8
       - XBF.8.1
       - XBF.9
+      - XBF.10
   recombinant_parents: BA.5.2.3,CJ.1
 - name: XBF.1
   alias: XBF.1
   children:
       - XBF.1
+      - XBF.1.1
   parent: XBF
+- name: XBF.1.1
+  alias: XBF.1.1
+  children:
+      - XBF.1.1
+  parent: XBF.1
 - name: XBF.2
   alias: XBF.2
   children:
@@ -26246,6 +26254,11 @@
   alias: XBF.9
   children:
       - XBF.9
+  parent: XBF
+- name: XBF.10
+  alias: XBF.10
+  children:
+      - XBF.10
   parent: XBF
 - name: XBG
   alias: XBG
