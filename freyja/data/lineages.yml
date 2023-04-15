@@ -26452,3 +26452,8 @@
   children:
       - XCA
   recombinant_parents: BA.2.75*,BQ.1*
+- name: XCB
+  alias: XCB
+  children:
+      - XCB
+  recombinant_parents: BF.31.1,BQ.1.10*
