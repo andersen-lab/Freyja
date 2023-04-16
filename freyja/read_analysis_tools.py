@@ -337,8 +337,7 @@ def filter(query_mutations, input_bam, min_site, max_site, output, refname):
     return final_reads
 
 
-def covariants(input_bam, min_site, max_site, output, refname,
-               ref_fasta, gff_file, min_quality, min_count, spans_region,
+def covariants(input_bam, min_site, max_site, output, ref_fasta, gff_file, min_quality, min_count, spans_region,
                sort_by):
 
     def get_gene(locus):
@@ -362,11 +361,11 @@ def covariants(input_bam, min_site, max_site, output, refname,
                                                      int(line[4]))
 
         # Split ORF1ab for SARS-CoV-2
-        if refname == 'NC_045512.2' and 'ORF1ab' in gene_positions:
+        if 'ORF1ab' in gene_positions:
             del gene_positions['ORF1ab']
             gene_positions['ORF1a'] = (266, 13468)
             gene_positions['ORF1b'] = (13468, 21555)
-        elif refname == 'MN908947.3' and 'orf1ab':
+        elif 'orf1ab' in gene_positions:
             del gene_positions['orf1ab']
             gene_positions['orf1a'] = (266, 13468)
             gene_positions['orf1b'] = (13468, 21555)
@@ -381,6 +380,8 @@ def covariants(input_bam, min_site, max_site, output, refname,
         print((f'covariants: Missing index file. Try running samtools'
                f'index {input_bam}'))
         return -1
+
+    refname = samfile.get_reference_name(0)
 
     co_muts = {}
     coverage = {}
