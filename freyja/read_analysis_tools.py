@@ -337,7 +337,8 @@ def filter(query_mutations, input_bam, min_site, max_site, output, refname):
     return final_reads
 
 
-def covariants(input_bam, min_site, max_site, output, ref_fasta, gff_file, min_quality, min_count, spans_region,
+def covariants(input_bam, min_site, max_site, output,
+               ref_fasta, gff_file, min_quality, min_count, spans_region,
                sort_by):
 
     def get_gene(locus):
@@ -374,18 +375,20 @@ def covariants(input_bam, min_site, max_site, output, ref_fasta, gff_file, min_q
     ref_genome = MutableSeq(next(SeqIO.parse(ref_fasta, 'fasta')).seq)
 
     # Open input bam file for reading
-    try:
-        samfile = pysam.AlignmentFile(input_bam, 'rb')
-    except ValueError:
-        print((f'covariants: Missing index file. Try running samtools'
-               f'index {input_bam}'))
-        return -1
-
+    samfile = pysam.AlignmentFile(input_bam, 'rb')
     refname = samfile.get_reference_name(0)
-
+    
     co_muts = {}
     coverage = {}
 
+    # Check if index file exists
+    try:
+        samfile.fetch(refname, min_site, max_site+1)
+    except ValueError:
+        print((f'covariants: Input bamfile missing corresponding index file. Try running samtools'
+               f'index {input_bam}'))
+        return -1
+    
     for read1, read2 in read_pair_generator(samfile, refname, min_site,
                                             max_site+1):
 
@@ -465,25 +468,44 @@ def covariants(input_bam, min_site, max_site, output, ref_fasta, gff_file, min_q
                 last_del_site = start+i
 
             # Find SNPs
-            if 'S' not in x.cigarstring:
+            softclip_offset = 0
+            if cigar[0][1] == 'S':
+                softclip_offset = int(cigar[0][0])
+                
+            pairs = x.get_aligned_pairs(matches_only=True)
 
-                pairs = x.get_aligned_pairs(matches_only=True)
+            for tup in pairs:
+                read_site, ref_site = tup
+                read_site -= softclip_offset
+                ref_base = ref_genome[ref_site]
+                if seq[read_site] != 'N' and ref_base != seq[read_site]:
+                    snps_found.append(
+                        f'{ref_base.upper()}{ref_site+1}{seq[read_site]}'
+                    )
 
-                for tup in pairs:
-                    read_site, ref_site = tup
-                    ref_base = ref_genome[ref_site]
-                    if seq[read_site] != 'N' and ref_base != seq[read_site]:
-                        snps_found.append(
-                            f'{ref_base.upper()}{ref_site+1}{seq[read_site]}'
-                        )
+            # else:
+            #     softclip_offset = 0
+            #     if cigar[0][1] == 'S':
+            #         softclip_offset = int(cigar[0][0])
+                    
+            #     pairs = x.get_aligned_pairs(matches_only=True)
 
-            elif 'S' in x.cigarstring and 'D' not in x.cigarstring\
-                    and 'I' not in x.cigarstring:
-                for i in enumerate(ref_genome[start:start+len(seq)]):
-                    if seq[i[0]] != 'N' and seq[i[0]] != i[1]:
-                        snps_found.append(
-                            f'{i[1].upper()}{start+i[0]+1}{seq[i[0]]}'
-                        )
+            #     for tup in pairs:
+            #         read_site, ref_site = tup
+            #         read_site -= softclip_offset
+            #         ref_base = ref_genome[ref_site]
+            #         if seq[read_site] != 'N' and ref_base != seq[read_site]:
+            #             snps_found.append(
+            #                 f'{ref_base.upper()}{ref_site+1}{seq[read_site]}'
+            #             )
+
+            # elif 'S' in x.cigarstring and 'D' not in x.cigarstring\
+            #         and 'I' not in x.cigarstring:
+            #     for i in enumerate(ref_genome[start:start+len(seq)]):
+            #         if seq[i[0]] != 'N' and seq[i[0]] != i[1]:
+            #             snps_found.append(
+            #                 f'{i[1].upper()}{start+i[0]+1}{seq[i[0]]}'
+            #             )
 
             # Get corresponding amino acid mutations
             for ins in insertions_found:
