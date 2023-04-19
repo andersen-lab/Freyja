@@ -25221,6 +25221,7 @@
       - XBB.1.30
       - XBB.1.31
       - XBB.1.32
+      - XBB.1.33
       - XBB.2
       - XBB.2.1
       - XBB.2.2
@@ -25361,6 +25362,7 @@
       - XBB.1.30
       - XBB.1.31
       - XBB.1.32
+      - XBB.1.33
   parent: XBB
 - name: XBB.1.1
   alias: XBB.1.1
@@ -26009,6 +26011,11 @@
   alias: XBB.1.32
   children:
       - XBB.1.32
+  parent: XBB.1
+- name: XBB.1.33
+  alias: XBB.1.33
+  children:
+      - XBB.1.33
   parent: XBB.1
 - name: XBB.2
   alias: XBB.2
