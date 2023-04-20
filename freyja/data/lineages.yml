@@ -25231,6 +25231,8 @@
       - XBB.2.3.3
       - XBB.2.3.4
       - XBB.2.3.5
+      - XBB.2.3.6
+      - XBB.2.3.7
       - XBB.2.4
       - XBB.2.5
       - XBB.2.6
@@ -26029,6 +26031,8 @@
       - XBB.2.3.3
       - XBB.2.3.4
       - XBB.2.3.5
+      - XBB.2.3.6
+      - XBB.2.3.7
       - XBB.2.4
       - XBB.2.5
       - XBB.2.6
@@ -26055,6 +26059,8 @@
       - XBB.2.3.3
       - XBB.2.3.4
       - XBB.2.3.5
+      - XBB.2.3.6
+      - XBB.2.3.7
   parent: XBB.2
 - name: XBB.2.3.1
   alias: XBB.2.3.1
@@ -26080,6 +26086,16 @@
   alias: XBB.2.3.5
   children:
       - XBB.2.3.5
+  parent: XBB.2.3
+- name: XBB.2.3.6
+  alias: XBB.2.3.6
+  children:
+      - XBB.2.3.6
+  parent: XBB.2.3
+- name: XBB.2.3.7
+  alias: XBB.2.3.7
+  children:
+      - XBB.2.3.7
   parent: XBB.2.3
 - name: XBB.2.4
   alias: XBB.2.4
@@ -26411,7 +26427,25 @@
   alias: XBL
   children:
       - XBL
+      - XBL.1
+      - XBL.2
+      - XBL.3
   recombinant_parents: XBB.1,BA.2.75,XBB.1
+- name: XBL.1
+  alias: XBL.1
+  children:
+      - XBL.1
+  parent: XBL
+- name: XBL.2
+  alias: XBL.2
+  children:
+      - XBL.2
+  parent: XBL
+- name: XBL.3
+  alias: XBL.3
+  children:
+      - XBL.3
+  parent: XBL
 - name: XBM
   alias: XBM
   children:
