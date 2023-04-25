@@ -13,6 +13,11 @@ from datetime import datetime
 import yaml
 from scipy.optimize import curve_fit
 
+# parameters to make plots illustrator friendly
+import matplotlib
+matplotlib.rcParams['pdf.fonttype'] = 42
+matplotlib.rcParams['ps.fonttype'] = 42
+
 
 def agg(results):
     allResults = [pd.read_csv(fn, skipinitialspace=True, sep='\t',
@@ -174,6 +179,7 @@ def get_color_scheme(df, default_color_scheme, config=None):
                 color_scheme[col] = default_colors[i]
         else:
             color_scheme[col] = default_colors[i]
+    # print(color_scheme)
     return color_scheme
 
 
@@ -309,26 +315,42 @@ def makePlot_simple(agg_df, lineages, outputFn, config, lineage_info):
         agg_df = prepSummaryDict(agg_df)
     fig, ax = plt.subplots()
     # Make abundance fraction for all samples in aggregated dataset
-    for k in range(0, agg_df.shape[0]):
-        dat = agg_df.iloc[k][queryType]
-        # handle parsing differences across python versions
+    labelList = []
+
+    df_abundances = pd.DataFrame()
+    for i, sampLabel in enumerate(agg_df.index):
+        dat = agg_df.loc[sampLabel, queryType]
         if isinstance(dat, list):
-            loc = pd.Series(dat[0])
+            df_abundances = df_abundances.append(
+                pd.Series(agg_df.loc[sampLabel, queryType][0],
+                          name=sampLabel))
         else:
-            loc = pd.Series(dat)
+            df_abundances = df_abundances.append(
+                pd.Series(agg_df.loc[sampLabel, queryType],
+                          name=sampLabel))
 
-        default_cmap_dict = {
-            24: px.colors.qualitative.Dark24
-        }
+    default_cmap_dict = {
+        24: px.colors.qualitative.Dark24
+    }
+    cmap_dict = get_color_scheme(df_abundances,
+                                 default_cmap_dict,
+                                 config)
 
-        cmap_dict = get_color_scheme(pd.DataFrame(loc).transpose(),
-                                     default_cmap_dict,
-                                     config)
+    for k in range(0, agg_df.shape[0]):
+        loc = df_abundances.iloc[k]
+
         for i, label in enumerate(loc.index):
-            ax.bar(k, loc[label],
-                   width=0.75,
-                   bottom=loc.iloc[0:i].sum(), label=label,
-                   color=cmap_dict[label])
+            if label in labelList:
+                ax.bar(k, loc[label],
+                       width=0.75,
+                       bottom=loc.iloc[0:i].sum(),
+                       color=cmap_dict[label])
+            else:
+                ax.bar(k, loc[label],
+                       width=0.75,
+                       bottom=loc.iloc[0:i].sum(), label=label,
+                       color=cmap_dict[label])
+                labelList.append(label)
     handles, labels = ax.get_legend_handles_labels()
     ax.legend(handles[::-1], labels[::-1], loc='center left',
               bbox_to_anchor=(1, 0.5), prop={'size': 4})
