@@ -149,8 +149,8 @@ This outputs to a tsv file that includes the mutations present in each set of co
 ```
 freyja plot-covariants [covariant_file.tsv] --output [plot-filename(.pdf,.png,etc.)]
 ```
-This generates an informative heatmap visualization showing variants as well as coverage across different reads. Each covariant pattern is listed in the format CPx(# occurrences of pattern x). The threshold `--min_mutations` sets a minimum number of mutations per set of covariants for inclusion in the plot. The flag `--nt_muts` can be included to provide nucleotide-specific information in the plot (e.g. C22995A(S:T478K) as opposed to S:T478K), making it possible to view multi-nucleotide variants.
-Note: In many cases
+This generates an informative heatmap visualization showing variants as well as coverage across different reads. Each covariant pattern is listed in the format CPx(# occurrences of pattern x). The threshold `--min_mutations` sets a minimum number of mutations per set of covariants for inclusion in the plot. The flag `--nt_muts` can be included to provide nucleotide-specific information in thx plot (e.g. C22995A(S:T478K) as opposed to S:T478K), making it possible to view multi-nucleotide variants.
+
 Example output: 
 | **Sorted by Count** | **Sorted by Site** |
 |     :---:      |      :---:      |
