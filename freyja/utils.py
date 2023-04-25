@@ -13,6 +13,11 @@ from datetime import datetime
 import yaml
 from scipy.optimize import curve_fit
 
+# parameters to make plots illustrator friendly
+import matplotlib
+matplotlib.rcParams['pdf.fonttype'] = 42
+matplotlib.rcParams['ps.fonttype'] = 42
+
 
 def agg(results):
     allResults = [pd.read_csv(fn, skipinitialspace=True, sep='\t',
