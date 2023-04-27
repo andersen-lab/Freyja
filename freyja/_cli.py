@@ -9,7 +9,8 @@ from freyja.sample_deconv import buildLineageMap, build_mix_and_depth_arrays,\
     perform_bootstrap
 from freyja.updates import download_tree, convert_tree,\
     get_curated_lineage_data, get_cl_lineages,\
-    download_barcodes, download_barcodes_wgisaid
+    download_barcodes, download_barcodes_wgisaid,\
+    convert_tree_custom
 from freyja.utils import agg, makePlot_simple, makePlot_time,\
     make_dashboard, checkConfig, get_abundance, calc_rel_growth_rates
 import os
@@ -22,7 +23,7 @@ locDir = os.path.abspath(os.path.join(os.path.realpath(__file__), os.pardir))
 
 
 @click.group()
-@click.version_option('1.4.2')
+@click.version_option('1.4.3')
 def cli():
     pass
 
@@ -179,6 +180,52 @@ def update(outdir, noncl, wgisaid, buildlocal):
     else:
         print('Downloading barcodes with GISAID-only (non-public) lineages')
         download_barcodes_wgisaid(locDir)
+
+
+@cli.command()
+@click.option('--pb', type=click.Path(exists=True),
+              help='protobuf tree')
+@click.option('--outdir', type=click.Path(exists=True),
+              help='Output directory save updated files')
+@click.option('--noncl', is_flag=True, default=True,
+              help='only include lineages in cov-lineages')
+def barcode_build(pb, outdir, noncl):
+    locDir = os.path.abspath(os.path.join(os.path.realpath(__file__),
+                                          os.pardir))
+    locDir = outdir
+    print('Getting outbreak data')
+    get_cl_lineages(locDir)
+    # # get data from UShER
+    print('Downloading a new global tree')
+    print("Converting tree info to barcodes")
+    convert_tree_custom(pb)  # returns paths for each lineage
+    # Now parse into barcode form
+    lineagePath = os.path.join(os.curdir, "lineagePaths.txt")
+    print('Building barcodes from global phylogenetic tree')
+    df = pd.read_csv(lineagePath, sep='\t')
+    df = parse_tree_paths(df)
+    df_barcodes = convert_to_barcodes(df)
+    df_barcodes = reversion_checking(df_barcodes)
+    df_barcodes = check_mutation_chain(df_barcodes)
+
+    # as default:
+    # since usher tree can be ahead of cov-lineages,
+    # we drop lineages not in cov-lineages
+    if noncl:
+        # read linages.yml file
+        with open(os.path.join(locDir, 'lineages.yml'), 'r') as f:
+            try:
+                lineages_yml = yaml.safe_load(f)
+            except yaml.YAMLError as exc:
+                raise ValueError('Error in lineages.yml file: ' + str(exc))
+        lineageNames = [lineage['name'] for lineage in lineages_yml]
+        df_barcodes = df_barcodes.loc[df_barcodes.index.isin(lineageNames)]
+    else:
+        print("Including lineages not yet in cov-lineages.")
+    df_barcodes.to_csv(os.path.join(locDir, 'usher_barcodes.csv'))
+    # delete files generated along the way that aren't needed anymore
+    print('Cleaning up')
+    os.remove(lineagePath)
 
 
 @cli.command()
@@ -502,7 +549,7 @@ def filter(query_mutations, input_bam, min_site, max_site, output, refname):
 @click.option('--gff-file', type=click.Path(exists=True),
               default=os.path.join(locDir, 'data/NC_045512_Hu-1.gff'),
               )
-@click.option('--min_quality', default=30,
+@click.option('--min_quality', default=20,
               help='minimum quality for a base to be considered')
 @click.option('--min_count', default=10,
               help='minimum count for a set of mutations to be saved')
