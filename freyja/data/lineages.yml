@@ -2640,6 +2640,7 @@
       - FQ.1
       - FR.1
       - FS.1
+      - FV.1
       - G.1
       - K.1
       - K.2
@@ -5079,6 +5080,7 @@
       - FQ.1
       - FR.1
       - FS.1
+      - FV.1
       - G.1
       - K.1
       - K.2
@@ -6581,6 +6583,7 @@
       - FQ.1
       - FR.1
       - FS.1
+      - FV.1
       - K.1
       - K.2
       - K.3
@@ -10557,6 +10560,7 @@
       - FQ.1
       - FR.1
       - FS.1
+      - FV.1
   parent: B.1.1
 - name: BA.1
   alias: B.1.1.529.1
@@ -11256,6 +11260,7 @@
       - FK.1.2
       - FR.1
       - FS.1
+      - FV.1
   parent: B.1.1.529
 - name: BA.2.1
   alias: B.1.1.529.2.1
@@ -11325,6 +11330,7 @@
       - CM.11
       - CM.12
       - DD.1
+      - FV.1
   parent: BA.2
 - name: BA.2.3.1
   alias: B.1.1.529.2.3.1
@@ -11468,6 +11474,7 @@
       - CM.10
       - CM.11
       - CM.12
+      - FV.1
   parent: BA.2.3
 - name: CM.1
   alias: B.1.1.529.2.3.20.1
@@ -11543,6 +11550,7 @@
       - CM.8.1.2
       - CM.8.1.3
       - CM.8.1.4
+      - FV.1
   parent: BA.2.3.20
 - name: CM.8.1
   alias: B.1.1.529.2.3.20.8.1
@@ -11552,12 +11560,19 @@
       - CM.8.1.2
       - CM.8.1.3
       - CM.8.1.4
+      - FV.1
   parent: CM.8
 - name: CM.8.1.1
   alias: B.1.1.529.2.3.20.8.1.1
   children:
       - CM.8.1.1
+      - FV.1
   parent: CM.8.1
+- name: FV.1
+  alias: B.1.1.529.2.3.20.8.1.1.1
+  children:
+      - FV.1
+  parent: CM.8.1.1
 - name: CM.8.1.2
   alias: B.1.1.529.2.3.20.8.1.2
   children:
@@ -25202,6 +25217,7 @@
       - EM.1
       - EU.1
       - EU.1.1
+      - EU.1.1.1
       - FD.1
       - FD.1.1
       - FD.2
@@ -25275,6 +25291,13 @@
       - XBB.1.5.44
       - XBB.1.5.45
       - XBB.1.5.46
+      - XBB.1.5.47
+      - XBB.1.5.48
+      - XBB.1.5.49
+      - XBB.1.5.50
+      - XBB.1.5.51
+      - XBB.1.5.52
+      - XBB.1.5.53
       - XBB.1.6
       - XBB.1.7
       - XBB.1.8
@@ -25284,6 +25307,7 @@
       - XBB.1.9.3
       - XBB.1.9.4
       - XBB.1.9.5
+      - XBB.1.9.6
       - XBB.1.10
       - XBB.1.11
       - XBB.1.11.1
@@ -25321,6 +25345,7 @@
       - XBB.1.33
       - XBB.1.34
       - XBB.1.35
+      - XBB.1.36
       - XBB.2
       - XBB.2.1
       - XBB.2.2
@@ -25342,6 +25367,7 @@
       - XBB.3.1
       - XBB.3.2
       - XBB.3.3
+      - XBB.3.4
       - XBB.4
       - XBB.4.1
       - XBB.5
@@ -25349,6 +25375,8 @@
       - XBB.6.1
       - XBB.7
       - XBB.8
+      - XBB.8.1
+      - XBB.9
   recombinant_parents: BJ.1,BM.1.1.1
 - name: XBB.1
   alias: XBB.1
@@ -25370,6 +25398,7 @@
       - EM.1
       - EU.1
       - EU.1.1
+      - EU.1.1.1
       - FD.1
       - FD.1.1
       - FD.2
@@ -25442,6 +25471,13 @@
       - XBB.1.5.44
       - XBB.1.5.45
       - XBB.1.5.46
+      - XBB.1.5.47
+      - XBB.1.5.48
+      - XBB.1.5.49
+      - XBB.1.5.50
+      - XBB.1.5.51
+      - XBB.1.5.52
+      - XBB.1.5.53
       - XBB.1.6
       - XBB.1.7
       - XBB.1.8
@@ -25451,6 +25487,7 @@
       - XBB.1.9.3
       - XBB.1.9.4
       - XBB.1.9.5
+      - XBB.1.9.6
       - XBB.1.10
       - XBB.1.11
       - XBB.1.11.1
@@ -25488,6 +25525,7 @@
       - XBB.1.33
       - XBB.1.34
       - XBB.1.35
+      - XBB.1.36
   parent: XBB
 - name: XBB.1.1
   alias: XBB.1.1
@@ -25526,6 +25564,7 @@
       - EM.1
       - EU.1
       - EU.1.1
+      - EU.1.1.1
       - FD.1
       - FD.1.1
       - FD.2
@@ -25581,6 +25620,13 @@
       - XBB.1.5.44
       - XBB.1.5.45
       - XBB.1.5.46
+      - XBB.1.5.47
+      - XBB.1.5.48
+      - XBB.1.5.49
+      - XBB.1.5.50
+      - XBB.1.5.51
+      - XBB.1.5.52
+      - XBB.1.5.53
   parent: XBB.1
 - name: XBB.1.5.1
   alias: XBB.1.5.1
@@ -25792,8 +25838,27 @@
   children:
       - EU.1
       - EU.1.1
+      - EU.1.1.1
       - XBB.1.5.26
   parent: XBB.1.5
+- name: EU.1
+  alias: XBB.1.5.26.1
+  children:
+      - EU.1
+      - EU.1.1
+      - EU.1.1.1
+  parent: XBB.1.5.26
+- name: EU.1.1
+  alias: XBB.1.5.26.1.1
+  children:
+      - EU.1.1
+      - EU.1.1.1
+  parent: EU.1
+- name: EU.1.1.1
+  alias: XBB.1.5.26.1.1.1
+  children:
+      - EU.1.1.1
+  parent: EU.1.1
 - name: XBB.1.5.27
   alias: XBB.1.5.27
   children:
@@ -25814,17 +25879,6 @@
   children:
       - XBB.1.5.30
   parent: XBB.1.5
-- name: EU.1
-  alias: XBB.1.5.26.1
-  children:
-      - EU.1
-      - EU.1.1
-  parent: XBB.1.5.26
-- name: EU.1.1
-  alias: XBB.1.5.26.1.1
-  children:
-      - EU.1.1
-  parent: EU.1
 - name: XBB.1.5.31
   alias: XBB.1.5.31
   children:
@@ -25911,6 +25965,41 @@
   children:
       - XBB.1.5.46
   parent: XBB.1.5
+- name: XBB.1.5.47
+  alias: XBB.1.5.47
+  children:
+      - XBB.1.5.47
+  parent: XBB.1.5
+- name: XBB.1.5.48
+  alias: XBB.1.5.48
+  children:
+      - XBB.1.5.48
+  parent: XBB.1.5
+- name: XBB.1.5.49
+  alias: XBB.1.5.49
+  children:
+      - XBB.1.5.49
+  parent: XBB.1.5
+- name: XBB.1.5.50
+  alias: XBB.1.5.50
+  children:
+      - XBB.1.5.50
+  parent: XBB.1.5
+- name: XBB.1.5.51
+  alias: XBB.1.5.51
+  children:
+      - XBB.1.5.51
+  parent: XBB.1.5
+- name: XBB.1.5.52
+  alias: XBB.1.5.52
+  children:
+      - XBB.1.5.52
+  parent: XBB.1.5
+- name: XBB.1.5.53
+  alias: XBB.1.5.53
+  children:
+      - XBB.1.5.53
+  parent: XBB.1.5
 - name: XBB.1.6
   alias: XBB.1.6
   children:
@@ -25951,6 +26040,7 @@
       - XBB.1.9.3
       - XBB.1.9.4
       - XBB.1.9.5
+      - XBB.1.9.6
   parent: XBB.1
 - name: XBB.1.9.1
   alias: XBB.1.9.1
@@ -26078,6 +26168,11 @@
   alias: XBB.1.9.5
   children:
       - XBB.1.9.5
+  parent: XBB.1.9
+- name: XBB.1.9.6
+  alias: XBB.1.9.6
+  children:
+      - XBB.1.9.6
   parent: XBB.1.9
 - name: XBB.1.10
   alias: XBB.1.10
@@ -26303,6 +26398,11 @@
   children:
       - XBB.1.35
   parent: XBB.1
+- name: XBB.1.36
+  alias: XBB.1.36
+  children:
+      - XBB.1.36
+  parent: XBB.1
 - name: XBB.2
   alias: XBB.2
   children:
@@ -26419,6 +26519,7 @@
       - XBB.3.1
       - XBB.3.2
       - XBB.3.3
+      - XBB.3.4
   parent: XBB
 - name: XBB.3.1
   alias: XBB.3.1
@@ -26434,6 +26535,11 @@
   alias: XBB.3.3
   children:
       - XBB.3.3
+  parent: XBB.3
+- name: XBB.3.4
+  alias: XBB.3.4
+  children:
+      - XBB.3.4
   parent: XBB.3
 - name: XBB.4
   alias: XBB.4
@@ -26471,6 +26577,17 @@
   alias: XBB.8
   children:
       - XBB.8
+      - XBB.8.1
+  parent: XBB
+- name: XBB.8.1
+  alias: XBB.8.1
+  children:
+      - XBB.8.1
+  parent: XBB.8
+- name: XBB.9
+  alias: XBB.9
+  children:
+      - XBB.9
   parent: XBB
 - name: XBC
   alias: XBC
