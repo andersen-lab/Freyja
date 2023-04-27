@@ -44,6 +44,16 @@ def convert_tree(loc_dir):
     return return_code
 
 
+def convert_tree_custom(tree_path):
+    print(f"Reading custom tree at: {tree_path}")
+    var_cmd = f"matUtils extract -i {tree_path} -C lineagePaths.txt"
+    sys.stdout.flush()  # force python to flush
+    return_code = subprocess.run(var_cmd, shell=True, executable="/bin/bash",
+                                 stdout=subprocess.DEVNULL,
+                                 stderr=subprocess.PIPE)
+    return return_code
+
+
 def get_curated_lineage_data(locDir):
     url2 = "https://raw.githubusercontent.com/outbreak-info/outbreak.info/"\
            "master/web/src/assets/genomics/curated_lineages.json"
