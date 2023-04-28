@@ -543,12 +543,13 @@ def filter(query_mutations, input_bam, min_site, max_site, output, refname):
 @click.argument('max_site', default=29903)
 @click.option('--output', default='covariants.tsv',
               help='path to save co-occurring mutations')
-@click.option('--refname', default='NC_045512.2')
-@click.option('--ref-fasta', type=click.Path(exists=True),
+@click.option('--ref-genome', type=click.Path(exists=True),
               default=os.path.join(locDir, 'data/NC_045512_Hu-1.fasta'))
 @click.option('--gff-file', type=click.Path(exists=True),
-              default=os.path.join(locDir, 'data/NC_045512_Hu-1.gff'),
-              )
+              default=None,
+              help=('path to gff file corresponding to reference genome. If'
+                    'included, outputs amino acid mutations in addition to'
+                    'nucleotide mutations.'))
 @click.option('--min_quality', default=20,
               help='minimum quality for a base to be considered')
 @click.option('--min_count', default=10,
@@ -559,11 +560,11 @@ def filter(query_mutations, input_bam, min_site, max_site, output, refname):
 @click.option('--sort_by', default='count',
               help=('method by which to sort covariants patterns(in descending'
                     'order). Set to "site" to sort pattenrs by start site'))
-def covariants(input_bam, min_site, max_site, output, refname,
-               ref_fasta, gff_file, min_quality, min_count, spans_region,
+def covariants(input_bam, min_site, max_site, output,
+               ref_genome, gff_file, min_quality, min_count, spans_region,
                sort_by):
-    _covariants(input_bam, min_site, max_site, output, refname,
-                ref_fasta, gff_file, min_quality, min_count, spans_region,
+    _covariants(input_bam, min_site, max_site, output,
+                ref_genome, gff_file, min_quality, min_count, spans_region,
                 sort_by)
 
 

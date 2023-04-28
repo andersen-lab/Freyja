@@ -18,7 +18,11 @@ def nt_position(x):
 def read_pair_generator(bam, refname, min_site, max_site):
     is_paired = {}
     for read in bam.fetch(refname, min_site, max_site+1):
-        qname = read.query_name[:-1]
+        if read.query_name[-2] == '.':
+            qname = read.query_name[:-1]
+        else:
+            qname = read.query_name
+
         if qname not in is_paired:
             is_paired[qname] = False
         else:
@@ -26,10 +30,14 @@ def read_pair_generator(bam, refname, min_site, max_site):
 
     read_dict = {}
     for read in bam.fetch(refname, min_site, max_site+1):
-        if not is_paired[read.query_name[:-1]]:
+        if read.query_name[-2] == '.':
+            qname = read.query_name[:-1]
+        else:
+            qname = read.query_name
+
+        if not is_paired[qname]:
             yield read, None
             continue
-        qname = read.query_name[:-1]
 
         if qname not in read_dict:
             read_dict[qname] = read
@@ -337,7 +345,7 @@ def filter(query_mutations, input_bam, min_site, max_site, output, refname):
     return final_reads
 
 
-def covariants(input_bam, min_site, max_site, output, refname,
+def covariants(input_bam, min_site, max_site, output,
                ref_fasta, gff_file, min_quality, min_count, spans_region,
                sort_by):
 
@@ -347,49 +355,56 @@ def covariants(input_bam, min_site, max_site, output, refname,
             if locus in range(start, end+1):
                 return gene, start
 
-    # Load gene annotations
-    gene_positions = {}
-    with open(gff_file) as f:
-        for line in f.readlines():
-            line = line.split('\t')
-            if 'gene' in line:
-                attrs = line[-1].split(';')
-                for attr in attrs:
-                    if attr.startswith('gene='):
-                        gene_name = attr.split('=')[1]
-
-                        gene_positions[gene_name] = (int(line[3]),
-                                                     int(line[4]))
-
-        # Split ORF1ab for SARS-CoV-2
-        if refname == 'NC_045512.2' and 'ORF1ab' in gene_positions:
-            del gene_positions['ORF1ab']
-            gene_positions['ORF1a'] = (266, 13468)
-            gene_positions['ORF1b'] = (13468, 21555)
-        elif refname == 'MN908947.3' and 'orf1ab':
-            del gene_positions['orf1ab']
-            gene_positions['orf1a'] = (266, 13468)
-            gene_positions['orf1b'] = (13468, 21555)
-
     # Load reference genome
     ref_genome = MutableSeq(next(SeqIO.parse(ref_fasta, 'fasta')).seq)
 
+    # Load gene annotations (if present)
+    if gff_file is not None:
+        gene_positions = {}
+        with open(gff_file) as f:
+            for line in f.readlines():
+                line = line.split('\t')
+                if 'gene' in line:
+                    attrs = line[-1].split(';')
+                    for attr in attrs:
+                        if attr.startswith('Name='):
+                            gene_name = attr.split('=')[1]
+                            gene_positions[gene_name] = (int(line[3]),
+                                                         int(line[4]))
+
+            # Split ORF1ab for SARS-CoV-2
+            if 'ORF1ab' in gene_positions:
+                del gene_positions['ORF1ab']
+                gene_positions['ORF1a'] = (266, 13468)
+                gene_positions['ORF1b'] = (13468, 21555)
+            elif 'orf1ab' in gene_positions:
+                del gene_positions['orf1ab']
+                gene_positions['orf1a'] = (266, 13468)
+                gene_positions['orf1b'] = (13468, 21555)
+
     # Open input bam file for reading
-    try:
-        samfile = pysam.AlignmentFile(input_bam, 'rb')
-    except ValueError:
-        print((f'covariants: Missing index file. Try running samtools'
-               f'index {input_bam}'))
-        return -1
+    samfile = pysam.AlignmentFile(input_bam, 'rb')
+    refname = samfile.get_reference_name(0)
 
     co_muts = {}
+    co_muts_by_gene = {}
     coverage = {}
+
+    # Check if index file exists
+    try:
+        samfile.fetch(refname, min_site, max_site+1)
+    except ValueError:
+        print((f'covariants: Input bamfile missing corresponding index file. '
+               f'Try running:\n samtools index {input_bam}'))
+        return -1
 
     for read1, read2 in read_pair_generator(samfile, refname, min_site,
                                             max_site+1):
 
         coverage_start = None
         coverage_end = None
+        nt_to_aa = {}
+
         muts_final = []
         for x in [read1, read2]:
             if x is None:
@@ -413,6 +428,12 @@ def covariants(input_bam, min_site, max_site, output, refname,
             last_del_site = 0
 
             snps_found = []
+
+            # Update coverage ranges
+            if coverage_start is None or start < coverage_start:
+                coverage_start = start
+            if coverage_end is None or start + len(seq) > coverage_end:
+                coverage_end = start + len(seq)
 
             if x.cigarstring is None:
                 # checks for a possible fail case
@@ -464,128 +485,147 @@ def covariants(input_bam, min_site, max_site, output, refname,
                 last_del_site = start+i
 
             # Find SNPs
-            if 'S' not in x.cigarstring:
+            softclip_offset = 0
+            if cigar[0][1] == 'S':
+                softclip_offset = int(cigar[0][0])
 
-                pairs = x.get_aligned_pairs(matches_only=True)
+            pairs = x.get_aligned_pairs(matches_only=True)
 
-                for tup in pairs:
-                    read_site, ref_site = tup
-                    ref_base = ref_genome[ref_site]
-                    if seq[read_site] != 'N' and ref_base != seq[read_site]:
-                        snps_found.append(
-                            f'{ref_base.upper()}{ref_site+1}{seq[read_site]}'
-                        )
-
-            elif 'S' in x.cigarstring and 'D' not in x.cigarstring\
-                    and 'I' not in x.cigarstring:
-                for i in enumerate(ref_genome[start:start+len(seq)]):
-                    if seq[i[0]] != 'N' and seq[i[0]] != i[1]:
-                        snps_found.append(
-                            f'{i[1].upper()}{start+i[0]+1}{seq[i[0]]}'
-                        )
+            for tup in pairs:
+                read_site, ref_site = tup
+                read_site -= softclip_offset
+                ref_base = ref_genome[ref_site]
+                if seq[read_site] != 'N' and ref_base != seq[read_site]:
+                    snps_found.append(
+                        f'{ref_base.upper()}{ref_site+1}{seq[read_site]}'
+                    )
 
             # Get corresponding amino acid mutations
-            for ins in insertions_found:
-                locus = ins[0]
-                gene_info = get_gene(locus)
-                if gene_info is None:
-                    continue
-                gene, start_site = gene_info
-                aa_locus = ((locus - start_site) // 3) + 2
+            if gff_file is not None:
+                for ins in insertions_found:
+                    locus = ins[0]
+                    gene_info = get_gene(locus)
+                    ins_string = str(ins).replace(' ', '')
 
-                if len(ins[1]) % 3 == 0:
-                    insertion_seq = MutableSeq(ins[1]).translate()
-                else:
-                    insertion_seq = ''
+                    if gene_info is None:
+                        continue
+                    gene, start_site = gene_info
+                    aa_locus = ((locus - start_site) // 3) + 2
 
-                aa_mut = f'{ins}({gene}:INS{aa_locus}{insertion_seq})'
-                muts_final.append(aa_mut)
+                    if len(ins[1]) % 3 == 0:
+                        insertion_seq = MutableSeq(ins[1]).translate()
+                    else:
+                        insertion_seq = ''
 
-            for deletion in deletions_found:
+                    aa_mut = (f'{ins_string}({gene}:INS{aa_locus}'
+                              f'{insertion_seq})')
+                    if ins_string not in nt_to_aa:
+                        nt_to_aa[ins_string] = aa_mut
 
-                locus = deletion[0]
-                gene_info = get_gene(locus)
-                if gene_info is None:
-                    continue
-                gene, start_site = gene_info
-                aa_locus = ((locus - start_site) // 3) + 2
+                for deletion in deletions_found:
+                    locus = deletion[0]
+                    gene_info = get_gene(locus)
+                    deletion_string = str(deletion).replace(' ', '')
 
-                del_length = deletion[1] // 3
-                if del_length > 1:
-                    aa_mut = (
-                        f'{deletion}({gene}:DEL{aa_locus}/'
-                        f'{aa_locus+del_length-1})'
-                    )
-                else:
-                    aa_mut = f'{deletion}({gene}:DEL{aa_locus})'
-                muts_final.append(aa_mut)
+                    if gene_info is None:
+                        continue
+                    gene, start_site = gene_info
+                    aa_locus = ((locus - start_site) // 3) + 2
 
-            for snp in snps_found:
+                    del_length = deletion[1] // 3
+                    if del_length > 1:
+                        aa_mut = (
+                            f'{deletion_string}({gene}:DEL{aa_locus}/'
+                            f'{aa_locus+del_length-1})'
+                        )
+                    else:
+                        aa_mut = f'{deletion}({gene}:DEL{aa_locus})'
 
-                # Translate nucleotide muts to amino acid muts
-                locus = int(snp[1:-1])
+                    if deletion_string not in nt_to_aa:
+                        nt_to_aa[deletion_string] = aa_mut
+                for snp in snps_found:
+                    locus = int(snp[1:-1])
 
-                gene_info = get_gene(locus)
-                if gene_info is None:
-                    break
+                    gene_info = get_gene(locus)
+                    if gene_info is None:
+                        continue
 
-                gene, start_site = gene_info
-                codon_position = (locus - start_site) % 3
-                aa_locus = ((locus - codon_position - start_site) // 3) + 1
+                    gene, start_site = gene_info
+                    codon_position = (locus - start_site) % 3
+                    aa_locus = ((locus - codon_position - start_site) // 3) + 1
 
-                ref_codon = ref_genome[locus - codon_position - 1:
-                                       locus - codon_position + 2]
-                ref_aa = ref_codon.translate()
+                    ref_codon = ref_genome[locus - codon_position - 1:
+                                           locus - codon_position + 2]
+                    ref_aa = ref_codon.translate()
 
-                # Adjust for indels
-                ins_offset = 0
-                if 'I' in x.cigarstring:
+                    # Adjust for indels
+                    ins_offset = 0
                     for r in ins_offsets:
                         if locus in range(r[0], r[1]) or locus == r[1]:
                             ins_offset = ins_offsets[r]
-                del_offset = 0
-                if 'D' in x.cigarstring:
+                    del_offset = 0
                     for r in del_offsets:
                         if locus in range(r[0], r[1]) or locus == r[1]:
                             del_offset = del_offsets[r]
 
-                read_start = (locus - start) - codon_position + \
-                    ins_offset - del_offset - 1
-                read_end = (locus - start) - codon_position + \
-                    ins_offset - del_offset + 2
+                    read_start = (locus - start) - codon_position + \
+                        ins_offset - del_offset - 1
+                    read_end = (locus - start) - codon_position + \
+                        ins_offset - del_offset + 2
 
-                alt_codon = MutableSeq(seq[read_start:read_end])
+                    alt_codon = MutableSeq(seq[read_start:read_end])
 
-                if len(alt_codon) % 3 != 0 or len(alt_codon) == 0:
-                    continue  # Possible fail case: codon spans multiple reads
-                alt_aa = alt_codon.translate()
-                if alt_aa == 'X':
-                    continue
-                aa_mut = f'{snp}({gene}:{ref_aa}{aa_locus}{alt_aa})'
+                    if len(alt_codon) % 3 != 0 or len(alt_codon) == 0 \
+                            or 'N' in alt_codon:
+                        continue
+                    alt_aa = alt_codon.translate()
 
-                muts_final.append(aa_mut)
-            if coverage_start is None or start < coverage_start:
-                coverage_start = start
-            if coverage_end is None or start + len(seq) > coverage_end:
-                coverage_end = start + len(seq)
+                    aa_mut = f'{snp}({gene}:{ref_aa}{aa_locus}{alt_aa})'
+                    if snp not in nt_to_aa:
+                        nt_to_aa[snp] = aa_mut
+
+            for mut in insertions_found + deletions_found + snps_found:
+                muts_final.append(str(mut).replace(' ', ''))
+
+            muts_final = sorted(list(set(muts_final)), key=nt_position)
+
+        if len(muts_final) == 0:
+            continue
+
+        # Update counts
+        key = ' '.join(muts_final)
+        if key not in co_muts:
+            co_muts[key] = 1
+        else:
+            co_muts[key] += 1
+
+        muts_final_aa = []
+        for mut in muts_final:
+            mut = str(mut).replace(' ', '')
+            if mut in nt_to_aa:
+                muts_final_aa.append(nt_to_aa[mut])
+            else:
+                muts_final_aa.append(mut)
+
+        aa_string = ' '.join(muts_final_aa)
+        if key not in co_muts_by_gene \
+                or len(co_muts_by_gene[key]) < len(aa_string):
+            co_muts_by_gene[key] = aa_string
+
+        # Update coverage
+        coverage[key] = (coverage_start, coverage_end)
 
         if spans_region:
             if coverage_start > min_site or coverage_end < max_site:
                 continue
 
-        muts_final = sorted(list(set(muts_final)), key=nt_position)
-        name = ' '.join([str(mut).replace(' ', '') for mut in muts_final])
-
-        if len(name) > 1:
-            if name not in co_muts:
-                co_muts[name] = 1
-            else:
-                co_muts[name] += 1
-            coverage[name] = (coverage_start, coverage_end)
     samfile.close()
 
     df = pd.DataFrame()
-    df['Covariants'] = [k for k in co_muts]
+    if gff_file is not None:
+        df['Covariants'] = [co_muts_by_gene[k] for k in co_muts]
+    else:
+        df['Covariants'] = [k for k in co_muts]
     df['Count'] = [co_muts[k] for k in co_muts]
     df['Coverage_start'] = [coverage[k][0] for k in co_muts]
     df['Coverage_end'] = [coverage[k][1] for k in co_muts]
@@ -593,9 +633,9 @@ def covariants(input_bam, min_site, max_site, output, refname,
     df = df[df['Count'] >= min_count]
 
     # Sort patterns
-    if sort_by == 'count':
+    if sort_by.lower() == 'count':
         df = df.sort_values('Count', ascending=False)
-    elif sort_by == 'site':
+    elif sort_by.lower() == 'site':
         df['sort_col'] = [nt_position(s.split(' ')[0]) for s in df.Covariants]
         df = df.sort_values('sort_col').drop(labels='sort_col', axis=1)
 
@@ -618,6 +658,8 @@ def plot_covariants(covar_file, output, min_mutations, nt_muts):
             if mut not in all_nt_muts:
                 all_nt_muts.append(mut)
         patterns.append(sample)
+    if ':' not in all_nt_muts[0]:
+        nt_muts = True
 
     coverage_start = [int(i) for i in covars.iloc[:, 2]]
     coverage_end = [int(i) for i in covars.iloc[:, 3]]
@@ -626,6 +668,7 @@ def plot_covariants(covar_file, output, min_mutations, nt_muts):
 
     counts = {str(patterns[i]): covars.iloc[:, 1][i]
               for i in range(len(patterns))}
+
     all_nt_muts = sorted(all_nt_muts, key=nt_position)
     colnames = []
     sites = {}
