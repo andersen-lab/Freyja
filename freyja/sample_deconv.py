@@ -41,7 +41,7 @@ def build_mix_and_depth_arrays(fn, depthFn, muts, covcut):
         df = read_snv_frequencies_ivar(fn, depthFn, muts)
 
     # only works for substitutions, but that's what we get from usher tree
-    df_depth = pd.read_csv(depthFn, sep='\t', header=None, index_col=1)
+    df_depth = pd.read_csv(depthFn, sep='\t', header=None, index_col=1, encoding='latin1')
     df['mutName'] = df['REF'] + df['POS'].astype(str) + df['ALT']
     df = df.drop_duplicates(subset='mutName')
     df.set_index('mutName', inplace=True)
@@ -55,7 +55,7 @@ def build_mix_and_depth_arrays(fn, depthFn, muts, covcut):
 
 
 def read_snv_frequencies_ivar(fn, depthFn, muts):
-    df = pd.read_csv(fn, sep='\t')
+    df = pd.read_csv(fn, sep='\t', encoding='latin1')
     return df
 
 
@@ -70,7 +70,8 @@ def read_snv_frequencies_vcf(fn, depthFn, muts):
 
     df = pd.read_csv(fn, comment='#', delim_whitespace=True,
                      header=None,
-                     names=vcfnames)
+                     names=vcfnames,
+                     encoding='latin1')
     vcf_info = df['INFO'].str.split(';', expand=True)
     for j in range(vcf_info.shape[1]):
         if vcf_info[j].str.split('=')[0] is not None:
@@ -289,7 +290,7 @@ def perform_bootstrap(df_barcodes, mix, depths_,
 if __name__ == '__main__':
     print('loading lineage models')
     # read in  barcodes.
-    df_barcodes = pd.read_csv('freyja/data/usher_barcodes.csv', index_col=0)
+    df_barcodes = pd.read_csv('freyja/data/usher_barcodes.csv', index_col=0, encoding='latin1')
     muts = list(df_barcodes.columns)
     mapDict = buildLineageMap()
 
