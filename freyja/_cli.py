@@ -15,6 +15,7 @@ from freyja.utils import agg, makePlot_simple, makePlot_time,\
     make_dashboard, checkConfig, get_abundance, calc_rel_growth_rates
 import os
 import glob
+import re
 import subprocess
 import sys
 import yaml
@@ -77,12 +78,27 @@ def demix(variants, depths, output, eps, barcodes, meta,
     # drop intra-lineage diversity naming (keeps separate barcodes)
     indexSimplified = [dfi.split('_')[0] for dfi in df_barcodes.index]
     df_barcodes = df_barcodes.loc[indexSimplified, :]
+    
+    # only works for substitutions, but that's what we get from usher tree
+    df_depth = pd.read_csv(depths, sep='\t', header=None, index_col=1)
+
+    low_cov_sites = df_depth[df_depth[3].astype(int) < 50].index.astype(str)
+    low_cov_muts = []
+    for mut in df_barcodes.columns:
+        if mut[1:-1] in low_cov_sites:
+            low_cov_muts.append(mut)
+    low_cov = df_barcodes.loc[:, low_cov_muts]
+    low_cov = low_cov[low_cov.sum(axis=1) > 0]
+
+    # drop rows/cols where low coverage muts are present
+    df_barcodes = df_barcodes.drop(low_cov.index, axis=0)\
+                             .drop(low_cov_muts, axis=1)
 
     muts = list(df_barcodes.columns)
     mapDict = buildLineageMap(meta)
     print('building mix/depth matrices')
     # assemble data from (possibly) mixed samples
-    mix, depths_, cov = build_mix_and_depth_arrays(variants, depths, muts,
+    mix, depths_, cov = build_mix_and_depth_arrays(variants, df_depth, muts,
                                                    covcut)
     print('demixing')
     df_barcodes, mix, depths_ = reindex_dfs(df_barcodes, mix, depths_)
