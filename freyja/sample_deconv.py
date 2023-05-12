@@ -33,12 +33,15 @@ def buildLineageMap(locDir):
     return mapDict
 
 
-def build_mix_and_depth_arrays(fn, df_depth, muts, covcut):
+def build_mix_and_depth_arrays(fn, depthFn, muts, covcut):
     input_is_vcf = fn.lower().endswith('vcf')
     if input_is_vcf:
-        df = read_snv_frequencies_vcf(fn)
+        df = read_snv_frequencies_vcf(fn, depthFn, muts)
     else:
-        df = read_snv_frequencies_ivar(fn)
+        df = read_snv_frequencies_ivar(fn, depthFn, muts)
+
+    # only works for substitutions, but that's what we get from usher tree
+    df_depth = pd.read_csv(depthFn, sep='\t', header=None, index_col=1)
 
     df['mutName'] = df['REF'] + df['POS'].astype(str) + df['ALT']
     df = df.drop_duplicates(subset='mutName')
@@ -52,12 +55,12 @@ def build_mix_and_depth_arrays(fn, df_depth, muts, covcut):
     return mix, depths, coverage
 
 
-def read_snv_frequencies_ivar(fn):
+def read_snv_frequencies_ivar(fn, depthFn, muts):
     df = pd.read_csv(fn, sep='\t')
     return df
 
 
-def read_snv_frequencies_vcf(fn):
+def read_snv_frequencies_vcf(fn, depthFn, muts):
     vcfnames = []
     with open(fn, "r") as file:
         for line in file:
