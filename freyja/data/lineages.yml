@@ -25746,6 +25746,7 @@
       - XBB.2.7
       - XBB.2.7.1
       - XBB.2.8
+      - XBB.2.9
       - XBB.3
       - XBB.3.1
       - XBB.3.2
@@ -27303,6 +27304,7 @@
       - XBB.2.7
       - XBB.2.7.1
       - XBB.2.8
+      - XBB.2.9
   parent: XBB
 - name: XBB.2.1
   alias: XBB.2.1
@@ -27422,6 +27424,11 @@
   alias: XBB.2.8
   children:
       - XBB.2.8
+  parent: XBB.2
+- name: XBB.2.9
+  alias: XBB.2.9
+  children:
+      - XBB.2.9
   parent: XBB.2
 - name: XBB.3
   alias: XBB.3
