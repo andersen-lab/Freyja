@@ -331,7 +331,7 @@ def makePlot_simple(agg_df, lineages, outputFn, config, lineage_info):
             df_abundances = pd.concat([
                 df_abundances,
                 pd.Series(
-                    agg_df.loc[sampLabel, queryType][0],
+                    agg_df.loc[sampLabel, queryType],
                     name=sampLabel)
             ], axis=1)
 
