@@ -250,11 +250,11 @@ def prepLineageDict(agg_d0, thresh=0.001, config=None, lineage_info=None):
                     if get_name(rInd, config) in created_keys:
                         linDictMod[
                             get_name(rInd, config)
-                            ] += linDictMod.pop(rInd)
+                        ] += linDictMod.pop(rInd)
                     else:
                         linDictMod[
                             get_name(rInd, config)
-                            ] = linDictMod.pop(rInd)
+                        ] = linDictMod.pop(rInd)
                         created_keys.append(get_name(rInd, config))
             processed_linDictMod.append(linDictMod)
         agg_d0.loc[:, 'linDict'] = processed_linDictMod
@@ -321,13 +321,21 @@ def makePlot_simple(agg_df, lineages, outputFn, config, lineage_info):
     for i, sampLabel in enumerate(agg_df.index):
         dat = agg_df.loc[sampLabel, queryType]
         if isinstance(dat, list):
-            df_abundances = pd.concat([df_abundances,
-                pd.Series(agg_df.loc[sampLabel, queryType][0],
-                          name=sampLabel)], axis=0)
+            df_abundances = pd.concat([
+                df_abundances,
+                pd.Series(
+                    agg_df.loc[sampLabel, queryType][0],
+                    name=sampLabel)
+            ], axis=1)
         else:
-            df_abundances = pd.concat([df_abundances,
-                pd.Series(agg_df.loc[sampLabel, queryType],
-                          name=sampLabel)], axis=0)
+            df_abundances = pd.concat([
+                df_abundances,
+                pd.Series(
+                    agg_df.loc[sampLabel, queryType][0],
+                    name=sampLabel)
+            ], axis=1)
+
+    df_abundances = df_abundances.T
 
     default_cmap_dict = {
         24: px.colors.qualitative.Dark24
@@ -383,15 +391,22 @@ def makePlot_time(agg_df, lineages, times_df, interval, outputFn,
     for i, sampLabel in enumerate(agg_df.index):
         dat = agg_df.loc[sampLabel, queryType]
         if isinstance(dat, list):
-            df_abundances = pd.concat([df_abundances,
-                pd.Series(agg_df.loc[sampLabel, queryType][0],
-                          name=times_df.loc[sampLabel,
-                                            'sample_collection_datetime'])], axis=0)
+            df_abundances = pd.concat([
+                df_abundances,
+                pd.Series(
+                    agg_df.loc[sampLabel, queryType][0],
+                    name=times_df.loc[sampLabel,
+                                      'sample_collection_datetime'])
+            ], axis=1)
         else:
-            df_abundances = pd.concat([df_abundances,
-                pd.Series(agg_df.loc[sampLabel, queryType],
-                          name=times_df.loc[sampLabel,
-                                            'sample_collection_datetime'])], axis=0)
+            df_abundances = pd.concat([
+                df_abundances,
+                pd.Series(
+                    agg_df.loc[sampLabel, queryType],
+                    name=times_df.loc[sampLabel,
+                                      'sample_collection_datetime'])
+            ], axis=1)
+    df_abundances = df_abundances.T
     df_abundances = df_abundances.fillna(0)
     if interval == 'W':
         # epiweek ends on sat, starts on sun
@@ -472,22 +487,27 @@ def get_abundance(agg_df, meta_df, thresh, scale_by_viral_load, config,
     agg_df = prepLineageDict(agg_df, config=config.get('Lineages'),
                              lineage_info=lineage_info)
     agg_df = prepSummaryDict(agg_df)
-
+    agg_df.to_csv('agg_df.csv')
     # collect lineage data
     df_ab_lin = pd.DataFrame()
     for i, sampLabel in enumerate(agg_df.index):
         dat = agg_df.loc[sampLabel, 'linDict']
         if isinstance(dat, list):
-            df_ab_lin = pd.concat.append([df_ab_lin,
+            df_ab_lin = pd.concat([
+                df_ab_lin,
                 pd.Series(agg_df.loc[sampLabel, 'linDict'][0],
                           name=meta_df.loc[sampLabel,
-                                           'sample_collection_datetime'])], axis=0)
+                                           'sample_collection_datetime'])
+            ], axis=1)
         else:
-            df_ab_lin = pd.concat.append([df_ab_lin,
+            df_ab_lin = pd.concat([
+                df_ab_lin,
                 pd.Series(agg_df.loc[sampLabel, 'linDict'],
                           name=meta_df.loc[sampLabel,
-                                           'sample_collection_datetime'])], axis=0)
-
+                                           'sample_collection_datetime'])
+            ], axis=1)
+    df_ab_lin = df_ab_lin.T
+    df_ab_lin.to_csv('df_ab_lin_raw.csv')
     df_ab_lin = df_ab_lin.fillna(0)
     if 'Other' not in df_ab_lin.columns:
         df_ab_lin['Other'] = 0.
@@ -507,16 +527,20 @@ def get_abundance(agg_df, meta_df, thresh, scale_by_viral_load, config,
     for i, sampLabel in enumerate(agg_df.index):
         dat = agg_df.loc[sampLabel, 'summarized']
         if isinstance(dat, list):
-            df_ab_sum = pd.concat([df_ab_sum,
+            df_ab_sum = pd.concat([
+                df_ab_sum,
                 pd.Series(agg_df.loc[sampLabel, 'summarized'][0],
                           name=meta_df.loc[sampLabel,
-                                           'sample_collection_datetime'])], axis=0)
+                                           'sample_collection_datetime'])
+            ], axis=1)
         else:
-            df_ab_sum = pd.concat([df_ab_sum,
+            df_ab_sum = pd.concat([
+                df_ab_sum,
                 pd.Series(agg_df.loc[sampLabel, 'summarized'],
                           name=meta_df.loc[sampLabel,
-                                           'sample_collection_datetime'])], axis=0)
-
+                                           'sample_collection_datetime'])
+            ], axis=1)
+    df_ab_sum = df_ab_sum.T
     df_ab_sum = df_ab_sum.fillna(0)
     if 'Other' not in df_ab_sum.columns:
         df_ab_sum['Other'] = 0.
@@ -793,8 +817,8 @@ def make_dashboard(agg_df, meta_df, thresh, title, introText,
                               bodyColor)
     webpage = webpage.replace("{table}",
                               pd.read_csv(
-                                outputFn.replace('.html',
-                                                 '_rel_growth_rates.csv'))
+                                  outputFn.replace('.html',
+                                                   '_rel_growth_rates.csv'))
                                 .to_html(index=False)
                                 .replace('dataframe',
                                          'table table-bordered table-hover' +
