@@ -321,13 +321,13 @@ def makePlot_simple(agg_df, lineages, outputFn, config, lineage_info):
     for i, sampLabel in enumerate(agg_df.index):
         dat = agg_df.loc[sampLabel, queryType]
         if isinstance(dat, list):
-            df_abundances = df_abundances.append(
+            df_abundances = pd.concat([df_abundances,
                 pd.Series(agg_df.loc[sampLabel, queryType][0],
-                          name=sampLabel))
+                          name=sampLabel)], axis=0)
         else:
-            df_abundances = df_abundances.append(
+            df_abundances = pd.concat([df_abundances,
                 pd.Series(agg_df.loc[sampLabel, queryType],
-                          name=sampLabel))
+                          name=sampLabel)], axis=0)
 
     default_cmap_dict = {
         24: px.colors.qualitative.Dark24
@@ -383,15 +383,15 @@ def makePlot_time(agg_df, lineages, times_df, interval, outputFn,
     for i, sampLabel in enumerate(agg_df.index):
         dat = agg_df.loc[sampLabel, queryType]
         if isinstance(dat, list):
-            df_abundances = df_abundances.append(
+            df_abundances = pd.concat([df_abundances,
                 pd.Series(agg_df.loc[sampLabel, queryType][0],
                           name=times_df.loc[sampLabel,
-                                            'sample_collection_datetime']))
+                                            'sample_collection_datetime'])], axis=0)
         else:
-            df_abundances = df_abundances.append(
+            df_abundances = pd.concat([df_abundances,
                 pd.Series(agg_df.loc[sampLabel, queryType],
                           name=times_df.loc[sampLabel,
-                                            'sample_collection_datetime']))
+                                            'sample_collection_datetime'])], axis=0)
     df_abundances = df_abundances.fillna(0)
     if interval == 'W':
         # epiweek ends on sat, starts on sun
@@ -478,15 +478,15 @@ def get_abundance(agg_df, meta_df, thresh, scale_by_viral_load, config,
     for i, sampLabel in enumerate(agg_df.index):
         dat = agg_df.loc[sampLabel, 'linDict']
         if isinstance(dat, list):
-            df_ab_lin = df_ab_lin.append(
+            df_ab_lin = pd.concat.append([df_ab_lin,
                 pd.Series(agg_df.loc[sampLabel, 'linDict'][0],
                           name=meta_df.loc[sampLabel,
-                                           'sample_collection_datetime']))
+                                           'sample_collection_datetime'])], axis=0)
         else:
-            df_ab_lin = df_ab_lin.append(
+            df_ab_lin = pd.concat.append([df_ab_lin,
                 pd.Series(agg_df.loc[sampLabel, 'linDict'],
                           name=meta_df.loc[sampLabel,
-                                           'sample_collection_datetime']))
+                                           'sample_collection_datetime'])], axis=0)
 
     df_ab_lin = df_ab_lin.fillna(0)
     if 'Other' not in df_ab_lin.columns:
@@ -507,15 +507,15 @@ def get_abundance(agg_df, meta_df, thresh, scale_by_viral_load, config,
     for i, sampLabel in enumerate(agg_df.index):
         dat = agg_df.loc[sampLabel, 'summarized']
         if isinstance(dat, list):
-            df_ab_sum = df_ab_sum.append(
+            df_ab_sum = pd.concat([df_ab_sum,
                 pd.Series(agg_df.loc[sampLabel, 'summarized'][0],
                           name=meta_df.loc[sampLabel,
-                                           'sample_collection_datetime']))
+                                           'sample_collection_datetime'])], axis=0)
         else:
-            df_ab_sum = df_ab_sum.append(
+            df_ab_sum = pd.concat([df_ab_sum,
                 pd.Series(agg_df.loc[sampLabel, 'summarized'],
                           name=meta_df.loc[sampLabel,
-                                           'sample_collection_datetime']))
+                                           'sample_collection_datetime'])], axis=0)
 
     df_ab_sum = df_ab_sum.fillna(0)
     if 'Other' not in df_ab_sum.columns:
