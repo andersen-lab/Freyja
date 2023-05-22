@@ -10,26 +10,40 @@ from joblib import Parallel, delayed
 from tqdm import tqdm
 import matplotlib
 
-
 def buildLineageMap(locDir):
     # Parsing curated lineage data from outbreak.info
-    if locDir == '-1':
-        locDir = os.path.abspath(os.path.join(os.path.realpath(__file__),
-                                 os.pardir))
-        f0 = open(os.path.join(locDir, 'data/curated_lineages.json'))
-        dat = json.load(f0)
-        f0.close()
-    else:
-        f0 = open(locDir)
-        dat = json.load(f0)
-        f0.close()
-
     mapDict = {}
-    for ind in range(len(dat)):
-        if 'who_name' in dat[ind].keys():
-            for d0 in dat[ind]['pango_descendants']:
-                if dat[ind]['who_name'] is not None:
-                    mapDict[d0] = dat[ind]['who_name']
+    if os.path.isdir(locDir):
+        global_dat = defaultdict(set)
+        for filename in glob.glob(os.path.join(locDir, "*.json")):
+            with open(filename) as f0:
+                dat = json.load(f0)
+                for record in dat:
+                    if 'who_name' in record.keys():
+                        if record['who_name'] is not None:
+                            global_dat[record['who_name']].update(record.get('pango_descendants', []))
+
+        sorted_dat = sorted(global_dat.items(), key=lambda x: len(x[1]), reverse=False)
+
+        for clade, descendants in sorted_dat:
+            for descendant in descendants:
+                if descendant not in mapDict:
+                    mapDict[descendant] = clade 
+    else:
+        if locDir == '-1':
+            locDir = os.path.abspath(os.path.join(os.path.realpath(__file__), os.pardir))
+            with open(os.path.join(locDir, 'data/curated_lineages.json')) as f0:
+                dat = json.load(f0)
+        else:
+            with open(locDir) as f0:
+                dat = json.load(f0)
+        # Sort records based on the length of 'pango_descendants'
+        dat = sorted(dat, key=lambda x: len(x.get('pango_descendants', [])), reverse=True)
+        for ind in range(len(dat)):
+            if 'who_name' in dat[ind].keys():
+                for d0 in dat[ind]['pango_descendants']:
+                    if dat[ind]['who_name'] is not None:
+                        mapDict[d0] = dat[ind]['who_name']
     return mapDict
 
 
