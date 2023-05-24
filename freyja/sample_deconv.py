@@ -23,8 +23,9 @@ def buildLineageMap(locDir):
                 dat = json.load(f0)
                 for record in dat:
                     if 'who_name' in record:
-                        global_dat[record['who_name']].update(
-                            record.get('pango_descendants', []))
+                        if record['who_name'] is not None:
+                            global_dat[record['who_name']].update(
+                                record.get('pango_descendants', []))
         # Sort global_dat by number of descendants (largest first)
         sorted_dat = sorted(global_dat.items(),
                             key=lambda x: len(x[1]),
