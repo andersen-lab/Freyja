@@ -77,10 +77,10 @@ def read_snv_frequencies_vcf(fn, depthFn, muts):
         if vcf_info[j].str.split('=')[0] is not None:
             if vcf_info[j].str.split('=')[0][0] == 'AF':
                 df["ALT_FREQ"] = vcf_info[j].str.split('=')\
-                                              .str[1]\
-                                              .values\
-                                              .astype(
-                                               float)
+                    .str[1]\
+                    .values\
+                    .astype(
+                    float)
     return df
 
 
@@ -137,7 +137,13 @@ def solve_demixing_problem(df_barcodes, mix, depths, eps):
     cost = cp.norm(A @ x - b, 1)
     constraints = [sum(x) == 1, x >= 0]
     prob = cp.Problem(cp.Minimize(cost), constraints)
-    prob.solve(verbose=False)
+    try:
+        prob.solve(verbose=False)
+    except cp.error.SolverError:
+        print('demix: Solver error encountered, most '
+              'likely due to insufficient sequencing depth. '
+              'Try running --grouplineages option')
+        sys.exit(1)
     sol = x.value
     rnorm = cp.norm(A @ x - b, 1).value
     # extract lineages with non-negligible abundance
@@ -164,8 +170,8 @@ def bootstrap_parallel(jj, samplesDefining, fracDepths_adj, mix_grp,
             mut0 = mix_grp[mp][0]
             if dps[mp] > 0:
                 mix_boot.loc[mut0] = np.random.binomial(
-                                                dps[mp],
-                                                mix.loc[mut0])/dps[mp]
+                    dps[mp],
+                    mix.loc[mut0])/dps[mp]
             else:
                 mix_boot.loc[mut0] = 0.
         elif len(mix_grp[mp]) > 1:  # if multiple muts at a single site
@@ -180,7 +186,7 @@ def bootstrap_parallel(jj, samplesDefining, fracDepths_adj, mix_grp,
             for j, mut0 in enumerate(mix_grp[mp]):
                 if dps[mp] > 0:
                     mix_boot.loc[mut0] = \
-                                 float(altCounts[j])/dps[mp]
+                        float(altCounts[j])/dps[mp]
                 else:
                     mix_boot.loc[mut0] = 0.
     dps_ = pd.Series({kI:
