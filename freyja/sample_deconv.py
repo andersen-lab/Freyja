@@ -21,6 +21,8 @@ def buildLineageMap(locDir):
         for filename in glob.glob(os.path.join(locDir, "*.json")):
             with open(filename, "r") as f0:
                 dat = json.load(f0)
+                dat = sorted(dat, key=lambda x: len(
+                    x.get('pango_descendants', [])), reverse=True)
                 for record in dat:
                     if 'who_name' in record:
                         if record['who_name'] is not None:
