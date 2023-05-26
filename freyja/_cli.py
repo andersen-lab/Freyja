@@ -290,8 +290,11 @@ def variants(bamfile, ref, variants, depths, refname, minq):
 @click.option('--confirmedonly', is_flag=True, default=False)
 @click.option('--wgisaid', is_flag=True, default=False,
               help='larger library with non-public lineages')
+@click.option('--grouplineages', is_flag=True, default=False,
+              help=('group lineages based on available coverage information'
+                    '(useful for samples with low coverage)'))
 def boot(variants, depths, output_base, eps, barcodes, meta,
-         nb, nt, boxplot, confirmedonly, wgisaid):
+         nb, nt, boxplot, confirmedonly, wgisaid, grouplineages):
     locDir = os.path.abspath(os.path.join(os.path.realpath(__file__),
                              os.pardir))
     # option for custom barcodes
@@ -314,6 +317,22 @@ def boot(variants, depths, output_base, eps, barcodes, meta,
     indexSimplified = [dfi.split('_')[0] for dfi in df_barcodes.index]
     df_barcodes = df_barcodes.loc[indexSimplified, :]
 
+    if grouplineages:
+        df_depth = pd.read_csv(depths, sep='\t', header=None, index_col=1)
+
+        low_cov_sites = df_depth[df_depth[3].astype(int) < covcut]\
+            .index.astype(str)
+        low_cov_muts = []
+        for mut in df_barcodes.columns:
+            if mut[1:-1] in low_cov_sites:
+                low_cov_muts.append(mut)
+        low_cov = df_barcodes.loc[:, low_cov_muts]
+        low_cov = low_cov[low_cov.sum(axis=1) > 0]
+
+        # drop lineages where low coverage muts are present
+        df_barcodes = df_barcodes.drop(low_cov.index, axis=0)\
+                                .drop(low_cov_muts, axis=1)
+        
     muts = list(df_barcodes.columns)
     mapDict = buildLineageMap(meta)
     print('building mix/depth matrices')
