@@ -25736,6 +25736,7 @@
       - XBB.1.5.68
       - XBB.1.5.69
       - XBB.1.5.70
+      - XBB.1.5.71
       - XBB.1.6
       - XBB.1.7
       - XBB.1.8
@@ -25760,6 +25761,7 @@
       - XBB.1.16.4
       - XBB.1.16.5
       - XBB.1.16.6
+      - XBB.1.16.7
       - XBB.1.17
       - XBB.1.17.1
       - XBB.1.17.2
@@ -26000,6 +26002,7 @@
       - XBB.1.5.68
       - XBB.1.5.69
       - XBB.1.5.70
+      - XBB.1.5.71
       - XBB.1.6
       - XBB.1.7
       - XBB.1.8
@@ -26024,6 +26027,7 @@
       - XBB.1.16.4
       - XBB.1.16.5
       - XBB.1.16.6
+      - XBB.1.16.7
       - XBB.1.17
       - XBB.1.17.1
       - XBB.1.17.2
@@ -26190,6 +26194,7 @@
       - XBB.1.5.68
       - XBB.1.5.69
       - XBB.1.5.70
+      - XBB.1.5.71
   parent: XBB.1
 - name: XBB.1.5.1
   alias: XBB.1.5.1
@@ -26715,6 +26720,11 @@
   children:
       - XBB.1.5.70
   parent: XBB.1.5
+- name: XBB.1.5.71
+  alias: XBB.1.5.71
+  children:
+      - XBB.1.5.71
+  parent: XBB.1.5
 - name: XBB.1.6
   alias: XBB.1.6
   children:
@@ -27118,6 +27128,7 @@
       - XBB.1.16.4
       - XBB.1.16.5
       - XBB.1.16.6
+      - XBB.1.16.7
   parent: XBB.1
 - name: XBB.1.16.1
   alias: XBB.1.16.1
@@ -27160,6 +27171,11 @@
   alias: XBB.1.16.6
   children:
       - XBB.1.16.6
+  parent: XBB.1.16
+- name: XBB.1.16.7
+  alias: XBB.1.16.7
+  children:
+      - XBB.1.16.7
   parent: XBB.1.16
 - name: XBB.1.17
   alias: XBB.1.17
