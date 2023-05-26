@@ -29,6 +29,8 @@ def buildLineageMap(locDir):
                             global_dat[record['who_name']].update(
                                 record.get('pango_descendants', []))
         # Sort global_dat by number of descendants (largest first)
+        # rather than membership checking, more specific
+        # designations will overwrite broader, ancestral ones
         sorted_dat = sorted(global_dat.items(),
                             key=lambda x: len(x[1]),
                             reverse=True)
