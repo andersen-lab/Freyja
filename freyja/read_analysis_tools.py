@@ -665,6 +665,7 @@ def filter_covariants_output(cluster):
 
 
 def plot_covariants(covar_file, output, min_mutations, nt_muts):
+    # TODO - add option to plot only top X mutations
 
     # Define columns (mutations in samples)
     covars = pd.read_csv(covar_file, sep='\t', header=0)
@@ -680,33 +681,28 @@ def plot_covariants(covar_file, output, min_mutations, nt_muts):
     covars = covars.sort_values('Count', ascending=False)
 
     # Get all mutations found in the sample
-    all_nt_muts = []
+    all_muts = []
     for sublist in covars['Covariants'].to_list():
         for mut in sublist.strip('][').split(', '):
-            if mut[1:-1] not in all_nt_muts:
-                all_nt_muts.append(mut[1:-1])
+            if mut[1:-1] not in all_muts:
+                all_muts.append(mut[1:-1])
 
-    patterns = covars['Covariants'].to_list()
-    patterns = [pattern.strip('][').split(', ') for pattern in patterns]
+    patterns = [pattern.strip('][').split(', ') for pattern in covars['Covariants'].to_list()]
+
     counts = dict(zip([str(pattern)
                   for pattern in patterns], covars['Count'].to_list()))
+    
     coverage_start = covars['Coverage_start']
     coverage_end = covars['Coverage_end']
-
     coverage_ranges = dict(zip([str(pattern)
                                 for pattern in patterns], zip(coverage_start, coverage_end)))
 
-    colnames = []
-    sites = {}
-    for mut in all_nt_muts:  # remove duplicates
-        nt_site = nt_position(mut)
-        if nt_muts:
-            aa_site = mut
-        else:
-            aa_site = mut.split('(')[1][:-1]
-        if aa_site not in colnames:
-            colnames.append(aa_site)
-            sites[aa_site] = nt_site
+    if nt_muts:
+        colnames = all_muts
+        sites = {mut: nt_position(mut) for mut in all_muts}
+    else:
+        colnames = [mut.split('(')[1][:-1] for mut in all_muts]
+        sites = {mut.split('(')[1][:-1]: nt_position(mut) for mut in all_muts}
 
     # Sort colnames
     colnames = sorted(colnames, key=lambda x: x.split(':')[1][1:-1])
