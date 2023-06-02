@@ -539,7 +539,7 @@ def covariants(input_bam, min_site, max_site, output,
                             f'{aa_locus+del_length-1})'
                         )
                     else:
-                        aa_mut = f'{deletion}({gene}:DEL{aa_locus})'
+                        aa_mut = f'{deletion_string}({gene}:DEL{aa_locus})'
 
                     if deletion_string not in nt_to_aa:
                         nt_to_aa[deletion_string] = aa_mut
@@ -644,32 +644,58 @@ def covariants(input_bam, min_site, max_site, output,
     return df
 
 
+def filter_covariants_output(cluster):
+    cluster_final = []
+    for variant in cluster:
+        if ":" in variant:
+            if "*" in variant or "INS" in variant:
+                continue  # Ignore stop codons and insertions
+            elif "DEL" in variant:
+                # if len(variant.split(")(")[0].split(",")) % 3 != 0:
+                continue  # Ignore deletions
+                # else:
+                #     if variant not in cluster_final:
+                #         cluster_final.append(variant.split(")(")[1][:-1])
+            else:
+                if variant not in cluster_final:
+                    cluster_final.append(variant)  # SNV
+    if len(cluster_final) == 0:
+        return pd.NA
+    return cluster_final
+
+
 def plot_covariants(covar_file, output, min_mutations, nt_muts):
 
     # Define columns (mutations in samples)
     covars = pd.read_csv(covar_file, sep='\t', header=0)
+    covars['Covariants'] = covars['Covariants'] \
+        .str.split(' ') \
+        .apply(filter_covariants_output)
+    covars = covars.dropna()
 
-    # Get covariants and unique mutations
+    # Merge rows with identical covariants and add their counts
+    covars = covars.groupby(covars['Covariants'].astype(
+        str)).agg({'Count': 'sum', 'Coverage_start': 'first', 'Coverage_end': 'first'}).reset_index()
+
+    covars = covars.sort_values('Count', ascending=False)
+
+    # Get all mutations found in the sample
     all_nt_muts = []
-    patterns = []
-    for c in covars.iloc[:, 0]:
-        sample = c.split(' ')
-        for mut in sample:
-            if mut not in all_nt_muts:
-                all_nt_muts.append(mut)
-        patterns.append(sample)
-    if ':' not in all_nt_muts[0]:
-        nt_muts = True
+    for sublist in covars['Covariants'].to_list():
+        for mut in sublist.strip('][').split(', '):
+            if mut[1:-1] not in all_nt_muts:
+                all_nt_muts.append(mut[1:-1])
 
-    coverage_start = [int(i) for i in covars.iloc[:, 2]]
-    coverage_end = [int(i) for i in covars.iloc[:, 3]]
-    coverage_ranges = {str(patterns[i]): (
-        coverage_start[i], coverage_end[i]) for i in range(len(patterns))}
+    patterns = covars['Covariants'].to_list()
+    patterns = [pattern.strip('][').split(', ') for pattern in patterns]
+    counts = dict(zip([str(pattern)
+                  for pattern in patterns], covars['Count'].to_list()))
+    coverage_start = covars['Coverage_start']
+    coverage_end = covars['Coverage_end']
 
-    counts = {str(patterns[i]): covars.iloc[:, 1][i]
-              for i in range(len(patterns))}
+    coverage_ranges = dict(zip([str(pattern)
+                                for pattern in patterns], zip(coverage_start, coverage_end)))
 
-    all_nt_muts = sorted(all_nt_muts, key=nt_position)
     colnames = []
     sites = {}
     for mut in all_nt_muts:  # remove duplicates
@@ -677,13 +703,13 @@ def plot_covariants(covar_file, output, min_mutations, nt_muts):
         if nt_muts:
             aa_site = mut
         else:
-            if ',' in mut:
-                aa_site = mut.split(')(')[1][:-1]
-            else:
-                aa_site = mut.split('(')[1][:-1]
+            aa_site = mut.split('(')[1][:-1]
         if aa_site not in colnames:
             colnames.append(aa_site)
             sites[aa_site] = nt_site
+
+    # Sort colnames
+    colnames = sorted(colnames, key=lambda x: x.split(':')[1][1:-1])
     data = {}
     for pattern in enumerate(patterns):
         if len(pattern[1]) >= min_mutations:
