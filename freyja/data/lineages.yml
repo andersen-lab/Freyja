@@ -25712,6 +25712,7 @@
       - GF.1
       - GG.1
       - GH.1
+      - GJ.1
       - XBB
       - XBB.1
       - XBB.1.1
@@ -27740,6 +27741,7 @@
   children:
       - GE.1
       - GH.1
+      - GJ.1
       - XBB.2
       - XBB.2.1
       - XBB.2.2
@@ -27781,6 +27783,7 @@
   alias: XBB.2.3
   children:
       - GE.1
+      - GJ.1
       - XBB.2.3
       - XBB.2.3.1
       - XBB.2.3.2
@@ -27808,8 +27811,14 @@
 - name: XBB.2.3.3
   alias: XBB.2.3.3
   children:
+      - GJ.1
       - XBB.2.3.3
   parent: XBB.2.3
+- name: GJ.1
+  alias: XBB.2.3.3.1
+  children:
+      - GJ.1
+  parent: XBB.2.3.3
 - name: XBB.2.3.4
   alias: XBB.2.3.4
   children:
