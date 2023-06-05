@@ -830,6 +830,25 @@ def make_dashboard(agg_df, meta_df, thresh, title, introText,
     os.remove('div-plot.html')
     print("Dashboard html file saved to " + outputFn)
 
+def get_pango_alias(lineage, lineage_data):
+
+    # Case 1: lineage has a pangolin alias
+    if lineage_data[lineage]['alias'].split('.')[0] in ['B', 'A']:
+        return lineage_data[lineage]['alias']
+    else:
+        # Case 2a: child of recombinant lineage
+        if 'recombinant_parents' not in lineage_data[lineage].keys():
+            return get_pango_alias(lineage_data[lineage]['parent'],
+                                   lineage_data)
+        # Case 2b: recombinant lineage
+        else:
+            recombinant_parents = lineage_data[lineage]['recombinant_parents'].split(',')
+            return os.path.commonpath(
+                [
+                    get_pango_alias(parent, lineage_data).replace('.', '/')
+                    for parent in recombinant_parents
+                ]
+            ).replace('/', '.')
 
 if __name__ == '__main__':
     agg_results = 'freyja/data/test_sweep.tsv'
