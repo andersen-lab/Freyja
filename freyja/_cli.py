@@ -12,7 +12,8 @@ from freyja.updates import download_tree, convert_tree,\
     download_barcodes, download_barcodes_wgisaid,\
     convert_tree_custom
 from freyja.utils import agg, makePlot_simple, makePlot_time,\
-    make_dashboard, checkConfig, get_abundance, calc_rel_growth_rates
+    make_dashboard, checkConfig, get_abundance, calc_rel_growth_rates,\
+    get_pango_alias
 import os
 import glob
 import subprocess
@@ -54,13 +55,12 @@ def print_barcode_version(ctx, param, value):
               help='larger library with non-public lineages')
 @click.option('--version', is_flag=True, callback=print_barcode_version,
               expose_value=False, is_eager=True)
-@click.option('--grouplineages', is_flag=True, default=False,
-              help=('group lineages based on available coverage information'
-                    '(useful for samples with low coverage)'))
-@click.option('--groupthresh', default=10, help='minimum sequencing depth for\
-                                            lineage grouping')
+@click.option('--depthcutoff', default=0, help='exclude sites with \
+                                                   coverage depth below this value \
+                                                   and group identical \
+                                                   barcodes')
 def demix(variants, depths, output, eps, barcodes, meta,
-          covcut, confirmedonly, wgisaid, grouplineages, groupthresh):
+          covcut, confirmedonly, wgisaid, depthcutoff):
     locDir = os.path.abspath(os.path.join(os.path.realpath(__file__),
                              os.pardir))
     # option for custom barcodes
@@ -83,21 +83,49 @@ def demix(variants, depths, output, eps, barcodes, meta,
     indexSimplified = [dfi.split('_')[0] for dfi in df_barcodes.index]
     df_barcodes = df_barcodes.loc[indexSimplified, :]
 
-    if grouplineages:
-        df_depth = pd.read_csv(depths, sep='\t', header=None, index_col=1)
+    df_depth = pd.read_csv(depths, sep='\t', header=None, index_col=1)
 
-        low_cov_sites = df_depth[df_depth[3].astype(int) < groupthresh]\
-            .index.astype(str)
-        low_cov_muts = []
-        for mut in df_barcodes.columns:
-            if mut[1:-1] in low_cov_sites:
-                low_cov_muts.append(mut)
-        low_cov = df_barcodes.loc[:, low_cov_muts]
-        low_cov = low_cov[low_cov.sum(axis=1) > 0]
+    low_cov_sites = df_depth[df_depth[3].astype(int) < depthcutoff]\
+        .index.astype(str)
+    low_cov_muts = [mut for mut in df_barcodes.columns
+                    if mut[1:-1] in low_cov_sites]
 
-        # drop lineages where low coverage muts are present
-        df_barcodes = df_barcodes.drop(low_cov.index, axis=0)\
-                                 .drop(low_cov_muts, axis=1)
+    # drop low coverage sites
+    df_barcodes = df_barcodes.drop(low_cov_muts, axis=1)
+
+    # find lineages with identical barcodes
+    duplicates = df_barcodes.groupby(df_barcodes.columns.tolist()).apply(
+        lambda x: tuple(x.index) if len(x.index) > 1 else None
+    ).dropna().tolist()
+
+    # merge duplicate lineages by most recent common ancestor
+    if len(duplicates) > 0:
+        print('merging duplicate lineages')
+        with open(os.path.join(locDir, 'data', 'lineages.yml'), 'r') as f:
+            try:
+                lineage_yml = yaml.safe_load(f)
+            except yaml.YAMLError as exc:
+                raise ValueError('Error in lineages.yml file: ' + str(exc))
+        lineage_data = {lineage['name']: lineage for lineage in lineage_yml}
+
+        for tup in duplicates:
+            pango_aliases = [get_pango_alias(lin, lineage_data)
+                             for lin in tup]
+            # find longest common prefix in pangolin names
+            mrca = os.path.commonpath(
+                [lin.replace('.', '/') for lin in pango_aliases]
+            ).replace('/', '.')
+            print('merging lineages ' + str(tup) + ' into ' + mrca)
+            for lineage in lineage_data:
+                if lineage_data[lineage]['alias'] == mrca:
+                    mrca = lineage
+
+            # add flag to indicate that this is a merged lineage
+            mrca = mrca + '*'
+            print('merging lineages ' + str(tup) + ' into ' + mrca)
+            df_barcodes = df_barcodes.rename({lin: mrca for lin in tup})
+
+        df_barcodes = df_barcodes.drop_duplicates()
 
     muts = list(df_barcodes.columns)
     mapDict = buildLineageMap(meta)
