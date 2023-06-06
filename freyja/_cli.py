@@ -12,8 +12,7 @@ from freyja.updates import download_tree, convert_tree,\
     download_barcodes, download_barcodes_wgisaid,\
     convert_tree_custom
 from freyja.utils import agg, makePlot_simple, makePlot_time,\
-    make_dashboard, checkConfig, get_abundance, calc_rel_growth_rates,\
-    get_pango_alias
+    make_dashboard, checkConfig, get_abundance, calc_rel_growth_rates
 import os
 import glob
 import subprocess
@@ -85,18 +84,17 @@ def demix(variants, depths, output, eps, barcodes, meta,
 
     df_depth = pd.read_csv(depths, sep='\t', header=None, index_col=1)
 
+    # drop low coverage sites
     low_cov_sites = df_depth[df_depth[3].astype(int) < depthcutoff]\
         .index.astype(str)
     low_cov_muts = [mut for mut in df_barcodes.columns
                     if mut[1:-1] in low_cov_sites]
-
-    # drop low coverage sites
     df_barcodes = df_barcodes.drop(low_cov_muts, axis=1)
 
-    # find lineages with identical barcodes
+    # find lineages with identical barcodes, now that low coverage sites are dropped
     duplicates = df_barcodes.groupby(df_barcodes.columns.tolist()).apply(
         lambda x: tuple(x.index) if len(x.index) > 1 else None
-    ).dropna().tolist()
+    ).dropna()#.tolist()
 
     # merge duplicate lineages by most recent common ancestor
     if len(duplicates) > 0:
@@ -106,26 +104,28 @@ def demix(variants, depths, output, eps, barcodes, meta,
                 lineage_yml = yaml.safe_load(f)
             except yaml.YAMLError as exc:
                 raise ValueError('Error in lineages.yml file: ' + str(exc))
+            
         lineage_data = {lineage['name']: lineage for lineage in lineage_yml}
 
         for tup in duplicates:
-            pango_aliases = [get_pango_alias(lin, lineage_data)
+            pango_aliases = [lineage_data[lin]['alias']
                              for lin in tup]
-            # find longest common prefix in pangolin names
+            # find longest common prefix in pango aliases
             mrca = os.path.commonpath(
                 [lin.replace('.', '/') for lin in pango_aliases]
             ).replace('/', '.')
-            print('merging lineages ' + str(tup) + ' into ' + mrca)
+
             for lineage in lineage_data:
                 if lineage_data[lineage]['alias'] == mrca:
                     mrca = lineage
 
             # add flag to indicate that this is a merged lineage
-            mrca = mrca + '*'
+            mrca += '~'
             print('merging lineages ' + str(tup) + ' into ' + mrca)
             df_barcodes = df_barcodes.rename({lin: mrca for lin in tup})
-
         df_barcodes = df_barcodes.drop_duplicates()
+
+        #df_barcodes = df_barcodes[~df_barcodes.index.duplicated(keep='first')]
 
     muts = list(df_barcodes.columns)
     mapDict = buildLineageMap(meta)
