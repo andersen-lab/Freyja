@@ -677,6 +677,7 @@ def plot_covariants(covar_file, output, num_clusters, min_mutations, nt_muts):
 
     covars = pd.read_csv(covar_file, sep='\t', header=0)
     covars['Covariants'] = covars['Covariants']\
+        .str.replace(', ', ',')\
         .str.split(' ')\
         .apply(filter_covariants_output, args=(min_mutations, nt_muts))\
 
