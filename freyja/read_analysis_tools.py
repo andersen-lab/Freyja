@@ -644,41 +644,53 @@ def covariants(input_bam, min_site, max_site, output,
     return df
 
 
-def filter_covariants_output(cluster):
+def filter_covariants_output(cluster, min_mutation_count, nt_mut):
     cluster_final = []
-    for variant in cluster:
-        if ":" in variant:
-            if "*" in variant or "INS" in variant:
-                continue  # Ignore stop codons and insertions
-            elif "DEL" in variant:
-                # if len(variant.split(")(")[0].split(",")) % 3 != 0:
-                continue  # Ignore deletions
-                # else:
-                #     if variant not in cluster_final:
-                #         cluster_final.append(variant.split(")(")[1][:-1])
+
+    if not nt_mut:
+        for variant in cluster:
+            if '*' in variant or 'INS' in variant:
+                continue  # Ignore stop codons and insertions for now
+            elif 'DEL' in variant \
+                    and int(variant.split(")(")[0].split(",")[1]) % 3 != 0:
+                continue  # Ignore frameshift mutations
             else:
-                if variant not in cluster_final:
-                    cluster_final.append(variant)  # SNV
-    if len(cluster_final) == 0:
+                cluster_final.append(variant)
+    else:  # nt covariants
+        for variant in cluster:
+            if ',' in variant:
+                if any([nt in variant for nt in ['A,C,G,T']]):  # Insertion
+                    continue
+                if int(variant.split(',')[1].split(')')[0]) % 3 != 0:
+                    continue
+            cluster_final.append(variant)
+
+    # Remove duplicates while preserving order
+    cluster_final = list(dict.fromkeys(cluster_final))
+
+    if len(cluster_final) < min_mutation_count:
         return pd.NA
     return cluster_final
 
 
-def plot_covariants(covar_file, output, min_mutations, nt_muts):
-    # TODO - add option to plot only top X mutations
+def plot_covariants(covar_file, output, num_clusters, min_mutations, nt_muts):
 
-    # Define columns (mutations in samples)
     covars = pd.read_csv(covar_file, sep='\t', header=0)
-    covars['Covariants'] = covars['Covariants'] \
-        .str.split(' ') \
-        .apply(filter_covariants_output)
-    covars = covars.dropna()
+    covars['Covariants'] = covars['Covariants']\
+        .str.split(' ')\
+        .apply(filter_covariants_output, args=(min_mutations, nt_muts))\
+
+    covars[[covars['Covariants'] == 'nan']] = pd.NA
+    covars = covars.dropna()\
+                   .head(num_clusters)
 
     # Merge rows with identical covariants and add their counts
-    covars = covars.groupby(covars['Covariants'].astype(
-        str)).agg({'Count': 'sum', 'Coverage_start': 'first', 'Coverage_end': 'first'}).reset_index()
-
-    covars = covars.sort_values('Count', ascending=False)
+    covars = covars.groupby(covars['Covariants'].astype(str))\
+        .agg(
+        {'Count': 'sum', 'Coverage_start': 'first', 'Coverage_end': 'first'}
+    )\
+        .reset_index()\
+        .sort_values('Count', ascending=False)
 
     # Get all mutations found in the sample
     all_muts = []
@@ -687,25 +699,29 @@ def plot_covariants(covar_file, output, min_mutations, nt_muts):
             if mut[1:-1] not in all_muts:
                 all_muts.append(mut[1:-1])
 
-    patterns = [pattern.strip('][').split(', ') for pattern in covars['Covariants'].to_list()]
+    patterns = [pattern.strip('][').split(', ')
+                for pattern in covars['Covariants'].to_list()]
 
     counts = dict(zip([str(pattern)
                   for pattern in patterns], covars['Count'].to_list()))
-    
+
     coverage_start = covars['Coverage_start']
     coverage_end = covars['Coverage_end']
-    coverage_ranges = dict(zip([str(pattern)
-                                for pattern in patterns], zip(coverage_start, coverage_end)))
+    coverage_ranges = dict(zip([str(pattern) for pattern in patterns],
+                               zip(coverage_start, coverage_end)))
 
     if nt_muts:
         colnames = all_muts
         sites = {mut: nt_position(mut) for mut in all_muts}
     else:
-        colnames = [mut.split('(')[1][:-1] for mut in all_muts]
-        sites = {mut.split('(')[1][:-1]: nt_position(mut) for mut in all_muts}
+        colnames = [mut.split(')(')[1][:-1] if 'DEL' in mut
+                    else mut.split('(')[1][:-1] for mut in all_muts]
+        sites = {mut.split(')(')[1][:-1] if 'DEL' in mut
+                 else mut.split('(')[1][:-1]: nt_position(mut)
+                 for mut in all_muts}
 
-    # Sort colnames
-    colnames = sorted(colnames, key=lambda x: x.split(':')[1][1:-1])
+    colnames = sorted(colnames, key=lambda x: sites[x])
+
     data = {}
     for pattern in enumerate(patterns):
         if len(pattern[1]) >= min_mutations:
