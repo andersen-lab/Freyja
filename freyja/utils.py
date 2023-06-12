@@ -830,7 +830,7 @@ def make_dashboard(agg_df, meta_df, thresh, title, introText,
     os.remove('div-plot.html')
     print("Dashboard html file saved to " + outputFn)
 
-        
+
 def collapse_barcodes(df_barcodes, df_depth, depthcutoff, locDir):
 
     # drop low coverage sites
@@ -840,7 +840,7 @@ def collapse_barcodes(df_barcodes, df_depth, depthcutoff, locDir):
                     if mut[1:-1] in low_cov_sites]
     df_barcodes = df_barcodes.drop(low_cov_muts, axis=1)
 
-    # find lineages with identical barcodes, now that low coverage sites are dropped
+    # find lineages with identical barcodes
     duplicates = df_barcodes.groupby(df_barcodes.columns.tolist()).apply(
         lambda x: tuple(x.index) if len(x.index) > 1 else None
     ).dropna()
@@ -854,23 +854,25 @@ def collapse_barcodes(df_barcodes, df_depth, depthcutoff, locDir):
             lineage_yml = yaml.safe_load(f)
         except yaml.YAMLError as exc:
             raise ValueError('Error in lineages.yml file: ' + str(exc))
-        
+
     lineage_data = {lineage['name']: lineage for lineage in lineage_yml}
 
     alias_count = {}
     # collapse lineages into MRCA, where possible
     for tup in duplicates:
         pango_aliases = [lineage_data[lin]['alias']
-                            for lin in tup]
- 
+                         for lin in tup]
+
         # handle case where recombinant and non-recombinant lins are merged
         if not all([alias.startswith('B') for alias in pango_aliases])\
            and not all([alias.startswith('X') for alias in pango_aliases]):
-            pango_aliases = [alias if not alias.startswith('X') else 'B.1.1.529'
-                             for alias in pango_aliases]
+            pango_aliases = [
+                alias if not alias.startswith('X') else 'B.1.1.529'
+                for alias in pango_aliases
+            ]
             print('warning: Recombinant and non-recombinant lineage barcodes'
-                  ' being merged based on available sequence coverage and '
-                  ' --depthcutoff. Solutions may be innacurate.')
+                  ' being merged based on available sequence coverage and'
+                  ' --depthcutoff value. Solution may be innacurate.')
 
         mrca = os.path.commonpath(
             [lin.replace('.', '/') for lin in pango_aliases]
@@ -888,11 +890,11 @@ def collapse_barcodes(df_barcodes, df_depth, depthcutoff, locDir):
             alias_count[mrca] += 1
             mrca += f'({alias_count[mrca]})'
 
-        print('merging lineages ' + str(tup) + ' into ' + mrca)
         df_barcodes = df_barcodes.rename({lin: mrca for lin in tup})
     df_barcodes = df_barcodes.drop_duplicates()
 
     return df_barcodes
+
 
 if __name__ == '__main__':
     agg_results = 'freyja/data/test_sweep.tsv'
