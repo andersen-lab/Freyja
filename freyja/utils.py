@@ -830,25 +830,69 @@ def make_dashboard(agg_df, meta_df, thresh, title, introText,
     os.remove('div-plot.html')
     print("Dashboard html file saved to " + outputFn)
 
-def get_pango_alias(lineage, lineage_data):
+        
+def collapse_barcodes(df_barcodes, df_depth, depthcutoff, locDir):
 
-    # Case 1: lineage has a pangolin alias
-    if lineage_data[lineage]['alias'].split('.')[0] in ['B', 'A']:
-        return lineage_data[lineage]['alias']
-    else:
-        # Case 2a: child of recombinant lineage
-        if 'recombinant_parents' not in lineage_data[lineage].keys():
-            return get_pango_alias(lineage_data[lineage]['parent'],
-                                   lineage_data)
-        # Case 2b: recombinant lineage
+    # drop low coverage sites
+    low_cov_sites = df_depth[df_depth[3].astype(int) < depthcutoff]\
+        .index.astype(str)
+    low_cov_muts = [mut for mut in df_barcodes.columns
+                    if mut[1:-1] in low_cov_sites]
+    df_barcodes = df_barcodes.drop(low_cov_muts, axis=1)
+
+    # find lineages with identical barcodes, now that low coverage sites are dropped
+    duplicates = df_barcodes.groupby(df_barcodes.columns.tolist()).apply(
+        lambda x: tuple(x.index) if len(x.index) > 1 else None
+    ).dropna()
+
+    if len(duplicates) == 0:
+        return df_barcodes
+
+    # load lineage data
+    with open(os.path.join(locDir, 'data', 'lineages.yml'), 'r') as f:
+        try:
+            lineage_yml = yaml.safe_load(f)
+        except yaml.YAMLError as exc:
+            raise ValueError('Error in lineages.yml file: ' + str(exc))
+        
+    lineage_data = {lineage['name']: lineage for lineage in lineage_yml}
+
+    alias_count = {}
+    # collapse lineages into MRCA, where possible
+    for tup in duplicates:
+        pango_aliases = [lineage_data[lin]['alias']
+                            for lin in tup]
+ 
+        # handle case where recombinant and non-recombinant lins are merged
+        if not all([alias.startswith('B') for alias in pango_aliases])\
+           and not all([alias.startswith('X') for alias in pango_aliases]):
+            pango_aliases = [alias if not alias.startswith('X') else 'B.1.1.529'
+                             for alias in pango_aliases]
+            print('warning: Recombinant and non-recombinant lineage barcodes'
+                  ' being merged based on available sequence coverage and '
+                  ' --depthcutoff. Solutions may be innacurate.')
+
+        mrca = os.path.commonpath(
+            [lin.replace('.', '/') for lin in pango_aliases]
+        ).replace('/', '.')
+
+        for lineage in lineage_data:
+            if lineage_data[lineage]['alias'] == mrca:
+                mrca = lineage
+
+        # add flag to indicate that this is a merged lineage
+        mrca += '-like'
+        if mrca not in alias_count:
+            alias_count[mrca] = 0
         else:
-            recombinant_parents = lineage_data[lineage]['recombinant_parents'].split(',')
-            return os.path.commonpath(
-                [
-                    get_pango_alias(parent, lineage_data).replace('.', '/')
-                    for parent in recombinant_parents
-                ]
-            ).replace('/', '.')
+            alias_count[mrca] += 1
+            mrca += f'({alias_count[mrca]})'
+
+        print('merging lineages ' + str(tup) + ' into ' + mrca)
+        df_barcodes = df_barcodes.rename({lin: mrca for lin in tup})
+    df_barcodes = df_barcodes.drop_duplicates()
+
+    return df_barcodes
 
 if __name__ == '__main__':
     agg_results = 'freyja/data/test_sweep.tsv'
