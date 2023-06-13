@@ -142,7 +142,7 @@ def solve_demixing_problem(df_barcodes, mix, depths, eps):
     except cp.error.SolverError:
         print('demix: Solver error encountered, most '
               'likely due to insufficient sequencing depth. '
-              'Try running --grouplineages option')
+              'Try increasing the --depthcutoff parameter.')
         sys.exit(1)
     sol = x.value
     rnorm = cp.norm(A @ x - b, 1).value

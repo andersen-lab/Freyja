@@ -307,7 +307,10 @@ def boot(variants, depths, output_base, eps, barcodes, meta,
     indexSimplified = [dfi.split('_')[0] for dfi in df_barcodes.index]
     df_barcodes = df_barcodes.loc[indexSimplified, :]
 
-    df_barcodes = collapse_barcodes(df_barcodes, pd.read_csv(depths), depthcutoff, locDir)
+    df_depths = pd.read_csv(depths, sep='\t', header=None, index_col=1)
+
+    df_barcodes = collapse_barcodes(
+        df_barcodes, df_depths, depthcutoff, locDir)
 
     muts = list(df_barcodes.columns)
     mapDict = buildLineageMap(meta)
