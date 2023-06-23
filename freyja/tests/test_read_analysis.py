@@ -166,7 +166,8 @@ class ReadAnalysisTests(unittest.TestCase):
                '21563', '25384', '--gff-file',
                'freyja/data/NC_045512_Hu-1.gff', '--output',
                'freyja/data/test_covar.tsv']
-        subprocess.run(cmd)
+        err = subprocess.run(cmd)
+        print(err)
         df = pd.read_csv('freyja/data/test_covar.tsv', sep='\t')
 
         patterns = []
@@ -187,10 +188,10 @@ class ReadAnalysisTests(unittest.TestCase):
 
         # Test spans_region flag
         cmd = ['freyja', 'covariants', self.input_bam,
-               '23550', '23700', '--output', 'freyja/data/test_covar.tsv',
+               '23550', '23700', '--output', 'freyja/data/test_covar_span.tsv',
                '--spans_region']
         subprocess.run(cmd)
-        df = pd.read_csv('freyja/data/test_covar.tsv', sep='\t')
+        df = pd.read_csv('freyja/data/test_covar_span.tsv', sep='\t')
         patterns = []
         for c in df.iloc[:, 0]:
             patterns.append(c.split(' '))
@@ -202,11 +203,11 @@ class ReadAnalysisTests(unittest.TestCase):
                 self.assertTrue(int(mut[1:6]) >= cov_start[i] and
                                 int(mut[1:6]) <= cov_end[i])
         self.assertTrue(df.shape[0] == 2)
-        os.remove('freyja/data/test_covar.tsv')
+        os.remove('freyja/data/test_covar_span.tsv')
 
-    def test_plot_covariants(self):
+        # Test plot-covariants
         cmd = ['freyja', 'plot-covariants',
-               'freyja/data/example_covariants0.tsv',
+               'freyja/data/test_covar.tsv',
                '--output', 'freyja/data/test_covar_plot.png']
         subprocess.run(cmd)
 
