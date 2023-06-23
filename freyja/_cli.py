@@ -24,7 +24,7 @@ locDir = os.path.abspath(os.path.join(os.path.realpath(__file__), os.pardir))
 
 
 @click.group()
-@click.version_option('1.4.3')
+@click.version_option('1.4.5')
 def cli():
     pass
 
@@ -83,9 +83,9 @@ def demix(variants, depths, output, eps, barcodes, meta,
     df_barcodes = df_barcodes.loc[indexSimplified, :]
 
     df_depth = pd.read_csv(depths, sep='\t', header=None, index_col=1)
-
-    df_barcodes = collapse_barcodes(df_barcodes, df_depth, depthcutoff,
-                                    locDir)
+    if depthcutoff != 0:
+        df_barcodes = collapse_barcodes(df_barcodes, df_depth, depthcutoff,
+                                        locDir)
 
     muts = list(df_barcodes.columns)
     mapDict = buildLineageMap(meta)
@@ -308,9 +308,9 @@ def boot(variants, depths, output_base, eps, barcodes, meta,
     df_barcodes = df_barcodes.loc[indexSimplified, :]
 
     df_depths = pd.read_csv(depths, sep='\t', header=None, index_col=1)
-
-    df_barcodes = collapse_barcodes(
-        df_barcodes, df_depths, depthcutoff, locDir)
+    if depthcutoff != 0:
+        df_barcodes = collapse_barcodes(
+            df_barcodes, df_depths, depthcutoff, locDir)
 
     muts = list(df_barcodes.columns)
     mapDict = buildLineageMap(meta)
