@@ -336,7 +336,7 @@ def makePlot_simple(agg_df, lineages, outputFn, config, lineage_info, thresh):
     df_abundances = df_abundances.T
     if 'Other' in df_abundances.columns:
         cols0 = [c0 for c0 in df_abundances.columns
-             if c0 != 'Other'] + ['Other']
+                 if c0 != 'Other'] + ['Other']
         df_abundances = df_abundances[cols0]
     default_cmap_dict = {
         24: px.colors.qualitative.Dark24
@@ -415,7 +415,7 @@ def makePlot_time(agg_df, lineages, times_df, interval, outputFn,
     df_abundances = df_abundances.groupby(pd.Grouper(freq=interval)).mean()
     if 'Other' in df_abundances.columns:
         cols0 = [c0 for c0 in df_abundances.columns
-             if c0 != 'Other'] + ['Other']
+                 if c0 != 'Other'] + ['Other']
         df_abundances = df_abundances[cols0]
     default_cmap_dict = {
         24: px.colors.qualitative.Dark24

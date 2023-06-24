@@ -373,7 +373,8 @@ to include coverage estimates.')
     agg_df = agg_df[agg_df['summarized'] != '[]']
     if times == '-1':
         # make basic plot, without time info
-        makePlot_simple(agg_df, lineages, output, config, lineage_info,thresh)
+        makePlot_simple(agg_df, lineages, output, config, lineage_info,
+                        thresh)
     else:
         # make time aware plot
         times_df = pd.read_csv(times, skipinitialspace=True,
