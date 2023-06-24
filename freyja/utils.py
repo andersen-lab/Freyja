@@ -55,7 +55,7 @@ def logistic_growth(ndays, b, r):
 # Calcualate the relative growth rates of the lineages and return a dataFrame.
 def calc_rel_growth_rates(df, nboots=1000, serial_interval=5.5,
                           outputFn='rel_growth_rates.csv', daysIncluded=56,
-                          grThresh=0.05):
+                          thresh=0.001):
     df.index.name = 'Date'
     df.reset_index(inplace=True)
     df['Date'] = pd.to_datetime(df['Date'])
@@ -65,9 +65,7 @@ def calc_rel_growth_rates(df, nboots=1000, serial_interval=5.5,
     df = df.dropna(axis=0, how='all')
     df = df.fillna(0)
     df = df / 100.
-    # print(df.mean(axis=0))
-    # print('hoi',grThresh,df.mean(axis=0) > grThresh)
-    df = df.loc[:, df.mean(axis=0) > grThresh]
+
     # go as far back as we can, within daysIncluded limit
     nBack = next((x[0] + 1 for x in enumerate(df.index[::-1])
                  if (df.index[-1] - x[1]).days > daysIncluded), 0)
@@ -77,7 +75,7 @@ def calc_rel_growth_rates(df, nboots=1000, serial_interval=5.5,
         'Bootstrap 95% interval': [],
     }
     # get all lineages present at >0.1% average over last 8 weeks
-    lineages = df.columns[df.iloc[-nBack:].mean(axis=0) > 0.001]
+    lineages = df.columns[df.iloc[-nBack:].mean(axis=0) > thresh]
     rate_cal = tqdm.tqdm(enumerate(lineages), total=len(lineages),
                          desc='Rate calculations for lineages/groups')
     for k, lineage in rate_cal:
@@ -302,12 +300,12 @@ def prepSummaryDict(agg_d0):
     return agg_d0
 
 
-def makePlot_simple(agg_df, lineages, outputFn, config, lineage_info):
+def makePlot_simple(agg_df, lineages, outputFn, config, lineage_info, thresh):
     if lineages:
         queryType = 'linDict'
         config = config.get('Lineages')
         agg_df = prepLineageDict(agg_df, config=config,
-                                 lineage_info=lineage_info)
+                                 lineage_info=lineage_info, thresh=thresh)
 
     else:
         queryType = 'summarized'
@@ -336,7 +334,10 @@ def makePlot_simple(agg_df, lineages, outputFn, config, lineage_info):
             ], axis=1)
 
     df_abundances = df_abundances.T
-
+    if 'Other' in df_abundances.columns:
+        cols0 = [c0 for c0 in df_abundances.columns
+             if c0 != 'Other'] + ['Other']
+        df_abundances = df_abundances[cols0]
     default_cmap_dict = {
         24: px.colors.qualitative.Dark24
     }
@@ -375,12 +376,12 @@ def makePlot_simple(agg_df, lineages, outputFn, config, lineage_info):
 
 
 def makePlot_time(agg_df, lineages, times_df, interval, outputFn,
-                  windowSize, config, lineage_info):
+                  windowSize, config, lineage_info, thresh):
     if lineages:
         queryType = 'linDict'
         config = config.get('Lineages')
         agg_df = prepLineageDict(agg_df, config=config,
-                                 lineage_info=lineage_info)
+                                 lineage_info=lineage_info, thresh=thresh)
 
     else:
         queryType = 'summarized'
@@ -412,7 +413,10 @@ def makePlot_time(agg_df, lineages, times_df, interval, outputFn,
         # epiweek ends on sat, starts on sun
         interval = 'W-SAT'
     df_abundances = df_abundances.groupby(pd.Grouper(freq=interval)).mean()
-
+    if 'Other' in df_abundances.columns:
+        cols0 = [c0 for c0 in df_abundances.columns
+             if c0 != 'Other'] + ['Other']
+        df_abundances = df_abundances[cols0]
     default_cmap_dict = {
         24: px.colors.qualitative.Dark24
     }
@@ -485,7 +489,7 @@ def makePlot_time(agg_df, lineages, times_df, interval, outputFn,
 def get_abundance(agg_df, meta_df, thresh, scale_by_viral_load, config,
                   lineage_info):
     agg_df = prepLineageDict(agg_df, config=config.get('Lineages'),
-                             lineage_info=lineage_info)
+                             lineage_info=lineage_info, thresh=thresh)
     agg_df = prepSummaryDict(agg_df)
     agg_df.to_csv('agg_df.csv')
     # collect lineage data
@@ -511,11 +515,11 @@ def get_abundance(agg_df, meta_df, thresh, scale_by_viral_load, config,
     df_ab_lin = df_ab_lin.fillna(0)
     if 'Other' not in df_ab_lin.columns:
         df_ab_lin['Other'] = 0.
-    for col in df_ab_lin.columns:
-        if col != 'Other':
-            if df_ab_lin[col].sum() <= thresh:
-                df_ab_lin['Other'] += df_ab_lin[col]
-                df_ab_lin = df_ab_lin.drop(labels=[col], axis=1)
+    # for col in df_ab_lin.columns:
+    #     if col != 'Other':
+    #         if df_ab_lin[col].mean() <= thresh:
+    #             df_ab_lin['Other'] += df_ab_lin[col]
+    #             df_ab_lin = df_ab_lin.drop(labels=[col], axis=1)
 
     cols0 = [c0 for c0 in df_ab_lin.columns
              if c0 != 'Other'] + ['Other']
@@ -547,7 +551,7 @@ def get_abundance(agg_df, meta_df, thresh, scale_by_viral_load, config,
     for col in df_ab_sum.columns:
         # TODO: expand to sum values not in top N lineages, etc.
         if col != 'Other':
-            if df_ab_sum[col].sum() <= thresh:
+            if df_ab_sum[col].mean() <= thresh:
                 df_ab_sum['Other'] += 1.0 * df_ab_sum[col]
                 df_ab_sum = df_ab_sum.drop(labels=[col], axis=1)
 
@@ -588,8 +592,7 @@ def get_abundance(agg_df, meta_df, thresh, scale_by_viral_load, config,
 
 def make_dashboard(agg_df, meta_df, thresh, title, introText,
                    outputFn, headerColor, bodyColor, scale_by_viral_load,
-                   config, lineage_info, nboots, serial_interval, days,
-                   grThresh):
+                   config, lineage_info, nboots, serial_interval, days):
     df_ab_lin, df_ab_sum, dates_to_keep = get_abundance(agg_df, meta_df,
                                                         thresh,
                                                         scale_by_viral_load,
@@ -597,7 +600,7 @@ def make_dashboard(agg_df, meta_df, thresh, title, introText,
 
     calc_rel_growth_rates(df_ab_lin.copy(deep=True), nboots,
                           serial_interval, outputFn,
-                          daysIncluded=days, grThresh=grThresh)
+                          daysIncluded=days, thresh=thresh)
 
     fig = go.Figure()
 

@@ -23,7 +23,7 @@ locDir = os.path.abspath(os.path.join(os.path.realpath(__file__), os.pardir))
 
 
 @click.group()
-@click.version_option('1.4.4')
+@click.version_option('1.4.5')
 def cli():
     pass
 
@@ -334,8 +334,9 @@ def aggregate(results, ext, output):
 @click.option('--mincov', default=60., help='min genome coverage included')
 @click.option('--output', default='mix_plot.pdf', help='Output file')
 @click.option('--windowsize', default=14)
+@click.option('--thresh', default=0.01, help='min lineage abundance included')
 def plot(agg_results, lineages, times, interval, output, windowsize,
-         config, mincov):
+         config, mincov, thresh):
     agg_df = pd.read_csv(agg_results, skipinitialspace=True, sep='\t',
                          index_col=0)
     # drop poor quality samples
@@ -372,7 +373,7 @@ to include coverage estimates.')
     agg_df = agg_df[agg_df['summarized'] != '[]']
     if times == '-1':
         # make basic plot, without time info
-        makePlot_simple(agg_df, lineages, output, config, lineage_info)
+        makePlot_simple(agg_df, lineages, output, config, lineage_info,thresh)
     else:
         # make time aware plot
         times_df = pd.read_csv(times, skipinitialspace=True,
@@ -380,7 +381,7 @@ to include coverage estimates.')
         times_df['sample_collection_datetime'] = \
             pd.to_datetime(times_df['sample_collection_datetime'])
         makePlot_time(agg_df, lineages, times_df, interval, output,
-                      windowsize, config, lineage_info)
+                      windowsize, config, lineage_info, thresh)
 
 
 @cli.command()
@@ -388,7 +389,7 @@ to include coverage estimates.')
 @click.argument('metadata', type=click.Path(exists=True))
 @click.argument('title', type=click.Path(exists=True))
 @click.argument('intro', type=click.Path(exists=True))
-@click.option('--thresh', default=0.5, help='min lineage abundance included')
+@click.option('--thresh', default=0.01, help='min lineage abundance included')
 @click.option('--headerColor', default='#2fdcf5', help='color of header')
 @click.option('--bodyColor', default='#ffffff', help='color of body')
 @click.option('--scale_by_viral_load', is_flag=True,
@@ -399,12 +400,11 @@ to include coverage estimates.')
 @click.option('--mincov', default=60., help='min genome coverage included')
 @click.option('--output', default='mydashboard.html', help='Output html file')
 @click.option('--days', default=56, help='N Days used for growth calc')
-@click.option('--grthresh', default=0.05, help='min avg prev. for growth')
 @click.argument('hierarchy', type=click.Path(),
                 default=os.path.join(locDir, 'data/lineages.yml'))
 def dash(agg_results, metadata, title, intro, thresh, headercolor, bodycolor,
          scale_by_viral_load, nboots, serial_interval, config, mincov, output,
-         days, grthresh, hierarchy):
+         days, hierarchy):
     agg_df = pd.read_csv(agg_results, skipinitialspace=True, sep='\t',
                          index_col=0)
     # drop poor quality samples
@@ -448,13 +448,13 @@ def dash(agg_results, metadata, title, intro, thresh, headercolor, bodycolor,
         config = {}
     make_dashboard(agg_df, meta_df, thresh, titleText, introText,
                    output, headercolor, bodycolor, scale_by_viral_load, config,
-                   lineage_info, nboots, serial_interval, days, grthresh)
+                   lineage_info, nboots, serial_interval, days)
 
 
 @cli.command()
 @click.argument('agg_results', type=click.Path(exists=True))
 @click.argument('metadata', type=click.Path(exists=True))
-@click.option('--thresh', default=0.5, help='min lineage abundance in plot')
+@click.option('--thresh', default=0.01, help='min lineage abundance in plot')
 @click.option('--scale_by_viral_load', is_flag=True,
               help='scale by viral load')
 @click.option('--nboots', default=1000, help='Number of Bootstrap iterations')
@@ -464,9 +464,8 @@ def dash(agg_results, metadata, title, intro, thresh, headercolor, bodycolor,
 @click.option('--output', default='rel_growth_rates.csv',
               help='Output html file')
 @click.option('--days', default=56, help='N Days used for growth calc')
-@click.option('--grthresh', default=0.05, help='min avg prev. for growth')
 def relgrowthrate(agg_results, metadata, thresh, scale_by_viral_load, nboots,
-                  serial_interval, config, mincov, output, days, grthresh):
+                  serial_interval, config, mincov, output, days):
     agg_df = pd.read_csv(agg_results, skipinitialspace=True, sep='\t',
                          index_col=0)
     # drop poor quality samples
@@ -509,7 +508,7 @@ def relgrowthrate(agg_results, metadata, thresh, scale_by_viral_load, nboots,
                                                         config, lineage_info)
     calc_rel_growth_rates(df_ab_lin.copy(deep=True), nboots,
                           serial_interval, output, daysIncluded=days,
-                          grThresh=grthresh)
+                          thresh=thresh)
 
 
 @cli.command()
