@@ -401,11 +401,12 @@ to include coverage estimates.')
 @click.option('--mincov', default=60., help='min genome coverage included')
 @click.option('--output', default='mydashboard.html', help='Output html file')
 @click.option('--days', default=56, help='N Days used for growth calc')
+@click.option('--grthresh', default=0.001, help='min avg prev. for growth')
 @click.argument('hierarchy', type=click.Path(),
                 default=os.path.join(locDir, 'data/lineages.yml'))
 def dash(agg_results, metadata, title, intro, thresh, headercolor, bodycolor,
          scale_by_viral_load, nboots, serial_interval, config, mincov, output,
-         days, hierarchy):
+         days, hierarchy, grthresh):
     agg_df = pd.read_csv(agg_results, skipinitialspace=True, sep='\t',
                          index_col=0)
     # drop poor quality samples
@@ -449,7 +450,7 @@ def dash(agg_results, metadata, title, intro, thresh, headercolor, bodycolor,
         config = {}
     make_dashboard(agg_df, meta_df, thresh, titleText, introText,
                    output, headercolor, bodycolor, scale_by_viral_load, config,
-                   lineage_info, nboots, serial_interval, days)
+                   lineage_info, nboots, serial_interval, days, grthresh)
 
 
 @cli.command()
@@ -465,8 +466,9 @@ def dash(agg_results, metadata, title, intro, thresh, headercolor, bodycolor,
 @click.option('--output', default='rel_growth_rates.csv',
               help='Output html file')
 @click.option('--days', default=56, help='N Days used for growth calc')
+@click.option('--grthresh', default=0.001, help='min avg prev. for growth')
 def relgrowthrate(agg_results, metadata, thresh, scale_by_viral_load, nboots,
-                  serial_interval, config, mincov, output, days):
+                  serial_interval, config, mincov, output, days, grthresh):
     agg_df = pd.read_csv(agg_results, skipinitialspace=True, sep='\t',
                          index_col=0)
     # drop poor quality samples
@@ -509,7 +511,7 @@ def relgrowthrate(agg_results, metadata, thresh, scale_by_viral_load, nboots,
                                                         config, lineage_info)
     calc_rel_growth_rates(df_ab_lin.copy(deep=True), nboots,
                           serial_interval, output, daysIncluded=days,
-                          thresh=thresh)
+                          thresh=grthresh)
 
 
 @cli.command()

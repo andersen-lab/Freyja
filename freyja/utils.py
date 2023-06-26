@@ -592,7 +592,8 @@ def get_abundance(agg_df, meta_df, thresh, scale_by_viral_load, config,
 
 def make_dashboard(agg_df, meta_df, thresh, title, introText,
                    outputFn, headerColor, bodyColor, scale_by_viral_load,
-                   config, lineage_info, nboots, serial_interval, days):
+                   config, lineage_info, nboots, serial_interval, days,
+                   grthresh):
     df_ab_lin, df_ab_sum, dates_to_keep = get_abundance(agg_df, meta_df,
                                                         thresh,
                                                         scale_by_viral_load,
@@ -600,7 +601,7 @@ def make_dashboard(agg_df, meta_df, thresh, title, introText,
 
     calc_rel_growth_rates(df_ab_lin.copy(deep=True), nboots,
                           serial_interval, outputFn,
-                          daysIncluded=days, thresh=thresh)
+                          daysIncluded=days, thresh=grthresh)
 
     fig = go.Figure()
 
