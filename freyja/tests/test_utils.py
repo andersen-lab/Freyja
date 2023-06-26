@@ -335,12 +335,12 @@ class UtilsTests(unittest.TestCase):
         self.df_ab_lin.index = pd.to_datetime(self.df_ab_lin.index)
         self.df_ab_sum.index = pd.to_datetime(self.df_ab_sum.index)
         lin, sum, dates = get_abundance(
-            self.agg_df,
-            self.meta_df,
-            0.01,
-            False,
-            {},
-            self.lineage_info)
+                self.agg_df,
+                self.meta_df,
+                0.001,
+                False,
+                {},
+                self.lineage_info)
         pd.testing.assert_frame_equal(lin, self.df_ab_lin)
         pd.testing.assert_frame_equal(sum, self.df_ab_sum)
         assert type(dates) is pd.DatetimeIndex
@@ -395,7 +395,7 @@ class UtilsTests(unittest.TestCase):
             serial_interval,
             'rel_growth_rates.csv',
             daysIncluded,
-            grThresh=0.01
+            thresh=0.01
         )
         df_rel_growth_rates = pd.read_csv('rel_growth_rates.csv')
 
