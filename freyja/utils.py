@@ -859,6 +859,7 @@ def collapse_barcodes(df_barcodes, df_depth, depthcutoff, locDir):
 
     alias_count = {}
     merging_recomb = False
+    collapsed_lineages = {}
 
     # collapse lineages into MRCA, where possible
     for tup in duplicates:
@@ -866,8 +867,9 @@ def collapse_barcodes(df_barcodes, df_depth, depthcutoff, locDir):
                          for lin in tup]
 
         # handle case where recombinant and non-recombinant lins are merged
-        if not all([alias.startswith('B') for alias in pango_aliases])\
-           and not all([alias.startswith('X') for alias in pango_aliases]):
+        if not (all([alias.startswith('B') for alias in pango_aliases])
+           or all([alias.startswith('A') for alias in pango_aliases])
+           or all([alias.startswith('X') for alias in pango_aliases])):
             pango_aliases = [
                 alias if not alias.startswith('X') else 'B.1.1.529'
                 for alias in pango_aliases
@@ -890,13 +892,19 @@ def collapse_barcodes(df_barcodes, df_depth, depthcutoff, locDir):
             alias_count[mrca] += 1
             mrca += f'({alias_count[mrca]})'
 
+        collapsed_lineages[mrca] = list(tup)
+
         df_barcodes = df_barcodes.rename({lin: mrca for lin in tup})
     df_barcodes = df_barcodes.drop_duplicates()
 
+    with open(os.path.join(locDir, 'collapsed_lineages.yml'), 'w') as f:
+        yaml.dump(collapsed_lineages, f, default_flow_style=False)
+
+    print('Collapsed lineages saved to collapsed_lineages.yml')
     if merging_recomb:
         print('warning: Recombinant and non-recombinant lineage barcodes'
               ' being merged based on available sequence coverage and'
-              ' --depthcutoff value. Solution may be innacurate.')
+              ' --depthcutoff value. Solution may be inaccurate.')
 
     return df_barcodes
 
