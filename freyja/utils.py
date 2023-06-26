@@ -867,18 +867,29 @@ def collapse_barcodes(df_barcodes, df_depth, depthcutoff, locDir):
                          for lin in tup]
 
         # handle case where recombinant and non-recombinant lins are merged
-        if not (all([alias.startswith('B') for alias in pango_aliases])
-           or all([alias.startswith('A') for alias in pango_aliases])
-           or all([alias.startswith('X') for alias in pango_aliases])):
-            pango_aliases = [
-                alias if not alias.startswith('X') else 'B.1.1.529'
-                for alias in pango_aliases
-            ]
+        recomb_and_nonrecomb = len(set([alias[0] for alias in pango_aliases])) > 1
+        if recomb_and_nonrecomb:
+            for alias in pango_aliases:
+                if alias.startswith('X'):
+                    pango_aliases.remove(alias)
+                    parents = lineage_data[alias]['recombinant_parents']\
+                        .replace('*', '').split(',')
+                    parents = [lineage_data[lin]['alias'] for lin in parents]
+                    for alias in pango_aliases:
+                        for parent in parents:
+                            if alias.startswith(parent) and parent not in pango_aliases:
+                                pango_aliases.append(parent)
+
             merging_recomb = True
 
         mrca = os.path.commonpath(
             [lin.replace('.', '/') for lin in pango_aliases]
         ).replace('/', '.')
+
+        # attempting to collapse multiple recombinant lineages
+        if len(mrca) == 0:
+            mrca = 'Recombinant'
+            merging_recomb = True
 
         for lineage in lineage_data:
             if lineage_data[lineage]['alias'] == mrca:
@@ -897,7 +908,7 @@ def collapse_barcodes(df_barcodes, df_depth, depthcutoff, locDir):
         df_barcodes = df_barcodes.rename({lin: mrca for lin in tup})
     df_barcodes = df_barcodes.drop_duplicates()
 
-    with open(os.path.join(locDir, 'collapsed_lineages.yml'), 'w') as f:
+    with open(os.path.join(locDir, '../collapsed_lineages.yml'), 'w') as f:
         yaml.dump(collapsed_lineages, f, default_flow_style=False)
 
     print('Collapsed lineages saved to collapsed_lineages.yml')
