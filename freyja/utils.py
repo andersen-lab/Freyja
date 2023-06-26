@@ -867,7 +867,8 @@ def collapse_barcodes(df_barcodes, df_depth, depthcutoff, locDir):
                          for lin in tup]
 
         # handle case where recombinant and non-recombinant lins are merged
-        recomb_and_nonrecomb = len(set([alias[0] for alias in pango_aliases])) > 1
+        recomb_and_nonrecomb = len(
+            set([alias[0] for alias in pango_aliases])) > 1
         if recomb_and_nonrecomb:
             for alias in pango_aliases:
                 if alias.startswith('X'):
@@ -877,7 +878,8 @@ def collapse_barcodes(df_barcodes, df_depth, depthcutoff, locDir):
                     parents = [lineage_data[lin]['alias'] for lin in parents]
                     for alias in pango_aliases:
                         for parent in parents:
-                            if alias.startswith(parent) and parent not in pango_aliases:
+                            if alias.startswith(parent) and\
+                                    parent not in pango_aliases:
                                 pango_aliases.append(parent)
 
             merging_recomb = True
