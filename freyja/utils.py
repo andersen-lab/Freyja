@@ -835,7 +835,7 @@ def make_dashboard(agg_df, meta_df, thresh, title, introText,
     print("Dashboard html file saved to " + outputFn)
 
 
-def collapse_barcodes(df_barcodes, df_depth, depthcutoff, locDir):
+def collapse_barcodes(df_barcodes, df_depth, depthcutoff, locDir, output):
 
     # drop low coverage sites
     low_cov_sites = df_depth[df_depth[3].astype(int) < depthcutoff]\
@@ -914,10 +914,16 @@ def collapse_barcodes(df_barcodes, df_depth, depthcutoff, locDir):
         df_barcodes = df_barcodes.rename({lin: mrca for lin in tup})
     df_barcodes = df_barcodes.drop_duplicates()
 
-    with open(os.path.join(locDir, '../collapsed_lineages.yml'), 'w') as f:
+    # defaults from demix and boot
+    if output == 'demixing_result.csv' or output == 'test':
+        output = 'collapsed_lineages.yml'
+    else:
+        output = f'{output.split(".")[0]}_collapsed_lineages.yml'
+
+    with open(output, 'w') as f:
         yaml.dump(collapsed_lineages, f, default_flow_style=False)
 
-    print('Collapsed lineages saved to collapsed_lineages.yml')
+    print(f'Collapsed lineages saved to {output}.yml')
     if merging_recomb:
         print('warning: Recombinant and non-recombinant lineage barcodes'
               ' being merged based on available sequence coverage and'

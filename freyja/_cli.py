@@ -85,7 +85,7 @@ def demix(variants, depths, output, eps, barcodes, meta,
     df_depth = pd.read_csv(depths, sep='\t', header=None, index_col=1)
     if depthcutoff != 0:
         df_barcodes = collapse_barcodes(df_barcodes, df_depth, depthcutoff,
-                                        locDir)
+                                        locDir, output)
 
     muts = list(df_barcodes.columns)
     mapDict = buildLineageMap(meta)
@@ -310,7 +310,7 @@ def boot(variants, depths, output_base, eps, barcodes, meta,
     df_depths = pd.read_csv(depths, sep='\t', header=None, index_col=1)
     if depthcutoff != 0:
         df_barcodes = collapse_barcodes(
-            df_barcodes, df_depths, depthcutoff, locDir)
+            df_barcodes, df_depths, depthcutoff, locDir, output_base)
 
     muts = list(df_barcodes.columns)
     mapDict = buildLineageMap(meta)
