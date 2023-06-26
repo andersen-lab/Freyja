@@ -329,7 +329,7 @@ class UtilsTests(unittest.TestCase):
         lin, sum, dates = get_abundance(
                 self.agg_df,
                 self.meta_df,
-                0.01,
+                0.001,
                 False,
                 {},
                 self.lineage_info)
@@ -387,7 +387,7 @@ class UtilsTests(unittest.TestCase):
             serial_interval,
             'rel_growth_rates.csv',
             daysIncluded,
-            grThresh=0.01
+            thresh=0.01
         )
         df_rel_growth_rates = pd.read_csv('rel_growth_rates.csv')
 
