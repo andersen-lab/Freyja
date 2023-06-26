@@ -410,7 +410,7 @@ class UtilsTests(unittest.TestCase):
         barcodes = self.usher_barcodes.copy(deep=True)
         original = barcodes.shape
         barcodes = collapse_barcodes(barcodes, self.depth,
-                                     100, 'freyja')
+                                     100, 'freyja', 'test')
         collapsed = barcodes.shape
 
         self.assertLess(collapsed[0], original[0])
