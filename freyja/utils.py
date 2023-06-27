@@ -893,13 +893,15 @@ def collapse_barcodes(df_barcodes, df_depth, depthcutoff, locDir, output):
         ).replace('/', '.')
 
         # attempting to collapse multiple recombinant lineages
-        if len(mrca) == 0:
+        if len(mrca) == 0 and all([alias.startswith('X')
+                                   for alias in pango_aliases]):
             mrca = 'Recombinant'
             merging_recomb = True
-
-        for lineage in lineage_data:
-            if lineage_data[lineage]['alias'] == mrca:
-                mrca = lineage
+        else:
+            for lineage in lineage_data:
+                if lineage_data[lineage]['alias'] == mrca:
+                    mrca = lineage
+                    break
 
         # add flag to indicate that this is a merged lineage
         mrca += '-like'
