@@ -925,7 +925,7 @@ def collapse_barcodes(df_barcodes, df_depth, depthcutoff, locDir, output):
     with open(output, 'w') as f:
         yaml.dump(collapsed_lineages, f, default_flow_style=False)
 
-    print(f'Collapsed lineages saved to {output}.yml')
+    print(f'collapsed lineages saved to {output}')
     if merging_recomb:
         print('warning: Recombinant and non-recombinant lineage barcodes'
               ' being merged based on available sequence coverage and'
