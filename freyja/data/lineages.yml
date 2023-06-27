@@ -2191,6 +2191,7 @@
       - BN.1.2.4
       - BN.1.2.5
       - BN.1.2.6
+      - BN.1.2.7
       - BN.1.3
       - BN.1.3.1
       - BN.1.3.2
@@ -2609,6 +2610,7 @@
       - DV.6.1
       - DV.6.2
       - DV.7
+      - DV.7.1
       - DV.8
       - DW.1
       - DY.1
@@ -4675,6 +4677,7 @@
       - BN.1.2.4
       - BN.1.2.5
       - BN.1.2.6
+      - BN.1.2.7
       - BN.1.3
       - BN.1.3.1
       - BN.1.3.2
@@ -5093,6 +5096,7 @@
       - DV.6.1
       - DV.6.2
       - DV.7
+      - DV.7.1
       - DV.8
       - DW.1
       - DY.1
@@ -6222,6 +6226,7 @@
       - BN.1.2.4
       - BN.1.2.5
       - BN.1.2.6
+      - BN.1.2.7
       - BN.1.3
       - BN.1.3.1
       - BN.1.3.2
@@ -6640,6 +6645,7 @@
       - DV.6.1
       - DV.6.2
       - DV.7
+      - DV.7.1
       - DV.8
       - DW.1
       - DY.1
@@ -10294,6 +10300,7 @@
       - BN.1.2.4
       - BN.1.2.5
       - BN.1.2.6
+      - BN.1.2.7
       - BN.1.3
       - BN.1.3.1
       - BN.1.3.2
@@ -10661,6 +10668,7 @@
       - DV.6.1
       - DV.6.2
       - DV.7
+      - DV.7.1
       - DV.8
       - DW.1
       - DY.1
@@ -11302,6 +11310,7 @@
       - BN.1.2.4
       - BN.1.2.5
       - BN.1.2.6
+      - BN.1.2.7
       - BN.1.3
       - BN.1.3.1
       - BN.1.3.2
@@ -11443,6 +11452,7 @@
       - DV.6.1
       - DV.6.2
       - DV.7
+      - DV.7.1
       - DV.8
       - EJ.1
       - EJ.2
@@ -12448,6 +12458,7 @@
       - BN.1.2.4
       - BN.1.2.5
       - BN.1.2.6
+      - BN.1.2.7
       - BN.1.3
       - BN.1.3.1
       - BN.1.3.2
@@ -12561,6 +12572,7 @@
       - DV.6.1
       - DV.6.2
       - DV.7
+      - DV.7.1
       - DV.8
       - EJ.1
       - EJ.2
@@ -12796,6 +12808,7 @@
       - DV.6.1
       - DV.6.2
       - DV.7
+      - DV.7.1
       - DV.8
       - EP.1
       - EP.2
@@ -13006,6 +13019,7 @@
       - DV.6.1
       - DV.6.2
       - DV.7
+      - DV.7.1
       - DV.8
       - FJ.1
       - FK.1
@@ -13072,6 +13086,7 @@
       - DV.6.1
       - DV.6.2
       - DV.7
+      - DV.7.1
       - DV.8
       - FJ.1
       - FK.1
@@ -13137,6 +13152,7 @@
       - DV.6.1
       - DV.6.2
       - DV.7
+      - DV.7.1
       - DV.8
       - FJ.1
       - FK.1
@@ -13198,6 +13214,7 @@
       - DV.6.1
       - DV.6.2
       - DV.7
+      - DV.7.1
       - DV.8
       - FJ.1
       - FK.1
@@ -13258,6 +13275,7 @@
       - DV.6.1
       - DV.6.2
       - DV.7
+      - DV.7.1
       - DV.8
       - FJ.1
       - FK.1
@@ -13288,6 +13306,7 @@
       - DV.6.1
       - DV.6.2
       - DV.7
+      - DV.7.1
       - DV.8
   parent: CH.1.1
 - name: DV.1
@@ -13348,7 +13367,13 @@
   alias: B.1.1.529.2.75.3.4.1.1.1.1.1.7
   children:
       - DV.7
+      - DV.7.1
   parent: CH.1.1.1
+- name: DV.7.1
+  alias: B.1.1.529.2.75.3.4.1.1.1.1.1.7.1
+  children:
+      - DV.7.1
+  parent: DV.7
 - name: DV.8
   alias: B.1.1.529.2.75.3.4.1.1.1.1.1.8
   children:
@@ -13688,6 +13713,7 @@
       - BN.1.2.4
       - BN.1.2.5
       - BN.1.2.6
+      - BN.1.2.7
       - BN.1.3
       - BN.1.3.1
       - BN.1.3.2
@@ -13748,6 +13774,7 @@
       - BN.1.2.4
       - BN.1.2.5
       - BN.1.2.6
+      - BN.1.2.7
       - BN.1.3
       - BN.1.3.1
       - BN.1.3.2
@@ -13809,6 +13836,7 @@
       - BN.1.2.4
       - BN.1.2.5
       - BN.1.2.6
+      - BN.1.2.7
       - FR.1
       - FR.1.1
       - FR.1.2
@@ -13877,6 +13905,11 @@
   alias: B.1.1.529.2.75.5.1.2.6
   children:
       - BN.1.2.6
+  parent: BN.1.2
+- name: BN.1.2.7
+  alias: B.1.1.529.2.75.5.1.2.7
+  children:
+      - BN.1.2.7
   parent: BN.1.2
 - name: BN.1.3
   alias: B.1.1.529.2.75.5.1.3
@@ -26074,6 +26107,7 @@
       - GH.1
       - GJ.1
       - GJ.1.1
+      - GJ.1.2
       - GJ.2
       - GK.1
       - GM.1
@@ -26083,6 +26117,10 @@
       - GS.1
       - GU.1
       - GV.1
+      - GW.1
+      - GW.2
+      - GY.1
+      - GY.2
       - XBB
       - XBB.1
       - XBB.1.1
@@ -26433,6 +26471,10 @@
       - GR.1
       - GU.1
       - GV.1
+      - GW.1
+      - GW.2
+      - GY.1
+      - GY.2
       - XBB.1
       - XBB.1.1
       - XBB.1.2
@@ -28010,6 +28052,8 @@
       - FU.1
       - FU.2
       - FU.2.1
+      - GY.1
+      - GY.2
       - XBB.1.16
       - XBB.1.16.1
       - XBB.1.16.2
@@ -28050,8 +28094,20 @@
 - name: XBB.1.16.2
   alias: XBB.1.16.2
   children:
+      - GY.1
+      - GY.2
       - XBB.1.16.2
   parent: XBB.1.16
+- name: GY.1
+  alias: XBB.1.16.2.1
+  children:
+      - GY.1
+  parent: XBB.1.16.2
+- name: GY.2
+  alias: XBB.1.16.2.2
+  children:
+      - GY.2
+  parent: XBB.1.16.2
 - name: XBB.1.16.3
   alias: XBB.1.16.3
   children:
@@ -28190,14 +28246,28 @@
 - name: XBB.1.19
   alias: XBB.1.19
   children:
+      - GW.1
+      - GW.2
       - XBB.1.19
       - XBB.1.19.1
   parent: XBB.1
 - name: XBB.1.19.1
   alias: XBB.1.19.1
   children:
+      - GW.1
+      - GW.2
       - XBB.1.19.1
   parent: XBB.1.19
+- name: GW.1
+  alias: XBB.1.19.1.1
+  children:
+      - GW.1
+  parent: XBB.1.19.1
+- name: GW.2
+  alias: XBB.1.19.1.2
+  children:
+      - GW.2
+  parent: XBB.1.19.1
 - name: XBB.1.20
   alias: XBB.1.20
   children:
@@ -28535,6 +28605,7 @@
       - GH.1
       - GJ.1
       - GJ.1.1
+      - GJ.1.2
       - GJ.2
       - GM.1
       - GM.2
@@ -28586,6 +28657,7 @@
       - GE.1
       - GJ.1
       - GJ.1.1
+      - GJ.1.2
       - GJ.2
       - GM.1
       - GM.2
@@ -28619,6 +28691,7 @@
   children:
       - GJ.1
       - GJ.1.1
+      - GJ.1.2
       - GJ.2
       - XBB.2.3.3
   parent: XBB.2.3
@@ -28627,11 +28700,17 @@
   children:
       - GJ.1
       - GJ.1.1
+      - GJ.1.2
   parent: XBB.2.3.3
 - name: GJ.1.1
   alias: XBB.2.3.3.1.1
   children:
       - GJ.1.1
+  parent: GJ.1
+- name: GJ.1.2
+  alias: XBB.2.3.3.1.2
+  children:
+      - GJ.1.2
   parent: GJ.1
 - name: GJ.2
   alias: XBB.2.3.3.2
