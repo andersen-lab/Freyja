@@ -835,6 +835,105 @@ def make_dashboard(agg_df, meta_df, thresh, title, introText,
     print("Dashboard html file saved to " + outputFn)
 
 
+def collapse_barcodes(df_barcodes, df_depth, depthcutoff, locDir, output):
+
+    # drop low coverage sites
+    low_cov_sites = df_depth[df_depth[3].astype(int) < depthcutoff]\
+        .index.astype(str)
+    low_cov_muts = [mut for mut in df_barcodes.columns
+                    if mut[1:-1] in low_cov_sites]
+    df_barcodes = df_barcodes.drop(low_cov_muts, axis=1)
+
+    # find lineages with identical barcodes
+    duplicates = df_barcodes.groupby(df_barcodes.columns.tolist()).apply(
+        lambda x: tuple(x.index) if len(x.index) > 1 else None
+    ).dropna()
+
+    if len(duplicates) == 0:
+        return df_barcodes
+
+    # load lineage data
+    with open(os.path.join(locDir, 'data', 'lineages.yml'), 'r') as f:
+        try:
+            lineage_yml = yaml.safe_load(f)
+        except yaml.YAMLError as exc:
+            raise ValueError('Error in lineages.yml file: ' + str(exc))
+
+    lineage_data = {lineage['name']: lineage for lineage in lineage_yml}
+
+    alias_count = {}
+    merging_recomb = False
+    collapsed_lineages = {}
+
+    # collapse lineages into MRCA, where possible
+    for tup in duplicates:
+        pango_aliases = [lineage_data[lin]['alias']
+                         for lin in tup]
+
+        # handle case where recombinant and non-recombinant lins are merged
+        recomb_and_nonrecomb = len(
+            set([alias[0] for alias in pango_aliases])) > 1
+        if recomb_and_nonrecomb:
+            for alias in pango_aliases:
+                if alias.startswith('X'):
+                    pango_aliases.remove(alias)
+                    parents = lineage_data[alias]['recombinant_parents']\
+                        .replace('*', '').split(',')
+                    parents = [lineage_data[lin]['alias'] for lin in parents]
+                    for alias in pango_aliases:
+                        for parent in parents:
+                            if alias.startswith(parent) and\
+                                    parent not in pango_aliases:
+                                pango_aliases.append(parent)
+
+            merging_recomb = True
+
+        mrca = os.path.commonpath(
+            [lin.replace('.', '/') for lin in pango_aliases]
+        ).replace('/', '.')
+
+        # attempting to collapse multiple recombinant lineages
+        if len(mrca) == 0 and all([alias.startswith('X')
+                                   for alias in pango_aliases]):
+            mrca = 'Recombinant'
+            merging_recomb = True
+        else:
+            for lineage in lineage_data:
+                if lineage_data[lineage]['alias'] == mrca:
+                    mrca = lineage
+                    break
+
+        # add flag to indicate that this is a merged lineage
+        mrca += '-like'
+        if mrca not in alias_count:
+            alias_count[mrca] = 0
+        else:
+            alias_count[mrca] += 1
+            mrca += f'({alias_count[mrca]})'
+
+        collapsed_lineages[mrca] = list(tup)
+
+        df_barcodes = df_barcodes.rename({lin: mrca for lin in tup})
+    df_barcodes = df_barcodes.drop_duplicates()
+
+    # defaults from demix and boot
+    if output == 'demixing_result.csv' or output == 'test':
+        output = 'collapsed_lineages.yml'
+    else:
+        output = f'{output.split(".")[0]}_collapsed_lineages.yml'
+
+    with open(output, 'w') as f:
+        yaml.dump(collapsed_lineages, f, default_flow_style=False)
+
+    print(f'collapsed lineages saved to {output}')
+    if merging_recomb:
+        print('warning: Recombinant and non-recombinant lineage barcodes'
+              ' being merged based on available sequence coverage and'
+              ' --depthcutoff value. Solution may be inaccurate.')
+
+    return df_barcodes
+
+
 if __name__ == '__main__':
     agg_results = 'freyja/data/test_sweep.tsv'
     agg_df = pd.read_csv(agg_results, skipinitialspace=True, sep='\t',

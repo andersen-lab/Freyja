@@ -12,7 +12,8 @@ from freyja.updates import download_tree, convert_tree,\
     download_barcodes, download_barcodes_wgisaid,\
     convert_tree_custom
 from freyja.utils import agg, makePlot_simple, makePlot_time,\
-    make_dashboard, checkConfig, get_abundance, calc_rel_growth_rates
+    make_dashboard, checkConfig, get_abundance, calc_rel_growth_rates,\
+    collapse_barcodes
 import os
 import glob
 import subprocess
@@ -54,8 +55,11 @@ def print_barcode_version(ctx, param, value):
               help='larger library with non-public lineages')
 @click.option('--version', is_flag=True, callback=print_barcode_version,
               expose_value=False, is_eager=True)
+@click.option('--depthcutoff', default=0,
+              help='exclude sites with coverage depth below this value and'
+              'group identical barcodes')
 def demix(variants, depths, output, eps, barcodes, meta,
-          covcut, confirmedonly, wgisaid):
+          covcut, confirmedonly, wgisaid, depthcutoff):
     locDir = os.path.abspath(os.path.join(os.path.realpath(__file__),
                              os.pardir))
     # option for custom barcodes
@@ -77,6 +81,11 @@ def demix(variants, depths, output, eps, barcodes, meta,
     # drop intra-lineage diversity naming (keeps separate barcodes)
     indexSimplified = [dfi.split('_')[0] for dfi in df_barcodes.index]
     df_barcodes = df_barcodes.loc[indexSimplified, :]
+
+    df_depth = pd.read_csv(depths, sep='\t', header=None, index_col=1)
+    if depthcutoff != 0:
+        df_barcodes = collapse_barcodes(df_barcodes, df_depth, depthcutoff,
+                                        locDir, output)
 
     muts = list(df_barcodes.columns)
     mapDict = buildLineageMap(meta)
@@ -271,8 +280,11 @@ def variants(bamfile, ref, variants, depths, refname, minq):
 @click.option('--confirmedonly', is_flag=True, default=False)
 @click.option('--wgisaid', is_flag=True, default=False,
               help='larger library with non-public lineages')
+@click.option('--depthcutoff', default=0,
+              help='exclude sites with coverage depth below this value and'
+              'group identical barcodes')
 def boot(variants, depths, output_base, eps, barcodes, meta,
-         nb, nt, boxplot, confirmedonly, wgisaid):
+         nb, nt, boxplot, confirmedonly, wgisaid, depthcutoff):
     locDir = os.path.abspath(os.path.join(os.path.realpath(__file__),
                              os.pardir))
     # option for custom barcodes
@@ -294,6 +306,11 @@ def boot(variants, depths, output_base, eps, barcodes, meta,
     # drop intra-lineage diversity naming (keeps separate barcodes)
     indexSimplified = [dfi.split('_')[0] for dfi in df_barcodes.index]
     df_barcodes = df_barcodes.loc[indexSimplified, :]
+
+    df_depths = pd.read_csv(depths, sep='\t', header=None, index_col=1)
+    if depthcutoff != 0:
+        df_barcodes = collapse_barcodes(
+            df_barcodes, df_depths, depthcutoff, locDir, output_base)
 
     muts = list(df_barcodes.columns)
     mapDict = buildLineageMap(meta)
