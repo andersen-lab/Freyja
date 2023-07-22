@@ -249,7 +249,7 @@ def perform_bootstrap(df_barcodes, mix, depths_,
                                              int(x[1: len(x)-1])))
     mix_grp = mixPos.groupby(level=0).apply(list)
     lin_df = pd.DataFrame()
-    constellation_df = pd.DataFrame()
+    constell_df = pd.DataFrame()
     out = Parallel(n_jobs=n_jobs)(delayed(bootstrap_parallel)(jj0,
                                                               samplesDefining,
                                                               fracDepths_adj,
@@ -284,18 +284,16 @@ def perform_bootstrap(df_barcodes, mix, depths_,
                                         for j in range(len(sample_lins))},
                                         index=[0])], axis=0, join='outer',
                            ignore_index=True)
-        constellation_df = pd.concat([constellation_df,
-                                     pd.DataFrame({localDict[j][0]:
-                                                   localDict[j][1]
-                                                   for j in range(
-                                                   len(localDict))},
-                                                  index=[0])], axis=0,
-                                     join='outer', ignore_index=True)
+        constell_df = pd.concat([constell_df,
+                                 pd.DataFrame({localDict[j][0]:
+                                               localDict[j][1]
+                                               for j in range(
+                                               len(localDict))},
+                                              index=[0])], axis=0,
+                                 join='outer', ignore_index=True)
     lin_df = lin_df.fillna(0)
-    constellation_df = constellation_df.fillna(0)
-    lin_out = lin_df.quantile([0.025, 0.05, 0.25, 0.5, 0.75, 0.95, 0.975])
-    constell_out = constellation_df.quantile([0.025, 0.05, 0.25, 0.5,
-                                              0.75, 0.95, 0.975])
+    constell_df = constell_df.fillna(0)
+
     if len(boxplot) > 0:
         if boxplot == 'pdf':
             matplotlib.rcParams['pdf.fonttype'] = 42
@@ -315,7 +313,7 @@ def perform_bootstrap(df_barcodes, mix, depths_,
         ax.set_ylabel('Variant Prevalence')
         fig.tight_layout()
         fig.savefig(basename+'_summarized.'+boxplot)
-    return lin_out, constell_out
+    return lin_df, constell_df
 
 
 if __name__ == '__main__':

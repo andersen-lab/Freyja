@@ -321,9 +321,16 @@ def boot(variants, depths, output_base, eps, barcodes, meta,
                                                    covcut)
     print('demixing')
     df_barcodes, mix, depths_ = reindex_dfs(df_barcodes, mix, depths_)
-    lin_out, constell_out = perform_bootstrap(df_barcodes, mix, depths_,
+    lin_df, constell_df = perform_bootstrap(df_barcodes, mix, depths_,
                                               nb, eps, nt, mapDict, muts,
                                               boxplot, output_base)
+
+    lin_df.to_csv(output_base + '_lineages_boot.csv')
+    constell_df.to_csv(output_base + '_summarized_boot.csv')
+
+    lin_out = lin_df.quantile([0.025, 0.05, 0.25, 0.5, 0.75, 0.95, 0.975])
+    constell_out = constell_df.quantile([0.025, 0.05, 0.25, 0.5, 0.75, 0.95, 0.975])
+
     lin_out.to_csv(output_base + '_lineages.csv')
     constell_out.to_csv(output_base + '_summarized.csv')
 
