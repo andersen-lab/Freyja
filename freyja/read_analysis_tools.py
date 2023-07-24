@@ -389,6 +389,7 @@ def covariants(input_bam, min_site, max_site, output,
     co_muts = {}
     co_muts_by_gene = {}
     coverage = {}
+    co_muts_region = {}
 
     # Check if index file exists
     try:
@@ -403,6 +404,8 @@ def covariants(input_bam, min_site, max_site, output,
 
         coverage_start = None
         coverage_end = None
+        co_mut_start = None
+        co_mut_end = None
         nt_to_aa = {}
 
         muts_final = []
@@ -448,18 +451,27 @@ def covariants(input_bam, min_site, max_site, output,
                 for m in cigar:
                     if m[1] == 'I':
                         insertion_site = start+i+del_spacing-ins_spacing
+                        insertion_len = int(m[0])
+
                         ins_offsets[(last_ins_site, insertion_site)
                                     ] = ins_offset
                         last_ins_site = insertion_site
-                        ins_offset += int(m[0])
-                        if 'N' in seq[i:i+int(m[0])]:
+                        ins_offset += insertion_len
+                        if 'N' in seq[i:i+insertion_len]:
                             continue
+
                         insertions_found.append(
                             (insertion_site,
-                             seq[i:i+int(m[0])])
+                             seq[i:i+insertion_len])
                         )
-                        i += int(m[0])
-                        ins_spacing += int(m[0])
+                        # only insertion site in reference genome
+                        if co_mut_start is None or insertion_site < co_mut_start:
+                            co_mut_start = insertion_site
+                        if co_mut_end is None or insertion_site > co_mut_end:
+                            co_mut_end = insertion_site
+
+                        i += insertion_len
+                        ins_spacing += insertion_len
                     elif m[1] == 'D':
                         del_spacing += int(m[0])
                     elif m[1] == 'M':
@@ -475,12 +487,20 @@ def covariants(input_bam, min_site, max_site, output,
                     if m[1] == 'M':
                         i += int(m[0])
                     elif m[1] == 'D':
-                        deletions_found.append((start+i, int(m[0])))
-                        del_offsets[(last_del_site, start+i)] = del_offset
-                        last_del_site = start+i
-                        del_offset += int(m[0])
+                        deletion_site = start+i
+                        deletion_len = int(m[0])
 
-                        i += int(m[0])
+                        deletions_found.append((deletion_site, deletion_len))
+                        if co_mut_start is None or deletion_site < co_mut_start:
+                            co_mut_start = deletion_site
+                        if co_mut_end is None or deletion_site + deletion_len > co_mut_end:
+                            co_mut_end = deletion_site + deletion_len
+
+                        del_offsets[(last_del_site, start+i)] = del_offset
+                        last_del_site = deletion_site
+                        del_offset += deletion_len
+
+                        i += deletion_len
                 del_offsets[(last_del_site, start+i)] = del_offset
                 last_del_site = start+i
 
@@ -499,6 +519,10 @@ def covariants(input_bam, min_site, max_site, output,
                     snps_found.append(
                         f'{ref_base.upper()}{ref_site+1}{seq[read_site]}'
                     )
+                    if co_mut_start is None or ref_site + 1 < co_mut_start:
+                        co_mut_start = ref_site + 1
+                    if co_mut_end is None or ref_site + 1 > co_mut_end:
+                        co_mut_end = ref_site + 1
 
             # Get corresponding amino acid mutations
             if gff_file is not None:
@@ -506,9 +530,9 @@ def covariants(input_bam, min_site, max_site, output,
                     locus = ins[0]
                     gene_info = get_gene(locus)
                     ins_string = str(ins).replace(' ', '')
-
-                    if gene_info is None:
+                    if gene_info is None or ins_string in nt_to_aa:
                         continue
+
                     gene, start_site = gene_info
                     aa_locus = ((locus - start_site) // 3) + 2
 
@@ -519,16 +543,15 @@ def covariants(input_bam, min_site, max_site, output,
 
                     aa_mut = (f'{ins_string}({gene}:INS{aa_locus}'
                               f'{insertion_seq})')
-                    if ins_string not in nt_to_aa:
-                        nt_to_aa[ins_string] = aa_mut
+                    nt_to_aa[ins_string] = aa_mut
 
                 for deletion in deletions_found:
                     locus = deletion[0]
                     gene_info = get_gene(locus)
                     deletion_string = str(deletion).replace(' ', '')
-
-                    if gene_info is None:
+                    if gene_info is None or deletion_string in nt_to_aa:
                         continue
+
                     gene, start_site = gene_info
                     aa_locus = ((locus - start_site) // 3) + 2
 
@@ -540,14 +563,12 @@ def covariants(input_bam, min_site, max_site, output,
                         )
                     else:
                         aa_mut = f'{deletion_string}({gene}:DEL{aa_locus})'
+                    nt_to_aa[deletion_string] = aa_mut
 
-                    if deletion_string not in nt_to_aa:
-                        nt_to_aa[deletion_string] = aa_mut
                 for snp in snps_found:
                     locus = int(snp[1:-1])
-
                     gene_info = get_gene(locus)
-                    if gene_info is None:
+                    if gene_info is None or snp in nt_to_aa:
                         continue
 
                     gene, start_site = gene_info
@@ -581,46 +602,97 @@ def covariants(input_bam, min_site, max_site, output,
                     alt_aa = alt_codon.translate()
 
                     aa_mut = f'{snp}({gene}:{ref_aa}{aa_locus}{alt_aa})'
-                    if snp not in nt_to_aa:
-                        nt_to_aa[snp] = aa_mut
+                    nt_to_aa[snp] = aa_mut
 
             for mut in insertions_found + deletions_found + snps_found:
                 muts_final.append(str(mut).replace(' ', ''))
 
-            muts_final = sorted(list(set(muts_final)), key=nt_position)
-
-        if len(muts_final) == 0:
-            continue
-
-        # Update counts
-        key = ' '.join(muts_final)
-        if key not in co_muts:
-            co_muts[key] = 1
-        else:
-            co_muts[key] += 1
-
-        muts_final_aa = []
-        for mut in muts_final:
-            mut = str(mut).replace(' ', '')
-            if mut in nt_to_aa:
-                muts_final_aa.append(nt_to_aa[mut])
-            else:
-                muts_final_aa.append(mut)
-
-        aa_string = ' '.join(muts_final_aa)
-        if key not in co_muts_by_gene \
-                or len(co_muts_by_gene[key]) < len(aa_string):
-            co_muts_by_gene[key] = aa_string
-
-        # Update coverage
-        coverage[key] = (coverage_start, coverage_end)
-
+        # Skip update if reads do not span region
         if spans_region:
             if coverage_start > min_site or coverage_end < max_site:
                 continue
 
+        muts_final = sorted(list(set(muts_final)), key=nt_position)
+        if len(muts_final) == 0:
+            continue
+
+        # Update
+        key = ' '.join(muts_final)
+        if key not in co_muts:
+            co_muts[key] = 1
+            coverage[key] = [coverage_start, coverage_end]
+            co_muts_region[key] = (co_mut_start, co_mut_end)
+        else:
+            co_muts[key] += 1
+
+            # Update coverage to union of read pairs with covariants
+            if coverage_start < coverage[key][0]:
+                coverage[key][0] = coverage_start
+            if coverage_end > coverage[key][1]:
+                coverage[key][1] = coverage_end
+
+        # Should only have to do this when key not in co_muts
+        # but aa_mut can sometimes change for snps due to indels
+        if gff_file is not None:
+            muts_final_aa = []
+            for mut in muts_final:
+                if mut in nt_to_aa:
+                    muts_final_aa.append(nt_to_aa[mut])
+                else:
+                    muts_final_aa.append(mut)
+
+            aa_string = ' '.join(muts_final_aa)
+            if key not in co_muts_by_gene \
+                    or len(co_muts_by_gene[key]) < len(aa_string):
+                co_muts_by_gene[key] = aa_string
+
     samfile.close()
 
+    # Go through samfile another time to determine number of read pairs
+    # for positions covered by each set of covariants
+    samfile = pysam.AlignmentFile(input_bam, 'rb')
+    samfile.fetch(refname, min_site, max_site+1)
+    co_muts_max_reads = {}
+
+    for read1, read2 in read_pair_generator(samfile, refname, min_site,
+                                            max_site+1):
+
+        coverage_start = None
+        coverage_end = None
+
+        for x in [read1, read2]:
+            if x is None:
+                break
+
+            start = x.reference_start
+            seq = x.query_alignment_sequence
+            quals = x.query_alignment_qualities
+            seq = ''.join(
+                [seq[i] if quals[i] >= min_quality else 'N'
+                 for i in range(len(seq))])
+
+            # Update coverage ranges
+            if coverage_start is None or start < coverage_start:
+                coverage_start = start
+            if coverage_end is None or start + len(seq) > coverage_end:
+                coverage_end = start + len(seq)
+
+        # Skip update if reads do not span region
+        if spans_region:
+            if coverage_start > min_site or coverage_end < max_site:
+                continue
+
+        for key in co_muts_region:
+            co_mut_start, co_mut_end = co_muts_region[key]
+            if coverage_start < co_mut_start and coverage_end > co_mut_end:
+                if key not in co_muts_max_reads:
+                    co_muts_max_reads[key] = 1
+                else:
+                    co_muts_max_reads[key] += 1
+
+    samfile.close()
+
+    # Aggregate dictionaries into dataframe
     df = pd.DataFrame()
     if gff_file is not None:
         df['Covariants'] = [co_muts_by_gene[k] for k in co_muts]
@@ -629,11 +701,15 @@ def covariants(input_bam, min_site, max_site, output,
     df['Count'] = [co_muts[k] for k in co_muts]
     df['Coverage_start'] = [coverage[k][0] for k in co_muts]
     df['Coverage_end'] = [coverage[k][1] for k in co_muts]
+    df['Max_count'] = [co_muts_max_reads[k] for k in co_muts]
+    df['Freq'] = [co_muts[k] / co_muts_max_reads[k] for k in co_muts]
 
     df = df[df['Count'] >= min_count]
 
     # Sort patterns
     if sort_by.lower() == 'count':
+        df = df.sort_values('Count', ascending=False)
+    elif sort_by.lower() == 'freq':
         df = df.sort_values('Count', ascending=False)
     elif sort_by.lower() == 'site':
         df['sort_col'] = [nt_position(s.split(' ')[0]) for s in df.Covariants]
