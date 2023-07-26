@@ -465,9 +465,11 @@ def covariants(input_bam, min_site, max_site, output,
                              seq[i:i+insertion_len])
                         )
                         # only insertion site in reference genome
-                        if co_mut_start is None or insertion_site < co_mut_start:
+                        if co_mut_start is None \
+                                or insertion_site < co_mut_start:
                             co_mut_start = insertion_site
-                        if co_mut_end is None or insertion_site > co_mut_end:
+                        if co_mut_end is None \
+                                or insertion_site > co_mut_end:
                             co_mut_end = insertion_site
 
                         i += insertion_len
@@ -491,9 +493,11 @@ def covariants(input_bam, min_site, max_site, output,
                         deletion_len = int(m[0])
 
                         deletions_found.append((deletion_site, deletion_len))
-                        if co_mut_start is None or deletion_site < co_mut_start:
+                        if co_mut_start is None \
+                                or deletion_site < co_mut_start:
                             co_mut_start = deletion_site
-                        if co_mut_end is None or deletion_site + deletion_len > co_mut_end:
+                        if co_mut_end is None \
+                                or deletion_site + deletion_len > co_mut_end:
                             co_mut_end = deletion_site + deletion_len
 
                         del_offsets[(last_del_site, start+i)] = del_offset
