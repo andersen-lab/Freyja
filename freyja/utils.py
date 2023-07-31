@@ -862,7 +862,7 @@ def collapse_barcodes(df_barcodes, df_depth, depthcutoff, locDir, output):
     lineage_data = {lineage['name']: lineage for lineage in lineage_yml}
 
     alias_count = {}
-    merging_recomb = False
+    print_warning = False
     collapsed_lineages = {}
 
     # collapse lineages into MRCA, where possible
@@ -870,33 +870,46 @@ def collapse_barcodes(df_barcodes, df_depth, depthcutoff, locDir, output):
         pango_aliases = [lineage_data[lin]['alias']
                          for lin in tup]
 
-        # handle case where recombinant and non-recombinant lins are merged
-        recomb_and_nonrecomb = len(
-            set([alias[0] for alias in pango_aliases])) > 1
-        if recomb_and_nonrecomb:
+        # handle cases where multiple lineage classes are being merged
+        # e.g. (A.5, B.12) or (XBB,XBN)
+        multiple_lin_classes = len(
+            set([alias[0] for alias in pango_aliases])) > 1 or \
+            len(
+            set([alias.split('.')[0] for alias in pango_aliases 
+                 if alias.startswith('X')])) > 1
+            
+        if multiple_lin_classes:
+            if 'XBB' in pango_aliases:
+                pass
             for alias in pango_aliases:
                 if alias.startswith('X'):
-                    pango_aliases.remove(alias)
-                    parents = lineage_data[alias]['recombinant_parents']\
+                    tmp = alias
+                    # for recombinant lineages, find the parent lineages
+                    while 'recombinant_parents' not in lineage_data[alias]:
+                        alias = lineage_data[alias]['parent']
+                    
+                    # Replace with its recombinant parents
+                    pango_aliases.remove(tmp)
+                    parents = lineage_data[alias]['recombinant_parents'] \
                         .replace('*', '').split(',')
                     parents = [lineage_data[lin]['alias'] for lin in parents]
-                    for alias in pango_aliases:
-                        for parent in parents:
-                            if alias.startswith(parent) and\
-                                    parent not in pango_aliases:
-                                pango_aliases.append(parent)
 
-            merging_recomb = True
+                    for parent in parents:
+                        # if any([alias.startswith(parent) 
+                              # for alias in pango_aliases]) and\
+                        if parent not in pango_aliases:
+                            pango_aliases.append(parent)
+            print_warning = True
 
+        # get MRCA
         mrca = os.path.commonpath(
             [lin.replace('.', '/') for lin in pango_aliases]
         ).replace('/', '.')
 
-        # attempting to collapse multiple recombinant lineages
-        if len(mrca) == 0 and all([alias.startswith('X')
-                                   for alias in pango_aliases]):
-            mrca = 'Recombinant'
-            merging_recomb = True
+        # assign placeholder if no MRCA found
+        if len(mrca) == 0:
+            mrca = 'Unknown'
+            print_warning = True
         else:
             for lineage in lineage_data:
                 if lineage_data[lineage]['alias'] == mrca:
@@ -904,7 +917,10 @@ def collapse_barcodes(df_barcodes, df_depth, depthcutoff, locDir, output):
                     break
 
         # add flag to indicate that this is a merged lineage
-        mrca += '-like'
+        if mrca != 'Unknown':
+            mrca += '-like'
+        
+        # include index for multiple barcode classes with same MRCA
         if mrca not in alias_count:
             alias_count[mrca] = 0
         else:
@@ -926,8 +942,8 @@ def collapse_barcodes(df_barcodes, df_depth, depthcutoff, locDir, output):
         yaml.dump(collapsed_lineages, f, default_flow_style=False)
 
     print(f'collapsed lineages saved to {output}')
-    if merging_recomb:
-        print('warning: Recombinant and non-recombinant lineage barcodes'
+    if print_warning:
+        print('warning: Barcodes of multiple lineage classes are'
               ' being merged based on available sequence coverage and'
               ' --depthcutoff value. Solution may be inaccurate.')
 
