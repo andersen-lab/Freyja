@@ -871,14 +871,15 @@ def collapse_barcodes(df_barcodes, df_depth, depthcutoff, locDir, output):
                          for lin in tup]
 
         # handle cases where multiple lineage classes are being merged
-        # e.g. (A.5, B.12) or (XBB,XBN)
+        # e.g. (A.5, B.12) or (XBB, XBN)
         multiple_lin_classes = len(
-            set([alias[0] for alias in pango_aliases])) > 1 or \
-            len(
-            set([alias.split('.')[0] for alias in pango_aliases 
-                 if alias.startswith('X')])) > 1
+            set([alias[0] for alias in pango_aliases])) > 1 #or \
+            # len(
+            # set([alias.split('.')[0] for alias in pango_aliases
+            #      if alias.startswith('X')])) > 1
             
         if multiple_lin_classes:
+            parent_aliases = []
             if 'XBB' in pango_aliases:
                 pass
             for alias in pango_aliases:
@@ -895,10 +896,12 @@ def collapse_barcodes(df_barcodes, df_depth, depthcutoff, locDir, output):
                     parents = [lineage_data[lin]['alias'] for lin in parents]
 
                     for parent in parents:
-                        # if any([alias.startswith(parent) 
-                              # for alias in pango_aliases]) and\
-                        if parent not in pango_aliases:
-                            pango_aliases.append(parent)
+                        if any([alias.startswith(parent) 
+                              for alias in pango_aliases]) and \
+                                parent not in pango_aliases:
+                            parent_aliases.append(parent)
+
+            pango_aliases += parent_aliases
             print_warning = True
 
         # get MRCA
