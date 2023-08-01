@@ -14,6 +14,18 @@ def nt_position(x):
         return int(x.split(',')[0][1:])
     return int(x.split('(')[0][1:-1])
 
+def get_colnames_and_sites(unique_mutations, nt_muts):
+    if nt_muts:
+        colnames = unique_mutations
+        sites = {mut: nt_position(mut) for mut in unique_mutations}
+    else:
+        colnames = [mut.split(')(')[1][:-1] if 'DEL' in mut
+                    else mut.split('(')[1][:-1] for mut in unique_mutations]
+        sites = {mut.split(')(')[1][:-1] if 'DEL' in mut
+                else mut.split('(')[1][:-1]: nt_position(mut)
+                for mut in unique_mutations}
+    colnames = sorted(list(colnames), key=lambda x: sites[x])
+    return colnames, sites
 
 def read_pair_generator(bam, refname, min_site, max_site):
     is_paired = {}
@@ -753,58 +765,45 @@ def filter_covariants_output(cluster, min_mutation_count, nt_mut):
     return cluster_final
 
 
-def plot_covariants(covar_file, output, num_clusters, min_mutations, nt_muts):
+def plot_covariants(covariants, output, num_clusters, min_mutations, nt_muts):
 
-    covars = pd.read_csv(covar_file, sep='\t', header=0)
-    covars['Covariants'] = covars['Covariants']\
-        .str.replace(', ', ',')\
-        .str.split(' ')\
-        .apply(filter_covariants_output, args=(min_mutations, nt_muts))\
+    covariants_df = pd.read_csv(covariants, sep='\t', header=0)
 
-    covars[[covars['Covariants'] == 'nan']] = pd.NA
-    covars = covars.dropna()\
-                   .head(num_clusters)
+    # Clean up covariants output
+    covariants_df['Covariants'] = covariants_df['Covariants'] \
+        .str.replace(', ', ',') \
+        .str.split(' ') \
+        .apply(filter_covariants_output, args=(min_mutations, nt_muts)) 
+    covariants_df[[covariants_df['Covariants'] == 'nan']] = pd.NA
+    covariants_df = covariants_df.dropna().head(num_clusters)
+    covariants_df = covariants_df[len(covariants_df['Covariants']) > min_mutations]
 
     # Merge rows with identical covariants and add their counts
-    covars = covars.groupby(covars['Covariants'].astype(str))\
+    covariants_df = covariants_df.groupby(covariants_df['Covariants'].astype(str))\
         .agg(
         {'Count': 'sum', 'Coverage_start': 'first', 'Coverage_end': 'first'}
-    )\
-        .reset_index()\
+    ) \
+        .reset_index() \
         .sort_values('Count', ascending=False)
 
-    # Get all mutations found in the sample
-    all_muts = []
-    for sublist in covars['Covariants'].to_list():
-        for mut in sublist.strip('][').split(', '):
-            if mut[1:-1] not in all_muts:
-                all_muts.append(mut[1:-1])
+    # Cast covariants column to list
+    covariants_df['Covariants'] = covariants_df['Covariants'] \
+        .str.strip('][') \
+        .str.replace("'", "") \
+        .str.split(pat=', ')
 
-    patterns = [pattern.strip('][').split(', ')
-                for pattern in covars['Covariants'].to_list()]
+    covariants_df['Coverage_ranges'] = list(zip(covariants_df['Coverage_start'],
+                                           covariants_df['Coverage_end']))
+    
+    # Get all unique mutations found in the sample
+    unique_mutations = set()
+    for sublist in covariants_df['Covariants']:
+        unique_mutations.update(sublist)
 
-    counts = dict(zip([str(pattern)
-                  for pattern in patterns], covars['Count'].to_list()))
-
-    coverage_start = covars['Coverage_start']
-    coverage_end = covars['Coverage_end']
-    coverage_ranges = dict(zip([str(pattern) for pattern in patterns],
-                               zip(coverage_start, coverage_end)))
-
-    if nt_muts:
-        colnames = all_muts
-        sites = {mut: nt_position(mut) for mut in all_muts}
-    else:
-        colnames = [mut.split(')(')[1][:-1] if 'DEL' in mut
-                    else mut.split('(')[1][:-1] for mut in all_muts]
-        sites = {mut.split(')(')[1][:-1] if 'DEL' in mut
-                 else mut.split('(')[1][:-1]: nt_position(mut)
-                 for mut in all_muts}
-
-    colnames = sorted(colnames, key=lambda x: sites[x])
+    colnames, sites = get_colnames_and_sites(unique_mutations, nt_muts)
 
     data = {}
-    for pattern in enumerate(patterns):
+    for pattern in enumerate(covariants_df['Covariants']):
         if len(pattern[1]) >= min_mutations:
             sample_name = f'CP{pattern[0]}({counts[str(pattern[1])]})'
             data[sample_name] = [0 for c in colnames]
@@ -839,7 +838,7 @@ def plot_covariants(covar_file, output, num_clusters, min_mutations, nt_muts):
     ax.legend(handles=legend_elements,
               bbox_to_anchor=(1.04, 1), loc="upper left")
     fig.tight_layout()
-    plt.title(label=covar_file.split('.tsv')[0])
+    plt.title(label=covariants.split('.tsv')[0])
     plt.savefig(output, bbox_inches='tight')
 
     print(f'plot-covariants: Output saved to {output}')

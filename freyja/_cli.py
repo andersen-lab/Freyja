@@ -600,7 +600,7 @@ def covariants(input_bam, min_site, max_site, output,
 
 
 @cli.command()
-@click.argument('covar_file', type=click.Path(exists=True))
+@click.argument('covariants', type=click.Path(exists=True))
 @click.option('--output', default='covariants_plot.pdf')
 @click.option('--num_clusters', default=10,
               help='number of clusters to plot (starting with greatest count)')
@@ -609,8 +609,8 @@ def covariants(input_bam, min_site, max_site, output,
 @click.option('--nt_muts', is_flag=True,
               help=('if included, include nucleotide mutations in x-labels'
                     ))
-def plot_covariants(covar_file, output, num_clusters, min_mutations, nt_muts):
-    _plot_covariants(covar_file, output, num_clusters, min_mutations, nt_muts)
+def plot_covariants(covariants, output, num_clusters, min_mutations, nt_muts):
+    _plot_covariants(covariants, output, num_clusters, min_mutations, nt_muts)
 
 
 if __name__ == '__main__':
