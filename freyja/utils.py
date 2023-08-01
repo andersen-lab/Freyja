@@ -873,31 +873,27 @@ def collapse_barcodes(df_barcodes, df_depth, depthcutoff, locDir, output):
         # handle cases where multiple lineage classes are being merged
         # e.g. (A.5, B.12) or (XBB, XBN)
         multiple_lin_classes = len(
-            set([alias[0] for alias in pango_aliases])) > 1 #or \
-            # len(
-            # set([alias.split('.')[0] for alias in pango_aliases
-            #      if alias.startswith('X')])) > 1
-            
+            set([alias[0] for alias in pango_aliases])) > 1
+
         if multiple_lin_classes:
+            # for recombinant lineages, find the parent lineages
             parent_aliases = []
-            if 'XBB' in pango_aliases:
-                pass
             for alias in pango_aliases:
                 if alias.startswith('X'):
                     tmp = alias
-                    # for recombinant lineages, find the parent lineages
                     while 'recombinant_parents' not in lineage_data[alias]:
                         alias = lineage_data[alias]['parent']
-                    
-                    # Replace with its recombinant parents
+
+                    # replace with its recombinant parents
                     pango_aliases.remove(tmp)
                     parents = lineage_data[alias]['recombinant_parents'] \
                         .replace('*', '').split(',')
                     parents = [lineage_data[lin]['alias'] for lin in parents]
 
+                    # only consider parents related to the other lineages
                     for parent in parents:
-                        if any([alias.startswith(parent) 
-                              for alias in pango_aliases]) and \
+                        if any([alias.startswith(parent)
+                                for alias in pango_aliases]) and \
                                 parent not in pango_aliases:
                             parent_aliases.append(parent)
 
@@ -914,6 +910,7 @@ def collapse_barcodes(df_barcodes, df_depth, depthcutoff, locDir, output):
             mrca = 'Unknown'
             print_warning = True
         else:
+            # otherwise get the shortened alias, if available
             for lineage in lineage_data:
                 if lineage_data[lineage]['alias'] == mrca:
                     mrca = lineage
@@ -922,8 +919,8 @@ def collapse_barcodes(df_barcodes, df_depth, depthcutoff, locDir, output):
         # add flag to indicate that this is a merged lineage
         if mrca != 'Unknown':
             mrca += '-like'
-        
-        # include index for multiple barcode classes with same MRCA
+
+        # include count for multiple barcode classes with same MRCA
         if mrca not in alias_count:
             alias_count[mrca] = 0
         else:
