@@ -862,7 +862,6 @@ def collapse_barcodes(df_barcodes, df_depth, depthcutoff, locDir, output):
     lineage_data = {lineage['name']: lineage for lineage in lineage_yml}
 
     alias_count = {}
-    print_warning = False
     collapsed_lineages = {}
 
     # collapse lineages into MRCA, where possible
@@ -897,7 +896,6 @@ def collapse_barcodes(df_barcodes, df_depth, depthcutoff, locDir, output):
                             parent_aliases.append(parent)
 
             pango_aliases += parent_aliases
-            print_warning = True
 
         # get MRCA
         mrca = os.path.commonpath(
@@ -906,18 +904,14 @@ def collapse_barcodes(df_barcodes, df_depth, depthcutoff, locDir, output):
 
         # assign placeholder if no MRCA found
         if len(mrca) == 0:
-            mrca = 'Unknown'
-            print_warning = True
+            mrca = 'Misc'
         else:
             # otherwise, get the shortened alias, if available
             for lineage in lineage_data:
                 if lineage_data[lineage]['alias'] == mrca:
-                    mrca = lineage
+                    # add flag to indicate that this is a merged lineage
+                    mrca = lineage + '-like'
                     break
-
-        # add flag to indicate that this is a merged lineage
-        if mrca != 'Unknown':
-            mrca += '-like'
 
         # include index for multiple barcode classes with same MRCA
         if mrca not in alias_count:
@@ -927,7 +921,6 @@ def collapse_barcodes(df_barcodes, df_depth, depthcutoff, locDir, output):
             mrca += f'({alias_count[mrca]})'
 
         collapsed_lineages[mrca] = list(tup)
-
         df_barcodes = df_barcodes.rename({lin: mrca for lin in tup})
     df_barcodes = df_barcodes.drop_duplicates()
 
@@ -941,10 +934,6 @@ def collapse_barcodes(df_barcodes, df_depth, depthcutoff, locDir, output):
         yaml.dump(collapsed_lineages, f, default_flow_style=False)
 
     print(f'collapsed lineages saved to {output}')
-    if print_warning:
-        print('warning: Barcodes of multiple lineage classes are'
-              ' being merged based on available sequence coverage and'
-              ' --depthcutoff value. Solution may be inaccurate.')
 
     return df_barcodes
 
