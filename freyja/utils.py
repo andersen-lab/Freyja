@@ -869,6 +869,7 @@ def collapse_barcodes(df_barcodes, df_depth, depthcutoff, locDir, output):
     for tup in duplicates:
         pango_aliases = [lineage_data[lin]['alias']
                          for lin in tup]
+        alias_dict = {lineage_data[lin]['alias']: lin for lin in tup}
 
         # handle cases where multiple lineage classes are being merged
         # e.g. (A.5, B.12) or (XBB, XBN)
@@ -879,13 +880,11 @@ def collapse_barcodes(df_barcodes, df_depth, depthcutoff, locDir, output):
             # for recombinant lineages, find the parent lineages
             parent_aliases = []
             for alias in pango_aliases:
-                if alias.startswith('X'):
-                    tmp = alias
-                    while 'recombinant_parents' not in lineage_data[alias]:
-                        alias = lineage_data[alias]['parent']
+
+                if 'recombinant_parents' in lineage_data[alias_dict[alias]]:
 
                     # replace with its recombinant parents
-                    pango_aliases.remove(tmp)
+                    pango_aliases.remove(alias)
                     parents = lineage_data[alias]['recombinant_parents'] \
                         .replace('*', '').split(',')
                     parents = [lineage_data[lin]['alias'] for lin in parents]
@@ -910,7 +909,7 @@ def collapse_barcodes(df_barcodes, df_depth, depthcutoff, locDir, output):
             mrca = 'Unknown'
             print_warning = True
         else:
-            # otherwise get the shortened alias, if available
+            # otherwise, get the shortened alias, if available
             for lineage in lineage_data:
                 if lineage_data[lineage]['alias'] == mrca:
                     mrca = lineage
@@ -920,7 +919,7 @@ def collapse_barcodes(df_barcodes, df_depth, depthcutoff, locDir, output):
         if mrca != 'Unknown':
             mrca += '-like'
 
-        # include count for multiple barcode classes with same MRCA
+        # include index for multiple barcode classes with same MRCA
         if mrca not in alias_count:
             alias_count[mrca] = 0
         else:
