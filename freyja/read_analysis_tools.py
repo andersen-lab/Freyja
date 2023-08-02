@@ -1,4 +1,5 @@
 import re
+import numpy as np
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
@@ -14,6 +15,7 @@ def nt_position(x):
         return int(x.split(',')[0][1:])
     return int(x.split('(')[0][1:-1])
 
+
 def get_colnames_and_sites(unique_mutations, nt_muts):
     if nt_muts:
         colnames = unique_mutations
@@ -22,10 +24,11 @@ def get_colnames_and_sites(unique_mutations, nt_muts):
         colnames = [mut.split(')(')[1][:-1] if 'DEL' in mut
                     else mut.split('(')[1][:-1] for mut in unique_mutations]
         sites = {mut.split(')(')[1][:-1] if 'DEL' in mut
-                else mut.split('(')[1][:-1]: nt_position(mut)
-                for mut in unique_mutations}
-    colnames = sorted(list(colnames), key=lambda x: sites[x])
+                 else mut.split('(')[1][:-1]: nt_position(mut)
+                 for mut in unique_mutations}
+    colnames = sorted(list(set(colnames)), key=lambda x: sites[x])
     return colnames, sites
+
 
 def read_pair_generator(bam, refname, min_site, max_site):
     is_paired = {}
@@ -773,15 +776,15 @@ def plot_covariants(covariants, output, num_clusters, min_mutations, nt_muts):
     covariants_df['Covariants'] = covariants_df['Covariants'] \
         .str.replace(', ', ',') \
         .str.split(' ') \
-        .apply(filter_covariants_output, args=(min_mutations, nt_muts)) 
+        .apply(filter_covariants_output, args=(min_mutations, nt_muts))
     covariants_df[[covariants_df['Covariants'] == 'nan']] = pd.NA
     covariants_df = covariants_df.dropna().head(num_clusters)
-    covariants_df = covariants_df[len(covariants_df['Covariants']) > min_mutations]
+    covariants_df = covariants_df[covariants_df['Covariants'].map(len) > min_mutations]
 
     # Merge rows with identical covariants and add their counts
     covariants_df = covariants_df.groupby(covariants_df['Covariants'].astype(str))\
         .agg(
-        {'Count': 'sum', 'Coverage_start': 'first', 'Coverage_end': 'first'}
+        {'Count': 'sum', 'Coverage_start': 'first', 'Coverage_end': 'first', 'Freq': 'sum'}
     ) \
         .reset_index() \
         .sort_values('Count', ascending=False)
@@ -793,38 +796,37 @@ def plot_covariants(covariants, output, num_clusters, min_mutations, nt_muts):
         .str.split(pat=', ')
 
     covariants_df['Coverage_ranges'] = list(zip(covariants_df['Coverage_start'],
-                                           covariants_df['Coverage_end']))
-    
+                                                covariants_df['Coverage_end']))
+
+    log_frequency = np.log10(covariants_df['Freq']).sort_values(ascending=False).tolist()
+
     # Get all unique mutations found in the sample
     unique_mutations = set()
     for sublist in covariants_df['Covariants']:
         unique_mutations.update(sublist)
 
+    # Populate dataframe with cluster frequencies
     colnames, sites = get_colnames_and_sites(unique_mutations, nt_muts)
-
-    data = {}
+    index = [f'CP{i}' for i in range(len(covariants_df))]
+    plot_df = pd.DataFrame(columns=colnames, index=index)
     for pattern in enumerate(covariants_df['Covariants']):
-        if len(pattern[1]) >= min_mutations:
-            sample_name = f'CP{pattern[0]}({counts[str(pattern[1])]})'
-            data[sample_name] = [0 for c in colnames]
-            for i in range(len(colnames)):
-                for mut in pattern[1]:
-                    if colnames[i] in mut:
-                        data[sample_name][i] = 1
-                if data[sample_name][i] == 0 and sites[colnames[i]]\
-                    in range(
-                        coverage_ranges[str(pattern[1])][0],
-                        coverage_ranges[str(pattern[1])][1]):
-                    data[sample_name][i] = 0.5
+        sample_row = np.zeros(len(colnames))
+        coverage_range = covariants_df['Coverage_ranges'][pattern[0]]
+        for tup in [(col, sites[col]) for col in colnames]:
+            if tup[1] in range(coverage_range[0], coverage_range[1]):
+                # placeholder for refererence bases
+                sample_row[colnames.index(tup[0])] = 1 
+            for mut in pattern[1]:
+                if tup[0] in mut:
+                    sample_row[colnames.index(tup[0])] = log_frequency[pattern[0]]
+        plot_df.loc[index[pattern[0]]] = sample_row
 
-    df = pd.DataFrame.from_dict(data, orient='index')
-    df.columns = colnames
-    df = df.loc[:, (df > 0.5).any(axis=0)]  # drop empty cols
+    #plot_df = plot_df.loc[:, (plot_df > 0.5).any(axis=0)]  # drop empty cols
 
     fig, ax = plt.subplots(figsize=(15, 10))
     cmap = clr.LinearSegmentedColormap.from_list(
         'rdgray', ['#EEEEEE', '#9E9E9E', '#FF6347'], N=256)
-    plot = sns.heatmap(df, ax=ax, cbar=False, square=True,
+    plot = sns.heatmap(plot_df, ax=ax, cbar=False, square=True,
                        fmt='', linewidths=0.5, cmap=cmap, vmin=0, vmax=1,
                        linecolor='gray')
     plot.set_yticklabels(plot.get_yticklabels(), rotation=0)
