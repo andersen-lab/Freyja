@@ -739,14 +739,14 @@ def covariants(input_bam, min_site, max_site, output,
     return df
 
 
-def filter_covariants_output(cluster, min_mutation_count, nt_muts):
+def filter_covariants_output(cluster, nt_muts, min_mutations):
     cluster_final = []
 
     if nt_muts:
         for variant in cluster:
             if ',' in variant:
                 # Insertion
-                if any([nt in variant for nt in ['ACGT']]):
+                if any([nt in variant for nt in 'ACGT']):
                     continue
                 # Frameshift
                 if int(variant.split(',')[1].split(')')[0]) % 3 != 0:
@@ -762,11 +762,10 @@ def filter_covariants_output(cluster, min_mutation_count, nt_muts):
             else:
                 cluster_final.append(variant)
 
-    cluster_final = list(dict.fromkeys(cluster_final))
-
-    if len(cluster_final) < min_mutation_count:
+    if len(cluster_final) < min_mutations:
         return pd.NA
-    return cluster_final
+    else:
+        return list(dict.fromkeys(cluster_final))
 
 
 def plot_covariants(covariants, output, num_clusters, min_mutations, nt_muts,
@@ -774,34 +773,29 @@ def plot_covariants(covariants, output, num_clusters, min_mutations, nt_muts,
 
     covariants_df = pd.read_csv(covariants, sep='\t', header=0)
 
-    if not ':' in covariants_df['Covariants']:
+    if not any(':' in mut for mut in covariants_df['Covariants'][0]):
         nt_muts = True
 
     # Clean up covariants output
     covariants_df['Covariants'] = covariants_df['Covariants'] \
         .str.replace(', ', ',') \
         .str.split(' ') \
-        .apply(filter_covariants_output, args=(min_mutations, nt_muts)) \
-        .replace('nan', pd.NA) \
-        .dropna() \
-        .head(num_clusters)
+        .head(num_clusters) \
+        .apply(filter_covariants_output, args=(nt_muts, min_mutations))
 
-    # Filter out clusters with fewer than min_mutations
-    covariants_df = covariants_df[covariants_df['Covariants']
-                                  .map(len) > min_mutations]
+    covariants_df = covariants_df.dropna()
 
     # Merge rows with identical covariants and add their counts
-    covariants_df = covariants_df.groupby(
-        covariants_df['Covariants'].astype(str)
-    ) \
+    covariants_df = covariants_df \
+        .groupby(covariants_df['Covariants'].astype(str)) \
         .agg(
-        {
-            'Count': 'sum',
-            'Coverage_start': 'max',
-            'Coverage_end': 'min',
-            'Freq': 'sum'
-        }
-    ) \
+            {
+                'Count': 'sum',
+                'Coverage_start': 'max',
+                'Coverage_end': 'min',
+                'Freq': 'sum'
+            }
+        ) \
         .reset_index() \
         .sort_values('Freq', ascending=False)
 
@@ -856,6 +850,7 @@ def plot_covariants(covariants, output, num_clusters, min_mutations, nt_muts,
     plot = sns.heatmap(plot_df, cmap=plt.get_cmap('binary'), vmin=-1, vmax=1,
                        linewidths=0.75, linecolor='white',
                        mask=plot_df < 0, cbar=False, ax=ax)
+
     plot.set_yticklabels(plot.get_yticklabels(), rotation=0)
 
     for _, spine in plot.spines.items():
