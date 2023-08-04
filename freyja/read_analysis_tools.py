@@ -644,10 +644,10 @@ def covariants(input_bam, min_site, max_site, output,
         else:
             co_muts[key] += 1
 
-            # Update coverage to union of read pairs with covariants
-            if coverage_start < coverage[key][0]:
+            # Update coverage to intersection of read pairs with covariants
+            if coverage_start > coverage[key][0]:
                 coverage[key][0] = coverage_start
-            if coverage_end > coverage[key][1]:
+            if coverage_end < coverage[key][1]:
                 coverage[key][1] = coverage_end
 
         # Should only have to do this when key not in co_muts
@@ -718,10 +718,10 @@ def covariants(input_bam, min_site, max_site, output,
     else:
         df['Covariants'] = [k for k in co_muts]
     df['Count'] = [co_muts[k] for k in co_muts]
-    df['Coverage_start'] = [coverage[k][0] for k in co_muts]
-    df['Coverage_end'] = [coverage[k][1] for k in co_muts]
     df['Max_count'] = [co_muts_max_reads[k] for k in co_muts]
     df['Freq'] = [co_muts[k] / co_muts_max_reads[k] for k in co_muts]
+    df['Coverage_start'] = [coverage[k][0] for k in co_muts]
+    df['Coverage_end'] = [coverage[k][1] for k in co_muts]
 
     df = df[df['Count'] >= min_count]
 
@@ -780,10 +780,10 @@ def plot_covariants(covariants, output, num_clusters, min_mutations, nt_muts,
     covariants_df['Covariants'] = covariants_df['Covariants'] \
         .str.replace(', ', ',') \
         .str.split(' ') \
-        .head(num_clusters) \
         .apply(filter_covariants_output, args=(nt_muts, min_mutations))
 
-    covariants_df = covariants_df.dropna()
+    # Drop rows with NA values and keep top n clusters
+    covariants_df = covariants_df.dropna().head(num_clusters)
 
     # Merge rows with identical covariants and add their counts
     covariants_df = covariants_df \
@@ -812,6 +812,7 @@ def plot_covariants(covariants, output, num_clusters, min_mutations, nt_muts,
         )
     )
 
+    coverage_ranges = covariants_df['Coverage_ranges'].tolist()
     log_frequency = np.log10(covariants_df['Freq']).tolist()
 
     # Get all unique mutations found in the sample
@@ -826,7 +827,7 @@ def plot_covariants(covariants, output, num_clusters, min_mutations, nt_muts,
     for pattern in enumerate(covariants_df['Covariants']):
         sample_row = np.empty(len(colnames))
         sample_row[:] = np.nan
-        coverage_range = covariants_df['Coverage_ranges'][pattern[0]]
+        coverage_range = coverage_ranges[pattern[0]]
         for col in colnames:
             if sites[col] in range(coverage_range[0], coverage_range[1]):
                 # Placeholder value for refererence bases
