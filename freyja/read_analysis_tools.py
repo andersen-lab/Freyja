@@ -783,7 +783,7 @@ def plot_covariants(covariants, output, num_clusters, min_mutations, nt_muts,
         .apply(filter_covariants_output, args=(nt_muts, min_mutations))
 
     # Drop rows with NA values and keep top n clusters
-    covariants_df = covariants_df.dropna().head(num_clusters)
+    covariants_df = covariants_df.dropna()
 
     # Merge rows with identical covariants and add their counts
     covariants_df = covariants_df \
@@ -811,7 +811,7 @@ def plot_covariants(covariants, output, num_clusters, min_mutations, nt_muts,
             covariants_df['Coverage_end']
         )
     )
-
+    covariants_df = covariants_df.head(num_clusters)
     coverage_ranges = covariants_df['Coverage_ranges'].tolist()
     log_frequency = np.log10(covariants_df['Freq']).tolist()
 
