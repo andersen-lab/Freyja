@@ -853,7 +853,7 @@ def plot_covariants(covariants, output, num_clusters, min_mutations, nt_muts,
                      linewidths=1.5, linecolor='darkgray', square=True)
 
     gray = mcolors.LinearSegmentedColormap.from_list(
-        name='custom', colors=['#9E9E9E', '#9E9E9E'])
+        name='custom', colors=['#BEBEBE', '#BEBEBE'])
     plot = sns.heatmap(plot_df, cmap=gray, vmin=-1, vmax=1,
                        linewidths=1.75, linecolor='darkgray', square=True,
                        mask=plot_df < 0, cbar=False, ax=ax)
@@ -864,7 +864,8 @@ def plot_covariants(covariants, output, num_clusters, min_mutations, nt_muts,
         spine.set_visible(True)
 
     legend_elements = [
-        Patch(facecolor='#9E9E9E', edgecolor='black', label='Reference base'),
+        Patch(facecolor='#BEBEBE', edgecolor='black', label='Reference base'),
+        Patch(facecolor='white', edgecolor='black', label='No coverage'),
     ]
     ax.legend(handles=legend_elements,
               bbox_to_anchor=(1.17, 0.17), loc="lower right")
