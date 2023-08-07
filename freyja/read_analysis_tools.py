@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
+import matplotlib.colors as mcolors
 from matplotlib.patches import Patch
 import pysam
 from Bio.Seq import MutableSeq
@@ -843,13 +844,18 @@ def plot_covariants(covariants, output, num_clusters, min_mutations, nt_muts,
     # Plot heatmap
     fig, ax = plt.subplots(figsize=(15, 10))
     max_nonzero = plot_df[plot_df != 0.0].max().max()
+    colors = ['#FFFFB2', '#FECC5C', '#FD8D3C', '#E31A1C']
+    cmap = mcolors.LinearSegmentedColormap.from_list(name='custom',
+                                                     colors=colors)
+    ax = sns.heatmap(plot_df, cmap=cmap,
+                     cbar_kws={'label': 'log10 Frequency', 'shrink': 0.5},
+                     vmax=max_nonzero,
+                     linewidths=1.5, linecolor='darkgray', square=True)
 
-    ax = sns.heatmap(plot_df, cmap='inferno',
-                     cbar_kws={'label': 'log10 Frequency'}, vmax=max_nonzero,
-                     linewidths=0.75, linecolor='white', square=True)
-
-    plot = sns.heatmap(plot_df, cmap=plt.get_cmap('binary'), vmin=-1, vmax=1,
-                       linewidths=0.75, linecolor='white',
+    gray = mcolors.LinearSegmentedColormap.from_list(
+        name='custom', colors=['#9E9E9E', '#9E9E9E'])
+    plot = sns.heatmap(plot_df, cmap=gray, vmin=-1, vmax=1,
+                       linewidths=1.75, linecolor='darkgray', square=True,
                        mask=plot_df < 0, cbar=False, ax=ax)
 
     plot.set_yticklabels(plot.get_yticklabels(), rotation=0)
@@ -861,7 +867,7 @@ def plot_covariants(covariants, output, num_clusters, min_mutations, nt_muts,
         Patch(facecolor='#9E9E9E', edgecolor='black', label='Reference base'),
     ]
     ax.legend(handles=legend_elements,
-              bbox_to_anchor=(1.04, 1), loc="lower right")
+              bbox_to_anchor=(1.17, 0.17), loc="lower right")
 
     fig.tight_layout()
     plt.title(label=title, fontsize=20)
