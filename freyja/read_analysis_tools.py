@@ -857,7 +857,19 @@ def plot_covariants(covariants, output, num_clusters, min_mutations, nt_muts):
                        linewidths=1.75, linecolor='white', square=True,
                        mask=plot_df < 0, cbar=False, ax=ax)
 
-    # Add rectangles for non-nan cells
+    # Add line between adjacent non-NaN cells
+    for i, row in enumerate(plot_df.values):
+        j = 0
+        while j < len(row):
+            if not np.isnan(row[j]):
+
+                if j > 0 and not np.isnan(row[j - 1]):
+                    line = plt.Line2D((j, j), (i, i + 1),
+                                      color='gray', linewidth=2.75, zorder=1)
+                    ax.add_artist(line)
+            j += 1
+
+    # Add rectangles for non-NaN cells
     for i, row in enumerate(plot_df.values):
         for j, val in enumerate(row):
             if val <= 0:
@@ -873,11 +885,12 @@ def plot_covariants(covariants, output, num_clusters, min_mutations, nt_muts):
         spine.set_visible(True)
 
     legend_elements = [
-        Patch(facecolor='#BEBEBE', edgecolor='black', label='Reference base'),
+        Patch(facecolor='#BEBEBE', edgecolor='black',
+              label='Reference sequence'),
         Patch(facecolor='white', edgecolor='black', label='No coverage'),
     ]
     ax.legend(handles=legend_elements,
-              bbox_to_anchor=(1.20, 0.17), loc="lower right")
+              bbox_to_anchor=(1.20, 0.40), loc="lower left", borderaxespad=0)
 
     fig.tight_layout()
     plt.savefig(output, bbox_inches='tight')
