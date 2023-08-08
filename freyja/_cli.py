@@ -609,11 +609,8 @@ def covariants(input_bam, min_site, max_site, output,
 @click.option('--nt_muts', is_flag=True,
               help=('if included, include nucleotide mutations in x-labels'
                     ))
-@click.option('--title', default='covariants plot')
-def plot_covariants(covariants, output, num_clusters, min_mutations, nt_muts,
-                    title):
-    _plot_covariants(covariants, output, num_clusters, min_mutations, nt_muts,
-                     title)
+def plot_covariants(covariants, output, num_clusters, min_mutations, nt_muts):
+    _plot_covariants(covariants, output, num_clusters, min_mutations, nt_muts)
 
 
 if __name__ == '__main__':

@@ -4,7 +4,7 @@ import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 import matplotlib.colors as mcolors
-from matplotlib.patches import Patch
+from matplotlib.patches import Patch, Rectangle
 import pysam
 from Bio.Seq import MutableSeq
 from Bio import SeqIO
@@ -769,8 +769,7 @@ def filter_covariants_output(cluster, nt_muts, min_mutations):
         return list(dict.fromkeys(cluster_final))
 
 
-def plot_covariants(covariants, output, num_clusters, min_mutations, nt_muts,
-                    title):
+def plot_covariants(covariants, output, num_clusters, min_mutations, nt_muts):
 
     covariants_df = pd.read_csv(covariants, sep='\t', header=0)
 
@@ -850,13 +849,23 @@ def plot_covariants(covariants, output, num_clusters, min_mutations, nt_muts,
     ax = sns.heatmap(plot_df, cmap=cmap,
                      cbar_kws={'label': 'log10 Frequency', 'shrink': 0.5},
                      vmax=max_nonzero,
-                     linewidths=1.5, linecolor='darkgray', square=True)
+                     linewidths=1.5, linecolor='white', square=True)
 
     gray = mcolors.LinearSegmentedColormap.from_list(
         name='custom', colors=['#BEBEBE', '#BEBEBE'])
     plot = sns.heatmap(plot_df, cmap=gray, vmin=-1, vmax=1,
-                       linewidths=1.75, linecolor='darkgray', square=True,
+                       linewidths=1.75, linecolor='white', square=True,
                        mask=plot_df < 0, cbar=False, ax=ax)
+
+    # Add rectangles for non-nan cells
+    for i, row in enumerate(plot_df.values):
+        for j, val in enumerate(row):
+            if val <= 0:
+                width = np.count_nonzero(~np.isnan(row))
+                rect = Rectangle((j, i), width, 1, fill=False,
+                                 edgecolor='black', linewidth=4)
+                ax.add_patch(rect)
+                break
 
     plot.set_yticklabels(plot.get_yticklabels(), rotation=0)
 
@@ -868,10 +877,9 @@ def plot_covariants(covariants, output, num_clusters, min_mutations, nt_muts,
         Patch(facecolor='white', edgecolor='black', label='No coverage'),
     ]
     ax.legend(handles=legend_elements,
-              bbox_to_anchor=(1.17, 0.17), loc="lower right")
+              bbox_to_anchor=(1.20, 0.17), loc="lower right")
 
     fig.tight_layout()
-    plt.title(label=title, fontsize=20)
     plt.savefig(output, bbox_inches='tight')
 
     print(f'plot-covariants: Output saved to {output}')
