@@ -1,18 +1,34 @@
 import re
+import numpy as np
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
-import matplotlib.colors as clr
+import matplotlib.colors as mcolors
+from matplotlib.patches import Patch, Rectangle
 import pysam
 from Bio.Seq import MutableSeq
 from Bio import SeqIO
-from matplotlib.patches import Patch
 
 
 def nt_position(x):
     if ',' in x:
         return int(x.split(',')[0][1:])
     return int(x.split('(')[0][1:-1])
+
+
+def get_colnames_and_sites(unique_mutations, nt_muts):
+    if nt_muts:
+        nt_muts = True
+        colnames = unique_mutations
+        sites = {mut: nt_position(mut) for mut in unique_mutations}
+    else:
+        colnames = [mut.split(')(')[1][:-1] if 'DEL' in mut
+                    else mut.split('(')[1][:-1] for mut in unique_mutations]
+        sites = {mut.split(')(')[1][:-1] if 'DEL' in mut
+                 else mut.split('(')[1][:-1]: nt_position(mut)
+                 for mut in unique_mutations}
+    colnames = sorted(list(set(colnames)), key=lambda x: sites[x])
+    return colnames, sites
 
 
 def read_pair_generator(bam, refname, min_site, max_site):
@@ -629,10 +645,10 @@ def covariants(input_bam, min_site, max_site, output,
         else:
             co_muts[key] += 1
 
-            # Update coverage to union of read pairs with covariants
-            if coverage_start < coverage[key][0]:
+            # Update coverage to intersection of read pairs with covariants
+            if coverage_start > coverage[key][0]:
                 coverage[key][0] = coverage_start
-            if coverage_end > coverage[key][1]:
+            if coverage_end < coverage[key][1]:
                 coverage[key][1] = coverage_end
 
         # Should only have to do this when key not in co_muts
@@ -703,10 +719,10 @@ def covariants(input_bam, min_site, max_site, output,
     else:
         df['Covariants'] = [k for k in co_muts]
     df['Count'] = [co_muts[k] for k in co_muts]
-    df['Coverage_start'] = [coverage[k][0] for k in co_muts]
-    df['Coverage_end'] = [coverage[k][1] for k in co_muts]
     df['Max_count'] = [co_muts_max_reads[k] for k in co_muts]
     df['Freq'] = [co_muts[k] / co_muts_max_reads[k] for k in co_muts]
+    df['Coverage_start'] = [coverage[k][0] for k in co_muts]
+    df['Coverage_end'] = [coverage[k][1] for k in co_muts]
 
     df = df[df['Count'] >= min_count]
 
@@ -724,10 +740,20 @@ def covariants(input_bam, min_site, max_site, output,
     return df
 
 
-def filter_covariants_output(cluster, min_mutation_count, nt_mut):
+def filter_covariants_output(cluster, nt_muts, min_mutations):
     cluster_final = []
 
-    if not nt_mut:
+    if nt_muts:
+        for variant in cluster:
+            if ',' in variant:
+                # Insertion
+                if any([nt in variant for nt in 'ACGT']):
+                    continue
+                # Frameshift
+                if int(variant.split(',')[1].split(')')[0]) % 3 != 0:
+                    continue
+            cluster_final.append(variant)
+    else:
         for variant in cluster:
             if '*' in variant or 'INS' in variant:
                 continue  # Ignore stop codons and insertions for now
@@ -736,110 +762,137 @@ def filter_covariants_output(cluster, min_mutation_count, nt_mut):
                 continue  # Ignore frameshift mutations
             else:
                 cluster_final.append(variant)
-    else:  # nt covariants
-        for variant in cluster:
-            if ',' in variant:
-                if any([nt in variant for nt in ['A,C,G,T']]):  # Insertion
-                    continue
-                if int(variant.split(',')[1].split(')')[0]) % 3 != 0:
-                    continue
-            cluster_final.append(variant)
 
-    # Remove duplicates while preserving order
-    cluster_final = list(dict.fromkeys(cluster_final))
-
-    if len(cluster_final) < min_mutation_count:
+    if len(cluster_final) < min_mutations:
         return pd.NA
-    return cluster_final
+    else:
+        return list(dict.fromkeys(cluster_final))
 
 
-def plot_covariants(covar_file, output, num_clusters, min_mutations, nt_muts):
+def plot_covariants(covariants, output, num_clusters, min_mutations, nt_muts):
 
-    covars = pd.read_csv(covar_file, sep='\t', header=0)
-    covars['Covariants'] = covars['Covariants']\
-        .str.replace(', ', ',')\
-        .str.split(' ')\
-        .apply(filter_covariants_output, args=(min_mutations, nt_muts))\
+    covariants_df = pd.read_csv(covariants, sep='\t', header=0)
 
-    covars[[covars['Covariants'] == 'nan']] = pd.NA
-    covars = covars.dropna()\
-                   .head(num_clusters)
+    if not any(':' in mut for mut in covariants_df['Covariants'][0]):
+        nt_muts = True
+
+    # Clean up covariants output
+    covariants_df['Covariants'] = covariants_df['Covariants'] \
+        .str.replace(', ', ',') \
+        .str.split(' ') \
+        .apply(filter_covariants_output, args=(nt_muts, min_mutations))
+
+    # Drop rows with NA values and keep top n clusters
+    covariants_df = covariants_df.dropna()
 
     # Merge rows with identical covariants and add their counts
-    covars = covars.groupby(covars['Covariants'].astype(str))\
+    covariants_df = covariants_df \
+        .groupby(covariants_df['Covariants'].astype(str)) \
         .agg(
-        {'Count': 'sum', 'Coverage_start': 'first', 'Coverage_end': 'first'}
-    )\
-        .reset_index()\
-        .sort_values('Count', ascending=False)
+            {
+                'Count': 'sum',
+                'Coverage_start': 'max',
+                'Coverage_end': 'min',
+                'Freq': 'sum'
+            }
+        ) \
+        .reset_index() \
+        .sort_values('Freq', ascending=False)
 
-    # Get all mutations found in the sample
-    all_muts = []
-    for sublist in covars['Covariants'].to_list():
-        for mut in sublist.strip('][').split(', '):
-            if mut[1:-1] not in all_muts:
-                all_muts.append(mut[1:-1])
+    # Cast back to list
+    covariants_df['Covariants'] = covariants_df['Covariants'] \
+        .str.strip('][') \
+        .str.replace("'", "") \
+        .str.split(pat=', ')
 
-    patterns = [pattern.strip('][').split(', ')
-                for pattern in covars['Covariants'].to_list()]
+    covariants_df['Coverage_ranges'] = list(
+        zip(
+            covariants_df['Coverage_start'],
+            covariants_df['Coverage_end']
+        )
+    )
+    covariants_df = covariants_df.head(num_clusters)
+    coverage_ranges = covariants_df['Coverage_ranges'].tolist()
+    log_frequency = np.log10(covariants_df['Freq']).tolist()
 
-    counts = dict(zip([str(pattern)
-                  for pattern in patterns], covars['Count'].to_list()))
+    # Get all unique mutations found in the sample
+    unique_mutations = set()
+    for sublist in covariants_df['Covariants']:
+        unique_mutations.update(sublist)
 
-    coverage_start = covars['Coverage_start']
-    coverage_end = covars['Coverage_end']
-    coverage_ranges = dict(zip([str(pattern) for pattern in patterns],
-                               zip(coverage_start, coverage_end)))
+    # Populate dataframe with cluster frequencies
+    colnames, sites = get_colnames_and_sites(unique_mutations, nt_muts)
+    index = [f'CP{i}' for i in range(len(covariants_df))]
+    plot_df = pd.DataFrame(columns=colnames, index=index)
+    for pattern in enumerate(covariants_df['Covariants']):
+        sample_row = np.empty(len(colnames))
+        sample_row[:] = np.nan
+        coverage_range = coverage_ranges[pattern[0]]
+        for col in colnames:
+            if sites[col] in range(coverage_range[0], coverage_range[1]):
+                # Placeholder value for refererence bases
+                sample_row[colnames.index(col)] = 0.0
+            for mut in pattern[1]:
+                if col in mut:
+                    sample_row[colnames.index(
+                        col)] = log_frequency[pattern[0]]
+        plot_df.loc[index[pattern[0]]] = sample_row
 
-    if nt_muts:
-        colnames = all_muts
-        sites = {mut: nt_position(mut) for mut in all_muts}
-    else:
-        colnames = [mut.split(')(')[1][:-1] if 'DEL' in mut
-                    else mut.split('(')[1][:-1] for mut in all_muts]
-        sites = {mut.split(')(')[1][:-1] if 'DEL' in mut
-                 else mut.split('(')[1][:-1]: nt_position(mut)
-                 for mut in all_muts}
+    plot_df = plot_df.astype(float)
 
-    colnames = sorted(colnames, key=lambda x: sites[x])
-
-    data = {}
-    for pattern in enumerate(patterns):
-        if len(pattern[1]) >= min_mutations:
-            sample_name = f'CP{pattern[0]}({counts[str(pattern[1])]})'
-            data[sample_name] = [0 for c in colnames]
-            for i in range(len(colnames)):
-                for mut in pattern[1]:
-                    if colnames[i] in mut:
-                        data[sample_name][i] = 1
-                if data[sample_name][i] == 0 and sites[colnames[i]]\
-                    in range(
-                        coverage_ranges[str(pattern[1])][0],
-                        coverage_ranges[str(pattern[1])][1]):
-                    data[sample_name][i] = 0.5
-
-    df = pd.DataFrame.from_dict(data, orient='index')
-    df.columns = colnames
-    df = df.loc[:, (df > 0.5).any(axis=0)]  # drop empty cols
-
+    # Plot heatmap
     fig, ax = plt.subplots(figsize=(15, 10))
-    cmap = clr.LinearSegmentedColormap.from_list(
-        'rdgray', ['#EEEEEE', '#9E9E9E', '#FF6347'], N=256)
-    plot = sns.heatmap(df, ax=ax, cbar=False, square=True,
-                       fmt='', linewidths=0.5, cmap=cmap, vmin=0, vmax=1,
-                       linecolor='gray')
+    max_nonzero = plot_df[plot_df != 0.0].max().max()
+    colors = ['#FFFFB2', '#FECC5C', '#FD8D3C', '#E31A1C']
+    cmap = mcolors.LinearSegmentedColormap.from_list(name='custom',
+                                                     colors=colors)
+    ax = sns.heatmap(plot_df, cmap=cmap,
+                     cbar_kws={'label': 'log10 Frequency', 'shrink': 0.5},
+                     vmax=max_nonzero,
+                     linewidths=1.5, linecolor='white', square=True)
+
+    gray = mcolors.LinearSegmentedColormap.from_list(
+        name='custom', colors=['#BEBEBE', '#BEBEBE'])
+    plot = sns.heatmap(plot_df, cmap=gray, vmin=-1, vmax=1,
+                       linewidths=1.75, linecolor='white', square=True,
+                       mask=plot_df < 0, cbar=False, ax=ax)
+
+    # Add line between adjacent non-NaN cells
+    for i, row in enumerate(plot_df.values):
+        j = 0
+        while j < len(row):
+            if not np.isnan(row[j]):
+
+                if j > 0 and not np.isnan(row[j - 1]):
+                    line = plt.Line2D((j, j), (i, i + 1),
+                                      color='gray', linewidth=2.75, zorder=1)
+                    ax.add_artist(line)
+            j += 1
+
+    # Add rectangles for non-NaN cells
+    for i, row in enumerate(plot_df.values):
+        for j, val in enumerate(row):
+            if val <= 0:
+                width = np.count_nonzero(~np.isnan(row))
+                rect = Rectangle((j, i), width, 1, fill=False,
+                                 edgecolor='black', linewidth=4)
+                ax.add_patch(rect)
+                break
+
     plot.set_yticklabels(plot.get_yticklabels(), rotation=0)
+
     for _, spine in plot.spines.items():
         spine.set_visible(True)
+
     legend_elements = [
-        Patch(facecolor='#FF6347', edgecolor='black', label='Alternate base'),
-        Patch(facecolor='#9E9E9E', edgecolor='black', label='Reference base'),
-        Patch(facecolor='#EEEEEE', edgecolor='black', label='No coverage')
+        Patch(facecolor='#BEBEBE', edgecolor='black',
+              label='Reference sequence'),
+        Patch(facecolor='white', edgecolor='black', label='No coverage'),
     ]
     ax.legend(handles=legend_elements,
-              bbox_to_anchor=(1.04, 1), loc="upper left")
+              bbox_to_anchor=(1.20, 0.40), loc="lower left", borderaxespad=0)
+
     fig.tight_layout()
-    plt.title(label=covar_file.split('.tsv')[0])
     plt.savefig(output, bbox_inches='tight')
 
     print(f'plot-covariants: Output saved to {output}')

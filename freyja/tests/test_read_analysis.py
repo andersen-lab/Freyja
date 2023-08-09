@@ -171,15 +171,15 @@ class ReadAnalysisTests(unittest.TestCase):
         df = pd.read_csv('freyja/data/test_covar.tsv', sep='\t')
 
         patterns = []
-        for c in df.iloc[:, 0]:
+        for c in df['Covariants']:
             patterns.append(c.split(' '))
 
         # Test for covariants spanning > 150bp
         self.assertTrue(['A23403G(S:D614G)', 'C23604G(S:P681R)'] in patterns)
 
         # Test coverage ranges
-        cov_start = df.iloc[:, 2]
-        cov_end = df.iloc[:, 3]
+        cov_start = df['Coverage_start']
+        cov_end = df['Coverage_end']
 
         for i in range(len(patterns)):
             for mut in patterns[i]:
@@ -193,10 +193,10 @@ class ReadAnalysisTests(unittest.TestCase):
         subprocess.run(cmd)
         df = pd.read_csv('freyja/data/test_covar_span.tsv', sep='\t')
         patterns = []
-        for c in df.iloc[:, 0]:
+        for c in df['Covariants']:
             patterns.append(c.split(' '))
-        cov_start = df.iloc[:, 2]
-        cov_end = df.iloc[:, 3]
+        cov_start = df['Coverage_start']
+        cov_end = df['Coverage_end']
 
         for i in range(len(patterns)):
             for mut in patterns[i]:
@@ -212,6 +212,7 @@ class ReadAnalysisTests(unittest.TestCase):
         subprocess.run(cmd)
 
         self.assertTrue('test_covar_plot.png' in os.listdir('freyja/data'))
+        os.remove('freyja/data/test_covar.tsv')
         os.remove('freyja/data/test_covar_plot.png')
 
 
