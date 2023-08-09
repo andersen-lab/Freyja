@@ -688,7 +688,7 @@ def covariants(input_bam, min_site, max_site, output,
 
         for key in co_muts_region:
             co_mut_start, co_mut_end = co_muts_region[key]
-            if coverage_start < co_mut_start and coverage_end > co_mut_end:
+            if coverage_start <= co_mut_start and coverage_end >= co_mut_end:
                 if key not in co_muts_max_reads:
                     co_muts_max_reads[key] = 1
                 else:
