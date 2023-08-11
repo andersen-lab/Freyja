@@ -831,7 +831,7 @@ def plot_covariants(covariants, output, num_clusters, min_mutations, nt_muts):
         for col in colnames:
             if sites[col] in range(coverage_range[0], coverage_range[1]):
                 # Placeholder value for refererence bases
-                sample_row[colnames.index(col)] = 0.0
+                sample_row[colnames.index(col)] = 1.0
             for mut in pattern[1]:
                 if col in mut:
                     sample_row[colnames.index(
@@ -842,20 +842,21 @@ def plot_covariants(covariants, output, num_clusters, min_mutations, nt_muts):
 
     # Plot heatmap
     fig, ax = plt.subplots(figsize=(15, 10))
-    max_nonzero = plot_df[plot_df != 0.0].max().max()
+
     colors = ['#FFFFB2', '#FECC5C', '#FD8D3C', '#E31A1C']
     cmap = mcolors.LinearSegmentedColormap.from_list(name='custom',
                                                      colors=colors)
     ax = sns.heatmap(plot_df, cmap=cmap,
                      cbar_kws={'label': 'log10 Frequency', 'shrink': 0.5},
-                     vmax=max_nonzero,
+                     vmin=-5,
+                     vmax=0,
                      linewidths=1.5, linecolor='white', square=True)
 
     gray = mcolors.LinearSegmentedColormap.from_list(
         name='custom', colors=['#BEBEBE', '#BEBEBE'])
-    plot = sns.heatmap(plot_df, cmap=gray, vmin=-1, vmax=1,
+    plot = sns.heatmap(plot_df, cmap=gray, vmin=0, vmax=2,
                        linewidths=1.75, linecolor='white', square=True,
-                       mask=plot_df < 0, cbar=False, ax=ax)
+                       mask=plot_df <= 0, cbar=False, ax=ax)
 
     # Add line between adjacent non-NaN cells
     for i, row in enumerate(plot_df.values):
