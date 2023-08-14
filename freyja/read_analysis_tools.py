@@ -873,7 +873,7 @@ def plot_covariants(covariants, output, num_clusters, min_mutations, nt_muts):
     # Add rectangles for non-NaN cells
     for i, row in enumerate(plot_df.values):
         for j, val in enumerate(row):
-            if val <= 0:
+            if val <= 1:
                 width = np.count_nonzero(~np.isnan(row))
                 rect = Rectangle((j, i), width, 1, fill=False,
                                  edgecolor='black', linewidth=4)
