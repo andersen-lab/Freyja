@@ -603,14 +603,19 @@ def covariants(input_bam, min_site, max_site, output,
 @click.argument('covariants', type=click.Path(exists=True))
 @click.option('--output', default='covariants_plot.pdf')
 @click.option('--num_clusters', default=10,
-              help='number of clusters to plot (starting with greatest count)')
+              help='number of clusters to plot (sorted by frequency)')
 @click.option('--min_mutations', default=1,
               help='minimum number of mutations in a cluster to be plotted')
 @click.option('--nt_muts', is_flag=True,
-              help=('if included, include nucleotide mutations in x-labels'
-                    ))
-def plot_covariants(covariants, output, num_clusters, min_mutations, nt_muts):
-    _plot_covariants(covariants, output, num_clusters, min_mutations, nt_muts)
+              help='if included, include nucleotide mutations in x-labels')
+@click.option('--vmin', default=-5, help=('minimum value for colorbar'
+                                          ' (log scale)'))
+@click.option('--vmax', default=0, help=('maximum value for colorbar'
+                                         ' (log scale)'))
+def plot_covariants(covariants, output, num_clusters,
+                    min_mutations, nt_muts, vmin, vmax):
+    _plot_covariants(covariants, output, num_clusters,
+                     min_mutations, nt_muts, vmin, vmax)
 
 
 if __name__ == '__main__':
