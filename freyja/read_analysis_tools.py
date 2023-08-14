@@ -769,7 +769,8 @@ def filter_covariants_output(cluster, nt_muts, min_mutations):
         return list(dict.fromkeys(cluster_final))
 
 
-def plot_covariants(covariants, output, num_clusters, min_mutations, nt_muts):
+def plot_covariants(covariants, output, num_clusters,
+                    min_mutations, nt_muts, vmin, vmax):
 
     covariants_df = pd.read_csv(covariants, sep='\t', header=0)
 
@@ -848,8 +849,8 @@ def plot_covariants(covariants, output, num_clusters, min_mutations, nt_muts):
                                                      colors=colors)
     ax = sns.heatmap(plot_df, cmap=cmap,
                      cbar_kws={'label': 'log10 Frequency', 'shrink': 0.5},
-                     vmin=-5,
-                     vmax=0,
+                     vmin=vmin,
+                     vmax=vmax,
                      linewidths=1.5, linecolor='white', square=True)
 
     gray = mcolors.LinearSegmentedColormap.from_list(
