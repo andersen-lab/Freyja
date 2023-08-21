@@ -561,9 +561,8 @@ def extract(query_mutations, input_bam, output, refname, same_read):
 @click.argument('max_site', default=29903)
 @click.option('--output', default='filtered.bam',
               help='path to save filtered reads')
-@click.option('--refname', default='NC_045512.2')
-def filter(query_mutations, input_bam, min_site, max_site, output, refname):
-    _filter(query_mutations, input_bam, min_site, max_site, output, refname)
+def filter(query_mutations, input_bam, min_site, max_site, output):
+    _filter(query_mutations, input_bam, min_site, max_site, output)
 
 
 @cli.command()

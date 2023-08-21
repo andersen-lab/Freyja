@@ -62,7 +62,7 @@ def read_pair_generator(bam, refname, min_site, max_site):
             del read_dict[qname]
 
 
-def extract(query_mutations, input_bam, output, refname, same_read):
+def extract(query_mutations, input_bam, output, same_read):
 
     # Parse SNPs and Indels from query_mutations
     with open(query_mutations) as infile:
@@ -110,6 +110,8 @@ def extract(query_mutations, input_bam, output, refname, same_read):
         print('extract: Missing index file, try running samtools index',
               input_bam)
         return -1
+    refname = samfile.get_reference_name(0)
+
     outfile = pysam.AlignmentFile(output, 'wb', template=samfile)
 
     min_site = min(all_sites) - 150
@@ -230,7 +232,7 @@ def extract(query_mutations, input_bam, output, refname, same_read):
     return reads_considered
 
 
-def filter(query_mutations, input_bam, min_site, max_site, output, refname):
+def filter(query_mutations, input_bam, min_site, max_site, output):
 
     # Load data
     with open(query_mutations) as infile:
@@ -276,7 +278,7 @@ def filter(query_mutations, input_bam, min_site, max_site, output, refname):
               input_bam)
         return -1
     print("filter: Filtering out reads with specified mutations")
-
+    refname = samfile.get_reference_name(0)
     all_sites = snp_sites + indel_sites
     all_sites.sort()
 
