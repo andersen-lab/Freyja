@@ -1,18 +1,19 @@
 import click
 import pandas as pd
-from freyja.convert_paths2barcodes import parse_tree_paths,\
+from freyja.convert_paths2barcodes import parse_tree_paths, \
     convert_to_barcodes, reversion_checking, check_mutation_chain
-from freyja.read_analysis_tools import extract as _extract, filter as _filter,\
-    covariants as _covariants, plot_covariants as _plot_covariants
-from freyja.sample_deconv import buildLineageMap, build_mix_and_depth_arrays,\
-    reindex_dfs, map_to_constellation, solve_demixing_problem,\
+from freyja.read_analysis_tools import extract as _extract, \
+    filter as _filter, \
+    covariants as _covariants, \
+    plot_covariants as _plot_covariants
+from freyja.sample_deconv import buildLineageMap, build_mix_and_depth_arrays, \
+    reindex_dfs, map_to_constellation, solve_demixing_problem, \
     perform_bootstrap
-from freyja.updates import download_tree, convert_tree,\
-    get_curated_lineage_data, get_cl_lineages,\
-    download_barcodes, download_barcodes_wgisaid,\
-    convert_tree_custom
-from freyja.utils import agg, makePlot_simple, makePlot_time,\
-    make_dashboard, checkConfig, get_abundance, calc_rel_growth_rates,\
+from freyja.updates import download_tree, convert_tree, \
+    get_curated_lineage_data, get_cl_lineages, \
+    download_barcodes, convert_tree_custom
+from freyja.utils import agg, makePlot_simple, makePlot_time, \
+    make_dashboard, checkConfig, get_abundance, calc_rel_growth_rates, \
     collapse_barcodes
 import os
 import glob
@@ -133,8 +134,6 @@ def demix(variants, depths, output, eps, barcodes, meta,
               help='Output directory save updated files')
 @click.option('--noncl', is_flag=True, default=True,
               help='only include lineages in cov-lineages')
-@click.option('--wgisaid', is_flag=True, default=False,
-              help='Larger library with non-public lineages')
 @click.option('--buildlocal', is_flag=True, default=False,
               help='Perform barcode building locally')
 def update(outdir, noncl, wgisaid, buildlocal):
@@ -183,12 +182,9 @@ def update(outdir, noncl, wgisaid, buildlocal):
         print('Cleaning up')
         os.remove(lineagePath)
         os.remove(os.path.join(locDir, "public-latest.all.masked.pb.gz"))
-    elif not wgisaid:
+    else:
         print('Downloading barcodes')
         download_barcodes(locDir)
-    else:
-        print('Downloading barcodes with GISAID-only (non-public) lineages')
-        download_barcodes_wgisaid(locDir)
 
 
 @cli.command()
@@ -203,6 +199,7 @@ def barcode_build(pb, outdir, noncl):
                                           os.pardir))
     locDir = outdir
     print('Getting outbreak data')
+    get_curated_lineage_data(locDir)
     get_cl_lineages(locDir)
     # # get data from UShER
     print('Downloading a new global tree')
@@ -250,7 +247,8 @@ def barcode_build(pb, outdir, noncl):
               default='')
 @click.option('--minq', help='Minimum base quality score',
               default=20)
-def variants(bamfile, ref, variants, depths, refname, minq):
+@click.option('--annot', help='AA annotation output', default='')
+def variants(bamfile, ref, variants, depths, refname, minq, annot):
     if len(refname) == 0:
         bashCmd = f"samtools mpileup -aa -A -d 600000 -Q {minq} -q 0 -B -f "\
                   f"{ref} {bamfile} | tee >(cut -f1-4 > {depths}) |"\
@@ -259,6 +257,10 @@ def variants(bamfile, ref, variants, depths, refname, minq):
         bashCmd = f"samtools mpileup -aa -A -d 600000 -Q {minq} -q 0 -B -f "\
                   f"{ref} {bamfile} -r {refname} | tee >(cut -f1-4 > {depths}"\
                   f") | ivar variants -p {variants} -q {minq} -t 0.0 -r {ref}"
+    if len(annot) > 0:
+        print('Including annotation')
+        bashCmd = bashCmd + f" -g {annot}"
+    print(bashCmd)
     sys.stdout.flush()  # force python to flush
     completed = subprocess.run(bashCmd, shell=True, executable="/bin/bash",
                                stdout=subprocess.PIPE)

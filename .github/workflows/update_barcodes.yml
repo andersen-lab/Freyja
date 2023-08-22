@@ -38,9 +38,13 @@ jobs:
           
       - name: update
         shell: bash -l {0}
+        with:
+          TREELINK: ${{ secrets.TREELINK }}
+          ZIPNAME: ${{ secrets.ZIPNAME }}
         run: |
           conda activate test
-          freyja update --buildlocal
+          wget "${TREELINK}"
+          freyja barcode-build --pb "${ZIPNAME}" --outdir freyja/data/
 
       - name: commit if output is different 
         run: |
@@ -59,3 +63,5 @@ jobs:
           else
               echo "no changes were made, doing nothing."
           fi; 
+
+
