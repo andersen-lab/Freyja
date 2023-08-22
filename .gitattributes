@@ -1,2 +1,0 @@
-freyja/data/usher_barcodes_with_gisaid.csv filter=lfs diff=lfs merge=lfs -text
-freyja/data/usher_barcodes.csv filter=lfs diff=lfs merge=lfs -text
