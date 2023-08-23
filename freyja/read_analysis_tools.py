@@ -712,6 +712,13 @@ def covariants(input_bam, min_site, max_site, output,
 
     samfile.close()
 
+    empty_keys = []
+    for key in co_muts:
+        if key not in co_muts_max_reads:
+            empty_keys.append(key)
+    for key in empty_keys:
+        del co_muts[key]
+
     # Aggregate dictionaries into dataframe
     df = pd.DataFrame()
     if gff_file is not None:
@@ -881,10 +888,9 @@ def plot_covariants(covariants, output, num_clusters,
                 ax.add_patch(rect)
                 break
 
-    plot.set_yticklabels(plot.get_yticklabels(), rotation=0)
-
     for _, spine in plot.spines.items():
         spine.set_visible(True)
+    plt.yticks([])
 
     legend_elements = [
         Patch(facecolor='#BEBEBE', edgecolor='black',
