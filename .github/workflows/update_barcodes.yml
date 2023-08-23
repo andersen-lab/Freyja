@@ -2,7 +2,7 @@ name: barcode update
 
 on:
   schedule:
-    - cron: '0 0 * * *'
+    - cron: '0 1 * * *'
 
 jobs:
   testsuite:
@@ -38,7 +38,7 @@ jobs:
           
       - name: update
         shell: bash -l {0}
-        with:
+        env:
           TREELINK: ${{ secrets.TREELINK }}
           ZIPNAME: ${{ secrets.ZIPNAME }}
         run: |
