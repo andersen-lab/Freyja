@@ -714,12 +714,6 @@ def covariants(input_bam, min_site, max_site, output,
 
     samfile.close()
 
-    empty_keys = []
-    for key in co_muts:
-        if key not in co_muts_max_reads:
-            empty_keys.append(key)
-    for key in empty_keys:
-        del co_muts[key]
 
     # Aggregate dictionaries into dataframe
     df = pd.DataFrame()
