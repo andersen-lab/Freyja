@@ -1,10 +1,11 @@
 import pandas as pd
-import pysam
+
 
 def nt_position(x):
     if ',' in x:
         return int(x.split(',')[0][1:])
     return int(x.split('(')[0][1:-1])
+
 
 def get_colnames_and_sites(unique_mutations, nt_muts):
     if nt_muts:
@@ -50,6 +51,7 @@ def read_pair_generator(bam, refname, min_site, max_site):
         else:
             yield read_dict[qname], read
             del read_dict[qname]
+
 
 def filter_covariants_output(cluster, nt_muts, min_mutations):
     cluster_final = []

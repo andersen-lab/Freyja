@@ -9,8 +9,9 @@ import pysam
 from Bio.Seq import MutableSeq
 from Bio import SeqIO
 
-from read_analysis_utils import nt_position, get_colnames_and_sites,\
-                                read_pair_generator, filter_covariants_output
+from freyja.read_analysis_utils import nt_position, get_colnames_and_sites,\
+                                       read_pair_generator, filter_covariants_output
+
 
 def extract(query_mutations, input_bam, output, same_read):
 
@@ -382,6 +383,7 @@ def covariants(input_bam, min_site, max_site, output,
                 break
 
             start = x.reference_start
+            end = x.reference_end
             seq = x.query_alignment_sequence
             quals = x.query_alignment_qualities
             seq = ''.join(
@@ -403,8 +405,8 @@ def covariants(input_bam, min_site, max_site, output,
             # Update coverage ranges
             if coverage_start is None or start < coverage_start:
                 coverage_start = start
-            if coverage_end is None or start + len(seq) > coverage_end:
-                coverage_end = start + len(seq)
+            if coverage_end is None or end > coverage_end:
+                coverage_end = end
 
             if x.cigarstring is None:
                 # checks for a possible fail case
@@ -637,6 +639,7 @@ def covariants(input_bam, min_site, max_site, output,
                 break
 
             start = x.reference_start
+            end = x.reference_end
             seq = x.query_alignment_sequence
             quals = x.query_alignment_qualities
             seq = ''.join(
@@ -646,8 +649,8 @@ def covariants(input_bam, min_site, max_site, output,
             # Update coverage ranges
             if coverage_start is None or start < coverage_start:
                 coverage_start = start
-            if coverage_end is None or start + len(seq) > coverage_end:
-                coverage_end = start + len(seq)
+            if coverage_end is None or end > coverage_end:
+                coverage_end = end
 
         # Skip update if reads do not span region
         if spans_region:
@@ -663,7 +666,6 @@ def covariants(input_bam, min_site, max_site, output,
                     co_muts_max_reads[key] += 1
 
     samfile.close()
-
 
     # Aggregate dictionaries into dataframe
     df = pd.DataFrame()
