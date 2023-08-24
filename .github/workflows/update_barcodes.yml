@@ -6,7 +6,7 @@ on:
 
 jobs:
   testsuite:
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
     defaults:
       run:
         shell: bash
@@ -38,7 +38,7 @@ jobs:
           
       - name: update
         shell: bash -l {0}
-        with:
+        env:
           TREELINK: ${{ secrets.TREELINK }}
           ZIPNAME: ${{ secrets.ZIPNAME }}
         run: |
