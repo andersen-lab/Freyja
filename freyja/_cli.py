@@ -551,9 +551,8 @@ def relgrowthrate(agg_results, metadata, thresh, scale_by_viral_load, nboots,
 @click.option('--same_read', is_flag=True,
               help='include to specify that query reads must all occur on the\
                     same read')
-@click.option('--refname', default='NC_045512.2')
-def extract(query_mutations, input_bam, output, refname, same_read):
-    _extract(query_mutations, input_bam, output, refname, same_read)
+def extract(query_mutations, input_bam, output, same_read):
+    _extract(query_mutations, input_bam, output, same_read)
 
 
 @cli.command()
