@@ -2710,6 +2710,7 @@
       - GQ.1.1
       - JH.1
       - JH.2
+      - JL.1
       - K.1
       - K.2
       - K.3
@@ -5218,6 +5219,7 @@
       - GQ.1.1
       - JH.1
       - JH.2
+      - JL.1
       - K.1
       - K.2
       - K.3
@@ -6788,6 +6790,7 @@
       - GQ.1.1
       - JH.1
       - JH.2
+      - JL.1
       - K.1
       - K.2
       - K.3
@@ -10833,6 +10836,7 @@
       - GQ.1.1
       - JH.1
       - JH.2
+      - JL.1
   parent: B.1.1
 - name: BA.1
   alias: B.1.1.529.1
@@ -11581,6 +11585,7 @@
       - GP.3
       - GQ.1
       - GQ.1.1
+      - JL.1
   parent: B.1.1.529
 - name: BA.2.1
   alias: B.1.1.529.2.1
@@ -12730,6 +12735,7 @@
       - GP.3
       - GQ.1
       - GQ.1.1
+      - JL.1
   parent: BA.2
 - name: BA.2.75.1
   alias: B.1.1.529.2.75.1
@@ -12968,6 +12974,7 @@
       - GP.3
       - GQ.1
       - GQ.1.1
+      - JL.1
   parent: BA.2.75
 - name: BM.1
   alias: B.1.1.529.2.75.3.1
@@ -13205,6 +13212,7 @@
       - GP.3
       - GQ.1
       - GQ.1.1
+      - JL.1
   parent: BA.2.75.3
 - name: BM.4.1
   alias: B.1.1.529.2.75.3.4.1
@@ -13280,6 +13288,7 @@
       - GP.3
       - GQ.1
       - GQ.1.1
+      - JL.1
   parent: BM.4
 - name: BM.4.1.1
   alias: B.1.1.529.2.75.3.4.1.1
@@ -13354,6 +13363,7 @@
       - GP.3
       - GQ.1
       - GQ.1.1
+      - JL.1
   parent: BM.4.1
 - name: CH.1
   alias: B.1.1.529.2.75.3.4.1.1.1
@@ -13424,6 +13434,7 @@
       - GP.3
       - GQ.1
       - GQ.1.1
+      - JL.1
   parent: BM.4.1.1
 - name: CH.1.1
   alias: B.1.1.529.2.75.3.4.1.1.1.1
@@ -13493,6 +13504,7 @@
       - GP.3
       - GQ.1
       - GQ.1.1
+      - JL.1
   parent: CH.1
 - name: CH.1.1.1
   alias: B.1.1.529.2.75.3.4.1.1.1.1.1
@@ -13718,6 +13730,7 @@
       - FK.1.4
       - FK.1.4.1
       - FK.1.5
+      - JL.1
   parent: CH.1.1
 - name: FK.1
   alias: B.1.1.529.2.75.3.4.1.1.1.1.17.1
@@ -13735,6 +13748,7 @@
       - FK.1.4
       - FK.1.4.1
       - FK.1.5
+      - JL.1
   parent: CH.1.1.17
 - name: FK.1.1
   alias: B.1.1.529.2.75.3.4.1.1.1.1.17.1.1
@@ -13776,6 +13790,7 @@
       - FK.1.3
       - FK.1.3.1
       - FK.1.3.2
+      - JL.1
   parent: FK.1
 - name: FK.1.3.1
   alias: B.1.1.529.2.75.3.4.1.1.1.1.17.1.3.1
@@ -13786,7 +13801,13 @@
   alias: B.1.1.529.2.75.3.4.1.1.1.1.17.1.3.2
   children:
       - FK.1.3.2
+      - JL.1
   parent: FK.1.3
+- name: JL.1
+  alias: B.1.1.529.2.75.3.4.1.1.1.1.17.1.3.2.1
+  children:
+      - JL.1
+  parent: FK.1.3.2
 - name: FK.1.4
   alias: B.1.1.529.2.75.3.4.1.1.1.1.17.1.4
   children:
@@ -26654,7 +26675,7 @@
       - HK.7
       - HK.8
       - HK.9
-      - HK.10
+      - HK.11
       - HL.1
       - HL.2
       - HM.1
@@ -26687,6 +26708,7 @@
       - JF.1
       - JF.2
       - JG.1
+      - JG.2
       - JJ.1
       - JK.1
       - XBB
@@ -26849,6 +26871,7 @@
       - XBB.1.16.21
       - XBB.1.16.22
       - XBB.1.16.23
+      - XBB.1.16.24
       - XBB.1.17
       - XBB.1.17.1
       - XBB.1.17.2
@@ -27234,7 +27257,7 @@
       - HK.7
       - HK.8
       - HK.9
-      - HK.10
+      - HK.11
       - HL.1
       - HL.2
       - HM.1
@@ -27265,6 +27288,7 @@
       - JF.1
       - JF.2
       - JG.1
+      - JG.2
       - JJ.1
       - JK.1
       - XBB.1
@@ -27426,6 +27450,7 @@
       - XBB.1.16.21
       - XBB.1.16.22
       - XBB.1.16.23
+      - XBB.1.16.24
       - XBB.1.17
       - XBB.1.17.1
       - XBB.1.17.2
@@ -28928,10 +28953,11 @@
       - HK.7
       - HK.8
       - HK.9
-      - HK.10
+      - HK.11
       - HN.1
       - HV.1
       - JG.1
+      - JG.2
       - JJ.1
       - XBB.1.9
       - XBB.1.9.1
@@ -29553,9 +29579,10 @@
       - HK.7
       - HK.8
       - HK.9
-      - HK.10
+      - HK.11
       - HV.1
       - JG.1
+      - JG.2
       - JJ.1
       - XBB.1.9.2
   parent: XBB.1.9
@@ -29714,9 +29741,10 @@
       - HK.7
       - HK.8
       - HK.9
-      - HK.10
+      - HK.11
       - HV.1
       - JG.1
+      - JG.2
       - JJ.1
   parent: XBB.1.9.2
 - name: EG.5.1
@@ -29740,9 +29768,10 @@
       - HK.7
       - HK.8
       - HK.9
-      - HK.10
+      - HK.11
       - HV.1
       - JG.1
+      - JG.2
       - JJ.1
   parent: EG.5
 - name: EG.5.1.1
@@ -29759,7 +29788,7 @@
       - HK.7
       - HK.8
       - HK.9
-      - HK.10
+      - HK.11
   parent: EG.5.1
 - name: HK.1
   alias: XBB.1.9.2.5.1.1.1
@@ -29812,10 +29841,10 @@
   children:
       - HK.9
   parent: EG.5.1.1
-- name: HK.10
-  alias: XBB.1.9.2.5.1.1.10
+- name: HK.11
+  alias: XBB.1.9.2.5.1.1.11
   children:
-      - HK.10
+      - HK.11
   parent: EG.5.1.1
 - name: EG.5.1.2
   alias: XBB.1.9.2.5.1.2
@@ -29827,11 +29856,17 @@
   children:
       - EG.5.1.3
       - JG.1
+      - JG.2
   parent: EG.5.1
 - name: JG.1
   alias: XBB.1.9.2.5.1.3.1
   children:
       - JG.1
+  parent: EG.5.1.3
+- name: JG.2
+  alias: XBB.1.9.2.5.1.3.2
+  children:
+      - JG.2
   parent: EG.5.1.3
 - name: EG.5.1.4
   alias: XBB.1.9.2.5.1.4
@@ -30151,6 +30186,7 @@
       - XBB.1.16.21
       - XBB.1.16.22
       - XBB.1.16.23
+      - XBB.1.16.24
   parent: XBB.1
 - name: XBB.1.16.1
   alias: XBB.1.16.1
@@ -30397,6 +30433,11 @@
   alias: XBB.1.16.23
   children:
       - XBB.1.16.23
+  parent: XBB.1.16
+- name: XBB.1.16.24
+  alias: XBB.1.16.24
+  children:
+      - XBB.1.16.24
   parent: XBB.1.16
 - name: XBB.1.17
   alias: XBB.1.17
