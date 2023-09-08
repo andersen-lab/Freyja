@@ -26423,6 +26423,7 @@
       - EG.5.2.3
       - EG.6
       - EG.6.1
+      - EG.6.1.1
       - EG.7
       - EG.8
       - EG.9
@@ -27033,6 +27034,7 @@
       - EG.5.2.3
       - EG.6
       - EG.6.1
+      - EG.6.1.1
       - EG.7
       - EG.8
       - EG.9
@@ -28864,6 +28866,7 @@
       - EG.5.2.3
       - EG.6
       - EG.6.1
+      - EG.6.1.1
       - EG.7
       - EG.8
       - EG.9
@@ -29573,6 +29576,7 @@
       - EG.5.2.3
       - EG.6
       - EG.6.1
+      - EG.6.1.1
       - EG.7
       - EG.8
       - EG.9
@@ -29941,12 +29945,19 @@
   children:
       - EG.6
       - EG.6.1
+      - EG.6.1.1
   parent: XBB.1.9.2
 - name: EG.6.1
   alias: XBB.1.9.2.6.1
   children:
       - EG.6.1
+      - EG.6.1.1
   parent: EG.6
+- name: EG.6.1.1
+  alias: XBB.1.9.2.6.1.1
+  children:
+      - EG.6.1.1
+  parent: EG.6.1
 - name: EG.7
   alias: XBB.1.9.2.7
   children:
