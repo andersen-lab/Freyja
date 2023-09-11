@@ -25,7 +25,7 @@ locDir = os.path.abspath(os.path.join(os.path.realpath(__file__), os.pardir))
 
 
 @click.group()
-@click.version_option('1.4.6')
+@click.version_option('1.4.7')
 def cli():
     pass
 
@@ -52,28 +52,21 @@ def print_barcode_version(ctx, param, value):
 @click.option('--covcut', default=10, help='depth cutoff for\
                                             coverage estimate')
 @click.option('--confirmedonly', is_flag=True, default=False)
-@click.option('--wgisaid', is_flag=True, default=False,
-              help='larger library with non-public lineages')
 @click.option('--version', is_flag=True, callback=print_barcode_version,
               expose_value=False, is_eager=True)
 @click.option('--depthcutoff', default=0,
               help='exclude sites with coverage depth below this value and'
               'group identical barcodes')
 def demix(variants, depths, output, eps, barcodes, meta,
-          covcut, confirmedonly, wgisaid, depthcutoff):
+          covcut, confirmedonly, depthcutoff):
     locDir = os.path.abspath(os.path.join(os.path.realpath(__file__),
                              os.pardir))
     # option for custom barcodes
     if barcodes != '-1':
         df_barcodes = pd.read_csv(barcodes, index_col=0)
     else:
-        if not wgisaid:
-            df_barcodes = pd.read_csv(os.path.join(locDir,
-                                      'data/usher_barcodes.csv'), index_col=0)
-        else:
-            df_barcodes = pd.read_csv(os.path.join(locDir,
-                                      'data/usher_barcodes_with_gisaid.csv'),
-                                      index_col=0)
+        df_barcodes = pd.read_csv(os.path.join(locDir,
+                                  'data/usher_barcodes.csv'), index_col=0)
     if confirmedonly:
         confirmed = [dfi for dfi in df_barcodes.index
                      if 'proposed' not in dfi and 'misc' not in dfi]
@@ -136,7 +129,7 @@ def demix(variants, depths, output, eps, barcodes, meta,
               help='only include lineages in cov-lineages')
 @click.option('--buildlocal', is_flag=True, default=False,
               help='Perform barcode building locally')
-def update(outdir, noncl, wgisaid, buildlocal):
+def update(outdir, noncl, buildlocal):
     locDir = os.path.abspath(os.path.join(os.path.realpath(__file__),
                                           os.pardir))
     if outdir != '-1':
@@ -280,28 +273,22 @@ def variants(bamfile, ref, variants, depths, refname, minq, annot):
 @click.option('--boxplot', default='',
               help='file format of boxplot output (e.g. pdf or png)')
 @click.option('--confirmedonly', is_flag=True, default=False)
-@click.option('--wgisaid', is_flag=True, default=False,
-              help='larger library with non-public lineages')
 @click.option('--rawboots', is_flag=True, default=False,
               help='return raw bootstraps')
 @click.option('--depthcutoff', default=0,
               help='exclude sites with coverage depth below this value and'
               'group identical barcodes')
 def boot(variants, depths, output_base, eps, barcodes, meta,
-         nb, nt, boxplot, confirmedonly, wgisaid, depthcutoff, rawboots):
+         nb, nt, boxplot, confirmedonly, depthcutoff, rawboots):
     locDir = os.path.abspath(os.path.join(os.path.realpath(__file__),
                              os.pardir))
     # option for custom barcodes
     if barcodes != '-1':
         df_barcodes = pd.read_csv(barcodes, index_col=0)
     else:
-        if not wgisaid:
-            df_barcodes = pd.read_csv(os.path.join(locDir,
-                                      'data/usher_barcodes.csv'), index_col=0)
-        else:
-            df_barcodes = pd.read_csv(os.path.join(locDir,
-                                      'data/usher_barcodes_with_gisaid.csv'),
-                                      index_col=0)
+        df_barcodes = pd.read_csv(os.path.join(locDir,
+                                  'data/usher_barcodes.csv'), index_col=0)
+
     if confirmedonly:
         confirmed = [dfi for dfi in df_barcodes.index
                      if 'proposed' not in dfi and 'misc' not in dfi]
