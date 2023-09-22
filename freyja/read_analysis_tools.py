@@ -686,7 +686,7 @@ def covariants(input_bam, min_site, max_site, output,
     if sort_by.lower() == 'count':
         df = df.sort_values('Count', ascending=False)
     elif sort_by.lower() == 'freq':
-        df = df.sort_values('Count', ascending=False)
+        df = df.sort_values('Freq', ascending=False)
     elif sort_by.lower() == 'site':
         df['sort_col'] = [nt_position(s.split(' ')[0]) for s in df.Covariants]
         df = df.sort_values('sort_col').drop(labels='sort_col', axis=1)
