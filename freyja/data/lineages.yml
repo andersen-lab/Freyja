@@ -26736,6 +26736,7 @@
       - GS.3
       - GS.4
       - GS.4.1
+      - GS.5
       - GU.1
       - GV.1
       - GW.1
@@ -26822,6 +26823,8 @@
       - JG.3
       - JJ.1
       - JK.1
+      - JM.1
+      - JM.2
       - XBB
       - XBB.1
       - XBB.1.1
@@ -27427,6 +27430,8 @@
       - JG.3
       - JJ.1
       - JK.1
+      - JM.1
+      - JM.2
       - XBB.1
       - XBB.1.1
       - XBB.1.2
@@ -30477,6 +30482,8 @@
       - HF.1.2
       - JF.1
       - JF.2
+      - JM.1
+      - JM.2
       - XBB.1.16
       - XBB.1.16.1
       - XBB.1.16.2
@@ -30707,8 +30714,20 @@
 - name: XBB.1.16.15
   alias: XBB.1.16.15
   children:
+      - JM.1
+      - JM.2
       - XBB.1.16.15
   parent: XBB.1.16
+- name: JM.1
+  alias: XBB.1.16.15.1
+  children:
+      - JM.1
+  parent: XBB.1.16.15
+- name: JM.2
+  alias: XBB.1.16.15.2
+  children:
+      - JM.2
+  parent: XBB.1.16.15
 - name: XBB.1.16.16
   alias: XBB.1.16.16
   children:
@@ -31514,6 +31533,7 @@
       - GS.3
       - GS.4
       - GS.4.1
+      - GS.5
       - GZ.1
       - HG.1
       - HG.2
@@ -31592,6 +31612,7 @@
       - GS.3
       - GS.4
       - GS.4.1
+      - GS.5
       - GZ.1
       - HG.1
       - HG.2
@@ -31850,6 +31871,7 @@
       - GS.3
       - GS.4
       - GS.4.1
+      - GS.5
       - XBB.2.3.11
   parent: XBB.2.3
 - name: GS.1
@@ -31878,6 +31900,11 @@
   children:
       - GS.4.1
   parent: GS.4
+- name: GS.5
+  alias: XBB.2.3.11.5
+  children:
+      - GS.5
+  parent: XBB.2.3.11
 - name: XBB.2.3.12
   alias: XBB.2.3.12
   children:
