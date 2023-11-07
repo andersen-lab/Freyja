@@ -27192,6 +27192,8 @@
       - HK.17
       - HK.18
       - HK.19
+      - HK.20
+      - HK.20.1
       - HL.1
       - HL.2
       - HM.1
@@ -27933,6 +27935,8 @@
       - HK.17
       - HK.18
       - HK.19
+      - HK.20
+      - HK.20.1
       - HL.1
       - HL.2
       - HM.1
@@ -30007,6 +30011,8 @@
       - HK.17
       - HK.18
       - HK.19
+      - HK.20
+      - HK.20.1
       - HN.1
       - HN.2
       - HN.2.1
@@ -30907,6 +30913,8 @@
       - HK.17
       - HK.18
       - HK.19
+      - HK.20
+      - HK.20.1
       - HV.1
       - HV.1.1
       - HV.1.2
@@ -31107,6 +31115,8 @@
       - HK.17
       - HK.18
       - HK.19
+      - HK.20
+      - HK.20.1
       - HV.1
       - HV.1.1
       - HV.1.2
@@ -31166,6 +31176,8 @@
       - HK.17
       - HK.18
       - HK.19
+      - HK.20
+      - HK.20.1
       - HV.1
       - HV.1.1
       - HV.1.2
@@ -31214,6 +31226,8 @@
       - HK.17
       - HK.18
       - HK.19
+      - HK.20
+      - HK.20.1
   parent: EG.5.1
 - name: HK.1
   alias: XBB.1.9.2.5.1.1.1
@@ -31377,6 +31391,17 @@
   children:
       - HK.19
   parent: EG.5.1.1
+- name: HK.20
+  alias: XBB.1.9.2.5.1.1.20
+  children:
+      - HK.20
+      - HK.20.1
+  parent: EG.5.1.1
+- name: HK.20.1
+  alias: XBB.1.9.2.5.1.1.20.1
+  children:
+      - HK.20.1
+  parent: HK.20
 - name: EG.5.1.2
   alias: XBB.1.9.2.5.1.2
   children:
@@ -34608,3 +34633,13 @@
   children:
       - XDA
   recombinant_parents: XBB.1.16,HN.5
+- name: XDB
+  alias: XDB
+  children:
+      - XDB
+  recombinant_parents: XBB.1.16.19,XBB
+- name: XDC
+  alias: XDC
+  children:
+      - XDC
+  recombinant_parents: HK.3,XBB.1.16
