@@ -48,6 +48,7 @@ class BarcodeTests(unittest.TestCase):
         flipPairs = [(d, d[-1] + d[1:len(d)-1]+d[0])
                      for d in df_barcodes.columns
                      if (d[-1] + d[1:len(d)-1]+d[0]) in df_barcodes.columns]
+        print(flipPairs)
         self.assertTrue(len(flipPairs) == 0)
 
 

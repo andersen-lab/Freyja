@@ -101,7 +101,7 @@ def check_mutation_chain(df_barcodes):
                                   (df_barcodes[sm[1]] > 0)]
             if sm[2] not in df_barcodes.columns:
                 # combination leads to new mutation
-                newCol = pd.Series([(1 if dfi in lin_seq[0:2] else 0)
+                newCol = pd.Series([(1 if dfi in lin_seq.index else 0)
                                    for dfi in df_barcodes.index], name=sm[2],
                                    index=df_barcodes.index)
                 df_barcodes = pd.concat([df_barcodes, newCol], axis=1)
@@ -111,10 +111,11 @@ def check_mutation_chain(df_barcodes):
                 df_barcodes.loc[lin_seq.index, sm[2]] = 1
             # remove constituent mutations
             df_barcodes.loc[lin_seq.index, sm[0:2]] -= 1
-
         # drop all unused mutations
         df_barcodes = df_barcodes.drop(
             columns=df_barcodes.columns[df_barcodes.sum(axis=0) == 0])
+        # in case mutation path leads to a return to the reference.
+        df_barcodes = reversion_checking(df_barcodes)
         seq_muts = identify_chains(df_barcodes)
     return df_barcodes
 
