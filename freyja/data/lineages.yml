@@ -27206,6 +27206,8 @@
       - HK.19
       - HK.20
       - HK.20.1
+      - HK.21
+      - HK.22
       - HL.1
       - HL.2
       - HM.1
@@ -27253,6 +27255,7 @@
       - JD.1.1.2
       - JD.1.1.3
       - JD.1.2
+      - JD.1.2.1
       - JD.2
       - JD.2.1
       - JE.1
@@ -27442,6 +27445,7 @@
       - XBB.1.16.23
       - XBB.1.16.24
       - XBB.1.16.25
+      - XBB.1.16.26
       - XBB.1.17
       - XBB.1.17.1
       - XBB.1.17.2
@@ -27949,6 +27953,8 @@
       - HK.19
       - HK.20
       - HK.20.1
+      - HK.21
+      - HK.22
       - HL.1
       - HL.2
       - HM.1
@@ -27995,6 +28001,7 @@
       - JD.1.1.2
       - JD.1.1.3
       - JD.1.2
+      - JD.1.2.1
       - JD.2
       - JD.2.1
       - JF.1
@@ -28176,6 +28183,7 @@
       - XBB.1.16.23
       - XBB.1.16.24
       - XBB.1.16.25
+      - XBB.1.16.26
       - XBB.1.17
       - XBB.1.17.1
       - XBB.1.17.2
@@ -28388,6 +28396,7 @@
       - JD.1.1.2
       - JD.1.1.3
       - JD.1.2
+      - JD.1.2.1
       - JD.2
       - JD.2.1
       - JK.1
@@ -29724,6 +29733,7 @@
       - JD.1.1.2
       - JD.1.1.3
       - JD.1.2
+      - JD.1.2.1
       - JD.2
       - JD.2.1
       - XBB.1.5.102
@@ -29737,6 +29747,7 @@
       - JD.1.1.2
       - JD.1.1.3
       - JD.1.2
+      - JD.1.2.1
   parent: XBB.1.5.102
 - name: JD.1.1
   alias: XBB.1.5.102.1.1
@@ -29765,7 +29776,13 @@
   alias: XBB.1.5.102.1.2
   children:
       - JD.1.2
+      - JD.1.2.1
   parent: JD.1
+- name: JD.1.2.1
+  alias: XBB.1.5.102.1.2.1
+  children:
+      - JD.1.2.1
+  parent: JD.1.2
 - name: JD.2
   alias: XBB.1.5.102.2
   children:
@@ -30025,6 +30042,8 @@
       - HK.19
       - HK.20
       - HK.20.1
+      - HK.21
+      - HK.22
       - HN.1
       - HN.2
       - HN.2.1
@@ -30927,6 +30946,8 @@
       - HK.19
       - HK.20
       - HK.20.1
+      - HK.21
+      - HK.22
       - HV.1
       - HV.1.1
       - HV.1.2
@@ -31129,6 +31150,8 @@
       - HK.19
       - HK.20
       - HK.20.1
+      - HK.21
+      - HK.22
       - HV.1
       - HV.1.1
       - HV.1.2
@@ -31190,6 +31213,8 @@
       - HK.19
       - HK.20
       - HK.20.1
+      - HK.21
+      - HK.22
       - HV.1
       - HV.1.1
       - HV.1.2
@@ -31240,6 +31265,8 @@
       - HK.19
       - HK.20
       - HK.20.1
+      - HK.21
+      - HK.22
   parent: EG.5.1
 - name: HK.1
   alias: XBB.1.9.2.5.1.1.1
@@ -31414,6 +31441,16 @@
   children:
       - HK.20.1
   parent: HK.20
+- name: HK.21
+  alias: XBB.1.9.2.5.1.1.21
+  children:
+      - HK.21
+  parent: EG.5.1.1
+- name: HK.22
+  alias: XBB.1.9.2.5.1.1.22
+  children:
+      - HK.22
+  parent: EG.5.1.1
 - name: EG.5.1.2
   alias: XBB.1.9.2.5.1.2
   children:
@@ -31859,6 +31896,7 @@
       - XBB.1.16.23
       - XBB.1.16.24
       - XBB.1.16.25
+      - XBB.1.16.26
   parent: XBB.1
 - name: XBB.1.16.1
   alias: XBB.1.16.1
@@ -32142,6 +32180,11 @@
   alias: XBB.1.16.25
   children:
       - XBB.1.16.25
+  parent: XBB.1.16
+- name: XBB.1.16.26
+  alias: XBB.1.16.26
+  children:
+      - XBB.1.16.26
   parent: XBB.1.16
 - name: XBB.1.17
   alias: XBB.1.17
@@ -34614,7 +34657,13 @@
   alias: XCT
   children:
       - XCT
+      - XCT.1
   recombinant_parents: JG.4,DV.7.1,JG.4
+- name: XCT.1
+  alias: XCT.1
+  children:
+      - XCT.1
+  parent: XCT
 - name: XCU
   alias: XCU
   children:
