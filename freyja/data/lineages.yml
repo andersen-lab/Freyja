@@ -2730,6 +2730,8 @@
       - JN.2
       - JN.3
       - JN.4
+      - JN.5
+      - JN.6
       - JP.1
       - JQ.1
       - JV.1
@@ -5262,6 +5264,8 @@
       - JN.2
       - JN.3
       - JN.4
+      - JN.5
+      - JN.6
       - JP.1
       - JQ.1
       - JV.1
@@ -6856,6 +6860,8 @@
       - JN.2
       - JN.3
       - JN.4
+      - JN.5
+      - JN.6
       - JP.1
       - JQ.1
       - JV.1
@@ -10925,6 +10931,8 @@
       - JN.2
       - JN.3
       - JN.4
+      - JN.5
+      - JN.6
       - JP.1
       - JQ.1
       - JV.1
@@ -11695,6 +11703,8 @@
       - JN.2
       - JN.3
       - JN.4
+      - JN.5
+      - JN.6
       - JP.1
       - JQ.1
       - JV.1
@@ -14884,6 +14894,8 @@
       - JN.2
       - JN.3
       - JN.4
+      - JN.5
+      - JN.6
       - JQ.1
   parent: BA.2
 - name: BA.2.86.1
@@ -14894,6 +14906,8 @@
       - JN.2
       - JN.3
       - JN.4
+      - JN.5
+      - JN.6
   parent: BA.2.86
 - name: JN.1
   alias: B.1.1.529.2.86.1.1
@@ -14914,6 +14928,16 @@
   alias: B.1.1.529.2.86.1.4
   children:
       - JN.4
+  parent: BA.2.86.1
+- name: JN.5
+  alias: B.1.1.529.2.86.1.5
+  children:
+      - JN.5
+  parent: BA.2.86.1
+- name: JN.6
+  alias: B.1.1.529.2.86.1.6
+  children:
+      - JN.6
   parent: BA.2.86.1
 - name: BA.2.86.2
   alias: B.1.1.529.2.86.2
