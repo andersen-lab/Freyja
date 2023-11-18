@@ -159,7 +159,7 @@ def solve_demixing_problem(df_barcodes, mix, depths, eps):
     A = np.array((df_barcodes*dep).T)
     b = np.array(pd.to_numeric(mix)*dep)
     x = cp.Variable(A.shape[1])
-    cost = cp.norm(A @ x - b, 1)
+    cost = cp.norm(A @ x - b, 1)#+ 100.*cp.norm(x,1)
     constraints = [sum(x) == 1, x >= 0]
     prob = cp.Problem(cp.Minimize(cost), constraints)
     try:
@@ -170,7 +170,52 @@ def solve_demixing_problem(df_barcodes, mix, depths, eps):
               'Try increasing the --depthcutoff parameter.')
         sys.exit(1)
     sol = x.value
+    print(sol)
+    if 1:
+        solFlip = np.array([1./s if s>1E-8 else 2000000. for s in sol])
+
+        solNz = [j for j,s in enumerate(sol) if s>1E-8]
+        solFlip = solFlip[solNz]
+        print(solFlip)
+        A = A[:,solNz]
+        x = cp.Variable(A.shape[1])
+        cost = cp.norm(A @ x - b, 1) + 0.1*cp.norm(cp.multiply(solFlip,x),1)
+        print('reg on')
+        constraints = [sum(x) == 1, x >= 0]
+        prob = cp.Problem(cp.Minimize(cost), constraints)
+        try:
+            prob.solve(verbose=False)
+        except cp.error.SolverError:
+            print('demix: Solver error encountered, most '
+                  'likely due to insufficient sequencing depth. '
+                  'Try increasing the --depthcutoff parameter.')
+            sys.exit(1)
+        # sol = x.value
+        print(sol)
+        # # solFlip = [1./s if s>0 else 200000. for s in sol]
+
+        # solNz = [j for j,s in enumerate(sol) if s>1E-10]
+        # A = A[:,solNz]
+        # x = cp.Variable(A.shape[1])
+        # cost = cp.norm(A @ x - b, 1) #+ cp.norm(cp.multiply(solFlip,x),1)
+        # print('reg on')
+        # constraints = [sum(x) == 1, x >= 0]
+        # prob = cp.Problem(cp.Minimize(cost), constraints)
+        # try:
+        #     prob.solve(verbose=False)
+        # except cp.error.SolverError:
+        #     print('demix: Solver error encountered, most '
+        #           'likely due to insufficient sequencing depth. '
+        #           'Try increasing the --depthcutoff parameter.')
+        #     sys.exit(1)
+
+        sol = np.zeros(len(sol))
+        sol[solNz] = x.value
+
+        # print('solution',sol)
+
     rnorm = cp.norm(A @ x - b, 1).value
+    # print('reg val',cp.norm(x,1).value)
     # extract lineages with non-negligible abundance
     sol[sol < eps] = 0
     nzInds = np.nonzero(sol)[0]
