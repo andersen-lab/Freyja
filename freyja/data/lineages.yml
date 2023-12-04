@@ -27294,6 +27294,7 @@
       - GA.8.1
       - GA.9
       - GA.10
+      - GA.10.1
       - GB.1
       - GB.2
       - GC.1
@@ -28173,6 +28174,7 @@
       - GA.8.1
       - GA.9
       - GA.10
+      - GA.10.1
       - GB.1
       - GB.2
       - GC.1
@@ -33253,6 +33255,7 @@
       - GA.8.1
       - GA.9
       - GA.10
+      - GA.10.1
       - XBB.1.17
       - XBB.1.17.1
       - XBB.1.17.2
@@ -33282,6 +33285,7 @@
       - GA.8.1
       - GA.9
       - GA.10
+      - GA.10.1
       - XBB.1.17.1
   parent: XBB.1.17
 - name: GA.1
@@ -33409,7 +33413,13 @@
   alias: XBB.1.17.1.10
   children:
       - GA.10
+      - GA.10.1
   parent: XBB.1.17.1
+- name: GA.10.1
+  alias: XBB.1.17.1.10.1
+  children:
+      - GA.10.1
+  parent: GA.10
 - name: XBB.1.17.2
   alias: XBB.1.17.2
   children:
