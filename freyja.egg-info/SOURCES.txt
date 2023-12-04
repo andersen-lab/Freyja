@@ -5,6 +5,7 @@ freyja/__init__.py
 freyja/_cli.py
 freyja/convert_paths2barcodes.py
 freyja/read_analysis_tools.py
+freyja/read_analysis_utils.py
 freyja/sample_deconv.py
 freyja/updates.py
 freyja/utils.py
@@ -37,8 +38,10 @@ freyja/data/sweep_metadata.csv
 freyja/data/sweep_metadata_missing.csv
 freyja/data/test.bam
 freyja/data/test.bam.bai
+freyja/data/test.depth
 freyja/data/test.pdf
 freyja/data/test.png
+freyja/data/test.tsv
 freyja/data/test.vcf
 freyja/data/test0.html
 freyja/data/test0.png

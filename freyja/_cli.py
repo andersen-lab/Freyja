@@ -25,7 +25,7 @@ locDir = os.path.abspath(os.path.join(os.path.realpath(__file__), os.pardir))
 
 
 @click.group()
-@click.version_option('1.4.7')
+@click.version_option('1.4.8')
 def cli():
     pass
 
@@ -57,8 +57,13 @@ def print_barcode_version(ctx, param, value):
 @click.option('--depthcutoff', default=0,
               help='exclude sites with coverage depth below this value and'
               'group identical barcodes')
+@click.option('--adapt', default=0.,
+              help='adaptive lasso penalty parameter')
+@click.option('--a_eps', default=1E-8,
+              help='adaptive lasso parameter, hard threshold')
 def demix(variants, depths, output, eps, barcodes, meta,
-          covcut, confirmedonly, depthcutoff):
+          covcut, confirmedonly, depthcutoff,
+          adapt, a_eps):
     locDir = os.path.abspath(os.path.join(os.path.realpath(__file__),
                              os.pardir))
     # option for custom barcodes
@@ -92,7 +97,8 @@ def demix(variants, depths, output, eps, barcodes, meta,
     sample_strains, abundances, error = solve_demixing_problem(df_barcodes,
                                                                mix,
                                                                depths_,
-                                                               eps)
+                                                               eps, adapt,
+                                                               a_eps)
     # merge intra-lineage diversity if multiple hits.
     if len(set(sample_strains)) < len(sample_strains):
         localDict = {}

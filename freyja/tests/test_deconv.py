@@ -1,8 +1,8 @@
 import unittest
 import pandas as pd
-from freyja.sample_deconv import buildLineageMap, build_mix_and_depth_arrays,\
-    reindex_dfs, map_to_constellation, solve_demixing_problem,\
-    perform_bootstrap
+from freyja.sample_deconv import buildLineageMap, build_mix_and_depth_arrays, \
+     reindex_dfs, map_to_constellation, solve_demixing_problem, \
+     perform_bootstrap
 import pandas.testing as pdt
 import pandas.api.types as ptypes
 from numpy.random import negative_binomial
@@ -56,7 +56,8 @@ class DeconvTests(unittest.TestCase):
         eps = 0.001
         sample_strains, abundances, error = solve_demixing_problem(df_barcodes,
                                                                    mix, depths,
-                                                                   eps)
+                                                                   eps, 0.,
+                                                                   1.E-8)
         self.assertAlmostEqual(
             abundances[sample_strains.tolist().index(strain1)], mixFracs[0])
         self.assertAlmostEqual(
