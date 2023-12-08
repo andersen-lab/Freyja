@@ -854,9 +854,9 @@ def collapse_barcodes(df_barcodes, df_depth, depthcutoff, locDir, output):
             lambda x: tuple(x.index) if len(x.index) > 1 else None
         ).dropna()
     except ValueError:
-        print(f'Error: --depthcutoff {depthcutoff} too high for data with max depth {max_depth}')
+        print(f'Error: --depthcutoff {depthcutoff} too high'
+              f'for data with max depth {max_depth}')
         sys.exit(1)
-
 
     if len(duplicates) == 0:
         return df_barcodes
