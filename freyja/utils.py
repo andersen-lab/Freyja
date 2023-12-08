@@ -1,6 +1,7 @@
 import copy
 import os
 import re
+import sys
 import tqdm
 
 import matplotlib.dates as mdates
@@ -844,10 +845,18 @@ def collapse_barcodes(df_barcodes, df_depth, depthcutoff, locDir, output):
                     if mut[1:-1] in low_cov_sites]
     df_barcodes = df_barcodes.drop(low_cov_muts, axis=1)
 
+    max_depth = df_depth[3].astype(int).max()
+
     # find lineages with identical barcodes
-    duplicates = df_barcodes.groupby(df_barcodes.columns.tolist()).apply(
-        lambda x: tuple(x.index) if len(x.index) > 1 else None
-    ).dropna()
+
+    try:
+        duplicates = df_barcodes.groupby(df_barcodes.columns.tolist()).apply(
+            lambda x: tuple(x.index) if len(x.index) > 1 else None
+        ).dropna()
+    except ValueError:
+        print(f'Error: --depthcutoff {depthcutoff} too high for data with max depth {max_depth}')
+        sys.exit(1)
+
 
     if len(duplicates) == 0:
         return df_barcodes
