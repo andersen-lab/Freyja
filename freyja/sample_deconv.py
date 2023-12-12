@@ -149,7 +149,7 @@ def map_to_constellation(sample_strains, vals, mapDict):
     return localDict
 
 
-def solve_demixing_problem(df_barcodes, mix, depths, eps):
+def solve_demixing_problem(df_barcodes, mix, depths, eps, adapt, a_eps):
     # single file problem setup, solving
 
     dep = np.log2(depths+1)
@@ -169,6 +169,28 @@ def solve_demixing_problem(df_barcodes, mix, depths, eps):
               'likely due to insufficient sequencing depth.')
         sys.exit(1)
     sol = x.value
+    rnorm0 = cp.norm(A @ x - b, 1).value
+    if adapt > 0.:
+        # if specified, run the adaptive lasso based method
+        # thresholding step
+        solNz = [j for j, s in enumerate(sol) if s > a_eps]
+        solFlip = [1./sol[j] for j in solNz]
+        A = A[:, solNz]
+        x = cp.Variable(A.shape[1])
+        cost = cp.norm(A @ x - b, 1) +\
+            (rnorm0*adapt)*cp.norm(cp.multiply(solFlip, x), 1)
+        constraints = [sum(x) == 1, x >= 0]
+        prob = cp.Problem(cp.Minimize(cost), constraints)
+        try:
+            prob.solve(verbose=False)
+        except cp.error.SolverError:
+            print('demix: Solver error encountered, most '
+                  'likely due to insufficient sequencing depth. '
+                  'Try increasing the --depthcutoff parameter.')
+            sys.exit(1)
+        sol = np.zeros(len(sol))
+        sol[solNz] = x.value
+
     rnorm = cp.norm(A @ x - b, 1).value
     # extract lineages with non-negligible abundance
     sol[sol < eps] = 0
@@ -181,7 +203,8 @@ def solve_demixing_problem(df_barcodes, mix, depths, eps):
 
 
 def bootstrap_parallel(jj, samplesDefining, fracDepths_adj, mix_grp,
-                       mix, df_barcodes, eps0, muts, mapDict):
+                       mix, df_barcodes, eps0, muts, mapDict,
+                       adapt, a_eps):
     # helper function for fast bootstrap and solve
     # get sequencing depth at the position of all defining mutations
     mix_boot = mix.copy()
@@ -220,14 +243,16 @@ def bootstrap_parallel(jj, samplesDefining, fracDepths_adj, mix_grp,
                                                mix_boot, dps_)
     sample_strains, abundances, error = solve_demixing_problem(df_barcodes,
                                                                mix_boot_,
-                                                               dps_, eps0)
+                                                               dps_, eps0,
+                                                               adapt, a_eps)
     localDict = map_to_constellation(sample_strains, abundances, mapDict)
     return sample_strains, abundances, localDict
 
 
 def perform_bootstrap(df_barcodes, mix, depths_,
                       numBootstraps, eps0, n_jobs,
-                      mapDict, muts, boxplot, basename):
+                      mapDict, muts, boxplot, basename,
+                      adapt=0., a_eps=1E-8):
     depths_.index = depths_.index.to_series().apply(lambda x:
                                                     int(x[1:len(x)-1]))
     depths_ = depths_[~depths_.index.duplicated(keep='first')]
@@ -257,7 +282,9 @@ def perform_bootstrap(df_barcodes, mix, depths_,
                                                               df_barcodes,
                                                               eps0,
                                                               muts,
-                                                              mapDict)
+                                                              mapDict,
+                                                              adapt,
+                                                              a_eps)
                                   for jj0 in tqdm(range(numBootstraps)))
     for i in range(len(out)):
         sample_lins, abundances, localDict = out[i]
