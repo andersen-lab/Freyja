@@ -170,6 +170,7 @@ def solve_demixing_problem(df_barcodes, mix, depths, eps, adapt, a_eps):
               'Try increasing the --depthcutoff parameter.')
         sys.exit(1)
     sol = x.value
+    rnorm0 = cp.norm(A @ x - b, 1).value
     if adapt > 0.:
         # if specified, run the adaptive lasso based method
         # thresholding step
@@ -178,7 +179,7 @@ def solve_demixing_problem(df_barcodes, mix, depths, eps, adapt, a_eps):
         A = A[:, solNz]
         x = cp.Variable(A.shape[1])
         cost = cp.norm(A @ x - b, 1) +\
-            adapt*cp.norm(cp.multiply(solFlip, x), 1)
+            (rnorm0*adapt)*cp.norm(cp.multiply(solFlip, x), 1)
         constraints = [sum(x) == 1, x >= 0]
         prob = cp.Problem(cp.Minimize(cost), constraints)
         try:
@@ -244,7 +245,7 @@ def bootstrap_parallel(jj, samplesDefining, fracDepths_adj, mix_grp,
     sample_strains, abundances, error = solve_demixing_problem(df_barcodes,
                                                                mix_boot_,
                                                                dps_, eps0,
-                                                               adapt,a_eps)
+                                                               adapt, a_eps)
     localDict = map_to_constellation(sample_strains, abundances, mapDict)
     return sample_strains, abundances, localDict
 
@@ -252,7 +253,7 @@ def bootstrap_parallel(jj, samplesDefining, fracDepths_adj, mix_grp,
 def perform_bootstrap(df_barcodes, mix, depths_,
                       numBootstraps, eps0, n_jobs,
                       mapDict, muts, boxplot, basename,
-                      adapt=0.,a_eps=1E-8):
+                      adapt=0., a_eps=1E-8):
     depths_.index = depths_.index.to_series().apply(lambda x:
                                                     int(x[1:len(x)-1]))
     depths_ = depths_[~depths_.index.duplicated(keep='first')]

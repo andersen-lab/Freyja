@@ -182,6 +182,10 @@ def get_color_scheme(df, default_color_scheme, config=None):
 
 
 def prepLineageDict(agg_d0, thresh=0.001, config=None, lineage_info=None):
+
+    if len(agg_d0.index[agg_d0.index.duplicated(keep=False)]) > 0:
+        print('WARNING: multiple samples have the same ID/filename.')
+        print(agg_d0.index[agg_d0.index.duplicated(keep=False)])
     agg_d0.loc[:, 'lineages'] = agg_d0['lineages']\
           .apply(lambda x:
                  x.replace("'", "")
