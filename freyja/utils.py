@@ -98,7 +98,7 @@ def calc_rel_growth_rates(df, nboots=1000, serial_interval=5.5,
         for j in range(nboots):
             bootInds = np.random.randint(0, len(days), len(days))
             daysBoot = days[bootInds]
-            dataBoot = data[bootInds]
+            dataBoot = data.iloc[bootInds]
             try:
                 fitBoot, covarBoot = curve_fit(
                     f=logistic_growth,
@@ -502,19 +502,31 @@ def get_abundance(agg_df, meta_df, thresh, scale_by_viral_load, config,
     for i, sampLabel in enumerate(agg_df.index):
         dat = agg_df.loc[sampLabel, 'linDict']
         if isinstance(dat, list):
-            df_ab_lin = pd.concat([
-                df_ab_lin,
-                pd.Series(agg_df.loc[sampLabel, 'linDict'][0],
-                          name=meta_df.loc[sampLabel,
-                                           'sample_collection_datetime'])
-            ], axis=1)
+            if i == 0:
+                df_ab_lin = pd.Series(
+                    agg_df.loc[sampLabel, 'linDict'][0],
+                    name=meta_df.loc[sampLabel,
+                                     'sample_collection_datetime'])
+            else:
+                df_ab_lin = pd.concat([
+                    df_ab_lin,
+                    pd.Series(agg_df.loc[sampLabel, 'linDict'][0],
+                              name=meta_df.loc[sampLabel,
+                                               'sample_collection_datetime'])
+                ], axis=1)
         else:
-            df_ab_lin = pd.concat([
-                df_ab_lin,
-                pd.Series(agg_df.loc[sampLabel, 'linDict'],
-                          name=meta_df.loc[sampLabel,
-                                           'sample_collection_datetime'])
-            ], axis=1)
+            if i == 0:
+                df_ab_lin = pd.Series(
+                    agg_df.loc[sampLabel, 'linDict'][0],
+                    name=meta_df.loc[sampLabel,
+                                     'sample_collection_datetime'])
+            else:
+                df_ab_lin = pd.concat([
+                    df_ab_lin,
+                    pd.Series(agg_df.loc[sampLabel, 'linDict'],
+                              name=meta_df.loc[sampLabel,
+                                               'sample_collection_datetime'])
+                ], axis=1)
     df_ab_lin = df_ab_lin.T
     df_ab_lin.to_csv('df_ab_lin_raw.csv')
     df_ab_lin = df_ab_lin.fillna(0)
@@ -532,23 +544,35 @@ def get_abundance(agg_df, meta_df, thresh, scale_by_viral_load, config,
     df_ab_lin = 100. * df_ab_lin
 
     # collect VOC summarized data
-    df_ab_sum = pd.DataFrame()
+    # df_ab_sum = pd.DataFrame()
     for i, sampLabel in enumerate(agg_df.index):
         dat = agg_df.loc[sampLabel, 'summarized']
         if isinstance(dat, list):
-            df_ab_sum = pd.concat([
-                df_ab_sum,
-                pd.Series(agg_df.loc[sampLabel, 'summarized'][0],
-                          name=meta_df.loc[sampLabel,
-                                           'sample_collection_datetime'])
-            ], axis=1)
+            if i == 0:
+                df_ab_sum = pd.Series(
+                    agg_df.loc[sampLabel, 'summarized'][0],
+                    name=meta_df.loc[sampLabel,
+                                     'sample_collection_datetime'])
+            else:
+                df_ab_sum = pd.concat([
+                    df_ab_sum,
+                    pd.Series(agg_df.loc[sampLabel, 'summarized'][0],
+                              name=meta_df.loc[sampLabel,
+                                               'sample_collection_datetime'])
+                ], axis=1)
         else:
-            df_ab_sum = pd.concat([
-                df_ab_sum,
-                pd.Series(agg_df.loc[sampLabel, 'summarized'],
-                          name=meta_df.loc[sampLabel,
-                                           'sample_collection_datetime'])
-            ], axis=1)
+            if i == 0:
+                df_ab_sum = pd.Series(
+                    agg_df.loc[sampLabel, 'summarized'],
+                    name=meta_df.loc[sampLabel,
+                                     'sample_collection_datetime'])
+            else:
+                df_ab_sum = pd.concat([
+                    df_ab_sum,
+                    pd.Series(agg_df.loc[sampLabel, 'summarized'],
+                              name=meta_df.loc[sampLabel,
+                                               'sample_collection_datetime'])
+                ], axis=1)
     df_ab_sum = df_ab_sum.T
     df_ab_sum = df_ab_sum.fillna(0)
     if 'Other' not in df_ab_sum.columns:
@@ -598,7 +622,7 @@ def get_abundance(agg_df, meta_df, thresh, scale_by_viral_load, config,
 def make_dashboard(agg_df, meta_df, thresh, title, introText,
                    outputFn, headerColor, bodyColor, scale_by_viral_load,
                    config, lineage_info, nboots, serial_interval, days,
-                   grthresh):
+                   grthresh, keepPlotFile):
     df_ab_lin, df_ab_sum, dates_to_keep = get_abundance(agg_df, meta_df,
                                                         thresh,
                                                         scale_by_viral_load,
@@ -836,7 +860,10 @@ def make_dashboard(agg_df, meta_df, thresh, title, introText,
 
     with open(outputFn, 'w') as outfile:
         outfile.write(webpage)
-    os.remove('div-plot.html')
+    if not keepPlotFile:
+        os.remove('div-plot.html')
+    else:
+        print('Keeping intermediate plot')
     print("Dashboard html file saved to " + outputFn)
 
 
