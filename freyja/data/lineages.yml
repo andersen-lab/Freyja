@@ -2758,6 +2758,8 @@
       - JN.2.5
       - JN.3
       - JN.3.1
+      - JN.3.2
+      - JN.3.2.1
       - JN.4
       - JN.5
       - JN.5.1
@@ -5329,6 +5331,8 @@
       - JN.2.5
       - JN.3
       - JN.3.1
+      - JN.3.2
+      - JN.3.2.1
       - JN.4
       - JN.5
       - JN.5.1
@@ -6962,6 +6966,8 @@
       - JN.2.5
       - JN.3
       - JN.3.1
+      - JN.3.2
+      - JN.3.2.1
       - JN.4
       - JN.5
       - JN.5.1
@@ -11070,6 +11076,8 @@
       - JN.2.5
       - JN.3
       - JN.3.1
+      - JN.3.2
+      - JN.3.2.1
       - JN.4
       - JN.5
       - JN.5.1
@@ -11879,6 +11887,8 @@
       - JN.2.5
       - JN.3
       - JN.3.1
+      - JN.3.2
+      - JN.3.2.1
       - JN.4
       - JN.5
       - JN.5.1
@@ -15217,6 +15227,8 @@
       - JN.2.5
       - JN.3
       - JN.3.1
+      - JN.3.2
+      - JN.3.2.1
       - JN.4
       - JN.5
       - JN.5.1
@@ -15256,6 +15268,8 @@
       - JN.2.5
       - JN.3
       - JN.3.1
+      - JN.3.2
+      - JN.3.2.1
       - JN.4
       - JN.5
       - JN.5.1
@@ -15411,12 +15425,25 @@
   children:
       - JN.3
       - JN.3.1
+      - JN.3.2
+      - JN.3.2.1
   parent: BA.2.86.1
 - name: JN.3.1
   alias: B.1.1.529.2.86.1.3.1
   children:
       - JN.3.1
   parent: JN.3
+- name: JN.3.2
+  alias: B.1.1.529.2.86.1.3.2
+  children:
+      - JN.3.2
+      - JN.3.2.1
+  parent: JN.3
+- name: JN.3.2.1
+  alias: B.1.1.529.2.86.1.3.2.1
+  children:
+      - JN.3.2.1
+  parent: JN.3.2
 - name: JN.4
   alias: B.1.1.529.2.86.1.4
   children:
@@ -36876,3 +36903,13 @@
   children:
       - XDM
   recombinant_parents: XDA,GW.5,XDA
+- name: XDN
+  alias: XDN
+  children:
+      - XDN
+  recombinant_parents: JN.1.1,JD.1*
+- name: XDP
+  alias: XDP
+  children:
+      - XDP
+  recombinant_parents: JN.1.4,FL.15
