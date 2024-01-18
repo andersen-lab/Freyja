@@ -496,6 +496,11 @@ def get_abundance(agg_df, meta_df, thresh, scale_by_viral_load, config,
     agg_df = prepLineageDict(agg_df, config=config.get('Lineages'),
                              lineage_info=lineage_info, thresh=thresh)
     agg_df = prepSummaryDict(agg_df)
+
+    if len(meta_df.index[meta_df.index.duplicated(keep=False)]) > 0:
+        print('ERROR: multiple entries for same sample in metadata')
+        print(meta_df.index[meta_df.index.duplicated(keep=False)])
+        sys.exit(1)
     agg_df.to_csv('agg_df.csv')
     # collect lineage data
     df_ab_lin = pd.DataFrame()
