@@ -517,7 +517,7 @@ def get_abundance(agg_df, meta_df, thresh, scale_by_viral_load, config,
         else:
             if i == 0:
                 df_ab_lin = pd.Series(
-                    agg_df.loc[sampLabel, 'linDict'][0],
+                    agg_df.loc[sampLabel, 'linDict'],
                     name=meta_df.loc[sampLabel,
                                      'sample_collection_datetime'])
             else:
