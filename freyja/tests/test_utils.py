@@ -1,6 +1,6 @@
 import unittest
 import pandas as pd
-from freyja.utils import agg, checkConfig, prepLineageDict, prepSummaryDict,\
+from freyja.utils import agg, checkConfig, prepLineageDict, prepSummaryDict, \
     get_color_scheme, get_abundance, calc_rel_growth_rates, collapse_barcodes
 import os
 import plotly.express as px

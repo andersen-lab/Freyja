@@ -9,8 +9,8 @@ import pysam
 from Bio.Seq import MutableSeq
 from Bio import SeqIO
 
-from freyja.read_analysis_utils import nt_position, get_colnames_and_sites,\
-                                       read_pair_generator,\
+from freyja.read_analysis_utils import nt_position, get_colnames_and_sites, \
+                                       read_pair_generator, \
                                        filter_covariants_output
 
 

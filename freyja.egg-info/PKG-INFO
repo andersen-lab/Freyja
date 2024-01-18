@@ -8,6 +8,13 @@ Author-email: jolevy@scripps.edu
 License: BSD 2-Clause
 Description-Content-Type: text/markdown
 License-File: LICENSE
+Requires-Dist: click
+Requires-Dist: numpy
+Requires-Dist: pandas
+Requires-Dist: cvxpy
+Requires-Dist: seaborn
+Requires-Dist: pysam
+Requires-Dist: biopython
 
 # Freyja
 [![freyja CI](https://github.com/andersen-lab/Freyja/actions/workflows/python-package-conda.yml/badge.svg)](https://github.com/andersen-lab/Freyja/actions/workflows/python-package-conda.yml) [![Anaconda-Server Badge](https://anaconda.org/bioconda/freyja/badges/version.svg)](https://anaconda.org/bioconda/freyja) [![Anaconda-Server Badge](https://anaconda.org/bioconda/freyja/badges/platforms.svg)](https://anaconda.org/bioconda/freyja)

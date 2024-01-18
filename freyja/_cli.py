@@ -94,11 +94,17 @@ def demix(variants, depths, output, eps, barcodes, meta,
                                                    covcut)
     print('demixing')
     df_barcodes, mix, depths_ = reindex_dfs(df_barcodes, mix, depths_)
-    sample_strains, abundances, error = solve_demixing_problem(df_barcodes,
-                                                               mix,
-                                                               depths_,
-                                                               eps, adapt,
-                                                               a_eps)
+    try:
+        sample_strains, abundances, error = solve_demixing_problem(df_barcodes,
+                                                                   mix,
+                                                                   depths_,
+                                                                   eps, adapt,
+                                                                   a_eps)
+    except Exception as e:
+        print(e)
+        print('Error: Demixing step failed. Returning empty data output')
+        sample_strains, abundances = [], []
+        error = -1
     # merge intra-lineage diversity if multiple hits.
     if len(set(sample_strains)) < len(sample_strains):
         localDict = {}
@@ -367,6 +373,11 @@ def plot(agg_results, lineages, times, interval, output, windowsize,
     else:
         print('WARNING: Freyja should be updated \
 to include coverage estimates.')
+
+    if agg_df.shape[0] == 0:
+        print('ERROR: No samples matching coverage requirements, \
+so no plot will be generated. Try changing --mincov threshold.')
+        exit()
     if config is not None:
         with open(config, "r") as f:
             try:
@@ -426,9 +437,10 @@ to include coverage estimates.')
 @click.option('--grthresh', default=0.001, help='min avg prev. for growth')
 @click.argument('hierarchy', type=click.Path(),
                 default=os.path.join(locDir, 'data/lineages.yml'))
+@click.option('--keep_plot_files', is_flag=True, help='Keep separate plot')
 def dash(agg_results, metadata, title, intro, thresh, headercolor, bodycolor,
          scale_by_viral_load, nboots, serial_interval, config, mincov, output,
-         days, hierarchy, grthresh):
+         days, hierarchy, grthresh, keep_plot_files):
     agg_df = pd.read_csv(agg_results, skipinitialspace=True, sep='\t',
                          index_col=0)
     # drop poor quality samples
@@ -472,7 +484,8 @@ def dash(agg_results, metadata, title, intro, thresh, headercolor, bodycolor,
         config = {}
     make_dashboard(agg_df, meta_df, thresh, titleText, introText,
                    output, headercolor, bodycolor, scale_by_viral_load, config,
-                   lineage_info, nboots, serial_interval, days, grthresh)
+                   lineage_info, nboots, serial_interval, days, grthresh,
+                   keep_plot_files)
 
 
 @cli.command()
