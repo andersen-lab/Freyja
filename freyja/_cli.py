@@ -367,6 +367,11 @@ def plot(agg_results, lineages, times, interval, output, windowsize,
     else:
         print('WARNING: Freyja should be updated \
 to include coverage estimates.')
+
+    if agg_df.shape[0] == 0:
+        print('ERROR: No samples matching coverage requirements, \
+so no plot will be generated. Try changing --mincov threshold.')
+        exit()
     if config is not None:
         with open(config, "r") as f:
             try:
