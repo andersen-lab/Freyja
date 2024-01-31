@@ -30,7 +30,7 @@ def cli():
     pass
 
 
-def print_barcode_version(ctx, value):
+def print_barcode_version(ctx, param, value):
     """
     Gets the barcode version used in the program
 
