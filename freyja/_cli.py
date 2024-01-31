@@ -30,7 +30,7 @@ def cli():
     pass
 
 
-def print_barcode_version(ctx, param, value):
+def print_barcode_version(ctx, value):
     if not value or ctx.resilient_parsing:
         return
     locDir = os.path.abspath(os.path.join(os.path.realpath(__file__),
