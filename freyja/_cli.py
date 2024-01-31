@@ -61,9 +61,11 @@ def print_barcode_version(ctx, param, value):
               help='adaptive lasso penalty parameter')
 @click.option('--a_eps', default=1E-8,
               help='adaptive lasso parameter, hard threshold')
+@click.option('--region_of_interest', default='-1', help='csv file region(s)'
+              'of interest, format: start,end')
 def demix(variants, depths, output, eps, barcodes, meta,
           covcut, confirmedonly, depthcutoff,
-          adapt, a_eps):
+          adapt, a_eps, region_of_interest):
     locDir = os.path.abspath(os.path.join(os.path.realpath(__file__),
                              os.pardir))
     # option for custom barcodes
@@ -122,11 +124,52 @@ def demix(variants, depths, output, eps, barcodes, meta,
 
     localDict = map_to_constellation(sample_strains, abundances, mapDict)
     # assemble into series and write.
-    sols_df = pd.Series(data=(localDict, sample_strains, abundances,
-                              error, cov),
-                        index=['summarized', 'lineages',
-                        'abundances', 'resid', 'coverage'],
-                        name=mix.name)
+    if region_of_interest == '-1':
+        sols_df = pd.Series(data=(localDict, sample_strains, abundances,
+                                  error, cov),
+                            index=['summarized', 'lineages',
+                            'abundances', 'resid', 'coverage'],
+                            name=mix.name)
+
+    # Determine coverage in region(s) of interest (if specified)
+    else:
+        with open(region_of_interest) as f:
+            regions = f.readlines()
+        regions = [x.strip() for x in regions]
+        regions = [x.split(',') for x in regions]
+
+        for region in regions:
+            if len(region) != 2:
+                raise ValueError('Error: region of interest file must be in'
+                                 'format: start,end')
+            start = int(region[0])
+            end = int(region[1])
+            if start > end:
+                region[0] = end
+                region[1] = start
+            if start <= 0:
+                region[0] = 1
+            if end >= 29903:
+                region[1] = 29903
+
+        if len(regions) > 0:
+            roi_depths = pd.DataFrame()
+            for region in regions:
+                roi_depths = pd.concat([roi_depths,
+                                        df_depth.iloc[region[0]:region[1], :]
+                                        ])
+            roi_cov = (sum(roi_depths.loc[:, 3] >
+                       covcut) / len(roi_depths)) * 100
+        else:
+            roi_cov = 0
+
+        sols_df = pd.Series(data=(localDict, sample_strains, abundances,
+                                  error, cov, roi_cov),
+                            index=['summarized', 'lineages',
+                                   'abundances', 'resid', 'coverage',
+                                   'region of interest coverage'],
+                            name=mix.name)
+
     # convert lineage/abundance readouts to single line strings
     sols_df['lineages'] = ' '.join(sols_df['lineages'])
     sols_df['abundances'] = ['%.8f' % ab for ab in sols_df['abundances']]
