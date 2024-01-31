@@ -31,6 +31,14 @@ def cli():
 
 
 def print_barcode_version(ctx, value):
+    """
+    Gets the barcode version used in the program
+
+    Arguments:
+     :param ctx: used for click command interface
+     :param value: used for click command interface
+     :return: date stamp of the barcode file used in the analysis
+    """
     if not value or ctx.resilient_parsing:
         return
     locDir = os.path.abspath(os.path.join(os.path.realpath(__file__),
