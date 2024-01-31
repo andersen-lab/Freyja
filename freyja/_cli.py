@@ -36,6 +36,7 @@ def print_barcode_version(ctx, param, value):
 
     Arguments:
      :param ctx: used for click command interface
+     :param param: used for click command interface
      :param value: used for click command interface
      :return: date stamp of the barcode file used in the analysis
     """
