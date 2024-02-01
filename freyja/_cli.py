@@ -89,6 +89,7 @@ def demix(variants, depths, output, eps, barcodes, meta,
      :param covcut: int,if true,it is used to calculate percent of sites with n or greater reads 
      :param confirmedonly: used to exclude unconfirmed lineages 
      :param depthcutoff: used to exclude sites with coverage less than the specified value
+     :param lineageyml: used to pass a custom lineage file
      :param adapt: used to set adaptive lasso penalty parameter
      :param a_eps: used to set adaptive lasso penalty parameter hard threshold
      
