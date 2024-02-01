@@ -267,6 +267,17 @@ def update(outdir, noncl, buildlocal):
 @click.option('--noncl', is_flag=True, default=True,
               help='only include lineages in cov-lineages')
 def barcode_build(pb, outdir, noncl):
+    """
+    Building barcodes from a global tree
+
+    Arguments:
+     :param pb: used to provide a protobuf tree file
+     :param outdir: used to define the location for the
+      barcoe data to be stored
+     :param noncl: include proposed lineages or unconfirmed
+     lineages (not in cov-lineages.org)
+     :return : a csv file containing barcodes for lineages
+    """
     locDir = os.path.abspath(os.path.join(os.path.realpath(__file__),
                                           os.pardir))
     locDir = outdir
