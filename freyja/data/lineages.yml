@@ -28033,6 +28033,7 @@
       - KK.2
       - KL.1
       - KL.1.1
+      - KM.1
       - XBB
       - XBB.1
       - XBB.1.1
@@ -28901,6 +28902,7 @@
       - KK.2
       - KL.1
       - KL.1.1
+      - KM.1
       - XBB.1
       - XBB.1.1
       - XBB.1.2
@@ -29307,6 +29309,7 @@
       - KA.1
       - KK.1
       - KK.2
+      - KM.1
       - XBB.1.5
       - XBB.1.5.1
       - XBB.1.5.2
@@ -29449,8 +29452,14 @@
 - name: XBB.1.5.4
   alias: XBB.1.5.4
   children:
+      - KM.1
       - XBB.1.5.4
   parent: XBB.1.5
+- name: KM.1
+  alias: XBB.1.5.4.1
+  children:
+      - KM.1
+  parent: XBB.1.5.4
 - name: XBB.1.5.5
   alias: XBB.1.5.5
   children:
