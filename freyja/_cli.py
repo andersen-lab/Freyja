@@ -66,12 +66,13 @@ def print_barcode_version(ctx, param, value):
 @click.option('--depthcutoff', default=0,
               help='exclude sites with coverage depth below this value and'
               'group identical barcodes')
+@click.option('--lineageyml', default='-1', help='custom lineage.yml file')
 @click.option('--adapt', default=0.,
               help='adaptive lasso penalty parameter')
 @click.option('--a_eps', default=1E-8,
               help='adaptive lasso parameter, hard threshold')
 def demix(variants, depths, output, eps, barcodes, meta,
-          covcut, confirmedonly, depthcutoff,
+          covcut, confirmedonly, depthcutoff, lineageyml,
           adapt, a_eps):
     locDir = os.path.abspath(os.path.join(os.path.realpath(__file__),
                              os.pardir))
