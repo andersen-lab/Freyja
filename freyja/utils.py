@@ -872,7 +872,7 @@ def make_dashboard(agg_df, meta_df, thresh, title, introText,
     print("Dashboard html file saved to " + outputFn)
 
 
-def collapse_barcodes(df_barcodes, df_depth, depthcutoff, locDir, output):
+def collapse_barcodes(df_barcodes, df_depth, depthcutoff, locDir, lineage_yml, output):
 
     # drop low coverage sites
     low_cov_sites = df_depth[df_depth[3].astype(int) < depthcutoff]\
@@ -898,12 +898,6 @@ def collapse_barcodes(df_barcodes, df_depth, depthcutoff, locDir, output):
         return df_barcodes
 
     # load lineage data
-    with open(os.path.join(locDir, 'data', 'lineages.yml'), 'r') as f:
-        try:
-            lineage_yml = yaml.safe_load(f)
-        except yaml.YAMLError as exc:
-            raise ValueError('Error in lineages.yml file: ' + str(exc))
-
     lineage_data = {lineage['name']: lineage for lineage in lineage_yml}
 
     alias_count = {}
