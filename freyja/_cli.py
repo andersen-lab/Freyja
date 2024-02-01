@@ -75,6 +75,25 @@ def demix(variants, depths, output, eps, barcodes, meta,
           adapt, a_eps):
     locDir = os.path.abspath(os.path.join(os.path.realpath(__file__),
                              os.pardir))
+    """
+    Generate prevalence of lineages per sample
+
+    Arguments:
+     :param variants: used to pass variant calling file generated using freyja variant command (tsv)
+     :param depths: used to pass depth file generated using freyja variant command (tsv)
+     :param output: used to pass output name, the default output will be named demixing_result.csv
+     :param eps: float, if true, it is used to define minimum abundance of each lineage
+     :param barcodes: used to pass a custom barcode file (csv)
+     :param meta: used to pass a custom lineage to variant file
+     :param covcut: int,if true,it is used to calculate percent of sites with n or greater reads 
+     :param confirmedonly: used to exclude unconfirmed lineages 
+     :param depthcutoff: used to exclude sites with coverage less than the specified value
+     :param adapt: used to set adaptive lasso penalty parameter
+     :param a_eps: used to set adaptive lasso penalty parameter hard threshold
+     
+     :return: a tsv file that includes the lineages present, their corresponding abundances,
+      and summarization by constellation.
+    """
     # option for custom barcodes
     if barcodes != '-1':
         df_barcodes = pd.read_csv(barcodes, index_col=0)
