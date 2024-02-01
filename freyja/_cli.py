@@ -196,6 +196,19 @@ def demix(variants, depths, output, eps, barcodes, meta,
 @click.option('--buildlocal', is_flag=True, default=False,
               help='Perform barcode building locally')
 def update(outdir, noncl, buildlocal):
+    """
+    Updates the lineage information using the latest
+    outbreak data
+
+    Arguments:
+     :param outdir: used to define the location for the
+      data to be stored
+     :param noncl: include proposed lineages or unconfirmed
+     lineages (not in cov-lineages.org)
+     :param buildlocal: calculate barcodes locally using USHER
+     global phylogenetic tree
+     :return : the most recent barcodes in json format
+    """
     locDir = os.path.abspath(os.path.join(os.path.realpath(__file__),
                                           os.pardir))
     if outdir != '-1':
