@@ -872,7 +872,7 @@ def make_dashboard(agg_df, meta_df, thresh, title, introText,
     print("Dashboard html file saved to " + outputFn)
 
 
-def collapse_barcodes(df_barcodes, df_depth, depthcutoff, locDir, output, lineage_yml):
+def collapse_barcodes(df_barcodes, df_depth, depthcutoff, output, lineage_yml):
 
     # drop low coverage sites
     low_cov_sites = df_depth[df_depth[3].astype(int) < depthcutoff]\

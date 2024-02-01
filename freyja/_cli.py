@@ -139,7 +139,7 @@ def demix(variants, depths, output, eps, barcodes, meta,
     df_depth = pd.read_csv(depths, sep='\t', header=None, index_col=1)
     if depthcutoff != 0:
         df_barcodes = collapse_barcodes(df_barcodes, df_depth, depthcutoff,
-                                        locDir, lineages_yml, output)
+                                        lineages_yml, output)
     muts = list(df_barcodes.columns)
     mapDict = buildLineageMap(meta)
     print('building mix/depth matrices')
