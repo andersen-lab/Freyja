@@ -78,8 +78,6 @@ def print_barcode_version(ctx, param, value):
 def demix(variants, depths, output, eps, barcodes, meta,
           covcut, confirmedonly, depthcutoff, lineageyml,
           adapt, a_eps):
-    locDir = os.path.abspath(os.path.join(os.path.realpath(__file__),
-                             os.pardir))
     """
     Generate prevalence of lineages per sample
 
@@ -109,6 +107,8 @@ def demix(variants, depths, output, eps, barcodes, meta,
      lineages present,their corresponding abundances,
       and summarization by constellation.
     """
+    locDir = os.path.abspath(os.path.join(os.path.realpath(__file__),
+                             os.pardir))
     # option for custom barcodes
     if barcodes != '-1':
         df_barcodes = pd.read_csv(barcodes, index_col=0)
