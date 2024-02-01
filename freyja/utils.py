@@ -2,20 +2,20 @@ import copy
 import os
 import re
 import sys
-import tqdm
+from datetime import datetime
 
+# parameters to make plots illustrator friendly
+import matplotlib
 import matplotlib.dates as mdates
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
-from datetime import datetime
+import tqdm
 import yaml
 from scipy.optimize import curve_fit
 
-# parameters to make plots illustrator friendly
-import matplotlib
 matplotlib.rcParams['pdf.fonttype'] = 42
 matplotlib.rcParams['ps.fonttype'] = 42
 
@@ -872,7 +872,7 @@ def make_dashboard(agg_df, meta_df, thresh, title, introText,
     print("Dashboard html file saved to " + outputFn)
 
 
-def collapse_barcodes(df_barcodes, df_depth, depthcutoff, locDir, lineage_yml, output):
+def collapse_barcodes(df_barcodes, df_depth, depthcutoff, locDir, output, lineage_yml):
 
     # drop low coverage sites
     low_cov_sites = df_depth[df_depth[3].astype(int) < depthcutoff]\

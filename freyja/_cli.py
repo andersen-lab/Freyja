@@ -1,25 +1,29 @@
-import click
-import pandas as pd
-from freyja.convert_paths2barcodes import parse_tree_paths, \
-    convert_to_barcodes, reversion_checking, check_mutation_chain
-from freyja.read_analysis_tools import extract as _extract, \
-    filter as _filter, \
-    covariants as _covariants, \
-    plot_covariants as _plot_covariants
-from freyja.sample_deconv import buildLineageMap, build_mix_and_depth_arrays, \
-    reindex_dfs, map_to_constellation, solve_demixing_problem, \
-    perform_bootstrap
-from freyja.updates import download_tree, convert_tree, \
-    get_curated_lineage_data, get_cl_lineages, \
-    download_barcodes, convert_tree_custom
-from freyja.utils import agg, makePlot_simple, makePlot_time, \
-    make_dashboard, checkConfig, get_abundance, calc_rel_growth_rates, \
-    collapse_barcodes
-import os
 import glob
+import os
 import subprocess
 import sys
+
+import click
+import pandas as pd
 import yaml
+
+from freyja.convert_paths2barcodes import (check_mutation_chain,
+                                           convert_to_barcodes,
+                                           parse_tree_paths,
+                                           reversion_checking)
+from freyja.read_analysis_tools import covariants as _covariants
+from freyja.read_analysis_tools import extract as _extract
+from freyja.read_analysis_tools import filter as _filter
+from freyja.read_analysis_tools import plot_covariants as _plot_covariants
+from freyja.sample_deconv import (build_mix_and_depth_arrays, buildLineageMap,
+                                  map_to_constellation, perform_bootstrap,
+                                  reindex_dfs, solve_demixing_problem)
+from freyja.updates import (convert_tree, convert_tree_custom,
+                            download_barcodes, download_tree, get_cl_lineages,
+                            get_curated_lineage_data)
+from freyja.utils import (agg, calc_rel_growth_rates, checkConfig,
+                          collapse_barcodes, get_abundance, make_dashboard,
+                          makePlot_simple, makePlot_time)
 
 locDir = os.path.abspath(os.path.join(os.path.realpath(__file__), os.pardir))
 
@@ -80,20 +84,29 @@ def demix(variants, depths, output, eps, barcodes, meta,
     Generate prevalence of lineages per sample
 
     Arguments:
-     :param variants: used to pass variant calling file generated using freyja variant command (tsv)
-     :param depths: used to pass depth file generated using freyja variant command (tsv)
-     :param output: used to pass output name, the default output will be named demixing_result.csv
-     :param eps: float, if true, it is used to define minimum abundance of each lineage
-     :param barcodes: used to pass a custom barcode file (csv)
-     :param meta: used to pass a custom lineage to variant file
-     :param covcut: int,if true,it is used to calculate percent of sites with n or greater reads 
-     :param confirmedonly: used to exclude unconfirmed lineages 
-     :param depthcutoff: used to exclude sites with coverage less than the specified value
+     :param variants: used to pass variant calling file generated
+      using freyja variant command (tsv)
+     :param depths: used to pass depth file generated using
+      freyja variant command (tsv)
+     :param output: used to pass output name, the default
+      output will be named demixing_result.csv
+     :param eps: float, if true, it is used to define
+     minimum abundance of each lineage
+     :param barcodes: used to pass a custom
+      barcode file (csv)
+     :param meta: used to pass a custom
+      lineage to variant file
+     :param covcut: int,if true,it is used to
+      calculate percent of sites with n or greater reads
+     :param confirmedonly: used to exclude unconfirmed lineages
+     :param depthcutoff: used to exclude sites with
+      coverage less than the specified value
      :param lineageyml: used to pass a custom lineage file
      :param adapt: used to set adaptive lasso penalty parameter
-     :param a_eps: used to set adaptive lasso penalty parameter hard threshold
-     
-     :return: a tsv file that includes the lineages present, their corresponding abundances,
+     :param a_eps: used to set adaptive lasso
+     penalty parameter hard threshold
+     :return : a tsv file that includes the
+     lineages present,their corresponding abundances,
       and summarization by constellation.
     """
     # option for custom barcodes
@@ -127,7 +140,6 @@ def demix(variants, depths, output, eps, barcodes, meta,
     if depthcutoff != 0:
         df_barcodes = collapse_barcodes(df_barcodes, df_depth, depthcutoff,
                                         locDir, lineages_yml, output)
-
     muts = list(df_barcodes.columns)
     mapDict = buildLineageMap(meta)
     print('building mix/depth matrices')
