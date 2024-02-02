@@ -5,3 +5,4 @@ cvxpy
 seaborn
 pysam
 biopython
+pyarrow
