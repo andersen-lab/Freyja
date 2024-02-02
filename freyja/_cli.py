@@ -162,7 +162,7 @@ def demix(variants, depths, output, eps, barcodes, meta,
                                       (df_depth.index <= row['end'])]
             roi_cov = pd.concat([roi_cov,
                                  pd.Series(
-                                     (sum(roi_depths.loc[:, 3] > covcut) /
+                                     (sum(roi_depths.loc[:, 3] >= covcut) /
                                       len(roi_depths)) * 100,
                                      index=[row.name])
                                  ])
