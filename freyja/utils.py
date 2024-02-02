@@ -985,6 +985,7 @@ def collapse_barcodes(df_barcodes, df_depth, depthcutoff, locDir, output):
 
 def handle_region_of_interest(region_of_interest, output_df,
                               df_depth, covcut, title):
+
     roi_df = pd.read_json(region_of_interest, orient='index')
 
     roi_df['start'] = roi_df['start'].astype(int)

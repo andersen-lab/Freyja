@@ -135,41 +135,8 @@ def demix(variants, depths, output, eps, barcodes, meta,
     # Determine coverage in region(s) of interest (if specified)
     if region_of_interest != '-1':
 
-        sols_df = handle_region_of_interest(sols_df, region_of_interest,
+        sols_df = handle_region_of_interest(region_of_interest, sols_df,
                                             df_depth, covcut, mix.name)
-
-        roi_df = pd.read_json(region_of_interest, orient='index')
-
-        roi_df['start'] = roi_df['start'].astype(int)
-        roi_df['end'] = roi_df['end'].astype(int)
-
-        # Ensure start < end
-        roi_df['start'], roi_df['end'] = zip(*roi_df.apply(
-            lambda x: (x['start'], x['end']) if x['start'] < x['end']
-            else (x['end'], x['start']), axis=1))
-
-        # Ensure start > 0 and end < 29903
-        roi_df['start'] = roi_df['start'].apply(lambda x: x if x > 0 else 1)
-        roi_df['end'] = roi_df['end'].apply(
-            lambda x: x if x < 29903 else 29903)
-
-        roi_df.index.name = 'name'
-
-        # Get percent coverage in each region
-        roi_cov = pd.Series()
-        for _, row in roi_df.iterrows():
-            roi_depths = df_depth.loc[(df_depth.index >= row['start']) &
-                                      (df_depth.index <= row['end'])]
-            roi_cov = pd.concat([roi_cov,
-                                 pd.Series(
-                                     (sum(roi_depths.loc[:, 3] >= covcut) /
-                                      len(roi_depths)) * 100,
-                                     index=[row.name])
-                                 ])
-
-        # Write to output
-        sols_df = pd.concat([sols_df, roi_cov], axis=0)
-        sols_df.name = mix.name
 
     # convert lineage/abundance readouts to single line strings
     sols_df['lineages'] = ' '.join(sols_df['lineages'])
