@@ -23,7 +23,7 @@ from freyja.updates import (convert_tree, convert_tree_custom,
                             get_curated_lineage_data)
 from freyja.utils import (agg, calc_rel_growth_rates, checkConfig,
                           collapse_barcodes, get_abundance, make_dashboard,
-                          makePlot_simple, makePlot_time, read_lineage_file)
+                          makePlot_simple, makePlot_time)
 
 locDir = os.path.abspath(os.path.join(os.path.realpath(__file__), os.pardir))
 
