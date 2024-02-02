@@ -14,7 +14,7 @@ from freyja.updates import download_tree, convert_tree, \
     download_barcodes, convert_tree_custom
 from freyja.utils import agg, makePlot_simple, makePlot_time, \
     make_dashboard, checkConfig, get_abundance, calc_rel_growth_rates, \
-    collapse_barcodes
+    collapse_barcodes, handle_region_of_interest
 import os
 import glob
 import subprocess
@@ -61,8 +61,9 @@ def print_barcode_version(ctx, param, value):
               help='adaptive lasso penalty parameter')
 @click.option('--a_eps', default=1E-8,
               help='adaptive lasso parameter, hard threshold')
-@click.option('--region_of_interest', default='-1', help='csv file region(s)'
-              'of interest, format: start,end')
+@click.option('--region_of_interest', default='-1', help='JSON file containing'
+              'region(s) of interest for which to compute additional coverage'
+              'estimates')
 def demix(variants, depths, output, eps, barcodes, meta,
           covcut, confirmedonly, depthcutoff,
           adapt, a_eps, region_of_interest):
@@ -123,52 +124,52 @@ def demix(variants, depths, output, eps, barcodes, meta,
         abundances = list(localDict.values())
 
     localDict = map_to_constellation(sample_strains, abundances, mapDict)
+
     # assemble into series and write.
-    if region_of_interest == '-1':
-        sols_df = pd.Series(data=(localDict, sample_strains, abundances,
-                                  error, cov),
-                            index=['summarized', 'lineages',
-                            'abundances', 'resid', 'coverage'],
-                            name=mix.name)
+    sols_df = pd.Series(data=(localDict, sample_strains, abundances,
+                              error, cov),
+                        index=['summarized', 'lineages',
+                        'abundances', 'resid', 'coverage'],
+                        name=mix.name)
 
     # Determine coverage in region(s) of interest (if specified)
-    else:
-        with open(region_of_interest) as f:
-            regions = f.readlines()
-        regions = [x.strip() for x in regions]
-        regions = [x.split(',') for x in regions]
+    if region_of_interest != '-1':
 
-        for region in regions:
-            if len(region) != 2:
-                raise ValueError('Error: region of interest file must be in'
-                                 'format: start,end')
-            start = int(region[0])
-            end = int(region[1])
-            if start > end:
-                region[0] = end
-                region[1] = start
-            if start <= 0:
-                region[0] = 1
-            if end >= 29903:
-                region[1] = 29903
+        sols_df = handle_region_of_interest(sols_df, region_of_interest,
+                                            df_depth, covcut, mix.name)
 
-        if len(regions) > 0:
-            roi_depths = pd.DataFrame()
-            for region in regions:
-                roi_depths = pd.concat([roi_depths,
-                                        df_depth.iloc[region[0]:region[1], :]
-                                        ])
-            roi_cov = (sum(roi_depths.loc[:, 3] >
-                       covcut) / len(roi_depths)) * 100
-        else:
-            roi_cov = 0
+        roi_df = pd.read_json(region_of_interest, orient='index')
 
-        sols_df = pd.Series(data=(localDict, sample_strains, abundances,
-                                  error, cov, roi_cov),
-                            index=['summarized', 'lineages',
-                                   'abundances', 'resid', 'coverage',
-                                   'region of interest coverage'],
-                            name=mix.name)
+        roi_df['start'] = roi_df['start'].astype(int)
+        roi_df['end'] = roi_df['end'].astype(int)
+
+        # Ensure start < end
+        roi_df['start'], roi_df['end'] = zip(*roi_df.apply(
+            lambda x: (x['start'], x['end']) if x['start'] < x['end']
+            else (x['end'], x['start']), axis=1))
+
+        # Ensure start > 0 and end < 29903
+        roi_df['start'] = roi_df['start'].apply(lambda x: x if x > 0 else 1)
+        roi_df['end'] = roi_df['end'].apply(
+            lambda x: x if x < 29903 else 29903)
+
+        roi_df.index.name = 'name'
+
+        # Get percent coverage in each region
+        roi_cov = pd.Series()
+        for _, row in roi_df.iterrows():
+            roi_depths = df_depth.loc[(df_depth.index >= row['start']) &
+                                      (df_depth.index <= row['end'])]
+            roi_cov = pd.concat([roi_cov,
+                                 pd.Series(
+                                     (sum(roi_depths.loc[:, 3] > covcut) /
+                                      len(roi_depths)) * 100,
+                                     index=[row.name])
+                                 ])
+
+        # Write to output
+        sols_df = pd.concat([sols_df, roi_cov], axis=0)
+        sols_df.name = mix.name
 
     # convert lineage/abundance readouts to single line strings
     sols_df['lineages'] = ' '.join(sols_df['lineages'])

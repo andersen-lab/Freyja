@@ -983,6 +983,44 @@ def collapse_barcodes(df_barcodes, df_depth, depthcutoff, locDir, output):
     return df_barcodes
 
 
+def handle_region_of_interest(region_of_interest, output_df,
+                              df_depth, covcut, title):
+    roi_df = pd.read_json(region_of_interest, orient='index')
+
+    roi_df['start'] = roi_df['start'].astype(int)
+    roi_df['end'] = roi_df['end'].astype(int)
+
+    # Ensure start < end
+    roi_df['start'], roi_df['end'] = zip(*roi_df.apply(
+        lambda x: (x['start'], x['end']) if x['start'] < x['end']
+        else (x['end'], x['start']), axis=1))
+
+    # Ensure start > 0 and end < 29903
+    roi_df['start'] = roi_df['start'].apply(lambda x: x if x > 0 else 1)
+    roi_df['end'] = roi_df['end'].apply(
+        lambda x: x if x < 29903 else 29903)
+
+    roi_df.index.name = 'name'
+
+    # Get percent coverage in each region
+    roi_cov = pd.Series()
+    for _, row in roi_df.iterrows():
+        roi_depths = df_depth.loc[(df_depth.index >= row['start']) &
+                                  (df_depth.index <= row['end'])]
+        roi_cov = pd.concat([roi_cov,
+                             pd.Series(
+                                 (sum(roi_depths.loc[:, 3] > covcut) /
+                                     len(roi_depths)) * 100,
+                                 index=[row.name])
+                             ])
+
+    # Write to output
+    output_df = pd.concat([output_df, roi_cov], axis=0)
+    output_df.name = title
+
+    return output_df
+
+
 if __name__ == '__main__':
     agg_results = 'freyja/data/test_sweep.tsv'
     agg_df = pd.read_csv(agg_results, skipinitialspace=True, sep='\t',
