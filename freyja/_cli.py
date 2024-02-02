@@ -367,11 +367,12 @@ def variants(bamfile, ref, variants, depths, refname, minq, annot):
 @click.option('--confirmedonly', is_flag=True, default=False)
 @click.option('--rawboots', is_flag=True, default=False,
               help='return raw bootstraps')
+@click.option('--lineageyml', default='-1', help='lineage hierarchy file')
 @click.option('--depthcutoff', default=0,
               help='exclude sites with coverage depth below this value and'
               'group identical barcodes')
 def boot(variants, depths, output_base, eps, barcodes, meta,
-         nb, nt, boxplot, confirmedonly, depthcutoff, rawboots):
+         nb, nt, boxplot, confirmedonly, lineageyml, depthcutoff, rawboots):
     locDir = os.path.abspath(os.path.join(os.path.realpath(__file__),
                              os.pardir))
     # option for custom barcodes
@@ -393,7 +394,7 @@ def boot(variants, depths, output_base, eps, barcodes, meta,
     df_depths = pd.read_csv(depths, sep='\t', header=None, index_col=1)
     if depthcutoff != 0:
         df_barcodes = collapse_barcodes(
-            df_barcodes, df_depths, depthcutoff, locDir, output_base)
+            df_barcodes, df_depths, depthcutoff, lineageyml, output_base)
 
     muts = list(df_barcodes.columns)
     mapDict = buildLineageMap(meta)
