@@ -70,7 +70,7 @@ def print_barcode_version(ctx, param, value):
 @click.option('--depthcutoff', default=0,
               help='exclude sites with coverage depth below this value and'
               'group identical barcodes')
-@click.option('--lineageyml', default='-1', help='custom lineage.yml file')
+@click.option('--lineageyml', default='-1', help='lineage hierarchy file')
 @click.option('--adapt', default=0.,
               help='adaptive lasso penalty parameter')
 @click.option('--a_eps', default=1E-8,
@@ -99,7 +99,7 @@ def demix(variants, depths, output, eps, barcodes, meta,
      :param confirmedonly: used to exclude unconfirmed lineages
      :param depthcutoff: used to exclude sites with
       coverage less than the specified value
-     :param lineageyml: used to pass a custom lineage file
+     :param lineageyml: used to pass a custom lineage hierarchy file
      :param adapt: used to set adaptive lasso penalty parameter
      :param a_eps: used to set adaptive lasso
      penalty parameter hard threshold
