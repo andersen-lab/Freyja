@@ -319,6 +319,21 @@ def barcode_build(pb, outdir, noncl):
               default=20)
 @click.option('--annot', help='AA annotation output', default='')
 def variants(bamfile, ref, variants, depths, refname, minq, annot):
+    """
+    Perform variant calling using samtools and ivar
+
+    Arguments:
+     :param bamfile: used to pass sorted bam file
+     :param ref: used to pass a reference genome file
+     :param variants: used to pass additional variant calling file
+     :param depths: used to pass depth files
+     :param refname: used to provide reference name for bam files with
+     multiple refernces
+     :param minq: used to provide minimum base quality
+     :param annot: used to provide amino acid annotation file
+
+     :return : a variant calling tsv file.
+    """
     if len(refname) == 0:
         bashCmd = f"samtools mpileup -aa -A -d 600000 -Q {minq} -q 0 -B -f "\
                   f"{ref} {bamfile} | tee >(cut -f1-4 > {depths}) |"\
