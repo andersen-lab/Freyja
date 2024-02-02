@@ -23,7 +23,7 @@ from freyja.updates import (convert_tree, convert_tree_custom,
                             get_curated_lineage_data)
 from freyja.utils import (agg, calc_rel_growth_rates, checkConfig,
                           collapse_barcodes, get_abundance, make_dashboard,
-                          makePlot_simple, makePlot_time)
+                          makePlot_simple, makePlot_time, read_lineage_file)
 
 locDir = os.path.abspath(os.path.join(os.path.realpath(__file__), os.pardir))
 
@@ -123,19 +123,6 @@ def demix(variants, depths, output, eps, barcodes, meta,
     # drop intra-lineage diversity naming (keeps separate barcodes)
     indexSimplified = [dfi.split('_')[0] for dfi in df_barcodes.index]
     df_barcodes = df_barcodes.loc[indexSimplified, :]
-    if lineageyml == "-1":
-        with open(os.path.join(locDir, 'lineages.yml'), 'r') as f:
-            try:
-                lineages_yml = yaml.safe_load(f)
-            except yaml.YAMLError as exc:
-                raise ValueError('Error in lineages.yml file: ' + str(exc))
-    else:
-        with open(lineageyml, 'r') as f:
-            try:
-                lineages_yml = yaml.safe_load(f)
-            except yaml.YAMLError as exc:
-                raise ValueError('Error in lineages.yml file: ' + str(exc))
-
     df_depth = pd.read_csv(depths, sep='\t', header=None, index_col=1)
     if depthcutoff != 0:
         df_barcodes = collapse_barcodes(df_barcodes, df_depth, depthcutoff,
