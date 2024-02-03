@@ -23,7 +23,7 @@ from freyja.updates import (convert_tree, convert_tree_custom,
                             get_curated_lineage_data)
 from freyja.utils import (agg, calc_rel_growth_rates, checkConfig,
                           collapse_barcodes, get_abundance, make_dashboard,
-                          makePlot_simple, makePlot_time)
+                          makePlot_simple, makePlot_time, read_lineage_file)
 
 locDir = os.path.abspath(os.path.join(os.path.realpath(__file__), os.pardir))
 
@@ -443,9 +443,10 @@ def aggregate(results, ext, output):
 @click.option('--mincov', default=60., help='min genome coverage included')
 @click.option('--output', default='mix_plot.pdf', help='Output file')
 @click.option('--windowsize', default=14)
+@click.option('--lineageyml', default='-1', help='lineage hierarchy file')
 @click.option('--thresh', default=0.01, help='min lineage abundance included')
 def plot(agg_results, lineages, times, interval, output, windowsize,
-         config, mincov, thresh):
+         config, mincov, lineageyml, thresh):
     agg_df = pd.read_csv(agg_results, skipinitialspace=True, sep='\t',
                          index_col=0)
     # drop poor quality samples
@@ -465,13 +466,7 @@ so no plot will be generated. Try changing --mincov threshold.')
                 config = yaml.safe_load(f)
             except yaml.YAMLError as exc:
                 raise ValueError('Error in config file: ' + str(exc))
-
-    with open(os.path.join(locDir, 'data/lineages.yml'), 'r') as f:
-        try:
-            lineages_yml = yaml.safe_load(f)
-        except yaml.YAMLError as exc:
-            raise ValueError('lineages.yml error, run update: ' + str(exc))
-
+    lineages_yml = read_lineage_file(lineageyml)
     # converts lineages_yml to a dictionary where the lineage names are the
     # keys.
     lineage_info = {}
