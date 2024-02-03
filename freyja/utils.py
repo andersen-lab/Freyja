@@ -154,6 +154,7 @@ def read_lineage_file(lineageyml):
                 raise ValueError('Error in lineages.yml file: ' + str(exc))
     return lineages_yml
 
+
 # Get value from the config dictionary.
 def get_value(val, dict, get_val, match_key):
     values = []
@@ -417,16 +418,14 @@ def makePlot_time(agg_df, lineages, times_df, interval, outputFn,
                 df_abundances,
                 pd.Series(
                     agg_df.loc[sampLabel, queryType][0],
-                    name=times_df.loc[sampLabel,
-                    'sample_collection_datetime'])
+                    name=times_df.loc[sampLabel, 'sample_collection_datetime'])
             ], axis=1)
         else:
             df_abundances = pd.concat([
                 df_abundances,
                 pd.Series(
                     agg_df.loc[sampLabel, queryType],
-                    name=times_df.loc[sampLabel,
-                    'sample_collection_datetime'])
+                    name=times_df.loc[sampLabel, 'sample_collection_datetime'])
             ], axis=1)
     df_abundances = df_abundances.T
     df_abundances = df_abundances.fillna(0)
@@ -482,7 +481,8 @@ def makePlot_time(agg_df, lineages, times_df, interval, outputFn,
         from epiweeks import Week
         weekInfo = [Week.fromdate(dfi).weektuple()
                     for dfi in df_abundances.index]
-        df_abundances.index = [str(wi[0]) + '-' + str(wi[1]) for wi in weekInfo]
+        df_abundances.index = [str(wi[0]) + '-' +
+                               str(wi[1]) for wi in weekInfo]
         print(df_abundances)
         for i in range(0, df_abundances.shape[1]):
             label = df_abundances.columns[i]
@@ -526,8 +526,7 @@ def get_abundance(agg_df, meta_df, thresh, scale_by_viral_load, config,
             if i == 0:
                 df_ab_lin = pd.Series(
                     agg_df.loc[sampLabel, 'linDict'][0],
-                    name=meta_df.loc[sampLabel,
-                    'sample_collection_datetime'])
+                    name=meta_df.loc[sampLabel, 'sample_collection_datetime'])
             else:
                 df_ab_lin = pd.concat([
                     df_ab_lin,
@@ -539,8 +538,7 @@ def get_abundance(agg_df, meta_df, thresh, scale_by_viral_load, config,
             if i == 0:
                 df_ab_lin = pd.Series(
                     agg_df.loc[sampLabel, 'linDict'],
-                    name=meta_df.loc[sampLabel,
-                    'sample_collection_datetime'])
+                    name=meta_df.loc[sampLabel, 'sample_collection_datetime'])
             else:
                 df_ab_lin = pd.concat([
                     df_ab_lin,
@@ -572,14 +570,12 @@ def get_abundance(agg_df, meta_df, thresh, scale_by_viral_load, config,
             if i == 0:
                 df_ab_sum = pd.Series(
                     agg_df.loc[sampLabel, 'summarized'][0],
-                    name=meta_df.loc[sampLabel,
-                    'sample_collection_datetime'])
+                    name=meta_df.loc[sampLabel,'sample_collection_datetime'])
             else:
-                df_ab_sum = pd.concat([
-                    df_ab_sum,
-                    pd.Series(agg_df.loc[sampLabel, 'summarized'][0],
-                              name=meta_df.loc[sampLabel,
-                              'sample_collection_datetime'])
+                df_ab_sum = pd.concat([df_ab_sum,
+                                       pd.Series(agg_df.loc[sampLabel, 'summarized'][0],
+                                                 name=meta_df.loc[sampLabel,
+                                                 'sample_collection_datetime'])
                 ], axis=1)
         else:
             if i == 0:
@@ -781,7 +777,7 @@ def make_dashboard(agg_df, meta_df, thresh, title, introText,
                                                          [False] * df_ab_lin_s.shape[1] +
                                                          [False] * df_ab_sum_s.shape[1]},
                                                      {"yaxis": {"title":
-                                                                    'Lineage Prevalence',
+                                                                'Lineage Prevalence',
                                                                 "ticksuffix": '%',
                                                                 "range": [0, 100]}}]),
                                             dict(label="Viral Load",
