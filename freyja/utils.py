@@ -2,20 +2,20 @@ import copy
 import os
 import re
 import sys
-from datetime import datetime
+import tqdm
 
-# parameters to make plots illustrator friendly
-import matplotlib
 import matplotlib.dates as mdates
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
-import tqdm
+from datetime import datetime
 import yaml
 from scipy.optimize import curve_fit
 
+# parameters to make plots illustrator friendly
+import matplotlib
 matplotlib.rcParams['pdf.fonttype'] = 42
 matplotlib.rcParams['ps.fonttype'] = 42
 
@@ -69,7 +69,7 @@ def calc_rel_growth_rates(df, nboots=1000, serial_interval=5.5,
 
     # go as far back as we can, within daysIncluded limit
     nBack = next((x[0] + 1 for x in enumerate(df.index[::-1])
-                  if (df.index[-1] - x[1]).days > daysIncluded), 0)
+                 if (df.index[-1] - x[1]).days > daysIncluded), 0)
     rel_growth_rate = {
         'Lineage': [],
         'Estimated Advantage': [],
@@ -125,16 +125,25 @@ def calc_rel_growth_rates(df, nboots=1000, serial_interval=5.5,
         rel_growth_rate['Lineage'].append(lineage)
         rel_growth_rate['Estimated Advantage'].append(f'{trans_increase:.1%}')
         rel_growth_rate['Bootstrap 95% interval'].append(
-            f'[{serial_interval * coef_lower:0.2%} ' +
-            f', {serial_interval * coef_upper:0.2%}]')
+            f'[{serial_interval*coef_lower:0.2%} ' +
+            f', {serial_interval*coef_upper:0.2%}]')
     if outputFn.endswith('.html'):
         outputFn = outputFn.replace('.html', '_rel_growth_rates.csv')
     pd.DataFrame.from_dict(
         rel_growth_rate,
         orient='columns').sort_values(
-        by='Estimated Advantage',
-        ascending=False).to_csv(outputFn, index=False)
+            by='Estimated Advantage',
+            ascending=False).to_csv(outputFn, index=False)
     print("CSV file saved to " + outputFn)
+
+
+# Get value from the config dictionary.
+def get_value(val, dict, get_val, match_key):
+    values = []
+    for key, value in dict.items():
+        if val == value[match_key]:
+            values.append(dict[key][get_val])
+    return values[0]
 
 
 def read_lineage_file(lineageyml, locDir):
@@ -151,15 +160,6 @@ def read_lineage_file(lineageyml, locDir):
             except yaml.YAMLError as exc:
                 raise ValueError('Error in lineages.yml file: ' + str(exc))
     return lineages_yml
-
-
-# Get value from the config dictionary.
-def get_value(val, dict, get_val, match_key):
-    values = []
-    for key, value in dict.items():
-        if val == value[match_key]:
-            values.append(dict[key][get_val])
-    return values[0]
 
 
 # Get name key from the config dictionary for which the
@@ -199,37 +199,38 @@ def get_color_scheme(df, default_color_scheme, config=None):
 
 
 def prepLineageDict(agg_d0, thresh=0.001, config=None, lineage_info=None):
+
     if len(agg_d0.index[agg_d0.index.duplicated(keep=False)]) > 0:
         print('WARNING: multiple samples have the same ID/filename.')
         print(agg_d0.index[agg_d0.index.duplicated(keep=False)])
-    agg_d0.loc[:, 'lineages'] = agg_d0['lineages'] \
-        .apply(lambda x:
-               x.replace("'", "")
-               .replace("]", "")
-               .replace("[", "")
-               .replace(")", "")
-               .replace("(", "")
-               .replace("\n", "")).copy()
+    agg_d0.loc[:, 'lineages'] = agg_d0['lineages']\
+          .apply(lambda x:
+                 x.replace("'", "")
+                  .replace("]", "")
+                  .replace("[", "")
+                  .replace(")", "")
+                  .replace("(", "")
+                  .replace("\n", "")).copy()
     agg_d0 = agg_d0[agg_d0['lineages'].apply(lambda x: len(x) > 0)].copy()
     agg_d0.loc[:, 'lineages'] = agg_d0['lineages'].apply(lambda x:
                                                          re.sub(' +', ' ', x)
-                                                         .split(' ')).copy()
-    agg_d0.loc[:, 'abundances'] = agg_d0['abundances'] \
-        .apply(lambda x:
-               x.replace("'", "")
-               .replace("]", "")
-               .replace("[", "")
-               .replace(")", "")
-               .replace("(", "")
-               .replace("\n", "")).copy()
-    agg_d0.loc[:, 'abundances'] = agg_d0['abundances'] \
-        .apply(lambda x:
-               re.sub(' +', ' ', x)
-               .split(' ')).copy()
+                                                           .split(' ')).copy()
+    agg_d0.loc[:, 'abundances'] = agg_d0['abundances']\
+          .apply(lambda x:
+                 x.replace("'", "")
+                  .replace("]", "")
+                  .replace("[", "")
+                  .replace(")", "")
+                  .replace("(", "")
+                  .replace("\n", "")).copy()
+    agg_d0.loc[:, 'abundances'] = agg_d0['abundances']\
+          .apply(lambda x:
+                 re.sub(' +', ' ', x)
+                   .split(' ')).copy()
     # print([float(abund) for abund in agg_d0.iloc[0].loc['abundances']])
     agg_d0.loc[:, 'linDict'] = [{lin: float(abund) for lin, abund in
-                                 zip(agg_d0.loc[samp, 'lineages'],
-                                     agg_d0.loc[samp, 'abundances'])}
+                                zip(agg_d0.loc[samp, 'lineages'],
+                                    agg_d0.loc[samp, 'abundances'])}
                                 for samp in agg_d0.index]
 
     # get most common lineages in our dataset
@@ -252,7 +253,7 @@ def prepLineageDict(agg_d0, thresh=0.001, config=None, lineage_info=None):
                                                 )
         # aggregate all the members into 1ist
         config_members = [lin for val in config.values() for lin in val[
-            'members']]
+                          'members']]
         # Aggregate lineages into a single dict key/value pair
         processed_linDictMod = []
         for j, sampLabel in enumerate(agg_d0.index):
@@ -297,26 +298,26 @@ def prepLineageDict(agg_d0, thresh=0.001, config=None, lineage_info=None):
 
 
 def prepSummaryDict(agg_d0):
-    agg_d0.loc[:, 'summarized'] = agg_d0['summarized'] \
-        .apply(lambda x:
-               x.replace("'", "")
-               .replace("]", "")
-               .replace("[", "")
-               .replace(")", "")
-               .replace("(", "")
-               .replace("\n", "")
-               .split(', ')).copy()
+    agg_d0.loc[:, 'summarized'] = agg_d0['summarized']\
+          .apply(lambda x:
+                 x.replace("'", "")
+                  .replace("]", "")
+                  .replace("[", "")
+                  .replace(")", "")
+                  .replace("(", "")
+                  .replace("\n", "")
+                  .split(', ')).copy()
     # drop any samples with NO lineages identified from analysis
     agg_d0 = agg_d0[agg_d0['summarized'].apply(lambda x: len(x) > 1)].copy()
-    agg_d0.loc[:, 'summarized'] = agg_d0['summarized'] \
-        .apply(lambda x:
-               dict(zip(x[0::2],
-                        x[1::2]))).copy()
-    agg_d0.loc[:, 'summarized'] = agg_d0['summarized'] \
-        .apply(lambda x:
-               {k: float(v)
-                for k, v
-                in x.items()}).copy()
+    agg_d0.loc[:, 'summarized'] = agg_d0['summarized']\
+          .apply(lambda x:
+                 dict(zip(x[0::2],
+                          x[1::2]))).copy()
+    agg_d0.loc[:, 'summarized'] = agg_d0['summarized']\
+          .apply(lambda x:
+                 {k: float(v)
+                  for k, v
+                  in x.items()}).copy()
     return agg_d0
 
 
@@ -416,14 +417,16 @@ def makePlot_time(agg_df, lineages, times_df, interval, outputFn,
                 df_abundances,
                 pd.Series(
                     agg_df.loc[sampLabel, queryType][0],
-                    name=times_df.loc[sampLabel, 'sample_collection_datetime'])
+                    name=times_df.loc[sampLabel,
+                                      'sample_collection_datetime'])
             ], axis=1)
         else:
             df_abundances = pd.concat([
                 df_abundances,
                 pd.Series(
                     agg_df.loc[sampLabel, queryType],
-                    name=times_df.loc[sampLabel, 'sample_collection_datetime'])
+                    name=times_df.loc[sampLabel,
+                                      'sample_collection_datetime'])
             ], axis=1)
     df_abundances = df_abundances.T
     df_abundances = df_abundances.fillna(0)
@@ -479,8 +482,7 @@ def makePlot_time(agg_df, lineages, times_df, interval, outputFn,
         from epiweeks import Week
         weekInfo = [Week.fromdate(dfi).weektuple()
                     for dfi in df_abundances.index]
-        df_abundances.index = [str(wi[0]) + '-' +
-                               str(wi[1]) for wi in weekInfo]
+        df_abundances.index = [str(wi[0])+'-'+str(wi[1]) for wi in weekInfo]
         print(df_abundances)
         for i in range(0, df_abundances.shape[1]):
             label = df_abundances.columns[i]
@@ -524,25 +526,27 @@ def get_abundance(agg_df, meta_df, thresh, scale_by_viral_load, config,
             if i == 0:
                 df_ab_lin = pd.Series(
                     agg_df.loc[sampLabel, 'linDict'][0],
-                    name=meta_df.loc[sampLabel, 'sample_collection_datetime'])
+                    name=meta_df.loc[sampLabel,
+                                     'sample_collection_datetime'])
             else:
                 df_ab_lin = pd.concat([
                     df_ab_lin,
                     pd.Series(agg_df.loc[sampLabel, 'linDict'][0],
                               name=meta_df.loc[sampLabel,
-                              'sample_collection_datetime'])
+                                               'sample_collection_datetime'])
                 ], axis=1)
         else:
             if i == 0:
                 df_ab_lin = pd.Series(
                     agg_df.loc[sampLabel, 'linDict'],
-                    name=meta_df.loc[sampLabel, 'sample_collection_datetime'])
+                    name=meta_df.loc[sampLabel,
+                                     'sample_collection_datetime'])
             else:
                 df_ab_lin = pd.concat([
                     df_ab_lin,
                     pd.Series(agg_df.loc[sampLabel, 'linDict'],
                               name=meta_df.loc[sampLabel,
-                              'sample_collection_datetime'])
+                                               'sample_collection_datetime'])
                 ], axis=1)
     df_ab_lin = df_ab_lin.T
     df_ab_lin.to_csv('df_ab_lin_raw.csv')
@@ -568,25 +572,27 @@ def get_abundance(agg_df, meta_df, thresh, scale_by_viral_load, config,
             if i == 0:
                 df_ab_sum = pd.Series(
                     agg_df.loc[sampLabel, 'summarized'][0],
-                    name=meta_df.loc[sampLabel,'sample_collection_datetime'])
+                    name=meta_df.loc[sampLabel,
+                                     'sample_collection_datetime'])
             else:
-                df_ab_sum = pd.concat([df_ab_sum,
-                                       pd.Series(agg_df.loc[sampLabel, 'summarized'][0],
-                                                 name=meta_df.loc[sampLabel,
-                                                 'sample_collection_datetime'])
+                df_ab_sum = pd.concat([
+                    df_ab_sum,
+                    pd.Series(agg_df.loc[sampLabel, 'summarized'][0],
+                              name=meta_df.loc[sampLabel,
+                                               'sample_collection_datetime'])
                 ], axis=1)
         else:
             if i == 0:
                 df_ab_sum = pd.Series(
                     agg_df.loc[sampLabel, 'summarized'],
                     name=meta_df.loc[sampLabel,
-                    'sample_collection_datetime'])
+                                     'sample_collection_datetime'])
             else:
                 df_ab_sum = pd.concat([
                     df_ab_sum,
                     pd.Series(agg_df.loc[sampLabel, 'summarized'],
                               name=meta_df.loc[sampLabel,
-                              'sample_collection_datetime'])
+                                               'sample_collection_datetime'])
                 ], axis=1)
     df_ab_sum = df_ab_sum.T
     df_ab_sum = df_ab_sum.fillna(0)
@@ -615,13 +621,13 @@ def get_abundance(agg_df, meta_df, thresh, scale_by_viral_load, config,
                                                axis=0)
         df_ab_lin_rescale = df_ab_lin_rescale.groupby(level=0).sum()
         df_ab_lin_rescale = df_ab_lin_rescale.sort_index()
-        meta_df = meta_df.groupby('sample_collection_datetime').sum() \
+        meta_df = meta_df.groupby('sample_collection_datetime').sum()\
             .sort_index()
         df_ab_lin = df_ab_lin_rescale.divide(meta_df.viral_load,
                                              axis=0)
         df_ab_lin = df_ab_lin.fillna(0).sort_index()
     else:
-        meta_df = meta_df.groupby('sample_collection_datetime').mean() \
+        meta_df = meta_df.groupby('sample_collection_datetime').mean()\
             .sort_index()
         df_ab_lin = df_ab_lin.groupby(level=0).mean().sort_index()
 
@@ -657,6 +663,7 @@ def make_dashboard(agg_df, meta_df, thresh, title, introText,
                                  default_color_lin,
                                  config.get('Lineages'))
     for j, col in enumerate(df_ab_lin.columns):
+
         fig.add_trace(go.Scatter(
             x=df_ab_lin.index, y=df_ab_lin[col],
             hoverinfo='x+y',
@@ -713,6 +720,7 @@ def make_dashboard(agg_df, meta_df, thresh, title, introText,
                                    default_color_lin_s,
                                    config.get('Lineages'))
     for j, col in enumerate(df_ab_lin_s.columns):
+
         fig.add_trace(go.Scatter(
             x=df_ab_lin_s.index, y=df_ab_lin_s[col],
             hoverinfo='x+y',
@@ -746,85 +754,85 @@ def make_dashboard(agg_df, meta_df, thresh, title, introText,
             stackgroup='one'
         ))
     fig.update_layout(updatemenus=[dict(type="buttons",
-                                        direction='right',
-                                        active=0,
-                                        bgcolor='lightskyblue',
-                                        x=0.85,
-                                        y=1.07,
-                                        buttons=list([
-                                            dict(label="Variants",
-                                                 method="update",
-                                                 args=[{
-                                                     "visible":
-                                                         [False] * df_ab_lin.shape[1] +
-                                                         [True] * df_ab_sum.shape[1] +
-                                                         [False] +
-                                                         [False] * df_ab_lin_s.shape[1] +
-                                                         [False] * df_ab_sum_s.shape[1]},
-                                                     {"yaxis": {"title":
-                                                                    'VOC Prevalence',
-                                                                "ticksuffix": '%',
-                                                                "range": [0, 100]}}]),
-                                            dict(label="Lineages",
-                                                 method="update",
-                                                 args=[{
-                                                     "visible":
-                                                         [True] * df_ab_lin.shape[1] +
-                                                         [False] * df_ab_sum.shape[1] +
-                                                         [False] +
-                                                         [False] * df_ab_lin_s.shape[1] +
-                                                         [False] * df_ab_sum_s.shape[1]},
-                                                     {"yaxis": {"title":
-                                                                'Lineage Prevalence',
-                                                                "ticksuffix": '%',
-                                                                "range": [0, 100]}}]),
-                                            dict(label="Viral Load",
-                                                 method="update",
-                                                 args=[{
-                                                     "visible":
-                                                         [False] * df_ab_lin.shape[1] +
-                                                         [False] * df_ab_sum.shape[1] +
-                                                         [True] +
-                                                         [False] * df_ab_lin_s.shape[1] +
-                                                         [False] * df_ab_sum_s.shape[1]},
-                                                     {"yaxis": {"title":
-                                                                    'Virus copies/L',
-                                                                "range":
-                                                                    [0,
-                                                                     meta_df['viral_load']
-                                                 .max() * 1.1]}}]),
-                                            dict(
-                                                label="Load Scaled Variants",
-                                                method="update",
-                                                args=[{
-                                                    "visible":
-                                                        [False] * df_ab_lin.shape[1] +
-                                                        [False] * df_ab_sum.shape[1] +
-                                                        [False] +
-                                                        [False] * df_ab_lin_s.shape[1] +
-                                                        [True] * df_ab_sum_s.shape[1]},
-                                                    {"yaxis": {"title":
-                                                                   'Variant copies/L',
-                                                               "range":
-                                                                   [0,
-                                                                    meta_df['viral_load']
-                                                                    .max() * 1.1]}}]),
-                                            dict(
-                                                label="Load Scaled Lineages",
-                                                method="update",
-                                                args=[{
-                                                    "visible":
-                                                        [False] * df_ab_lin.shape[1] +
-                                                        [False] * df_ab_sum.shape[1] +
-                                                        [False] +
-                                                        [True] * df_ab_lin_s.shape[1] +
-                                                        [False] * df_ab_sum_s.shape[1]},
-                                                    {"yaxis": {"title":
-                                                                   'Lineage copies/L',
-                                                               "range":
-                                                                   [0,
-                                                                    meta_df['viral_load']
-                                                                    .max() * 1.1]}}])]))],
+                      direction='right',
+                      active=0,
+                      bgcolor='lightskyblue',
+                      x=0.85,
+                      y=1.07,
+                      buttons=list([
+                                   dict(label="Variants",
+                                        method="update",
+                                        args=[{
+                                             "visible":
+                                             [False] * df_ab_lin.shape[1] +
+                                             [True] * df_ab_sum.shape[1] +
+                                             [False] +
+                                             [False] * df_ab_lin_s.shape[1] +
+                                             [False] * df_ab_sum_s.shape[1]},
+                                            {"yaxis": {"title":
+                                             'VOC Prevalence',
+                                                       "ticksuffix": '%',
+                                                       "range": [0, 100]}}]),
+                                   dict(label="Lineages",
+                                        method="update",
+                                        args=[{
+                                              "visible":
+                                              [True] * df_ab_lin.shape[1] +
+                                              [False] * df_ab_sum.shape[1] +
+                                              [False] +
+                                              [False] * df_ab_lin_s.shape[1] +
+                                              [False] * df_ab_sum_s.shape[1]},
+                                              {"yaxis": {"title":
+                                               'Lineage Prevalence',
+                                                         "ticksuffix": '%',
+                                                         "range": [0, 100]}}]),
+                                   dict(label="Viral Load",
+                                        method="update",
+                                        args=[{
+                                              "visible":
+                                              [False] * df_ab_lin.shape[1] +
+                                              [False] * df_ab_sum.shape[1] +
+                                              [True] +
+                                              [False] * df_ab_lin_s.shape[1] +
+                                              [False] * df_ab_sum_s.shape[1]},
+                                              {"yaxis": {"title":
+                                                         'Virus copies/L',
+                                                         "range":
+                                                         [0,
+                                                          meta_df['viral_load']
+                                                          .max() * 1.1]}}]),
+                                   dict(
+                                       label="Load Scaled Variants",
+                                       method="update",
+                                       args=[{
+                                              "visible":
+                                              [False] * df_ab_lin.shape[1] +
+                                              [False] * df_ab_sum.shape[1] +
+                                              [False] +
+                                              [False] * df_ab_lin_s.shape[1] +
+                                              [True] * df_ab_sum_s.shape[1]},
+                                             {"yaxis": {"title":
+                                              'Variant copies/L',
+                                                        "range":
+                                                        [0,
+                                                         meta_df['viral_load']
+                                                         .max() * 1.1]}}]),
+                                   dict(
+                                       label="Load Scaled Lineages",
+                                       method="update",
+                                       args=[{
+                                              "visible":
+                                              [False] * df_ab_lin.shape[1] +
+                                              [False] * df_ab_sum.shape[1] +
+                                              [False] +
+                                              [True] * df_ab_lin_s.shape[1] +
+                                              [False] * df_ab_sum_s.shape[1]},
+                                             {"yaxis": {"title":
+                                                        'Lineage copies/L',
+                                                        "range":
+                                                        [0,
+                                                         meta_df['viral_load']
+                                                         .max() * 1.1]}}])]))],
                       template="plotly_white",
                       hovermode="x unified",
                       xaxis=dict(hoverformat="%B %d, %Y"),
@@ -848,7 +856,7 @@ def make_dashboard(agg_df, meta_df, thresh, title, introText,
                    config={'displaylogo': False, 'displayModeBar': False})
     # Generate a web page with the plot by placing it in the template.
     locDir = os.path.abspath(os.path.join(os.path.realpath(__file__),
-                                          os.pardir))
+                             os.pardir))
     webpage = open(os.path.join(locDir,
                                 'data/dashboard_template.html'),
                    "r").read()
@@ -865,11 +873,11 @@ def make_dashboard(agg_df, meta_df, thresh, title, introText,
                               pd.read_csv(
                                   outputFn.replace('.html',
                                                    '_rel_growth_rates.csv'))
-                              .to_html(index=False)
-                              .replace('dataframe',
-                                       'table table-bordered table-hover' +
-                                       ' table-striped table-light' +
-                                       ' table-bordered'))
+                                .to_html(index=False)
+                                .replace('dataframe',
+                                         'table table-bordered table-hover' +
+                                         ' table-striped table-light' +
+                                         ' table-bordered'))
 
     with open(outputFn, 'w') as outfile:
         outfile.write(webpage)
@@ -880,7 +888,8 @@ def make_dashboard(agg_df, meta_df, thresh, title, introText,
     print("Dashboard html file saved to " + outputFn)
 
 
-def collapse_barcodes(df_barcodes, df_depth, depthcutoff, lineageyml, locDir, output):
+def collapse_barcodes(df_barcodes, df_depth, depthcutoff,
+                      lineageyml, locDir, output):
     # drop low coverage sites
     low_cov_sites = df_depth[df_depth[3].astype(int) < depthcutoff] \
         .index.astype(str)
@@ -983,6 +992,45 @@ def collapse_barcodes(df_barcodes, df_depth, depthcutoff, lineageyml, locDir, ou
     print(f'collapsed lineages saved to {output}')
 
     return df_barcodes
+
+
+def handle_region_of_interest(region_of_interest, output_df,
+                              df_depth, covcut, title):
+
+    roi_df = pd.read_json(region_of_interest, orient='index')
+
+    roi_df['start'] = roi_df['start'].astype(int)
+    roi_df['end'] = roi_df['end'].astype(int)
+
+    # Ensure start < end
+    roi_df['start'], roi_df['end'] = zip(*roi_df.apply(
+        lambda x: (x['start'], x['end']) if x['start'] < x['end']
+        else (x['end'], x['start']), axis=1))
+
+    # Ensure start > 0 and end < 29903
+    roi_df['start'] = roi_df['start'].apply(lambda x: x if x > 0 else 1)
+    roi_df['end'] = roi_df['end'].apply(
+        lambda x: x if x < 29903 else 29903)
+
+    roi_df.index.name = 'name'
+
+    # Get percent coverage in each region
+    roi_cov = pd.Series()
+    for _, row in roi_df.iterrows():
+        roi_depths = df_depth.loc[(df_depth.index >= row['start']) &
+                                  (df_depth.index <= row['end'])]
+        roi_cov = pd.concat([roi_cov,
+                             pd.Series(
+                                 (sum(roi_depths.loc[:, 3] > covcut) /
+                                     len(roi_depths)) * 100,
+                                 index=[row.name])
+                             ])
+
+    # Write to output
+    output_df = pd.concat([output_df, roi_cov], axis=0)
+    output_df.name = title
+
+    return output_df
 
 
 if __name__ == '__main__':
