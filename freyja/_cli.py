@@ -417,7 +417,8 @@ def boot(variants, depths, output_base, eps, barcodes, meta,
     df_depths = pd.read_csv(depths, sep='\t', header=None, index_col=1)
     if depthcutoff != 0:
         df_barcodes = collapse_barcodes(
-            df_barcodes, df_depths, depthcutoff, lineageyml, locDir, output_base)
+            df_barcodes, df_depths, depthcutoff,
+            lineageyml, locDir, output_base)
 
     muts = list(df_barcodes.columns)
     mapDict = buildLineageMap(meta)
@@ -499,7 +500,7 @@ so no plot will be generated. Try changing --mincov threshold.')
                 config = yaml.safe_load(f)
             except yaml.YAMLError as exc:
                 raise ValueError('Error in config file: ' + str(exc))
-    lineages_yml = read_lineage_file(lineageyml,locDir)
+    lineages_yml = read_lineage_file(lineageyml, locDir)
     # converts lineages_yml to a dictionary where the lineage names are the
     # keys.
     lineage_info = {}
