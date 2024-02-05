@@ -137,10 +137,8 @@ def calc_rel_growth_rates(df, nboots=1000, serial_interval=5.5,
     print("CSV file saved to " + outputFn)
 
 
-def read_lineage_file(lineageyml):
+def read_lineage_file(lineageyml, locDir):
     if lineageyml != "-1":
-        locDir = os.path.abspath(os.path.join(os.path.realpath(__file__),
-                                              os.pardir))
         with open(os.path.join(locDir, 'lineages.yml'), 'r') as f:
             try:
                 lineages_yml = yaml.safe_load(f)
