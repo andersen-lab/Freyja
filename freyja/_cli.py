@@ -373,6 +373,29 @@ def variants(bamfile, ref, variants, depths, refname, minq, annot):
               'group identical barcodes')
 def boot(variants, depths, output_base, eps, barcodes, meta,
          nb, nt, boxplot, confirmedonly, lineageyml, depthcutoff, rawboots):
+    """
+    Perform bootstrapping method for freyja
+
+    Arguments:
+     :param variants: used to pass tsv format variant calling file
+     :param depths: used to pass depth files
+     :param variants: used to pass additional variant calling file
+     :param nb: used to pass number of times bootstrapping is performed
+     :param nts: used to provide number of cpus
+     multiple refernces
+     :param eps: used to provide minimum abundance
+     :param barcodes: used to provide custom barcode file
+     :param meta: used to provide custom lineage metadata file
+     :param output_base: used to provide output file name
+     :param boxplot: used to provide the format of the boxplot (pdf or png)
+     :param confirmedonly: used to exclude unconfirmed lineages
+     :param rawboots: used to return raw bootstraps values
+     :param lineageyml: used to pass a custom lineage hierarchy file
+     :param depthcutoff: used to exclude sites with coverage depth
+     below this value andgroup identical barcodes
+
+     :return : a variant calling tsv file.
+    """
     locDir = os.path.abspath(os.path.join(os.path.realpath(__file__),
                              os.pardir))
     # option for custom barcodes
