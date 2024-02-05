@@ -544,12 +544,12 @@ so no plot will be generated. Try changing --mincov threshold.')
 @click.option('--output', default='mydashboard.html', help='Output html file')
 @click.option('--days', default=56, help='N Days used for growth calc')
 @click.option('--grthresh', default=0.001, help='min avg prev. for growth')
-@click.argument('hierarchy', type=click.Path(),
+@click.argument('lineageyml', type=click.Path(),
                 default=os.path.join(locDir, 'data/lineages.yml'))
 @click.option('--keep_plot_files', is_flag=True, help='Keep separate plot')
 def dash(agg_results, metadata, title, intro, thresh, headercolor, bodycolor,
          scale_by_viral_load, nboots, serial_interval, config, mincov, output,
-         days, hierarchy, grthresh, keep_plot_files):
+         days, lineageyml, grthresh, keep_plot_files):
     agg_df = pd.read_csv(agg_results, skipinitialspace=True, sep='\t',
                          index_col=0)
     # drop poor quality samples
@@ -575,7 +575,7 @@ def dash(agg_results, metadata, title, intro, thresh, headercolor, bodycolor,
             except yaml.YAMLError as exc:
                 raise ValueError('Error in config file: ' + str(exc))
 
-    with open(hierarchy, 'r') as f:
+    with open(lineageyml, 'r') as f:
         try:
             lineages_yml = yaml.safe_load(f)
         except yaml.YAMLError as exc:
