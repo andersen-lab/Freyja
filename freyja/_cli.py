@@ -394,7 +394,7 @@ def boot(variants, depths, output_base, eps, barcodes, meta,
      :param depthcutoff: used to exclude sites with coverage depth
      below this value andgroup identical barcodes
 
-     :return : a variant calling tsv file.
+     :return : base-name_lineages.csv and base-name_summarized.csv
     """
     locDir = os.path.abspath(os.path.join(os.path.realpath(__file__),
                              os.pardir))
@@ -449,6 +449,16 @@ def boot(variants, depths, output_base, eps, barcodes, meta,
 @click.option('--output', default='aggregated_result.tsv', help='Output file',
               type=click.Path(exists=False))
 def aggregate(results, ext, output):
+    """
+        Aggregates all the outputs
+
+        Arguments:
+         :param results: used to pass result files
+         :param ext: used to pass extension of the files
+         :param output: used to define output file name
+
+         :return : an aggregated tsv file
+        """
     if ext != '-1':
         results_ = [fn for fn in glob.glob(results + '*' + ext)]
     else:
