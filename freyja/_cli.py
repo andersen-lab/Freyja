@@ -481,6 +481,24 @@ def aggregate(results, ext, output):
 @click.option('--thresh', default=0.01, help='min lineage abundance included')
 def plot(agg_results, lineages, times, interval, output, windowsize,
          config, mincov, lineageyml, thresh):
+    """
+        create plots using the outputs
+
+        Arguments:
+         :param agg_results: used to pass result files
+         :param lineages: used to provide a lineage specific breakdown
+         :param times: used to pass ample collection time information
+         :param interval: used to pass ample collection time information
+         :param windowsize: used to pass width of the rolling average window
+         :param config: allows users to control the colors and grouping of
+          lineages in the plot
+         :param mincov: used to pass minimum genome coverage
+         :param output: used to specify the output name
+         :param lineageyml: used to pass a custom lineage hierarchy file
+         :param thresh: used to pass a minum lineage abundance
+
+         :return : an aggregated tsv file
+        """
     agg_df = pd.read_csv(agg_results, skipinitialspace=True, sep='\t',
                          index_col=0)
     # drop poor quality samples
