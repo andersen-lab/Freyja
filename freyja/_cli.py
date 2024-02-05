@@ -499,7 +499,7 @@ so no plot will be generated. Try changing --mincov threshold.')
                 config = yaml.safe_load(f)
             except yaml.YAMLError as exc:
                 raise ValueError('Error in config file: ' + str(exc))
-    lineages_yml = read_lineage_file(lineageyml)
+    lineages_yml = read_lineage_file(lineageyml,locDir)
     # converts lineages_yml to a dictionary where the lineage names are the
     # keys.
     lineage_info = {}
