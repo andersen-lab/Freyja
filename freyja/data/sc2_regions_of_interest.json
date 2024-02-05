@@ -1,0 +1,10 @@
+{
+    "SARS-CoV-2 Spike Coverage": {
+        "start": 21563,
+        "end": 25384
+    },
+    "SARS-CoV-2 RBD Coverage": {
+        "start": 23576,
+        "end": 22771
+    }
+}
