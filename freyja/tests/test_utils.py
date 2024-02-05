@@ -409,8 +409,13 @@ class UtilsTests(unittest.TestCase):
     def test_collapse_barcodes(self):
         barcodes = self.usher_barcodes.copy(deep=True)
         original = barcodes.shape
+        with open('freyja/data/lineages.yml', 'r') as f:
+            try:
+                lineages_yml = yaml.safe_load(f)
+            except yaml.YAMLError as exc:
+                raise ValueError('lineages.yml error, run update: ' + str(exc))
         barcodes = collapse_barcodes(barcodes, self.depth,
-                                     100, 'freyja', 'test')
+                                     100, lineages_yml, 'freyja', 'test')
         collapsed = barcodes.shape
 
         self.assertLess(collapsed[0], original[0])
