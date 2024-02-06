@@ -592,7 +592,8 @@ def dash(agg_results, metadata, title, intro, thresh, headercolor, bodycolor,
          :param days: used to specify number of days for
          growth calculation
          :param lineageyml: used to pass a custom lineage hierarchy file
-         :param grthresh: used to specify min avg prev. for growth
+         :param grthresh: used to specify minimum prevalence
+         to calculate relative growth rate for
          :param keep_plot_files: used to keep the intermediate html
           for the core plot
          
