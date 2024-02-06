@@ -634,6 +634,28 @@ def relgrowthrate(agg_results, metadata, thresh, scale_by_viral_load, nboots,
                   serial_interval, config, mincov, output, days, grthresh):
     agg_df = pd.read_csv(agg_results, skipinitialspace=True, sep='\t',
                          index_col=0)
+    """
+    generates relative growth rate for each lineage
+
+    Arguments:
+     :param agg_results: used to pass aggregated result files
+     :param metadata: used to pass sample metadata such as 
+     collection date and viral load
+     :param thresh: used to define min lineage abundance in plot
+     :param scale_by_viral_load: used to scale by viral load
+     :param nboots: Number of Bootstrap iterations
+     :param serial_interval: used to specify serial interval
+     :param config: used to pass lineage grouping config file
+     in yml format
+     :param mincov: used to specify minimum coverage to include
+     :param output: used to specify number of days for 
+     growth calculation
+     :param days: used to specify the output name
+     :param grthresh: used to specify min avg prev. for growth
+
+     :return : a CSV file with lineage, estimated advantage
+     and bootstrap 95% interval columns. 
+    """
     # drop poor quality samples
     if 'coverage' in agg_df.columns:
         agg_df = agg_df[agg_df['coverage'] > mincov]
