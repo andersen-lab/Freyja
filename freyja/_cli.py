@@ -750,7 +750,7 @@ def covariants(input_bam, min_site, max_site, output,
       that span the region defined by (min_site, max_site)
      :param sort_by: method by which to sort covariants patterns
 
-     :return : the most recent barcodes in json format
+     :return : a tsv formatted file of covariants
     """
     _covariants(input_bam, min_site, max_site, output,
                 ref_genome, gff_file, min_quality, min_count, spans_region,
