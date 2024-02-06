@@ -23,7 +23,7 @@ from freyja.updates import (convert_tree, convert_tree_custom,
                             get_curated_lineage_data)
 from freyja.utils import (agg, calc_rel_growth_rates, checkConfig,
                           collapse_barcodes, get_abundance, make_dashboard,
-                          makePlot_simple, makePlot_time, read_lineage_file)
+                          makePlot_simple, makePlot_time, read_lineage_file, handle_region_of_interest)
 
 locDir = os.path.abspath(os.path.join(os.path.realpath(__file__), os.pardir))
 
@@ -75,9 +75,12 @@ def print_barcode_version(ctx, param, value):
               help='adaptive lasso penalty parameter')
 @click.option('--a_eps', default=1E-8,
               help='adaptive lasso parameter, hard threshold')
+@click.option('--region_of_interest', default='-1', help='JSON file containing'
+              'region(s) of interest for which to compute additional coverage'
+              'estimates')
 def demix(variants, depths, output, eps, barcodes, meta,
           covcut, confirmedonly, depthcutoff, lineageyml,
-          adapt, a_eps):
+          adapt, a_eps, region_of_interest):
     """
     Generate prevalence of lineages per sample
 
@@ -107,6 +110,8 @@ def demix(variants, depths, output, eps, barcodes, meta,
      lineages present,their corresponding abundances,
       and summarization by constellation.
     """
+          covcut, confirmedonly, depthcutoff,
+          adapt, a_eps, region_of_interest):
     locDir = os.path.abspath(os.path.join(os.path.realpath(__file__),
                              os.pardir))
     # option for custom barcodes
@@ -162,12 +167,20 @@ def demix(variants, depths, output, eps, barcodes, meta,
         abundances = list(localDict.values())
 
     localDict = map_to_constellation(sample_strains, abundances, mapDict)
+
     # assemble into series and write.
     sols_df = pd.Series(data=(localDict, sample_strains, abundances,
                               error, cov),
                         index=['summarized', 'lineages',
                         'abundances', 'resid', 'coverage'],
                         name=mix.name)
+
+    # Determine coverage in region(s) of interest (if specified)
+    if region_of_interest != '-1':
+
+        sols_df = handle_region_of_interest(region_of_interest, sols_df,
+                                            df_depth, covcut, mix.name)
+
     # convert lineage/abundance readouts to single line strings
     sols_df['lineages'] = ' '.join(sols_df['lineages'])
     sols_df['abundances'] = ['%.8f' % ab for ab in sols_df['abundances']]
