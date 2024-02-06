@@ -728,6 +728,30 @@ def filter(query_mutations, input_bam, min_site, max_site, output):
 def covariants(input_bam, min_site, max_site, output,
                ref_genome, gff_file, min_quality, min_count, spans_region,
                sort_by):
+    """
+    finds co-variants (mutations co-occurring on the same read pair)
+
+    Arguments:
+     :param input_bam: used to pass aligned reads in bam format
+      to the reference genome
+     :param min_site: consider read pairs that span the entire
+     genomic region defined by (min_site, max_site)
+     :param max_site: consider read pairs that span the entire
+     genomic region defined by (min_site, max_site)
+     :param output: used to define the name and path for the
+     output
+     :param ref_genome: used to specify reference genome file
+     default reference genome is NC_045512_Hu-1
+     :param gff_file: path to corresponding genome annotation file
+     :param min_quality: used to define minium quality for a base
+     :param min_count: used to define minimum count for
+      a set of mutations to be saved
+     :param spans_region: if included, consider only reads
+      that span the region defined by (min_site, max_site)
+     :param sort_by: method by which to sort covariants patterns
+
+     :return : the most recent barcodes in json format
+    """
     _covariants(input_bam, min_site, max_site, output,
                 ref_genome, gff_file, min_quality, min_count, spans_region,
                 sort_by)
