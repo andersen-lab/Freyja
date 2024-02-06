@@ -571,6 +571,33 @@ def dash(agg_results, metadata, title, intro, thresh, headercolor, bodycolor,
          days, lineageyml, grthresh, keep_plot_files):
     agg_df = pd.read_csv(agg_results, skipinitialspace=True, sep='\t',
                          index_col=0)
+    """
+        create plots using the outputs
+
+        Arguments:
+         :param agg_results: used to pass result files
+         :param metadata: used to pass lineage grouping config file
+         :param title: used to pass dashboard title
+         :param intro: used to pass dashboard introduction line
+         :param thresh: used to pass a minimum lineage abundance
+         :param headercolor: used to pass header color
+         :param bodycolor: used to pass dashboard body color
+         :param scale_by_viral_load: used to scale by viral load
+         :param nboots: used to pass number of bootstrapping
+         :param serial_interval: used to pass serial intervals
+         :param config: allows users to control the colors and grouping of
+          lineages in the plot
+         :param mincov: used to pass minimum genome coverage
+         :param output: used to specify the output name
+         :param days: used to specify number of days for
+         growth calculation
+         :param lineageyml: used to pass a custom lineage hierarchy file
+         :param grthresh: used to specify min avg prev. for growth
+         :param keep_plot_files: used to keep the intermediate html
+          for the core plot
+         
+         :return : an interactive dashboard
+        """
     # drop poor quality samples
     if 'coverage' in agg_df.columns:
         agg_df = agg_df[agg_df['coverage'] > mincov]
