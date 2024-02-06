@@ -686,6 +686,21 @@ def relgrowthrate(agg_results, metadata, thresh, scale_by_viral_load, nboots,
               help='include to specify that query reads must all occur on the\
                     same read')
 def extract(query_mutations, input_bam, output, same_read):
+    """
+    extracts reads containing mutation of interest
+
+    Arguments:
+     :param query_mutations: used to pass a set of mutations of
+     interest
+     :param input_bam: used to pass aligned reads in bam format
+      to the reference genome
+     :param same_read: used to only include reads with mutations
+      of interest on the same read
+     :param output: used to specify the output name
+
+     :return : bam formatted file including reads
+     with mutation of interest mutations
+    """
     _extract(query_mutations, input_bam, output, same_read)
 
 
