@@ -678,7 +678,8 @@ def relgrowthrate(agg_results, metadata, thresh, scale_by_viral_load, nboots,
      :param days: used to specify number of days for
      growth calculation
      :param output: used to specify the output name
-     :param grthresh: used to specify min avg prev. for growth
+     :param grthresh: used to specify minimum prevalence
+      to calculate relative growth rate for
 
      :return : a CSV file with lineage, estimated advantage
      and bootstrap 95% interval columns.
