@@ -675,9 +675,9 @@ def relgrowthrate(agg_results, metadata, thresh, scale_by_viral_load, nboots,
      :param config: used to pass lineage grouping config file
      in yml format
      :param mincov: used to specify minimum coverage to include
-     :param output: used to specify number of days for
+     :param days: used to specify number of days for
      growth calculation
-     :param days: used to specify the output name
+     :param output: used to specify the output name
      :param grthresh: used to specify min avg prev. for growth
 
      :return : a CSV file with lineage, estimated advantage
