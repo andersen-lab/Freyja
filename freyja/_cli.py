@@ -23,7 +23,8 @@ from freyja.updates import (convert_tree, convert_tree_custom,
                             get_curated_lineage_data)
 from freyja.utils import (agg, calc_rel_growth_rates, checkConfig,
                           collapse_barcodes, get_abundance, make_dashboard,
-                          makePlot_simple, makePlot_time, read_lineage_file, handle_region_of_interest)
+                          makePlot_simple, makePlot_time,
+                          read_lineage_file, handle_region_of_interest)
 
 locDir = os.path.abspath(os.path.join(os.path.realpath(__file__), os.pardir))
 
@@ -110,8 +111,6 @@ def demix(variants, depths, output, eps, barcodes, meta,
      lineages present,their corresponding abundances,
       and summarization by constellation.
     """
-          covcut, confirmedonly, depthcutoff,
-          adapt, a_eps, region_of_interest):
     locDir = os.path.abspath(os.path.join(os.path.realpath(__file__),
                              os.pardir))
     # option for custom barcodes
@@ -608,8 +607,8 @@ def dash(agg_results, metadata, title, intro, thresh, headercolor, bodycolor,
          :param grthresh: used to specify minimum prevalence
          to calculate relative growth rate for
          :param keep_plot_files: used to keep the intermediate html
-          for the core plot
-          
+         for the core plot
+
          :return : an interactive dashboard
         """
     # drop poor quality samples
