@@ -697,6 +697,23 @@ def extract(query_mutations, input_bam, output, same_read):
 @click.option('--output', default='filtered.bam',
               help='path to save filtered reads')
 def filter(query_mutations, input_bam, min_site, max_site, output):
+    """
+    excludes reads containing one or more mutations
+
+    Arguments:
+     :param query_mutations: used to pass a set of mutations of
+     interest
+     :param input_bam: used to pass aligned reads in bam format
+      to the reference genome
+     :param min_site: consider read pairs that span the entire
+     genomic region defined by (min_site, max_site)
+     :param max_site: consider read pairs that span the entire
+     genomic region defined by (min_site, max_site)
+     :param output: used to specify the output name
+
+     :return : bam formatted file not including mutations
+     to exclude
+    """
     _filter(query_mutations, input_bam, min_site, max_site, output)
 
 
