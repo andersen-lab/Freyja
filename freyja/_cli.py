@@ -596,7 +596,7 @@ def dash(agg_results, metadata, title, intro, thresh, headercolor, bodycolor,
          to calculate relative growth rate for
          :param keep_plot_files: used to keep the intermediate html
           for the core plot
-         
+          
          :return : an interactive dashboard
         """
     # drop poor quality samples
