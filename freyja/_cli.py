@@ -726,8 +726,8 @@ def filter(query_mutations, input_bam, min_site, max_site, output):
      genomic region defined by (min_site, max_site)
      :param output: used to specify the output name
 
-     :return : bam formatted file not including mutations
-     to exclude
+     :return : bam formatted file not including reads with
+      mutations of interest
     """
     _filter(query_mutations, input_bam, min_site, max_site, output)
 
