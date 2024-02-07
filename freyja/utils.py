@@ -148,7 +148,7 @@ def get_value(val, dict, get_val, match_key):
 
 def read_lineage_file(lineageyml, locDir):
     if lineageyml != "-1":
-        with open(os.path.join(locDir, 'lineages.yml'), 'r') as f:
+        with open(os.path.join(locDir, 'data/lineages.yml'), 'r') as f:
             try:
                 lineages_yml = yaml.safe_load(f)
             except yaml.YAMLError as exc:
