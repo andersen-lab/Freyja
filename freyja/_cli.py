@@ -30,7 +30,7 @@ locDir = os.path.abspath(os.path.join(os.path.realpath(__file__), os.pardir))
 
 
 @click.group()
-@click.version_option('1.4.8')
+@click.version_option('1.4.9')
 def cli():
     pass
 
@@ -530,13 +530,11 @@ so no plot will be generated. Try changing --mincov threshold.')
                 config = yaml.safe_load(f)
             except yaml.YAMLError as exc:
                 raise ValueError('Error in config file: ' + str(exc))
-    lineages_yml = read_lineage_file(lineageyml, locDir)
-    # converts lineages_yml to a dictionary where the lineage names are the
+
+    # convert lineages_yml to a dictionary where the lineage names are the
     # keys.
-    lineage_info = {}
-    for lineage in lineages_yml:
-        lineage_info[lineage['name']] = {'name': lineage['name'],
-                                         'children': lineage['children']}
+    lineage_info = read_lineage_file(lineageyml, locDir)
+
     if config is not None:
         config = checkConfig(config)
     else:
@@ -575,8 +573,7 @@ so no plot will be generated. Try changing --mincov threshold.')
 @click.option('--output', default='mydashboard.html', help='Output html file')
 @click.option('--days', default=56, help='N Days used for growth calc')
 @click.option('--grthresh', default=0.001, help='min avg prev. for growth')
-@click.argument('lineageyml', type=click.Path(),
-                default=os.path.join(locDir, 'data/lineages.yml'))
+@click.option('--lineageyml', default='-1', help='lineage hierarchy file')
 @click.option('--keep_plot_files', is_flag=True, help='Keep separate plot')
 def dash(agg_results, metadata, title, intro, thresh, headercolor, bodycolor,
          scale_by_viral_load, nboots, serial_interval, config, mincov, output,
@@ -634,18 +631,7 @@ def dash(agg_results, metadata, title, intro, thresh, headercolor, bodycolor,
             except yaml.YAMLError as exc:
                 raise ValueError('Error in config file: ' + str(exc))
 
-    with open(lineageyml, 'r') as f:
-        try:
-            lineages_yml = yaml.safe_load(f)
-        except yaml.YAMLError as exc:
-            raise ValueError('lineages.yml error, run update: ' + str(exc))
-
-    # converts lineages_yml to a dictionary where the lineage names are the
-    # keys.
-    lineage_info = {}
-    for lineage in lineages_yml:
-        lineage_info[lineage['name']] = {'name': lineage['name'],
-                                         'children': lineage['children']}
+    lineage_info = read_lineage_file(lineageyml, locDir)
     if config is not None:
         config = checkConfig(config)
     else:
@@ -670,8 +656,10 @@ def dash(agg_results, metadata, title, intro, thresh, headercolor, bodycolor,
               help='Output html file')
 @click.option('--days', default=56, help='N Days used for growth calc')
 @click.option('--grthresh', default=0.001, help='min avg prev. for growth')
+@click.option('--lineageyml', default='-1', help='lineage hierarchy file')
 def relgrowthrate(agg_results, metadata, thresh, scale_by_viral_load, nboots,
-                  serial_interval, config, mincov, output, days, grthresh):
+                  serial_interval, config, mincov, output, days, grthresh,
+                  lineageyml):
     agg_df = pd.read_csv(agg_results, skipinitialspace=True, sep='\t',
                          index_col=0)
     """
@@ -715,18 +703,7 @@ def relgrowthrate(agg_results, metadata, thresh, scale_by_viral_load, nboots,
             except yaml.YAMLError as exc:
                 raise ValueError('Error in config file: ' + str(exc))
 
-    with open(os.path.join(locDir, 'data/lineages.yml'), 'r') as f:
-        try:
-            lineages_yml = yaml.safe_load(f)
-        except yaml.YAMLError as exc:
-            raise ValueError('lineages.yml error, run update: ' + str(exc))
-
-    # converts lineages_yml to a dictionary where the lineage names are the
-    # keys.
-    lineage_info = {}
-    for lineage in lineages_yml:
-        lineage_info[lineage['name']] = {'name': lineage['name'],
-                                         'children': lineage['children']}
+    lineage_info = read_lineage_file(lineageyml, locDir)
     if config is not None:
         config = checkConfig(config)
     else:

@@ -146,7 +146,7 @@ def get_value(val, dict, get_val, match_key):
     return values[0]
 
 
-def read_lineage_file(lineageyml, locDir):
+def read_lineage_file(lineageyml, locDir, fileOnly=False):
     if lineageyml == "-1":
         with open(os.path.join(locDir, 'data/lineages.yml'), 'r') as f:
             try:
@@ -159,7 +159,14 @@ def read_lineage_file(lineageyml, locDir):
                 lineages_yml = yaml.safe_load(f)
             except yaml.YAMLError as exc:
                 raise ValueError('Error in lineages.yml file: ' + str(exc))
-    return lineages_yml
+    if fileOnly:
+        return lineages_yml
+    else:
+        lineage_info = {}
+        for lineage in lineages_yml:
+            lineage_info[lineage['name']] = {'name': lineage['name'],
+                                             'children': lineage['children']}
+        return lineage_info
 
 
 # Get name key from the config dictionary for which the
@@ -914,7 +921,7 @@ def collapse_barcodes(df_barcodes, df_depth, depthcutoff,
         return df_barcodes
 
     # load lineage data
-    lineage_yml = read_lineage_file(lineageyml, locDir)
+    lineage_yml = read_lineage_file(lineageyml, locDir, fileOnly=True)
     lineage_data = {lineage['name']: lineage for lineage in lineage_yml}
 
     alias_count = {}
