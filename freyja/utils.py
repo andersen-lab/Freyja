@@ -845,7 +845,7 @@ def make_dashboard(agg_df, meta_df, thresh, title, introText,
                       xaxis=dict(hoverformat="%B %d, %Y"),
                       legend=dict(yanchor="top",
                                   y=0.99,
-                                  xanchor="right",
+                                  xanchor="left",
                                   x=1.1,
                                   itemsizing='constant'))
 
