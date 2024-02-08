@@ -14,7 +14,6 @@ conda create -n freyja-env
 ```
 then add the following channels
 ```
-conda config --add channels defaults
 conda config --add channels bioconda
 conda config --add channels conda-forge
 ```
@@ -41,7 +40,7 @@ We can then run Freyja on the output files using the commmand:
 ```
 freyja demix [variants-file] [depth-file] --output [output-file]
 ```
-This outputs to a tsv file that includes the lineages present, their corresponding abundances, and summarization by constellation. This method also includes a `--eps` option, which enables the user to define the minimum lineage abundance returned to the user (e.g. `--eps 0.0001`). A custom barcode file can be provided using the `--barcodes [path-to-barcode-file]` option. As the UShER tree now included proposed lineages, we now offer the ```--confirmedonly``` flag which removes unconfirmed lineages from the analysis. For additional flexibility and reproducibility of analyses, a custom lineage-to-contellation mapping metadata file can be provided using the `--meta` option. A coverage depth minimum can be specified using the `--depthcutoff` option, which excludes sites with coverage less than the specified value. An example output should have the format
+This outputs to a tsv file that includes the lineages present, their corresponding abundances, and summarization by constellation. This method also includes a `--eps` option, which enables the user to define the minimum lineage abundance returned to the user (e.g. `--eps 0.0001`). A custom barcode file can be provided using the `--barcodes [path-to-barcode-file]` option. By default, freyja uses the lineage hierarchy file located in`freyja/data` directory which is updated everytime the `freyja update` command is run. The user, however, can define a custom lineage hierarchy file using`--lineageyml [path-to-lineage-file]`. Users can get the historic `lineage.yml` file at freyja-data GitHub repository [here](("https://github.com/andersen-lab/Freyja-data/tree/main/history_lineage_hierarchy")). As the UShER tree now included proposed lineages, we now offer the ```--confirmedonly``` flag which removes unconfirmed lineages from the analysis. For additional flexibility and reproducibility of analyses, a custom lineage-to-constellation mapping metadata file can be provided using the `--meta` option. A coverage depth minimum can be specified using the `--depthcutoff` option, which excludes sites with coverage less than the specified value. An example output should have the format
 
 
 |       | filename |
@@ -70,7 +69,7 @@ We now provide a fast bootstrapping method for freyja, which can be run using th
 ```
 freyja boot [variants-file] [depth-file] --nt [number-of-cpus] --nb [number-of-bootstraps] --output_basename [base-name]
 ```
-which results in two output files: `base-name_lineages.csv` and `base-name_summarized.csv`, which contain the 0.025, 0.05, 0.25, 0.5 (median),0.75, 0.95, and 0.975 percentiles for each lineage and WHO designated VOI/VOC, respectively, as obtained via the bootstrap. If the `--rawboots` option is used, it will return two additional output files `base-name_lineages_boot.csv` and `base-name_summarized_boot.csv`, which contain the bootstrap estimates (rather than summary statistics). We also provide the `--eps`, `--barcodes`, and `--meta` options as in `freyja demix`. We now also provide a `--boxplot` option, which should be specified in the form `--boxplot pdf` if you want the boxplot in pdf format. 
+which results in two output files: `base-name_lineages.csv` and `base-name_summarized.csv`, which contain the 0.025, 0.05, 0.25, 0.5 (median),0.75, 0.95, and 0.975 percentiles for each lineage and WHO designated VOI/VOC, respectively, as obtained via the bootstrap. A custom lineage hierarchy file can be provided using `--lineageyml` option. If the `--rawboots` option is used, it will return two additional output files `base-name_lineages_boot.csv` and `base-name_summarized_boot.csv`, which contain the bootstrap estimates (rather than summary statistics). We also provide the `--eps`, `--barcodes`, and `--meta` options as in `freyja demix`. We now also provide a `--boxplot` option, which should be specified in the form `--boxplot pdf` if you want the boxplot in pdf format. 
 
 For rapid visualization of results, we also offer two utility methods for manipulating the "demixed" output files. The first is an aggregation method
 
@@ -96,10 +95,10 @@ which provides a fractional abundance estimate for all aggregated samples. To mo
 If users wish to include sample collection time information, this can be done using 
 
 ```
-freyja plot [aggregated-filename-tsv] --output [plot-filename(.pdf,.png,etc.)] --times [times_metadata.csv(note csv!)] --interval [MS or D (month/day bins)]
+freyja plot [aggregated-filename-tsv] --output [plot-filename(.pdf,.png,etc.)] --times [times_metadata.csv(note csv!)] --interval [MS or D (month/day bins) --lineageyml [path-to-lineage.yml-file]
 ```
 
-When using the `--interval D` option, the `--windowsize NN` should also be specified, where `NN` is the width of the rolling average window. See `freyja/data/times_metadata.csv` for an example collection time metadata file. Example outputs:
+A custom lineage hierarchy file can be provided using `--lineageyml` option for visualization purposes. When using the `--interval D` option, the `--windowsize NN` should also be specified, where `NN` is the width of the rolling average window. See `freyja/data/times_metadata.csv` for an example collection time metadata file. Example outputs:
 
 |**Month binning** | **Daily binning (with smoothing)**|
 |     :---:      |     :---:      |
@@ -109,11 +108,11 @@ When using the `--interval D` option, the `--windowsize NN` should also be speci
 We are now providing functionality to rapidly prepare a dashboard web page, directly from aggregated freyja output. This can be done with the command
 
 ```
-freyja dash [aggregated-filename-tsv] [sample-metadata.csv] [dashboard-title.txt] [introContent.txt] --output [outputname.html]
+freyja dash [aggregated-filename-tsv] [sample-metadata.csv] [dashboard-title.txt] [introContent.txt] --output [outputname.html] --lineage.yml [path-to-lineage.yml-file]
 ```
 where the metadata file should have this [form](freyja/data/sweep_metadata.csv). See example [title](freyja/data/title.txt) and [intro-text](freyja/data/introContent.txt) files as well. For samples taken the same day, we average the freyja outputs by default. However, averaging can be performed that takes the viral loads into account using the ```--scale_by_viral_load``` flag. The header and body color can be changed with the ```--headerColor [mycolorname/hexcolor]``` and ```--bodyColor [mycolorname/hexcolor]``` option respectively. The ```--mincov``` option is also available, as in ```plot```. The resulting dashboard will look like [this](https://htmlpreview.github.io/?https://github.com/andersen-lab/Freyja/blob/main/freyja/data/test0.html).
 
-The plot can now be configured using the ```--config [path-to-plot-config-file]``` option. The [plot config file](freyja/data/plot_config.yml) is a yaml file. More information about the plot config file can be found in the [sample config file](freyja/data/plot_config.yml). By default, this will use the lineage hierarchy information present in `freyja/dash/lineages.yml`, but a custom hierarchy can be supplied using the ```--hierarchy [path-to-hierarchy-file]``` option. The `--keep_plot_files` option can be used keep the intermediate html for the core plot (will be deleted following incorporation into the main html output by default).
+The plot can now be configured using the ```--config [path-to-plot-config-file]``` option. The [plot config file](freyja/data/plot_config.yml) is a yaml file. More information about the plot config file can be found in the [sample config file](freyja/data/plot_config.yml). By default, this will use the lineage hierarchy information present in `freyja/dash/lineages.yml`, but a custom hierarchy can be supplied using the ```--lineageyml [path-to-hierarchy-file]``` option. The `--keep_plot_files` option can be used keep the intermediate html for the core plot (will be deleted following incorporation into the main html output by default).
 
 A CSV file will also be created along with the html dashboard which will contain the relative growth rates for each lineage. The lineages will be grouped together based on the `Lineages` key specified in the config file if provided.
 

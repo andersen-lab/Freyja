@@ -146,6 +146,29 @@ def get_value(val, dict, get_val, match_key):
     return values[0]
 
 
+def read_lineage_file(lineageyml, locDir, fileOnly=False):
+    if lineageyml == "-1":
+        with open(os.path.join(locDir, 'data/lineages.yml'), 'r') as f:
+            try:
+                lineages_yml = yaml.safe_load(f)
+            except yaml.YAMLError as exc:
+                raise ValueError('Error in lineages.yml file: ' + str(exc))
+    else:
+        with open(lineageyml, 'r') as f:
+            try:
+                lineages_yml = yaml.safe_load(f)
+            except yaml.YAMLError as exc:
+                raise ValueError('Error in lineages.yml file: ' + str(exc))
+    if fileOnly:
+        return lineages_yml
+    else:
+        lineage_info = {}
+        for lineage in lineages_yml:
+            lineage_info[lineage['name']] = {'name': lineage['name'],
+                                             'children': lineage['children']}
+        return lineage_info
+
+
 # Get name key from the config dictionary for which the
 # queried lineage is a member.
 def get_name(val, dict):
@@ -872,10 +895,10 @@ def make_dashboard(agg_df, meta_df, thresh, title, introText,
     print("Dashboard html file saved to " + outputFn)
 
 
-def collapse_barcodes(df_barcodes, df_depth, depthcutoff, locDir, output):
-
+def collapse_barcodes(df_barcodes, df_depth, depthcutoff,
+                      lineageyml, locDir, output):
     # drop low coverage sites
-    low_cov_sites = df_depth[df_depth[3].astype(int) < depthcutoff]\
+    low_cov_sites = df_depth[df_depth[3].astype(int) < depthcutoff] \
         .index.astype(str)
     low_cov_muts = [mut for mut in df_barcodes.columns
                     if mut[1:-1] in low_cov_sites]
@@ -898,12 +921,7 @@ def collapse_barcodes(df_barcodes, df_depth, depthcutoff, locDir, output):
         return df_barcodes
 
     # load lineage data
-    with open(os.path.join(locDir, 'data', 'lineages.yml'), 'r') as f:
-        try:
-            lineage_yml = yaml.safe_load(f)
-        except yaml.YAMLError as exc:
-            raise ValueError('Error in lineages.yml file: ' + str(exc))
-
+    lineage_yml = read_lineage_file(lineageyml, locDir, fileOnly=True)
     lineage_data = {lineage['name']: lineage for lineage in lineage_yml}
 
     alias_count = {}

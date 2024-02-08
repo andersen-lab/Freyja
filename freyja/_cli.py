@@ -1,36 +1,50 @@
-import click
-import pandas as pd
-from freyja.convert_paths2barcodes import parse_tree_paths, \
-    convert_to_barcodes, reversion_checking, check_mutation_chain
-from freyja.read_analysis_tools import extract as _extract, \
-    filter as _filter, \
-    covariants as _covariants, \
-    plot_covariants as _plot_covariants
-from freyja.sample_deconv import buildLineageMap, build_mix_and_depth_arrays, \
-    reindex_dfs, map_to_constellation, solve_demixing_problem, \
-    perform_bootstrap
-from freyja.updates import download_tree, convert_tree, \
-    get_curated_lineage_data, get_cl_lineages, \
-    download_barcodes, convert_tree_custom
-from freyja.utils import agg, makePlot_simple, makePlot_time, \
-    make_dashboard, checkConfig, get_abundance, calc_rel_growth_rates, \
-    collapse_barcodes, handle_region_of_interest
-import os
 import glob
+import os
 import subprocess
 import sys
+
+import click
+import pandas as pd
 import yaml
+
+from freyja.convert_paths2barcodes import (check_mutation_chain,
+                                           convert_to_barcodes,
+                                           parse_tree_paths,
+                                           reversion_checking)
+from freyja.read_analysis_tools import covariants as _covariants
+from freyja.read_analysis_tools import extract as _extract
+from freyja.read_analysis_tools import filter as _filter
+from freyja.read_analysis_tools import plot_covariants as _plot_covariants
+from freyja.sample_deconv import (build_mix_and_depth_arrays, buildLineageMap,
+                                  map_to_constellation, perform_bootstrap,
+                                  reindex_dfs, solve_demixing_problem)
+from freyja.updates import (convert_tree, convert_tree_custom,
+                            download_barcodes, download_tree, get_cl_lineages,
+                            get_curated_lineage_data)
+from freyja.utils import (agg, calc_rel_growth_rates, checkConfig,
+                          collapse_barcodes, get_abundance, make_dashboard,
+                          makePlot_simple, makePlot_time,
+                          read_lineage_file, handle_region_of_interest)
 
 locDir = os.path.abspath(os.path.join(os.path.realpath(__file__), os.pardir))
 
 
 @click.group()
-@click.version_option('1.4.8')
+@click.version_option('1.4.9')
 def cli():
     pass
 
 
 def print_barcode_version(ctx, param, value):
+    """
+    Gets the barcode version used in the program
+
+    Arguments:
+     :param ctx: used for click command interface
+     :param param: used for click command interface
+     :param value: used for click command interface
+     :return: date stamp of the barcode file used in the analysis
+    """
     if not value or ctx.resilient_parsing:
         return
     locDir = os.path.abspath(os.path.join(os.path.realpath(__file__),
@@ -57,6 +71,7 @@ def print_barcode_version(ctx, param, value):
 @click.option('--depthcutoff', default=0,
               help='exclude sites with coverage depth below this value and'
               'group identical barcodes')
+@click.option('--lineageyml', default='-1', help='lineage hierarchy file')
 @click.option('--adapt', default=0.,
               help='adaptive lasso penalty parameter')
 @click.option('--a_eps', default=1E-8,
@@ -65,8 +80,37 @@ def print_barcode_version(ctx, param, value):
               'region(s) of interest for which to compute additional coverage'
               'estimates')
 def demix(variants, depths, output, eps, barcodes, meta,
-          covcut, confirmedonly, depthcutoff,
+          covcut, confirmedonly, depthcutoff, lineageyml,
           adapt, a_eps, region_of_interest):
+    """
+    Generate prevalence of lineages per sample
+
+    Arguments:
+     :param variants: used to pass variant calling file generated
+      using freyja variant command (tsv)
+     :param depths: used to pass depth file generated using
+      freyja variant command (tsv)
+     :param output: used to pass output name, the default
+      output will be named demixing_result.csv
+     :param eps: float, if true, it is used to define
+     minimum abundance of each lineage
+     :param barcodes: used to pass a custom
+      barcode file (csv)
+     :param meta: used to pass a custom
+      lineage to variant file
+     :param covcut: int,if true,it is used to
+      calculate percent of sites with n or greater reads
+     :param confirmedonly: used to exclude unconfirmed lineages
+     :param depthcutoff: used to exclude sites with
+      coverage less than the specified value
+     :param lineageyml: used to pass a custom lineage hierarchy file
+     :param adapt: used to set adaptive lasso penalty parameter
+     :param a_eps: used to set adaptive lasso
+     penalty parameter hard threshold
+     :return : a tsv file that includes the
+     lineages present,their corresponding abundances,
+      and summarization by constellation.
+    """
     locDir = os.path.abspath(os.path.join(os.path.realpath(__file__),
                              os.pardir))
     # option for custom barcodes
@@ -83,12 +127,10 @@ def demix(variants, depths, output, eps, barcodes, meta,
     # drop intra-lineage diversity naming (keeps separate barcodes)
     indexSimplified = [dfi.split('_')[0] for dfi in df_barcodes.index]
     df_barcodes = df_barcodes.loc[indexSimplified, :]
-
     df_depth = pd.read_csv(depths, sep='\t', header=None, index_col=1)
     if depthcutoff != 0:
         df_barcodes = collapse_barcodes(df_barcodes, df_depth, depthcutoff,
-                                        locDir, output)
-
+                                        lineageyml, locDir, output)
     muts = list(df_barcodes.columns)
     mapDict = buildLineageMap(meta)
     print('building mix/depth matrices')
@@ -153,6 +195,19 @@ def demix(variants, depths, output, eps, barcodes, meta,
 @click.option('--buildlocal', is_flag=True, default=False,
               help='Perform barcode building locally')
 def update(outdir, noncl, buildlocal):
+    """
+    Updates the lineage information using the latest
+    outbreak data
+
+    Arguments:
+     :param outdir: used to define the location for the
+      data to be stored
+     :param noncl: include proposed lineages or unconfirmed
+     lineages (not in cov-lineages.org)
+     :param buildlocal: calculate barcodes locally using USHER
+     global phylogenetic tree
+     :return : the most recent barcodes in json format
+    """
     locDir = os.path.abspath(os.path.join(os.path.realpath(__file__),
                                           os.pardir))
     if outdir != '-1':
@@ -211,6 +266,17 @@ def update(outdir, noncl, buildlocal):
 @click.option('--noncl', is_flag=True, default=True,
               help='only include lineages in cov-lineages')
 def barcode_build(pb, outdir, noncl):
+    """
+    Building barcodes from a global tree
+
+    Arguments:
+     :param pb: used to provide a protobuf tree file
+     :param outdir: used to define the location for the
+      barcoe data to be stored
+     :param noncl: include proposed lineages or unconfirmed
+     lineages (not in cov-lineages.org)
+     :return : a csv file containing barcodes for lineages
+    """
     locDir = os.path.abspath(os.path.join(os.path.realpath(__file__),
                                           os.pardir))
     locDir = outdir
@@ -265,6 +331,21 @@ def barcode_build(pb, outdir, noncl):
               default=20)
 @click.option('--annot', help='AA annotation output', default='')
 def variants(bamfile, ref, variants, depths, refname, minq, annot):
+    """
+    Perform variant calling using samtools and ivar
+
+    Arguments:
+     :param bamfile: used to pass sorted bam file
+     :param ref: used to pass a reference genome file
+     :param variants: used to pass additional variant calling file
+     :param depths: used to pass depth files
+     :param refname: used to provide reference name for bam files with
+     multiple refernces
+     :param minq: used to provide minimum base quality
+     :param annot: used to provide amino acid annotation file
+
+     :return : a variant calling tsv file.
+    """
     if len(refname) == 0:
         bashCmd = f"samtools mpileup -aa -A -d 600000 -Q {minq} -q 0 -B -f "\
                   f"{ref} {bamfile} | tee >(cut -f1-4 > {depths}) |"\
@@ -298,11 +379,35 @@ def variants(bamfile, ref, variants, depths, refname, minq, annot):
 @click.option('--confirmedonly', is_flag=True, default=False)
 @click.option('--rawboots', is_flag=True, default=False,
               help='return raw bootstraps')
+@click.option('--lineageyml', default='-1', help='lineage hierarchy file')
 @click.option('--depthcutoff', default=0,
               help='exclude sites with coverage depth below this value and'
               'group identical barcodes')
 def boot(variants, depths, output_base, eps, barcodes, meta,
-         nb, nt, boxplot, confirmedonly, depthcutoff, rawboots):
+         nb, nt, boxplot, confirmedonly, lineageyml, depthcutoff, rawboots):
+    """
+    Perform bootstrapping method for freyja
+
+    Arguments:
+     :param variants: used to pass tsv format variant calling file
+     :param depths: used to pass depth files
+     :param variants: used to pass additional variant calling file
+     :param nb: used to pass number of times bootstrapping is performed
+     :param nts: used to provide number of cpus
+     multiple refernces
+     :param eps: used to provide minimum abundance
+     :param barcodes: used to provide custom barcode file
+     :param meta: used to provide custom lineage metadata file
+     :param output_base: used to provide output file name
+     :param boxplot: used to provide the format of the boxplot (pdf or png)
+     :param confirmedonly: used to exclude unconfirmed lineages
+     :param rawboots: used to return raw bootstraps values
+     :param lineageyml: used to pass a custom lineage hierarchy file
+     :param depthcutoff: used to exclude sites with coverage depth
+     below this value andgroup identical barcodes
+
+     :return : base-name_lineages.csv and base-name_summarized.csv
+    """
     locDir = os.path.abspath(os.path.join(os.path.realpath(__file__),
                              os.pardir))
     # option for custom barcodes
@@ -324,7 +429,8 @@ def boot(variants, depths, output_base, eps, barcodes, meta,
     df_depths = pd.read_csv(depths, sep='\t', header=None, index_col=1)
     if depthcutoff != 0:
         df_barcodes = collapse_barcodes(
-            df_barcodes, df_depths, depthcutoff, locDir, output_base)
+            df_barcodes, df_depths, depthcutoff,
+            lineageyml, locDir, output_base)
 
     muts = list(df_barcodes.columns)
     mapDict = buildLineageMap(meta)
@@ -356,6 +462,16 @@ def boot(variants, depths, output_base, eps, barcodes, meta,
 @click.option('--output', default='aggregated_result.tsv', help='Output file',
               type=click.Path(exists=False))
 def aggregate(results, ext, output):
+    """
+        Aggregates all the outputs
+
+        Arguments:
+         :param results: used to pass result files
+         :param ext: used to pass extension of the files
+         :param output: used to define output file name
+
+         :return : an aggregated tsv file
+        """
     if ext != '-1':
         results_ = [fn for fn in glob.glob(results + '*' + ext)]
     else:
@@ -373,9 +489,28 @@ def aggregate(results, ext, output):
 @click.option('--mincov', default=60., help='min genome coverage included')
 @click.option('--output', default='mix_plot.pdf', help='Output file')
 @click.option('--windowsize', default=14)
+@click.option('--lineageyml', default='-1', help='lineage hierarchy file')
 @click.option('--thresh', default=0.01, help='min lineage abundance included')
 def plot(agg_results, lineages, times, interval, output, windowsize,
-         config, mincov, thresh):
+         config, mincov, lineageyml, thresh):
+    """
+        create plots using the outputs
+
+        Arguments:
+         :param agg_results: used to pass result files
+         :param lineages: used to provide a lineage specific breakdown
+         :param times: used to pass ample collection time information
+         :param interval: used to pass ample collection time information
+         :param windowsize: used to pass width of the rolling average window
+         :param config: allows users to control the colors and grouping of
+          lineages in the plot
+         :param mincov: used to pass minimum genome coverage
+         :param output: used to specify the output name
+         :param lineageyml: used to pass a custom lineage hierarchy file
+         :param thresh: used to pass a minum lineage abundance
+
+         :return : an aggregated tsv file
+        """
     agg_df = pd.read_csv(agg_results, skipinitialspace=True, sep='\t',
                          index_col=0)
     # drop poor quality samples
@@ -396,18 +531,10 @@ so no plot will be generated. Try changing --mincov threshold.')
             except yaml.YAMLError as exc:
                 raise ValueError('Error in config file: ' + str(exc))
 
-    with open(os.path.join(locDir, 'data/lineages.yml'), 'r') as f:
-        try:
-            lineages_yml = yaml.safe_load(f)
-        except yaml.YAMLError as exc:
-            raise ValueError('lineages.yml error, run update: ' + str(exc))
-
-    # converts lineages_yml to a dictionary where the lineage names are the
+    # convert lineages_yml to a dictionary where the lineage names are the
     # keys.
-    lineage_info = {}
-    for lineage in lineages_yml:
-        lineage_info[lineage['name']] = {'name': lineage['name'],
-                                         'children': lineage['children']}
+    lineage_info = read_lineage_file(lineageyml, locDir)
+
     if config is not None:
         config = checkConfig(config)
     else:
@@ -446,14 +573,41 @@ so no plot will be generated. Try changing --mincov threshold.')
 @click.option('--output', default='mydashboard.html', help='Output html file')
 @click.option('--days', default=56, help='N Days used for growth calc')
 @click.option('--grthresh', default=0.001, help='min avg prev. for growth')
-@click.argument('hierarchy', type=click.Path(),
-                default=os.path.join(locDir, 'data/lineages.yml'))
+@click.option('--lineageyml', default='-1', help='lineage hierarchy file')
 @click.option('--keep_plot_files', is_flag=True, help='Keep separate plot')
 def dash(agg_results, metadata, title, intro, thresh, headercolor, bodycolor,
          scale_by_viral_load, nboots, serial_interval, config, mincov, output,
-         days, hierarchy, grthresh, keep_plot_files):
+         days, lineageyml, grthresh, keep_plot_files):
     agg_df = pd.read_csv(agg_results, skipinitialspace=True, sep='\t',
                          index_col=0)
+    """
+        create plots using the outputs
+
+        Arguments:
+         :param agg_results: used to pass result files
+         :param metadata: used to pass lineage grouping config file
+         :param title: used to pass dashboard title
+         :param intro: used to pass dashboard introduction line
+         :param thresh: used to pass a minimum lineage abundance
+         :param headercolor: used to pass header color
+         :param bodycolor: used to pass dashboard body color
+         :param scale_by_viral_load: used to scale by viral load
+         :param nboots: used to pass number of bootstrapping
+         :param serial_interval: used to pass serial intervals
+         :param config: allows users to control the colors and grouping of
+          lineages in the plot
+         :param mincov: used to pass minimum genome coverage
+         :param output: used to specify the output name
+         :param days: used to specify number of days for
+         growth calculation
+         :param lineageyml: used to pass a custom lineage hierarchy file
+         :param grthresh: used to specify minimum prevalence
+         to calculate relative growth rate for
+         :param keep_plot_files: used to keep the intermediate html
+         for the core plot
+
+         :return : an interactive dashboard
+        """
     # drop poor quality samples
     if 'coverage' in agg_df.columns:
         agg_df = agg_df[agg_df['coverage'] > mincov]
@@ -477,18 +631,7 @@ def dash(agg_results, metadata, title, intro, thresh, headercolor, bodycolor,
             except yaml.YAMLError as exc:
                 raise ValueError('Error in config file: ' + str(exc))
 
-    with open(hierarchy, 'r') as f:
-        try:
-            lineages_yml = yaml.safe_load(f)
-        except yaml.YAMLError as exc:
-            raise ValueError('lineages.yml error, run update: ' + str(exc))
-
-    # converts lineages_yml to a dictionary where the lineage names are the
-    # keys.
-    lineage_info = {}
-    for lineage in lineages_yml:
-        lineage_info[lineage['name']] = {'name': lineage['name'],
-                                         'children': lineage['children']}
+    lineage_info = read_lineage_file(lineageyml, locDir)
     if config is not None:
         config = checkConfig(config)
     else:
@@ -513,10 +656,35 @@ def dash(agg_results, metadata, title, intro, thresh, headercolor, bodycolor,
               help='Output html file')
 @click.option('--days', default=56, help='N Days used for growth calc')
 @click.option('--grthresh', default=0.001, help='min avg prev. for growth')
+@click.option('--lineageyml', default='-1', help='lineage hierarchy file')
 def relgrowthrate(agg_results, metadata, thresh, scale_by_viral_load, nboots,
-                  serial_interval, config, mincov, output, days, grthresh):
+                  serial_interval, config, mincov, output, days, grthresh,
+                  lineageyml):
     agg_df = pd.read_csv(agg_results, skipinitialspace=True, sep='\t',
                          index_col=0)
+    """
+    generates relative growth rate for each lineage
+
+    Arguments:
+     :param agg_results: used to pass aggregated result files
+     :param metadata: used to pass sample metadata such as
+     collection date and viral load
+     :param thresh: used to define min lineage abundance in plot
+     :param scale_by_viral_load: used to scale by viral load
+     :param nboots: Number of Bootstrap iterations
+     :param serial_interval: used to specify serial interval
+     :param config: used to pass lineage grouping config file
+     in yml format
+     :param mincov: used to specify minimum coverage to include
+     :param days: used to specify number of days for
+     growth calculation
+     :param output: used to specify the output name
+     :param grthresh: used to specify minimum prevalence
+      to calculate relative growth rate for
+
+     :return : a CSV file with lineage, estimated advantage
+     and bootstrap 95% interval columns.
+    """
     # drop poor quality samples
     if 'coverage' in agg_df.columns:
         agg_df = agg_df[agg_df['coverage'] > mincov]
@@ -535,18 +703,7 @@ def relgrowthrate(agg_results, metadata, thresh, scale_by_viral_load, nboots,
             except yaml.YAMLError as exc:
                 raise ValueError('Error in config file: ' + str(exc))
 
-    with open(os.path.join(locDir, 'data/lineages.yml'), 'r') as f:
-        try:
-            lineages_yml = yaml.safe_load(f)
-        except yaml.YAMLError as exc:
-            raise ValueError('lineages.yml error, run update: ' + str(exc))
-
-    # converts lineages_yml to a dictionary where the lineage names are the
-    # keys.
-    lineage_info = {}
-    for lineage in lineages_yml:
-        lineage_info[lineage['name']] = {'name': lineage['name'],
-                                         'children': lineage['children']}
+    lineage_info = read_lineage_file(lineageyml, locDir)
     if config is not None:
         config = checkConfig(config)
     else:
@@ -569,6 +726,21 @@ def relgrowthrate(agg_results, metadata, thresh, scale_by_viral_load, nboots,
               help='include to specify that query reads must all occur on the\
                     same read')
 def extract(query_mutations, input_bam, output, same_read):
+    """
+    extracts reads containing mutation of interest
+
+    Arguments:
+     :param query_mutations: used to pass a set of mutations of
+     interest
+     :param input_bam: used to pass aligned reads in bam format
+      to the reference genome
+     :param same_read: used to only include reads with mutations
+      of interest on the same read
+     :param output: used to specify the output name
+
+     :return : bam formatted file including reads
+     with mutation of interest mutations
+    """
     _extract(query_mutations, input_bam, output, same_read)
 
 
@@ -580,6 +752,23 @@ def extract(query_mutations, input_bam, output, same_read):
 @click.option('--output', default='filtered.bam',
               help='path to save filtered reads')
 def filter(query_mutations, input_bam, min_site, max_site, output):
+    """
+    excludes reads containing one or more mutations
+
+    Arguments:
+     :param query_mutations: used to pass a set of mutations of
+     interest
+     :param input_bam: used to pass aligned reads in bam format
+      to the reference genome
+     :param min_site: consider read pairs that span the entire
+     genomic region defined by (min_site, max_site)
+     :param max_site: consider read pairs that span the entire
+     genomic region defined by (min_site, max_site)
+     :param output: used to specify the output name
+
+     :return : bam formatted file not including reads with
+      mutations of interest
+    """
     _filter(query_mutations, input_bam, min_site, max_site, output)
 
 
@@ -611,6 +800,30 @@ def filter(query_mutations, input_bam, min_site, max_site, output):
 def covariants(input_bam, min_site, max_site, output,
                ref_genome, gff_file, min_quality, min_count, spans_region,
                sort_by):
+    """
+    finds co-variants (mutations co-occurring on the same read pair)
+
+    Arguments:
+     :param input_bam: used to pass aligned reads in bam format
+      to the reference genome
+     :param min_site: consider read pairs that span the entire
+     genomic region defined by (min_site, max_site)
+     :param max_site: consider read pairs that span the entire
+     genomic region defined by (min_site, max_site)
+     :param output: used to define the name and path for the
+     output
+     :param ref_genome: used to specify reference genome file
+     default reference genome is NC_045512_Hu-1
+     :param gff_file: path to corresponding genome annotation file
+     :param min_quality: used to define minium quality for a base
+     :param min_count: used to define minimum count for
+      a set of mutations to be saved
+     :param spans_region: if included, consider only reads
+      that span the region defined by (min_site, max_site)
+     :param sort_by: method by which to sort covariants patterns
+
+     :return : a tsv formatted file of covariants
+    """
     _covariants(input_bam, min_site, max_site, output,
                 ref_genome, gff_file, min_quality, min_count, spans_region,
                 sort_by)
