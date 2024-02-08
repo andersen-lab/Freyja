@@ -491,8 +491,10 @@ def aggregate(results, ext, output):
 @click.option('--windowsize', default=14)
 @click.option('--lineageyml', default='-1', help='lineage hierarchy file')
 @click.option('--thresh', default=0.01, help='min lineage abundance included')
+@click.option('--writeGrouped', default='-1',
+              help='write out grouped lineage data')
 def plot(agg_results, lineages, times, interval, output, windowsize,
-         config, mincov, lineageyml, thresh):
+         config, mincov, lineageyml, thresh, writeGrouped):
     """
         create plots using the outputs
 
@@ -545,7 +547,7 @@ so no plot will be generated. Try changing --mincov threshold.')
     if times == '-1':
         # make basic plot, without time info
         makePlot_simple(agg_df, lineages, output, config, lineage_info,
-                        thresh)
+                        thresh, writeGrouped)
     else:
         # make time aware plot
         times_df = pd.read_csv(times, skipinitialspace=True,
@@ -553,7 +555,8 @@ so no plot will be generated. Try changing --mincov threshold.')
         times_df['sample_collection_datetime'] = \
             pd.to_datetime(times_df['sample_collection_datetime'])
         makePlot_time(agg_df, lineages, times_df, interval, output,
-                      windowsize, config, lineage_info, thresh)
+                      windowsize, config, lineage_info, thresh,
+                      writeGrouped)
 
 
 @cli.command()
