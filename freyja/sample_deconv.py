@@ -346,7 +346,7 @@ if __name__ == '__main__':
     # read in  barcodes.
     df_barcodes = pd.read_csv('freyja/data/usher_barcodes.csv', index_col=0)
     muts = list(df_barcodes.columns)
-    mapDict = buildLineageMap()
+    mapDict = buildLineageMap('-1')
 
     # grab wastewater sample data
 
@@ -355,23 +355,24 @@ if __name__ == '__main__':
     # assemble data from of (possibly) mixed samples
     muts = list(df_barcodes.columns)
     eps = 0.001
-    mapDict = buildLineageMap()
+    mapDict = buildLineageMap('-1')
     print('building mix/depth matrices')
     # assemble data from of (possibly) mixed samples
-    mix, depths_, cov = build_mix_and_depth_arrays(variants, depths, muts)
+    mix, depths_, cov = build_mix_and_depth_arrays(variants, depths, muts, 10)
     print('demixing')
     df_barcodes, mix, depths_ = reindex_dfs(df_barcodes, mix, depths_)
     sample_strains, abundances, error = solve_demixing_problem(df_barcodes,
                                                                mix,
-                                                               depths_, eps)
+                                                               depths_, eps,
+                                                               0, 0)
     localDict = map_to_constellation(sample_strains, abundances, mapDict)
     # assemble into series and write.
     sols_df = pd.Series(data=(localDict, sample_strains, abundances, error),
                         index=['summarized', 'lineages',
                                'abundances', 'resid'],
                         name=mix.name)
-    numBootstraps = 100
-    n_jobs = 10
-    lin_out, constell_out = perform_bootstrap(df_barcodes, mix, depths_,
-                                              numBootstraps, eps,
-                                              n_jobs, mapDict, muts)
+    # numBootstraps = 100
+    # n_jobs = 10
+    # lin_out, constell_out = perform_bootstrap(df_barcodes, mix, depths_,
+    #                                           numBootstraps, eps,
+    #                                           n_jobs, mapDict, muts)

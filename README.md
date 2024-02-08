@@ -99,7 +99,7 @@ If users wish to include sample collection time information, this can be done us
 freyja plot [aggregated-filename-tsv] --output [plot-filename(.pdf,.png,etc.)] --times [times_metadata.csv(note csv!)] --interval [MS or D (month/day bins)]
 ```
 
-When using the `--interval D` option, the `--windowsize NN` should also be specified, where `NN` is the width of the rolling average window. See `freyja/data/times_metadata.csv` for an example collection time metadata file. Example outputs:
+When using the `--interval D` option, the `--windowsize NN` should also be specified, where `NN` is the width of the rolling average window. The `--mincov` parameter (set to 60% 10x genome coverage by default) can be used to exclude low coverage samples. See `freyja/data/times_metadata.csv` for an example collection time metadata file. Example outputs:
 
 |**Month binning** | **Daily binning (with smoothing)**|
 |     :---:      |     :---:      |
