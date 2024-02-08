@@ -328,12 +328,15 @@ def prepSummaryDict(agg_d0):
     return agg_d0
 
 
-def makePlot_simple(agg_df, lineages, outputFn, config, lineage_info, thresh):
+def makePlot_simple(agg_df, lineages, outputFn, config, lineage_info,
+                    thresh, writeGrouped):
     if lineages:
         queryType = 'linDict'
         config = config.get('Lineages')
         agg_df = prepLineageDict(agg_df, config=config,
                                  lineage_info=lineage_info, thresh=thresh)
+        if writeGrouped != '-1':
+            agg_df.to_csv(writeGrouped, sep='\t')
 
     else:
         queryType = 'summarized'
@@ -404,12 +407,15 @@ def makePlot_simple(agg_df, lineages, outputFn, config, lineage_info, thresh):
 
 
 def makePlot_time(agg_df, lineages, times_df, interval, outputFn,
-                  windowSize, config, lineage_info, thresh):
+                  windowSize, config, lineage_info, thresh,
+                  writeGrouped):
     if lineages:
         queryType = 'linDict'
         config = config.get('Lineages')
         agg_df = prepLineageDict(agg_df, config=config,
                                  lineage_info=lineage_info, thresh=thresh)
+        if writeGrouped != '-1':
+            agg_df.to_csv(writeGrouped, sep='\t')
 
     else:
         queryType = 'summarized'
