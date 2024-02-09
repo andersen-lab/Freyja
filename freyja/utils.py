@@ -328,12 +328,15 @@ def prepSummaryDict(agg_d0):
     return agg_d0
 
 
-def makePlot_simple(agg_df, lineages, outputFn, config, lineage_info, thresh):
+def makePlot_simple(agg_df, lineages, outputFn, config, lineage_info,
+                    thresh, writeGrouped):
     if lineages:
         queryType = 'linDict'
         config = config.get('Lineages')
         agg_df = prepLineageDict(agg_df, config=config,
                                  lineage_info=lineage_info, thresh=thresh)
+        if writeGrouped != '-1':
+            agg_df.to_csv(writeGrouped, sep='\t')
 
     else:
         queryType = 'summarized'
@@ -393,7 +396,7 @@ def makePlot_simple(agg_df, lineages, outputFn, config, lineage_info, thresh):
               bbox_to_anchor=(1, 0.5), prop={'size': 4})
     ax.set_ylabel('Variant Prevalence')
     ax.set_xticks(range(0, agg_df.shape[0]))
-    ax.set_xticklabels([sd.split('_')[0] for sd in agg_df.index],
+    ax.set_xticklabels(agg_df.index,
                        rotation=90, fontsize=7)
     ax.set_ylim([0, 1])
     ax.set_xlim([-0.5, agg_df.shape[0] - 0.5])
@@ -404,12 +407,15 @@ def makePlot_simple(agg_df, lineages, outputFn, config, lineage_info, thresh):
 
 
 def makePlot_time(agg_df, lineages, times_df, interval, outputFn,
-                  windowSize, config, lineage_info, thresh):
+                  windowSize, config, lineage_info, thresh,
+                  writeGrouped):
     if lineages:
         queryType = 'linDict'
         config = config.get('Lineages')
         agg_df = prepLineageDict(agg_df, config=config,
                                  lineage_info=lineage_info, thresh=thresh)
+        if writeGrouped != '-1':
+            agg_df.to_csv(writeGrouped, sep='\t')
 
     else:
         queryType = 'summarized'
@@ -845,7 +851,7 @@ def make_dashboard(agg_df, meta_df, thresh, title, introText,
                       xaxis=dict(hoverformat="%B %d, %Y"),
                       legend=dict(yanchor="top",
                                   y=0.99,
-                                  xanchor="right",
+                                  xanchor="left",
                                   x=1.1,
                                   itemsizing='constant'))
 
