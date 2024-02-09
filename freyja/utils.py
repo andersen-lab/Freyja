@@ -396,7 +396,7 @@ def makePlot_simple(agg_df, lineages, outputFn, config, lineage_info,
               bbox_to_anchor=(1, 0.5), prop={'size': 4})
     ax.set_ylabel('Variant Prevalence')
     ax.set_xticks(range(0, agg_df.shape[0]))
-    ax.set_xticklabels([sd.split('_')[0] for sd in agg_df.index],
+    ax.set_xticklabels(agg_df.index,
                        rotation=90, fontsize=7)
     ax.set_ylim([0, 1])
     ax.set_xlim([-0.5, agg_df.shape[0] - 0.5])
