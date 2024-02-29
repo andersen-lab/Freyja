@@ -38,8 +38,8 @@ def print_barcode_version(ctx, param, value):
 @click.argument('variants', type=click.Path(exists=True))
 @click.argument('depths', type=click.Path(exists=True))
 @click.option('--eps', default=1e-3, help='minimum abundance to include')
-@click.option('--barcodes', default=None, help='custom barcode file')
-@click.option('--meta', default=None, help='custom lineage metadata file')
+@click.option('--barcodes', default='', help='custom barcode file')
+@click.option('--meta', default='', help='custom lineage metadata file')
 @click.option('--output', default='demixing_result.csv', help='Output file',
               type=click.Path(exists=False))
 @click.option('--covcut', default=10, help='depth cutoff for\
@@ -50,12 +50,12 @@ def print_barcode_version(ctx, param, value):
 @click.option('--depthcutoff', default=0,
               help='exclude sites with coverage depth below this value and'
               'group identical barcodes')
-@click.option('--lineageyml', default=None, help='lineage hierarchy file')
+@click.option('--lineageyml', default='', help='lineage hierarchy file')
 @click.option('--adapt', default=0.,
               help='adaptive lasso penalty parameter')
 @click.option('--a_eps', default=1E-8,
               help='adaptive lasso parameter, hard threshold')
-@click.option('--region_of_interest', default=None, help='JSON file containing'
+@click.option('--region_of_interest', default='', help='JSON file containing'
               'region(s) of interest for which to compute additional coverage'
               'estimates')
 def demix(variants, depths, output, eps, barcodes, meta,
@@ -98,7 +98,7 @@ def demix(variants, depths, output, eps, barcodes, meta,
     locDir = os.path.abspath(os.path.join(os.path.realpath(__file__),
                              os.pardir))
     # option for custom barcodes
-    if barcodes is not None:
+    if barcodes != '':
         df_barcodes = pd.read_csv(barcodes, index_col=0)
     else:
         df_barcodes = pd.read_csv(os.path.join(locDir,
@@ -159,7 +159,7 @@ def demix(variants, depths, output, eps, barcodes, meta,
                         name=mix.name)
 
     # Determine coverage in region(s) of interest (if specified)
-    if region_of_interest is not None:
+    if region_of_interest != '':
 
         sols_df = handle_region_of_interest(region_of_interest, sols_df,
                                             df_depth, covcut, mix.name)
@@ -172,7 +172,7 @@ def demix(variants, depths, output, eps, barcodes, meta,
 
 
 @cli.command(context_settings={'show_default': True})
-@click.option('--outdir', default=None,
+@click.option('--outdir', default='',
               help='Output directory save updated files')
 @click.option('--noncl', is_flag=True, default=True,
               help='only include lineages in cov-lineages')
@@ -197,7 +197,7 @@ def update(outdir, noncl, buildlocal):
                                 get_curated_lineage_data)
     locDir = os.path.abspath(os.path.join(os.path.realpath(__file__),
                                           os.pardir))
-    if outdir is not None:
+    if outdir != '':
         # User specified directory
         locDir = outdir
     else:
@@ -369,8 +369,8 @@ def variants(bamfile, ref, variants, depths, refname, minq, annot):
 @click.option('--nb', default=100, help='number of bootstraps')
 @click.option('--nt', default=1, help='max number of cpus to use')
 @click.option('--eps', default=1e-3, help='minimum abundance to include')
-@click.option('--barcodes', default=None, help='custom barcode file')
-@click.option('--meta', default=None, help='custom lineage metadata file')
+@click.option('--barcodes', default='', help='custom barcode file')
+@click.option('--meta', default='', help='custom lineage metadata file')
 @click.option('--output_base', default='test', help='Output file basename',
               type=click.Path(exists=False))
 @click.option('--boxplot', default='',
@@ -378,7 +378,7 @@ def variants(bamfile, ref, variants, depths, refname, minq, annot):
 @click.option('--confirmedonly', is_flag=True, default=False)
 @click.option('--rawboots', is_flag=True, default=False,
               help='return raw bootstraps')
-@click.option('--lineageyml', default=None, help='lineage hierarchy file')
+@click.option('--lineageyml', default='', help='lineage hierarchy file')
 @click.option('--depthcutoff', default=0,
               help='exclude sites with coverage depth below this value and'
               'group identical barcodes')
@@ -416,7 +416,7 @@ def boot(variants, depths, output_base, eps, barcodes, meta,
     locDir = os.path.abspath(os.path.join(os.path.realpath(__file__),
                              os.pardir))
     # option for custom barcodes
-    if barcodes is not None:
+    if barcodes != '':
         df_barcodes = pd.read_csv(barcodes, index_col=0)
     else:
         df_barcodes = pd.read_csv(os.path.join(locDir,
@@ -463,7 +463,7 @@ def boot(variants, depths, output_base, eps, barcodes, meta,
 
 @cli.command()
 @click.argument('results', type=click.Path(exists=True))
-@click.option('--ext', default=None, help='file extension option')
+@click.option('--ext', default='', help='file extension option')
 @click.option('--output', default='aggregated_result.tsv', help='Output file',
               type=click.Path(exists=False))
 def aggregate(results, ext, output):
@@ -480,7 +480,7 @@ def aggregate(results, ext, output):
     import glob
     from freyja.utils import agg
 
-    if ext is not None:
+    if ext != '':
         results_ = [fn for fn in glob.glob(results + '*' + ext)]
     else:
         results_ = [results + fn for fn in os.listdir(results)]
@@ -491,15 +491,15 @@ def aggregate(results, ext, output):
 @cli.command(context_settings={'show_default': True})
 @click.argument('agg_results', type=click.Path(exists=True))
 @click.option('--lineages', is_flag=True)
-@click.option('--times', default=None)
+@click.option('--times', default='')
 @click.option('--interval', default='MS')
 @click.option('--config', default=None, help='path to yaml file')
 @click.option('--mincov', default=60., help='min genome coverage included')
 @click.option('--output', default='mix_plot.pdf', help='Output file')
 @click.option('--windowsize', default=14)
-@click.option('--lineageyml', default=None, help='lineage hierarchy file')
+@click.option('--lineageyml', default='', help='lineage hierarchy file')
 @click.option('--thresh', default=0.01, help='min lineage abundance included')
-@click.option('--writegrouped', default=None,
+@click.option('--writegrouped', default='',
               help='path to write grouped lineage data')
 def plot(agg_results, lineages, times, interval, output, windowsize,
          config, mincov, lineageyml, thresh, writegrouped):
@@ -555,7 +555,7 @@ so no plot will be generated. Try changing --mincov threshold.')
     agg_df['abundances'] = agg_df['abundances'].astype(str)
     agg_df['summarized'] = agg_df['summarized'].astype(str)
     agg_df = agg_df[agg_df['summarized'] != '[]']
-    if times is None:
+    if times == '':
         # make basic plot, without time info
         makePlot_simple(agg_df, lineages, output, config, lineage_info,
                         thresh, writegrouped)
@@ -587,7 +587,7 @@ so no plot will be generated. Try changing --mincov threshold.')
 @click.option('--output', default='mydashboard.html', help='Output html file')
 @click.option('--days', default=56, help='N Days used for growth calc')
 @click.option('--grthresh', default=0.001, help='min avg prev. for growth')
-@click.option('--lineageyml', default=None, help='lineage hierarchy file')
+@click.option('--lineageyml', default='', help='lineage hierarchy file')
 @click.option('--keep_plot_files', is_flag=True, help='Keep separate plot')
 def dash(agg_results, metadata, title, intro, thresh, headercolor, bodycolor,
          scale_by_viral_load, nboots, serial_interval, config, mincov, output,
@@ -671,7 +671,7 @@ def dash(agg_results, metadata, title, intro, thresh, headercolor, bodycolor,
               help='Output html file')
 @click.option('--days', default=56, help='N Days used for growth calc')
 @click.option('--grthresh', default=0.001, help='min avg prev. for growth')
-@click.option('--lineageyml', default=None, help='lineage hierarchy file')
+@click.option('--lineageyml', default='', help='lineage hierarchy file')
 def relgrowthrate(agg_results, metadata, thresh, scale_by_viral_load, nboots,
                   serial_interval, config, mincov, output, days, grthresh,
                   lineageyml):
