@@ -38,7 +38,7 @@ def buildLineageMap(locDir):
             for descendant in descendants:
                 mapDict[descendant] = clade
     else:
-        if locDir == '-1':
+        if locDir is None:
             locDir = os.path.abspath(
                 os.path.join(os.path.realpath(__file__), os.pardir))
             with open(os.path.join(

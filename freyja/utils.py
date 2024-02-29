@@ -335,7 +335,7 @@ def makePlot_simple(agg_df, lineages, outputFn, config, lineage_info,
         config = config.get('Lineages')
         agg_df = prepLineageDict(agg_df, config=config,
                                  lineage_info=lineage_info, thresh=thresh)
-        if writeGrouped != '-1':
+        if writeGrouped is not None:
             agg_df.to_csv(writeGrouped, sep='\t')
 
     else:
@@ -414,7 +414,7 @@ def makePlot_time(agg_df, lineages, times_df, interval, outputFn,
         config = config.get('Lineages')
         agg_df = prepLineageDict(agg_df, config=config,
                                  lineage_info=lineage_info, thresh=thresh)
-        if writeGrouped != '-1':
+        if writeGrouped is not None:
             agg_df.to_csv(writeGrouped, sep='\t')
 
     else:
