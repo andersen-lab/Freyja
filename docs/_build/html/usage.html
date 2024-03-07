@@ -47,6 +47,43 @@
 
 <section id="freyja-aggregate">
 <h3>aggregate<a class="headerlink" href="#freyja-aggregate" title="Link to this heading">¶</a></h3>
+<blockquote>
+<div><p>Aggregates all the outputs
+Aggregates all the outputs</p>
+<dl>
+<dt>Arguments:</dt><dd><dl class="field-list simple">
+<dt class="field-odd">param results<span class="colon">:</span></dt>
+<dd class="field-odd"><p>used to pass result files</p>
+</dd>
+<dt class="field-even">param ext<span class="colon">:</span></dt>
+<dd class="field-even"><p>used to pass extension of the files</p>
+</dd>
+<dt class="field-odd">param output<span class="colon">:</span></dt>
+<dd class="field-odd"><p>used to define output file name</p>
+</dd>
+</dl>
+<p>:return : an aggregated tsv file</p>
+</dd>
+</dl>
+</div></blockquote>
+<p>Aggregates all the outputs</p>
+<blockquote>
+<div><dl>
+<dt>Arguments:</dt><dd><dl class="field-list simple">
+<dt class="field-odd">param results<span class="colon">:</span></dt>
+<dd class="field-odd"><p>used to pass result files</p>
+</dd>
+<dt class="field-even">param ext<span class="colon">:</span></dt>
+<dd class="field-even"><p>used to pass extension of the files</p>
+</dd>
+<dt class="field-odd">param output<span class="colon">:</span></dt>
+<dd class="field-odd"><p>used to define output file name</p>
+</dd>
+</dl>
+<p>:return : an aggregated tsv file</p>
+</dd>
+</dl>
+</div></blockquote>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>freyja<span class="w"> </span>aggregate<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span><span class="w"> </span>RESULTS
 </pre></div>
 </div>
@@ -83,6 +120,7 @@
 </section>
 <section id="freyja-barcode-build">
 <h3>barcode-build<a class="headerlink" href="#freyja-barcode-build" title="Link to this heading">¶</a></h3>
+<p>Building barcodes from a global tree</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>freyja<span class="w"> </span>barcode-build<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
 </pre></div>
 </div>
@@ -113,6 +151,7 @@
 </section>
 <section id="freyja-boot">
 <h3>boot<a class="headerlink" href="#freyja-boot" title="Link to this heading">¶</a></h3>
+<p>Perform bootstrapping method for freyja</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>freyja<span class="w"> </span>boot<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span><span class="w"> </span>VARIANTS<span class="w"> </span>DEPTHS
 </pre></div>
 </div>
@@ -247,6 +286,7 @@
 </section>
 <section id="freyja-covariants">
 <h3>covariants<a class="headerlink" href="#freyja-covariants" title="Link to this heading">¶</a></h3>
+<p>finds co-variants (mutations co-occurring on the same read pair)</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>freyja<span class="w"> </span>covariants<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span><span class="w"> </span>INPUT_BAM<span class="w"> </span><span class="o">[</span>MIN_SITE<span class="o">]</span><span class="w"> </span><span class="o">[</span>MAX_SITE<span class="o">]</span>
 </pre></div>
 </div>
@@ -514,6 +554,7 @@
 </section>
 <section id="freyja-demix">
 <h3>demix<a class="headerlink" href="#freyja-demix" title="Link to this heading">¶</a></h3>
+<p>Generate prevalence of lineages per sample</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>freyja<span class="w"> </span>demix<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span><span class="w"> </span>VARIANTS<span class="w"> </span>DEPTHS
 </pre></div>
 </div>
@@ -664,6 +705,7 @@
 </section>
 <section id="freyja-extract">
 <h3>extract<a class="headerlink" href="#freyja-extract" title="Link to this heading">¶</a></h3>
+<p>extracts reads containing mutation of interest</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>freyja<span class="w"> </span>extract<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span><span class="w"> </span>QUERY_MUTATIONS<span class="w"> </span>INPUT_BAM
 </pre></div>
 </div>
@@ -706,6 +748,7 @@
 </section>
 <section id="freyja-filter">
 <h3>filter<a class="headerlink" href="#freyja-filter" title="Link to this heading">¶</a></h3>
+<p>excludes reads containing one or more mutations</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>freyja<span class="w"> </span>filter<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span><span class="w"> </span>QUERY_MUTATIONS<span class="w"> </span>INPUT_BAM<span class="w"> </span><span class="o">[</span>MIN_SITE<span class="o">]</span><span class="w"> </span><span class="o">[</span>MAX_SITE<span class="o">]</span>
 </pre></div>
 </div>
@@ -749,6 +792,93 @@
 </section>
 <section id="freyja-plot">
 <h3>plot<a class="headerlink" href="#freyja-plot" title="Link to this heading">¶</a></h3>
+<blockquote>
+<div><p>create plots using the outputs
+create plots using the outputs</p>
+<dl>
+<dt>Arguments:</dt><dd><dl class="field-list simple">
+<dt class="field-odd">param agg_results<span class="colon">:</span></dt>
+<dd class="field-odd"><p>used to pass result files</p>
+</dd>
+<dt class="field-even">param lineages<span class="colon">:</span></dt>
+<dd class="field-even"><p>used to provide a lineage specific breakdown</p>
+</dd>
+<dt class="field-odd">param times<span class="colon">:</span></dt>
+<dd class="field-odd"><p>used to pass ample collection time information</p>
+</dd>
+<dt class="field-even">param interval<span class="colon">:</span></dt>
+<dd class="field-even"><p>used to pass ample collection time information</p>
+</dd>
+<dt class="field-odd">param windowsize<span class="colon">:</span></dt>
+<dd class="field-odd"><p>used to pass width of the rolling average window</p>
+</dd>
+<dt class="field-even">param config<span class="colon">:</span></dt>
+<dd class="field-even"><p>allows users to control the colors and grouping of
+lineages in the plot</p>
+</dd>
+<dt class="field-odd">param mincov<span class="colon">:</span></dt>
+<dd class="field-odd"><p>used to pass minimum genome coverage</p>
+</dd>
+<dt class="field-even">param output<span class="colon">:</span></dt>
+<dd class="field-even"><p>used to specify the output name</p>
+</dd>
+<dt class="field-odd">param lineageyml<span class="colon">:</span></dt>
+<dd class="field-odd"><p>used to pass a custom lineage hierarchy file</p>
+</dd>
+<dt class="field-even">param thresh<span class="colon">:</span></dt>
+<dd class="field-even"><p>used to pass a minum lineage abundance</p>
+</dd>
+<dt class="field-odd">param writegrouped<span class="colon">:</span></dt>
+<dd class="field-odd"><p>used for path to grouped lineage data</p>
+</dd>
+</dl>
+<p>:return : an aggregated tsv file</p>
+</dd>
+</dl>
+</div></blockquote>
+<p>create plots using the outputs</p>
+<blockquote>
+<div><dl>
+<dt>Arguments:</dt><dd><dl class="field-list simple">
+<dt class="field-odd">param agg_results<span class="colon">:</span></dt>
+<dd class="field-odd"><p>used to pass result files</p>
+</dd>
+<dt class="field-even">param lineages<span class="colon">:</span></dt>
+<dd class="field-even"><p>used to provide a lineage specific breakdown</p>
+</dd>
+<dt class="field-odd">param times<span class="colon">:</span></dt>
+<dd class="field-odd"><p>used to pass ample collection time information</p>
+</dd>
+<dt class="field-even">param interval<span class="colon">:</span></dt>
+<dd class="field-even"><p>used to pass ample collection time information</p>
+</dd>
+<dt class="field-odd">param windowsize<span class="colon">:</span></dt>
+<dd class="field-odd"><p>used to pass width of the rolling average window</p>
+</dd>
+<dt class="field-even">param config<span class="colon">:</span></dt>
+<dd class="field-even"><p>allows users to control the colors and grouping of
+lineages in the plot</p>
+</dd>
+<dt class="field-odd">param mincov<span class="colon">:</span></dt>
+<dd class="field-odd"><p>used to pass minimum genome coverage</p>
+</dd>
+<dt class="field-even">param output<span class="colon">:</span></dt>
+<dd class="field-even"><p>used to specify the output name</p>
+</dd>
+<dt class="field-odd">param lineageyml<span class="colon">:</span></dt>
+<dd class="field-odd"><p>used to pass a custom lineage hierarchy file</p>
+</dd>
+<dt class="field-even">param thresh<span class="colon">:</span></dt>
+<dd class="field-even"><p>used to pass a minum lineage abundance</p>
+</dd>
+<dt class="field-odd">param writegrouped<span class="colon">:</span></dt>
+<dd class="field-odd"><p>used for path to grouped lineage data</p>
+</dd>
+</dl>
+<p>:return : an aggregated tsv file</p>
+</dd>
+</dl>
+</div></blockquote>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>freyja<span class="w"> </span>plot<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span><span class="w"> </span>AGG_RESULTS
 </pre></div>
 </div>
@@ -864,6 +994,7 @@
 </section>
 <section id="freyja-plot-covariants">
 <h3>plot-covariants<a class="headerlink" href="#freyja-plot-covariants" title="Link to this heading">¶</a></h3>
+<p>Plot covariants output</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>freyja<span class="w"> </span>plot-covariants<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span><span class="w"> </span>COVARIANTS
 </pre></div>
 </div>
@@ -943,6 +1074,7 @@
 </section>
 <section id="freyja-relgrowthrate">
 <h3>relgrowthrate<a class="headerlink" href="#freyja-relgrowthrate" title="Link to this heading">¶</a></h3>
+<p>generates relative growth rate for each lineage</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>freyja<span class="w"> </span>relgrowthrate<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span><span class="w"> </span>AGG_RESULTS<span class="w"> </span>METADATA
 </pre></div>
 </div>
@@ -1068,6 +1200,8 @@
 </section>
 <section id="freyja-update">
 <h3>update<a class="headerlink" href="#freyja-update" title="Link to this heading">¶</a></h3>
+<p>Updates the lineage information using the latest
+outbreak data</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>freyja<span class="w"> </span>update<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
 </pre></div>
 </div>
@@ -1108,6 +1242,7 @@
 </section>
 <section id="freyja-variants">
 <h3>variants<a class="headerlink" href="#freyja-variants" title="Link to this heading">¶</a></h3>
+<p>Perform variant calling using samtools and ivar</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>freyja<span class="w"> </span>variants<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span><span class="w"> </span>BAMFILE
 </pre></div>
 </div>
