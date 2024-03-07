@@ -382,23 +382,7 @@ def boot(variants, depths, output_base, eps, barcodes, meta,
               type=click.Path(exists=False), show_default=True)
 def aggregate(results, ext, output):
     """
-        Aggregates all the outputs
-        Aggregates all the outputs
-
-        Arguments:
-         :param results: used to pass result files
-         :param ext: used to pass extension of the files
-         :param output: used to define output file name
-
-         :return : an aggregated tsv file
     Aggregates all the outputs
-
-        Arguments:
-         :param results: used to pass result files
-         :param ext: used to pass extension of the files
-         :param output: used to define output file name
-
-         :return : an aggregated tsv file
     """
     if ext != '-1':
         results_ = [fn for fn in glob.glob(results + '*' + ext)]

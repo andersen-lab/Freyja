@@ -34,5 +34,6 @@ setup(
         'freyja': ['data/*', ],
         },
     install_requires=["click", "numpy", "pandas", "cvxpy", "seaborn", "pysam",
-                      "biopython"],
+                      "biopython" , "sphinx", "sphinx_rtd_theme"],
+    dependency_links=["git+https://github.com/dylanpilz/sphinx-click"]
 )
