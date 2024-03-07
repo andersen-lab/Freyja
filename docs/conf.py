@@ -7,8 +7,8 @@
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
 project = 'Freyja'
-copyright = '2024, Joshua Levy'
-author = 'Joshua Levy'
+copyright = '2024, Andersen Lab development team'
+author = 'Andersen Lab development team'
 release = '1.4.9'
 
 # -- General configuration ---------------------------------------------------

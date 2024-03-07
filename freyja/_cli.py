@@ -318,7 +318,7 @@ def variants(bamfile, ref, variants, depths, refname, minq, annot):
 @click.option('--confirmedonly', is_flag=True, default=False, show_default=True)
 @click.option('--rawboots', is_flag=True, default=False,
               help='return raw bootstraps', show_default=True)
-@click.option('--lineageyml', default='-1', help='lineage hierarchy file')
+@click.option('--lineageyml', default='-1', help='lineage hierarchy file', show_default=True)
 @click.option('--depthcutoff', default=0,
               help='exclude sites with coverage depth below this value and'
               'group identical barcodes', show_default=True)
@@ -529,7 +529,7 @@ def dash(agg_results, metadata, title, intro, thresh, headercolor, bodycolor,
     agg_df = pd.read_csv(agg_results, skipinitialspace=True, sep='\t',
                          index_col=0)
     """
-        create plots using the outputs
+    create plots using the outputs
     """
     # drop poor quality samples
     if 'coverage' in agg_df.columns:
