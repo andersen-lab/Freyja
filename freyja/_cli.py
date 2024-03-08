@@ -50,29 +50,48 @@ def print_barcode_version(ctx, param, value):
 
 
 @cli.command()
-@click.argument('variants', type=click.Path(exists=True))
-@click.argument('depths', type=click.Path(exists=True))
-@click.option('--eps', default=1e-3, help='minimum abundance to include', show_default=True)
-@click.option('--barcodes', default='-1', help='custom barcode file', show_default=True)
-@click.option('--meta', default='-1', help='custom lineage metadata file', show_default=True)
-@click.option('--output', default='demixing_result.csv', help='Output file',
+@click.argument('variants', type=click.Path(exists=True),
+                help="Path to variant.tsv file generated"
+                     " using freyja variants function")
+@click.argument('depths', type=click.Path(exists=True),
+                help="Path to depths file generated using"
+                     " freyja variants function")
+@click.option('--eps', default=1e-3,
+              help='minimum abundance to include for each'
+                   ' lineage', show_default=True)
+@click.option('--barcodes', default='-1',
+              help='Path to custom barcode file',
+              show_default=True)
+@click.option('--meta', default='-1',
+              help='custom lineage to variant metadata file',
+              show_default=True)
+@click.option('--output', default='output name',
+              help='Output file',
               type=click.Path(exists=False), show_default=True)
-@click.option('--covcut', default=10, help='depth cutoff for\
-                                            coverage estimate', show_default=True)
-@click.option('--confirmedonly', is_flag=True, default=False, show_default=True)
+@click.option('--covcut', default=10,
+              help='calculate percent of sites with n or greater reads',
+              show_default=True)
+@click.option('--confirmedonly', is_flag=True,
+              help="exclude unconfirmed lineages",
+              default=False, show_default=True)
 @click.option('--version', is_flag=True, callback=print_barcode_version,
               expose_value=False, is_eager=True, show_default=True)
 @click.option('--depthcutoff', default=0,
               help='exclude sites with coverage depth below this value and'
-              'group identical barcodes' , show_default=True)
-@click.option('--lineageyml', default='-1', help='lineage hierarchy file' , show_default=True)
+              'group identical barcodes', show_default=True)
+@click.option('--lineageyml', default='-1',
+              help='lineage hierarchy file in a yaml format',
+              show_default=True)
 @click.option('--adapt', default=0.,
-              help='adaptive lasso penalty parameter' , show_default=True)
+              help='adaptive lasso penalty parameter',
+              show_default=True)
 @click.option('--a_eps', default=1E-8,
-              help='adaptive lasso parameter, hard threshold', show_default=True)
-@click.option('--region_of_interest', default='-1', help='JSON file containing'
-              'region(s) of interest for which to compute additional coverage'
-              'estimates', show_default=True)
+              help='adaptive lasso parameter, hard threshold',
+              show_default=True)
+@click.option('--region_of_interest', default='-1',
+              help='JSON file containing region(s) of interest'
+                   ' for which to compute additional coverage estimates',
+              show_default=True)
 def demix(variants, depths, output, eps, barcodes, meta,
           covcut, confirmedonly, depthcutoff, lineageyml,
           adapt, a_eps, region_of_interest):
