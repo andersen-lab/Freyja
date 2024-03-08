@@ -176,11 +176,15 @@ def demix(variants, depths, output, eps, barcodes, meta,
 
 @cli.command()
 @click.option('--outdir', default='-1',
-              help='Output directory save updated files', show_default=True)
+              help='Output directory save updated files',
+              show_default=True)
 @click.option('--noncl', is_flag=True, default=True,
-              help='only include lineages in cov-lineages', show_default=True)
+              help='only include include lineages that are'
+                   'confirmed by cov-lineages',
+              show_default=True)
 @click.option('--buildlocal', is_flag=True, default=False,
-              help='Perform barcode building locally', show_default=True)
+              help='Perform barcode building locally',
+              show_default=True)
 def update(outdir, noncl, buildlocal):
     """
     Updates the lineage information using the latest
@@ -240,9 +244,11 @@ def update(outdir, noncl, buildlocal):
 @click.option('--pb', type=click.Path(exists=True),
               help='protobuf tree', show_default=True)
 @click.option('--outdir', type=click.Path(exists=True),
-              help='Output directory save updated files', show_default=True)
+              help='Output directory save updated files',
+              show_default=True)
 @click.option('--noncl', is_flag=True, default=True,
-              help='only include lineages in cov-lineages', show_default=True)
+              help='only include include lineages that are'
+                   'confirmed by cov-lineages', show_default=True)
 def barcode_build(pb, outdir, noncl):
     """
     Building barcodes from a global tree
@@ -288,18 +294,20 @@ def barcode_build(pb, outdir, noncl):
 
 @cli.command()
 @click.argument('bamfile', type=click.Path(exists=True))
-@click.option('--ref', help='Reference',
+@click.option('--ref', help='Reference file in fasta format',
               default=os.path.join(locDir,
                                    'data/NC_045512_Hu-1.fasta'),
               type=click.Path(), show_default=True)
-@click.option('--variants', help='Variant call output file', type=click.Path(), show_default=True)
+@click.option('--variants', help='Variant calling output file',
+              type=click.Path(), show_default=True)
 @click.option('--depths', help='Sequencing depth output file',
               type=click.Path(), show_default=True)
 @click.option('--refname', help='Ref name (for bams with multiple sequences)',
               default='', show_default=True)
 @click.option('--minq', help='Minimum base quality score',
               default=20, show_default=True)
-@click.option('--annot', help='AA annotation output', default='', show_default=True)
+@click.option('--annot', help='AA annotation output',
+              default='', show_default=True)
 def variants(bamfile, ref, variants, depths, refname, minq, annot):
     """
     Perform variant calling using samtools and ivar
@@ -323,21 +331,43 @@ def variants(bamfile, ref, variants, depths, refname, minq, annot):
 
 
 @cli.command()
-@click.argument('variants', type=click.Path(exists=True))
-@click.argument('depths', type=click.Path(exists=True))
-@click.option('--nb', default=100, help='number of bootstraps', show_default=True)
-@click.option('--nt', default=1, help='max number of cpus to use', show_default=True)
-@click.option('--eps', default=1e-3, help='minimum abundance to include', show_default=True)
-@click.option('--barcodes', default='-1', help='custom barcode file', show_default=True)
-@click.option('--meta', default='-1', help='custom lineage metadata file', show_default=True)
-@click.option('--output_base', default='test', help='Output file basename',
+@click.argument('variants',
+                help="path to variants.tsv file"
+                     "generated using freyja variants function",
+                type=click.Path(exists=True))
+@click.argument('depths',
+                help="path to depths file generated"
+                     " using freyja variants function",
+                type=click.Path(exists=True))
+@click.option('--nb', default=100,
+              help='number of times bootstrapping is performed',
+              show_default=True)
+@click.option('--nt', default=1,
+              help='max number of cpus to use',
+              show_default=True)
+@click.option('--eps', default=1e-3,
+              help='minimum abundance to include',
+              show_default=True)
+@click.option('--barcodes', default='-1',
+              help='custom barcode file',
+              show_default=True)
+@click.option('--meta', default='-1',
+              help='custom lineage to variant metadata file',
+              show_default=True)
+@click.option('--output_base', default='test',
+              help='Output file basename',
               type=click.Path(exists=False), show_default=True)
 @click.option('--boxplot', default='',
-              help='file format of boxplot output (e.g. pdf or png)', show_default=True)
-@click.option('--confirmedonly', is_flag=True, default=False, show_default=True)
+              help='file format of boxplot output (e.g. pdf or png)',
+              show_default=True)
+@click.option('--confirmedonly', is_flag=True,
+              help="exclude unconfirmed lineages",
+              default=False, show_default=True)
 @click.option('--rawboots', is_flag=True, default=False,
               help='return raw bootstraps', show_default=True)
-@click.option('--lineageyml', default='-1', help='lineage hierarchy file', show_default=True)
+@click.option('--lineageyml', default='-1',
+              help='lineage hierarchy file in a yaml format',
+              show_default=True)
 @click.option('--depthcutoff', default=0,
               help='exclude sites with coverage depth below this value and'
               'group identical barcodes', show_default=True)
@@ -395,9 +425,15 @@ def boot(variants, depths, output_base, eps, barcodes, meta,
 
 
 @cli.command()
-@click.argument('results', type=click.Path(exists=True))
-@click.option('--ext', default='-1', help='file extension option', show_default=True)
-@click.option('--output', default='aggregated_result.tsv', help='Output file',
+@click.argument('results',
+                help="path to results",
+                type=click.Path(exists=True))
+@click.option('--ext', default='-1',
+              help='file extension option',
+              show_default=True)
+@click.option('--output',
+              help= "name for aggregated results",
+              default='aggregated_result.tsv',
               type=click.Path(exists=False), show_default=True)
 def aggregate(results, ext, output):
     """
@@ -428,38 +464,6 @@ def plot(agg_results, lineages, times, interval, output, windowsize,
          config, mincov, lineageyml, thresh, writegrouped):
     """
         create plots using the outputs
-        create plots using the outputs
-
-        Arguments:
-         :param agg_results: used to pass result files
-         :param lineages: used to provide a lineage specific breakdown
-         :param times: used to pass ample collection time information
-         :param interval: used to pass ample collection time information
-         :param windowsize: used to pass width of the rolling average window
-         :param config: allows users to control the colors and grouping of
-          lineages in the plot
-         :param mincov: used to pass minimum genome coverage
-         :param output: used to specify the output name
-         :param lineageyml: used to pass a custom lineage hierarchy file
-         :param thresh: used to pass a minum lineage abundance
-         :param writegrouped: used for path to grouped lineage data
-         :return : an aggregated tsv file
-    create plots using the outputs
-
-        Arguments:
-         :param agg_results: used to pass result files
-         :param lineages: used to provide a lineage specific breakdown
-         :param times: used to pass ample collection time information
-         :param interval: used to pass ample collection time information
-         :param windowsize: used to pass width of the rolling average window
-         :param config: allows users to control the colors and grouping of
-          lineages in the plot
-         :param mincov: used to pass minimum genome coverage
-         :param output: used to specify the output name
-         :param lineageyml: used to pass a custom lineage hierarchy file
-         :param thresh: used to pass a minum lineage abundance
-         :param writegrouped: used for path to grouped lineage data
-         :return : an aggregated tsv file
     """
     agg_df = pd.read_csv(agg_results, skipinitialspace=True, sep='\t',
                          index_col=0)
