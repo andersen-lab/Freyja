@@ -1048,6 +1048,8 @@ def collapse_barcodes(df_barcodes, df_depth, depthcutoff,
         if len(mrca) == 0:
             mrca = 'Misc'
         else:
+            if mrca[-1] == '.':
+                mrca = mrca[0:(len(mrca)-1)]
             # otherwise, get the shortened alias, if available
             for lineage in lineage_data:
                 if lineage_data[lineage]['alias'] == mrca:
