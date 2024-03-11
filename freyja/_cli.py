@@ -432,7 +432,7 @@ def boot(variants, depths, output_base, eps, barcodes, meta,
               help='file extension option',
               show_default=True)
 @click.option('--output',
-              help= "name for aggregated results",
+              help="name for aggregated results",
               default='aggregated_result.tsv',
               type=click.Path(exists=False), show_default=True)
 def aggregate(results, ext, output):
@@ -448,18 +448,44 @@ def aggregate(results, ext, output):
 
 
 @cli.command()
-@click.argument('agg_results', type=click.Path(exists=True))
-@click.option('--lineages', is_flag=True, show_default=True)
-@click.option('--times', default='-1', show_default=True)
-@click.option('--interval', default='MS', show_default=True)
-@click.option('--config', default=None, help='path to yaml file', show_default=True)
-@click.option('--mincov', default=60., help='min genome coverage included', show_default=True)
-@click.option('--output', default='mix_plot.pdf', help='Output file', show_default=True)
-@click.option('--windowsize', default=14, show_default=True)
-@click.option('--lineageyml', default='-1', help='lineage hierarchy file', show_default=True)
-@click.option('--thresh', default=0.01, help='min lineage abundance included', show_default=True)
-@click.option('--writegrouped', default='-1',
-              help='path to write grouped lineage data', show_default=True)
+@click.argument('agg_results',
+                help="path to result files to be aggregated",
+                type=click.Path(exists=True))
+@click.option('--lineages',
+              help="modify lineage break down",
+              is_flag=True, show_default=True)
+@click.option('--times',
+              help="sample collection time information",
+              default='-1', show_default=True)
+@click.option('--interval',
+              help="sample collection time information",
+              default='MS', show_default=True)
+@click.option('--config',
+              help="allows users to control the colors"
+                   " and grouping of lineages in the plot",
+              default=None,
+              show_default=True)
+@click.option('--mincov', default=60.,
+              help='min genome coverage included',
+              show_default=True)
+@click.option('--output',
+              default='mix_plot.pdf',
+              help='specify output file name', show_default=True)
+@click.option('--windowsize',
+              help="width of the rolling average window",
+              default=14, show_default=True)
+@click.option('--lineageyml',
+              default='-1',
+              help='Custom lineage hierarchy file',
+              show_default=True)
+@click.option('--thresh',
+              default=0.01,
+              help='pass a minimum lineage abundance',
+              show_default=True)
+@click.option('--writegrouped',
+              default='-1',
+              help='path to write grouped lineage data',
+              show_default=True)
 def plot(agg_results, lineages, times, interval, output, windowsize,
          config, mincov, lineageyml, thresh, writegrouped):
     """
@@ -512,24 +538,64 @@ so no plot will be generated. Try changing --mincov threshold.')
 
 
 @cli.command()
-@click.argument('agg_results', type=click.Path(exists=True))
-@click.argument('metadata', type=click.Path(exists=True))
-@click.argument('title', type=click.Path(exists=True))
-@click.argument('intro', type=click.Path(exists=True))
-@click.option('--thresh', default=0.01, help='min lineage abundance included', show_default=True)
-@click.option('--headerColor', default='#2fdcf5', help='color of header', show_default=True)
-@click.option('--bodyColor', default='#ffffff', help='color of body', show_default=True)
-@click.option('--scale_by_viral_load', is_flag=True,
-              help='scale by viral load', show_default=True)
-@click.option('--nboots', default=1000, help='Number of Bootstrap iterations', show_default=True)
-@click.option('--serial_interval', default=5.5, help='Serial Interval', show_default=True)
-@click.option('--config', default=None, help='path to yaml file', show_default=True)
-@click.option('--mincov', default=60., help='min genome coverage included', show_default=True)
-@click.option('--output', default='mydashboard.html', help='Output html file', show_default=True)
-@click.option('--days', default=56, help='N Days used for growth calc', show_default=True)
-@click.option('--grthresh', default=0.001, help='min avg prev. for growth', show_default=True)
-@click.option('--lineageyml', default='-1', help='lineage hierarchy file', show_default=True)
-@click.option('--keep_plot_files', is_flag=True, help='Keep separate plot', show_default=True)
+@click.argument('agg_results',
+                help="path to result files to be aggregated",
+                type=click.Path(exists=True))
+@click.argument('metadata',
+                help="pass lineage grouping config file",
+                type=click.Path(exists=True))
+@click.argument('title',
+                help="pass dashboard title",
+                type=click.Path(exists=True))
+@click.argument('intro',
+                help="pass dashboard introduction line",
+                type=click.Path(exists=True))
+@click.option('--thresh',
+              help="minimum lineage abundance",
+              default=0.01,
+              show_default=True)
+@click.option('--headerColor',
+              default='#2fdcf5',
+              help='color of header',
+              show_default=True)
+@click.option('--bodyColor',
+              default='#ffffff',
+              help='color of body',
+              show_default=True)
+@click.option('--scale_by_viral_load',
+              is_flag=True,
+              help='scale by viral load',
+              show_default=True)
+@click.option('--nboots',
+              default=1000,
+              help='Number of Bootstrap iterations',
+              show_default=True)
+@click.option('--serial_interval',
+              default=5.5,
+              help='Serial Interval',
+              show_default=True)
+@click.option('--config', default=None,
+              help='control the colors and grouping of '
+                   'lineages in the plot',
+              show_default=True)
+@click.option('--mincov',
+              default=60.,
+              help='min genome coverage included',
+              show_default=True)
+@click.option('--output', default='mydashboard.html',
+              help='Output html file', show_default=True)
+@click.option('--days', default=56,
+              help='specify number of days for growth calculation',
+              show_default=True)
+@click.option('--grthresh',
+              default=0.001,
+              help='minimum prevalence to calculate'
+                   ' relative growth rate for', show_default=True)
+@click.option('--lineageyml', default='-1',
+              help='custom lineage hierarchy file', show_default=True)
+@click.option('--keep_plot_files', is_flag=True,
+              help='keep the intermediate html '
+                   'for the core plot', show_default=True)
 def dash(agg_results, metadata, title, intro, thresh, headercolor, bodycolor,
          scale_by_viral_load, nboots, serial_interval, config, mincov, output,
          days, lineageyml, grthresh, keep_plot_files):
@@ -573,20 +639,35 @@ def dash(agg_results, metadata, title, intro, thresh, headercolor, bodycolor,
 
 
 @cli.command()
-@click.argument('agg_results', type=click.Path(exists=True))
-@click.argument('metadata', type=click.Path(exists=True))
-@click.option('--thresh', default=0.01, help='min lineage abundance in plot', show_default=True)
+@click.argument('agg_results',
+                help="path to result files to be aggregated",
+                type=click.Path(exists=True))
+@click.argument('metadata',
+                help="pass lineage grouping config fil",
+                type=click.Path(exists=True))
+@click.option('--thresh', default=0.01,
+              help='min lineage abundance in plot', show_default=True)
 @click.option('--scale_by_viral_load', is_flag=True,
               help='scale by viral load', show_default=True)
-@click.option('--nboots', default=1000, help='Number of Bootstrap iterations', show_default=True)
-@click.option('--serial_interval', default=5.5, help='Serial Interval', show_default=True)
-@click.option('--config', default=None, help='path to yaml file', show_default=True)
-@click.option('--mincov', default=60., help='min genome coverage included', show_default=True)
+@click.option('--nboots', default=1000,
+              help='Number of Bootstrap iterations', show_default=True)
+@click.option('--serial_interval', default=5.5,
+              help='Serial Interval', show_default=True)
+@click.option('--config', default=None,
+              help='control the colors and grouping'
+                   ' of lineages in the plot', show_default=True)
+@click.option('--mincov', default=60.,
+              help='min genome coverage included', show_default=True)
 @click.option('--output', default='rel_growth_rates.csv',
               help='Output html file', show_default=True)
-@click.option('--days', default=56, help='N Days used for growth calc', show_default=True)
-@click.option('--grthresh', default=0.001, help='min avg prev. for growth', show_default=True)
-@click.option('--lineageyml', default='-1', help='lineage hierarchy file', show_default=True)
+@click.option('--days', default=56,
+              help='number of days for growth calculation',
+              show_default=True)
+@click.option('--grthresh', default=0.001,
+              help='inimum prevalence to calculate relative'
+                   ' growth rate for', show_default=True)
+@click.option('--lineageyml', default='-1',
+              help='lineage hierarchy file', show_default=True)
 def relgrowthrate(agg_results, metadata, thresh, scale_by_viral_load, nboots,
                   serial_interval, config, mincov, output, days, grthresh,
                   lineageyml):
@@ -629,8 +710,12 @@ def relgrowthrate(agg_results, metadata, thresh, scale_by_viral_load, nboots,
 
 
 @cli.command()
-@click.argument('query_mutations', type=click.Path(exists=True))
-@click.argument('input_bam', type=click.Path(exists=True))
+@click.argument('query_mutations',
+                help="pass a set of mutations of interest",
+                type=click.Path(exists=True))
+@click.argument('input_bam',
+                help="aligned reads in bam format to"
+                     " the reference genome", type=click.Path(exists=True))
 @click.option('--output', default='extracted.bam',
               help='path to save extracted reads', show_default=True)
 @click.option('--same_read', is_flag=True,
@@ -644,10 +729,18 @@ def extract(query_mutations, input_bam, output, same_read):
 
 
 @cli.command()
-@click.argument('query_mutations', type=click.Path(exists=True))
-@click.argument('input_bam', type=click.Path(exists=True))
-@click.argument('min_site', default=0)
-@click.argument('max_site', default=29903)
+@click.argument('query_mutations',
+                help="pass a set of mutations of interest",
+                type=click.Path(exists=True))
+@click.argument('input_bam',
+                help="aligned reads in bam format to the"
+                     " reference genome", type=click.Path(exists=True))
+@click.argument('min_site',
+                help="consider read pairs that span the entire genomic "
+                     "region defined by (min_site, max_site)", default=0)
+@click.argument('max_site',
+                help="consider read pairs that span the entire genomic "
+                     "region defined by (min_site, max_site)", default=29903)
 @click.option('--output', default='filtered.bam',
               help='path to save filtered reads', show_default=True)
 def filter(query_mutations, input_bam, min_site, max_site, output):
@@ -658,22 +751,31 @@ def filter(query_mutations, input_bam, min_site, max_site, output):
 
 
 @cli.command()
-@click.argument('input_bam', type=click.Path(exists=True))
-@click.argument('min_site', default=0)
-@click.argument('max_site', default=29903)
+@click.argument('input_bam',
+                help="pass a set of mutations of interest",
+                type=click.Path(exists=True))
+@click.argument('min_site',
+                help="consider read pairs that span the entire genomic "
+                     "region defined by (min_site, max_site)", default=0)
+@click.argument('max_site',
+                help="consider read pairs that span the entire genomic "
+                     "region defined by (min_site, max_site)", default=29903)
 @click.option('--output', default='covariants.tsv',
               help='path to save co-occurring mutations', show_default=True)
 @click.option('--ref-genome', type=click.Path(exists=True),
-              default=os.path.join(locDir, 'data/NC_045512_Hu-1.fasta'), show_default=True)
+              default=os.path.join(locDir, 'data/NC_045512_Hu-1.fasta'),
+              show_default=True)
 @click.option('--gff-file', type=click.Path(exists=True),
               default=None,
               help=('path to gff file corresponding to reference genome. If '
                     'included, outputs amino acid mutations in addition to '
                     'nucleotide mutations.'), show_default=True)
 @click.option('--min_quality', default=20,
-              help='minimum quality for a base to be considered', show_default=True)
+              help='minimum quality for a base to be considered',
+              show_default=True)
 @click.option('--min_count', default=10,
-              help='minimum count for a set of mutations to be saved', show_default=True)
+              help='minimum count for a set of mutations to be saved',
+              show_default=True)
 @click.option('--spans_region', is_flag=True,
               help=('if included, consider only reads that span the region '
                     'defined by (min_site, max_site)'), show_default=True)
@@ -694,18 +796,25 @@ def covariants(input_bam, min_site, max_site, output,
 
 
 @cli.command()
-@click.argument('covariants', type=click.Path(exists=True))
-@click.option('--output', default='covariants_plot.pdf', show_default=True)
+@click.argument('covariants',
+                help="path to extracted covariants using covariants function",
+                type=click.Path(exists=True))
+@click.option('--output',
+              help="output name",
+              default='covariants_plot.pdf', show_default=True)
 @click.option('--num_clusters', default=10,
-              help='number of clusters to plot (sorted by frequency)', show_default=True)
+              help='number of clusters to plot (sorted by frequency)',
+              show_default=True)
 @click.option('--min_mutations', default=1,
-              help='minimum number of mutations in a cluster to be plotted', show_default=True)
+              help='minimum number of mutations in a cluster to be plotted',
+              show_default=True)
 @click.option('--nt_muts', is_flag=True,
-              help='if included, include nucleotide mutations in x-labels', show_default=True)
-@click.option('--vmin', default=-5, help=('minimum value for colorbar'
-                                          ' (log scale)'), show_default=True)
-@click.option('--vmax', default=0, help=('maximum value for colorbar'
-                                         ' (log scale)'), show_default=True)
+              help='if included, include nucleotide mutations in x-labels',
+              show_default=True)
+@click.option('--vmin', default=-5,
+              help='minimum value for colorbar (log scale)', show_default=True)
+@click.option('--vmax', default=0,
+              help='maximum value for colorbar (log scale)', show_default=True)
 def plot_covariants(covariants, output, num_clusters,
                     min_mutations, nt_muts, vmin, vmax):
     """Plot covariants output"""
