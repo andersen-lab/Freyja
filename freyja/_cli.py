@@ -329,10 +329,7 @@ def variants(bamfile, ref, variants, depths, refname, minq, annot):
 
 @cli.command()
 @click.argument('variants', type=click.Path(exists=True))
-@click.argument('depths',
-                help="path to depths file generated"
-                     " using freyja variants function",
-                type=click.Path(exists=True))
+@click.argument('depths', type=click.Path(exists=True))
 @click.option('--nb', default=100,
               help='number of times bootstrapping is performed',
               show_default=True)
