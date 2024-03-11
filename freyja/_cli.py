@@ -50,12 +50,8 @@ def print_barcode_version(ctx, param, value):
 
 
 @cli.command()
-@click.argument('variants', type=click.Path(exists=True),
-                help="Path to variant.tsv file generated"
-                     " using freyja variants function")
-@click.argument('depths', type=click.Path(exists=True),
-                help="Path to depths file generated using"
-                     " freyja variants function")
+@click.argument('variants', type=click.Path(exists=True))
+@click.argument('depths', type=click.Path(exists=True))
 @click.option('--eps', default=1e-3,
               help='minimum abundance to include for each'
                    ' lineage', show_default=True)
@@ -294,7 +290,6 @@ def barcode_build(pb, outdir, noncl):
 
 @cli.command()
 @click.argument('bamfile',
-                help="aligned reads to the reference in a bam format",
                 type=click.Path(exists=True))
 @click.option('--ref', help='Reference file in fasta format',
               default=os.path.join(locDir,
@@ -333,10 +328,7 @@ def variants(bamfile, ref, variants, depths, refname, minq, annot):
 
 
 @cli.command()
-@click.argument('variants',
-                help="path to variants.tsv file"
-                     "generated using freyja variants function",
-                type=click.Path(exists=True))
+@click.argument('variants', type=click.Path(exists=True))
 @click.argument('depths',
                 help="path to depths file generated"
                      " using freyja variants function",
@@ -427,9 +419,7 @@ def boot(variants, depths, output_base, eps, barcodes, meta,
 
 
 @cli.command()
-@click.argument('results',
-                help="path to results",
-                type=click.Path(exists=True))
+@click.argument('results', type=click.Path(exists=True))
 @click.option('--ext', default='-1',
               help='file extension option, e.g. X.ext',
               show_default=True)
@@ -451,7 +441,6 @@ def aggregate(results, ext, output):
 
 @cli.command()
 @click.argument('agg_results',
-                help="path to aggregated result files",
                 type=click.Path(exists=True))
 @click.option('--lineages',
               help="modify lineage break down",
@@ -546,16 +535,12 @@ so no plot will be generated. Try changing --mincov threshold.')
 
 @cli.command()
 @click.argument('agg_results',
-                help="path to result files to be aggregated",
                 type=click.Path(exists=True))
 @click.argument('metadata',
-                help="pass lineage grouping config file",
                 type=click.Path(exists=True))
 @click.argument('title',
-                help="pass dashboard title",
                 type=click.Path(exists=True))
 @click.argument('intro',
-                help="pass dashboard introduction line",
                 type=click.Path(exists=True))
 @click.option('--thresh',
               help="minimum lineage abundance",
@@ -647,10 +632,8 @@ def dash(agg_results, metadata, title, intro, thresh, headercolor, bodycolor,
 
 @cli.command()
 @click.argument('agg_results',
-                help="path to result files to be aggregated",
                 type=click.Path(exists=True))
 @click.argument('metadata',
-                help="pass lineage grouping config file",
                 type=click.Path(exists=True))
 @click.option('--thresh', default=0.01,
               help='min lineage abundance in plot', show_default=True)
@@ -718,11 +701,8 @@ def relgrowthrate(agg_results, metadata, thresh, scale_by_viral_load, nboots,
 
 @cli.command()
 @click.argument('query_mutations',
-                help="pass a set of mutations of interest",
                 type=click.Path(exists=True))
-@click.argument('input_bam',
-                help="aligned reads in bam format to"
-                     " the reference genome", type=click.Path(exists=True))
+@click.argument('input_bam', type=click.Path(exists=True))
 @click.option('--output', default='extracted.bam',
               help='path to save extracted reads', show_default=True)
 @click.option('--same_read', is_flag=True,
@@ -737,17 +717,10 @@ def extract(query_mutations, input_bam, output, same_read):
 
 @cli.command()
 @click.argument('query_mutations',
-                help="pass a set of mutations of interest",
                 type=click.Path(exists=True))
-@click.argument('input_bam',
-                help="aligned reads in bam format to the"
-                     " reference genome", type=click.Path(exists=True))
-@click.argument('min_site',
-                help="consider read pairs that span the entire genomic "
-                     "region defined by (min_site, max_site)", default=0)
-@click.argument('max_site',
-                help="consider read pairs that span the entire genomic "
-                     "region defined by (min_site, max_site)", default=29903)
+@click.argument('input_bam', type=click.Path(exists=True))
+@click.argument('min_site', default=0)
+@click.argument('max_site', default=29903)
 @click.option('--output', default='filtered.bam',
               help='path to save filtered reads', show_default=True)
 def filter(query_mutations, input_bam, min_site, max_site, output):
@@ -759,14 +732,9 @@ def filter(query_mutations, input_bam, min_site, max_site, output):
 
 @cli.command()
 @click.argument('input_bam',
-                help="pass a set of mutations of interest",
                 type=click.Path(exists=True))
-@click.argument('min_site',
-                help="consider read pairs that span the entire genomic "
-                     "region defined by (min_site, max_site)", default=0)
-@click.argument('max_site',
-                help="consider read pairs that span the entire genomic "
-                     "region defined by (min_site, max_site)", default=29903)
+@click.argument('min_site', default=0)
+@click.argument('max_site', default=29903)
 @click.option('--output', default='covariants.tsv',
               help='path to save co-occurring mutations', show_default=True)
 @click.option('--ref-genome', type=click.Path(exists=True),
@@ -804,10 +772,8 @@ def covariants(input_bam, min_site, max_site, output,
 
 @cli.command()
 @click.argument('covariants',
-                help="path to extracted covariants using covariants function",
                 type=click.Path(exists=True))
 @click.option('--output',
-              help="output name",
               default='covariants_plot.pdf', show_default=True)
 @click.option('--num_clusters', default=10,
               help='number of clusters to plot (sorted by frequency)',
