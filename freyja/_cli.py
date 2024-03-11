@@ -179,7 +179,7 @@ def demix(variants, depths, output, eps, barcodes, meta,
               help='Output directory save updated files',
               show_default=True)
 @click.option('--noncl', is_flag=True, default=True,
-              help='only include include lineages that are'
+              help='only include lineages that are'
                    'confirmed by cov-lineages',
               show_default=True)
 @click.option('--buildlocal', is_flag=True, default=False,
@@ -247,7 +247,7 @@ def update(outdir, noncl, buildlocal):
               help='Output directory save updated files',
               show_default=True)
 @click.option('--noncl', is_flag=True, default=True,
-              help='only include include lineages that are'
+              help='only include lineages that are'
                    'confirmed by cov-lineages', show_default=True)
 def barcode_build(pb, outdir, noncl):
     """
@@ -293,7 +293,9 @@ def barcode_build(pb, outdir, noncl):
 
 
 @cli.command()
-@click.argument('bamfile', type=click.Path(exists=True))
+@click.argument('bamfile',
+                help="aligned reads to the reference in a bam format",
+                type=click.Path(exists=True))
 @click.option('--ref', help='Reference file in fasta format',
               default=os.path.join(locDir,
                                    'data/NC_045512_Hu-1.fasta'),
@@ -429,7 +431,7 @@ def boot(variants, depths, output_base, eps, barcodes, meta,
                 help="path to results",
                 type=click.Path(exists=True))
 @click.option('--ext', default='-1',
-              help='file extension option',
+              help='file extension option, e.g. X.ext',
               show_default=True)
 @click.option('--output',
               help="name for aggregated results",
@@ -449,16 +451,20 @@ def aggregate(results, ext, output):
 
 @cli.command()
 @click.argument('agg_results',
-                help="path to result files to be aggregated",
+                help="path to aggregated result files",
                 type=click.Path(exists=True))
 @click.option('--lineages',
               help="modify lineage break down",
               is_flag=True, show_default=True)
 @click.option('--times',
-              help="sample collection time information",
+              help="provide sample collection information,"
+                   "check data/times_metadata.csv "
+                   "for additional information",
               default='-1', show_default=True)
 @click.option('--interval',
-              help="sample collection time information",
+              help="define whether the intervals are"
+                   " calculated daily D or monthly M "
+                   "use with --windowsize",
               default='MS', show_default=True)
 @click.option('--config',
               help="allows users to control the colors"
@@ -472,7 +478,8 @@ def aggregate(results, ext, output):
               default='mix_plot.pdf',
               help='specify output file name', show_default=True)
 @click.option('--windowsize',
-              help="width of the rolling average window",
+              help="width of the rolling average window"
+                   "for interval calculation",
               default=14, show_default=True)
 @click.option('--lineageyml',
               default='-1',
@@ -643,7 +650,7 @@ def dash(agg_results, metadata, title, intro, thresh, headercolor, bodycolor,
                 help="path to result files to be aggregated",
                 type=click.Path(exists=True))
 @click.argument('metadata',
-                help="pass lineage grouping config fil",
+                help="pass lineage grouping config file",
                 type=click.Path(exists=True))
 @click.option('--thresh', default=0.01,
               help='min lineage abundance in plot', show_default=True)
@@ -664,7 +671,7 @@ def dash(agg_results, metadata, title, intro, thresh, headercolor, bodycolor,
               help='number of days for growth calculation',
               show_default=True)
 @click.option('--grthresh', default=0.001,
-              help='inimum prevalence to calculate relative'
+              help='minimum prevalence to calculate relative'
                    ' growth rate for', show_default=True)
 @click.option('--lineageyml', default='-1',
               help='lineage hierarchy file', show_default=True)
@@ -719,8 +726,8 @@ def relgrowthrate(agg_results, metadata, thresh, scale_by_viral_load, nboots,
 @click.option('--output', default='extracted.bam',
               help='path to save extracted reads', show_default=True)
 @click.option('--same_read', is_flag=True,
-              help='include to specify that query reads must all occur on the\
-                    same read', show_default=True)
+              help='include to specify that query reads must all'
+                   ' occur on the same read', show_default=True)
 def extract(query_mutations, input_bam, output, same_read):
     """
     extracts reads containing mutation of interest
