@@ -92,7 +92,7 @@ def demix(variants, depths, output, eps, barcodes, meta,
           covcut, confirmedonly, depthcutoff, lineageyml,
           adapt, a_eps, region_of_interest):
     """
-    Generate prevalence of lineages per sample
+    Generate lineage abundance from VARIANTS and DEPTHS
     """
     locDir = os.path.abspath(os.path.join(os.path.realpath(__file__),
                              os.pardir))
@@ -307,7 +307,7 @@ def barcode_build(pb, outdir, noncl):
               default='', show_default=True)
 def variants(bamfile, ref, variants, depths, refname, minq, annot):
     """
-    Perform variant calling using samtools and ivar
+    Perform variant calling using samtools and ivar on a BAMFILE
     """
     if len(refname) == 0:
         bashCmd = f"samtools mpileup -aa -A -d 600000 -Q {minq} -q 0 -B -f "\
@@ -365,7 +365,7 @@ def variants(bamfile, ref, variants, depths, refname, minq, annot):
 def boot(variants, depths, output_base, eps, barcodes, meta,
          nb, nt, boxplot, confirmedonly, lineageyml, depthcutoff, rawboots):
     """
-    Perform bootstrapping method for freyja
+    Perform bootstrapping method for freyja using VARIANTS and DEPTHS
     """
     locDir = os.path.abspath(os.path.join(os.path.realpath(__file__),
                              os.pardir))
@@ -426,7 +426,7 @@ def boot(variants, depths, output_base, eps, barcodes, meta,
               type=click.Path(exists=False), show_default=True)
 def aggregate(results, ext, output):
     """
-    Aggregates all the outputs
+    Aggregates all the outputs RESULTS
     """
     if ext != '-1':
         results_ = [fn for fn in glob.glob(results + '*' + ext)]
@@ -482,7 +482,7 @@ def aggregate(results, ext, output):
 def plot(agg_results, lineages, times, interval, output, windowsize,
          config, mincov, lineageyml, thresh, writegrouped):
     """
-        create plots using the outputs
+        create plots using the outputs AGG_RESULTS
     """
     agg_df = pd.read_csv(agg_results, skipinitialspace=True, sep='\t',
                          index_col=0)
@@ -591,7 +591,7 @@ def dash(agg_results, metadata, title, intro, thresh, headercolor, bodycolor,
     agg_df = pd.read_csv(agg_results, skipinitialspace=True, sep='\t',
                          index_col=0)
     """
-    create plots using the outputs
+    create plots using the outputs AGG_RESULTS, METADATA, TITLE and INTRO
     """
     # drop poor quality samples
     if 'coverage' in agg_df.columns:
@@ -659,7 +659,8 @@ def relgrowthrate(agg_results, metadata, thresh, scale_by_viral_load, nboots,
                   serial_interval, config, mincov, output, days, grthresh,
                   lineageyml):
     """
-    generates relative growth rate for each lineage
+    generates relative growth rate for each lineage using
+    AGG_RESULTS and METADATA
     """
     agg_df = pd.read_csv(agg_results, skipinitialspace=True, sep='\t',
                          index_col=0)
@@ -722,7 +723,8 @@ def extract(query_mutations, input_bam, output, same_read):
               help='path to save filtered reads', show_default=True)
 def filter(query_mutations, input_bam, min_site, max_site, output):
     """
-    excludes reads containing one or more mutations
+    excludes reads containing one or more QUERY_MUTATIONS using INPUT_BAM,
+    MIN_SITE and MAX_SITE
     """
     _filter(query_mutations, input_bam, min_site, max_site, output)
 
@@ -761,6 +763,8 @@ def covariants(input_bam, min_site, max_site, output,
                sort_by):
     """
     finds co-variants (mutations co-occurring on the same read pair)
+    in a BAM_FILE using MIN_SITE and MAX_SITE
+
     """
     _covariants(input_bam, min_site, max_site, output,
                 ref_genome, gff_file, min_quality, min_count, spans_region,
@@ -787,7 +791,7 @@ def covariants(input_bam, min_site, max_site, output,
               help='maximum value for colorbar (log scale)', show_default=True)
 def plot_covariants(covariants, output, num_clusters,
                     min_mutations, nt_muts, vmin, vmax):
-    """Plot covariants output"""
+    """Plot COVARIANTS output"""
     _plot_covariants(covariants, output, num_clusters,
                      min_mutations, nt_muts, vmin, vmax)
 
