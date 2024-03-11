@@ -107,43 +107,7 @@
 
 <section id="freyja-aggregate">
 <h3>aggregate<a class="headerlink" href="#freyja-aggregate" title="Link to this heading"></a></h3>
-<blockquote>
-<div><p>Aggregates all the outputs
-Aggregates all the outputs</p>
-<dl>
-<dt>Arguments:</dt><dd><dl class="field-list simple">
-<dt class="field-odd">param results<span class="colon">:</span></dt>
-<dd class="field-odd"><p>used to pass result files</p>
-</dd>
-<dt class="field-even">param ext<span class="colon">:</span></dt>
-<dd class="field-even"><p>used to pass extension of the files</p>
-</dd>
-<dt class="field-odd">param output<span class="colon">:</span></dt>
-<dd class="field-odd"><p>used to define output file name</p>
-</dd>
-</dl>
-<p>:return : an aggregated tsv file</p>
-</dd>
-</dl>
-</div></blockquote>
-<p>Aggregates all the outputs</p>
-<blockquote>
-<div><dl>
-<dt>Arguments:</dt><dd><dl class="field-list simple">
-<dt class="field-odd">param results<span class="colon">:</span></dt>
-<dd class="field-odd"><p>used to pass result files</p>
-</dd>
-<dt class="field-even">param ext<span class="colon">:</span></dt>
-<dd class="field-even"><p>used to pass extension of the files</p>
-</dd>
-<dt class="field-odd">param output<span class="colon">:</span></dt>
-<dd class="field-odd"><p>used to define output file name</p>
-</dd>
-</dl>
-<p>:return : an aggregated tsv file</p>
-</dd>
-</dl>
-</div></blockquote>
+<p>Aggregates all the outputs RESULTS</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>freyja<span class="w"> </span>aggregate<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span><span class="w"> </span>RESULTS
 </pre></div>
 </div>
@@ -151,7 +115,7 @@ Aggregates all the outputs</p>
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-freyja-aggregate-ext">
 <span class="sig-name descname"><span class="pre">--ext</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;ext&gt;</span></span><a class="headerlink" href="#cmdoption-freyja-aggregate-ext" title="Link to this definition"></a></dt>
-<dd><p>file extension option</p>
+<dd><p>file extension option, e.g. X.ext</p>
 <dl class="field-list simple">
 <dt class="field-odd">Default<span class="colon">:</span></dt>
 <dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">-1</span></code></p>
@@ -162,7 +126,7 @@ Aggregates all the outputs</p>
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-freyja-aggregate-output">
 <span class="sig-name descname"><span class="pre">--output</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;output&gt;</span></span><a class="headerlink" href="#cmdoption-freyja-aggregate-output" title="Link to this definition"></a></dt>
-<dd><p>Output file</p>
+<dd><p>name for aggregated results</p>
 <dl class="field-list simple">
 <dt class="field-odd">Default<span class="colon">:</span></dt>
 <dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">aggregated_result.tsv</span></code></p>
@@ -200,7 +164,7 @@ Aggregates all the outputs</p>
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-freyja-barcode-build-noncl">
 <span class="sig-name descname"><span class="pre">--noncl</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-freyja-barcode-build-noncl" title="Link to this definition"></a></dt>
-<dd><p>only include lineages in cov-lineages</p>
+<dd><p>only include lineages that areconfirmed by cov-lineages</p>
 <dl class="field-list simple">
 <dt class="field-odd">Default<span class="colon">:</span></dt>
 <dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">True</span></code></p>
@@ -211,7 +175,7 @@ Aggregates all the outputs</p>
 </section>
 <section id="freyja-boot">
 <h3>boot<a class="headerlink" href="#freyja-boot" title="Link to this heading"></a></h3>
-<p>Perform bootstrapping method for freyja</p>
+<p>Perform bootstrapping method for freyja using VARIANTS and DEPTHS</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>freyja<span class="w"> </span>boot<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span><span class="w"> </span>VARIANTS<span class="w"> </span>DEPTHS
 </pre></div>
 </div>
@@ -219,7 +183,7 @@ Aggregates all the outputs</p>
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-freyja-boot-nb">
 <span class="sig-name descname"><span class="pre">--nb</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;nb&gt;</span></span><a class="headerlink" href="#cmdoption-freyja-boot-nb" title="Link to this definition"></a></dt>
-<dd><p>number of bootstraps</p>
+<dd><p>number of times bootstrapping is performed</p>
 <dl class="field-list simple">
 <dt class="field-odd">Default<span class="colon">:</span></dt>
 <dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">100</span></code></p>
@@ -263,7 +227,7 @@ Aggregates all the outputs</p>
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-freyja-boot-meta">
 <span class="sig-name descname"><span class="pre">--meta</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;meta&gt;</span></span><a class="headerlink" href="#cmdoption-freyja-boot-meta" title="Link to this definition"></a></dt>
-<dd><p>custom lineage metadata file</p>
+<dd><p>custom lineage to variant metadata file</p>
 <dl class="field-list simple">
 <dt class="field-odd">Default<span class="colon">:</span></dt>
 <dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">-1</span></code></p>
@@ -295,7 +259,8 @@ Aggregates all the outputs</p>
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-freyja-boot-confirmedonly">
 <span class="sig-name descname"><span class="pre">--confirmedonly</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-freyja-boot-confirmedonly" title="Link to this definition"></a></dt>
-<dd><dl class="field-list simple">
+<dd><p>exclude unconfirmed lineages</p>
+<dl class="field-list simple">
 <dt class="field-odd">Default<span class="colon">:</span></dt>
 <dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">False</span></code></p>
 </dd>
@@ -316,7 +281,7 @@ Aggregates all the outputs</p>
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-freyja-boot-lineageyml">
 <span class="sig-name descname"><span class="pre">--lineageyml</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;lineageyml&gt;</span></span><a class="headerlink" href="#cmdoption-freyja-boot-lineageyml" title="Link to this definition"></a></dt>
-<dd><p>lineage hierarchy file</p>
+<dd><p>lineage hierarchy file in a yaml format</p>
 <dl class="field-list simple">
 <dt class="field-odd">Default<span class="colon">:</span></dt>
 <dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">-1</span></code></p>
@@ -351,7 +316,8 @@ Aggregates all the outputs</p>
 </section>
 <section id="freyja-covariants">
 <h3>covariants<a class="headerlink" href="#freyja-covariants" title="Link to this heading"></a></h3>
-<p>finds co-variants (mutations co-occurring on the same read pair)</p>
+<p>finds co-variants (mutations co-occurring on the same read pair)
+in a BAM_FILE using MIN_SITE and MAX_SITE</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>freyja<span class="w"> </span>covariants<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span><span class="w"> </span>INPUT_BAM<span class="w"> </span><span class="o">[</span>MIN_SITE<span class="o">]</span><span class="w"> </span><span class="o">[</span>MAX_SITE<span class="o">]</span>
 </pre></div>
 </div>
@@ -372,7 +338,7 @@ Aggregates all the outputs</p>
 <span class="sig-name descname"><span class="pre">--ref-genome</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;ref_genome&gt;</span></span><a class="headerlink" href="#cmdoption-freyja-covariants-ref-genome" title="Link to this definition"></a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Default<span class="colon">:</span></dt>
-<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">/Users/dpilz/Desktop/Freyja/freyja/data/NC_045512_Hu-1.fasta</span></code></p>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">/storage/mahmadi/git_repos/Freyja/freyja/data/NC_045512_Hu-1.fasta</span></code></p>
 </dd>
 </dl>
 </dd></dl>
@@ -456,7 +422,7 @@ Aggregates all the outputs</p>
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-freyja-dash-thresh">
 <span class="sig-name descname"><span class="pre">--thresh</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;thresh&gt;</span></span><a class="headerlink" href="#cmdoption-freyja-dash-thresh" title="Link to this definition"></a></dt>
-<dd><p>min lineage abundance included</p>
+<dd><p>minimum lineage abundance</p>
 <dl class="field-list simple">
 <dt class="field-odd">Default<span class="colon">:</span></dt>
 <dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">0.01</span></code></p>
@@ -522,7 +488,7 @@ Aggregates all the outputs</p>
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-freyja-dash-config">
 <span class="sig-name descname"><span class="pre">--config</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;config&gt;</span></span><a class="headerlink" href="#cmdoption-freyja-dash-config" title="Link to this definition"></a></dt>
-<dd><p>path to yaml file</p>
+<dd><p>control the colors and grouping of lineages in the plot</p>
 </dd></dl>
 
 <dl class="std option">
@@ -550,7 +516,7 @@ Aggregates all the outputs</p>
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-freyja-dash-days">
 <span class="sig-name descname"><span class="pre">--days</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;days&gt;</span></span><a class="headerlink" href="#cmdoption-freyja-dash-days" title="Link to this definition"></a></dt>
-<dd><p>N Days used for growth calc</p>
+<dd><p>specify number of days for growth calculation</p>
 <dl class="field-list simple">
 <dt class="field-odd">Default<span class="colon">:</span></dt>
 <dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">56</span></code></p>
@@ -561,7 +527,7 @@ Aggregates all the outputs</p>
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-freyja-dash-grthresh">
 <span class="sig-name descname"><span class="pre">--grthresh</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;grthresh&gt;</span></span><a class="headerlink" href="#cmdoption-freyja-dash-grthresh" title="Link to this definition"></a></dt>
-<dd><p>min avg prev. for growth</p>
+<dd><p>minimum prevalence to calculate relative growth rate for</p>
 <dl class="field-list simple">
 <dt class="field-odd">Default<span class="colon">:</span></dt>
 <dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">0.001</span></code></p>
@@ -572,7 +538,7 @@ Aggregates all the outputs</p>
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-freyja-dash-lineageyml">
 <span class="sig-name descname"><span class="pre">--lineageyml</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;lineageyml&gt;</span></span><a class="headerlink" href="#cmdoption-freyja-dash-lineageyml" title="Link to this definition"></a></dt>
-<dd><p>lineage hierarchy file</p>
+<dd><p>custom lineage hierarchy file</p>
 <dl class="field-list simple">
 <dt class="field-odd">Default<span class="colon">:</span></dt>
 <dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">-1</span></code></p>
@@ -583,7 +549,7 @@ Aggregates all the outputs</p>
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-freyja-dash-keep_plot_files">
 <span class="sig-name descname"><span class="pre">--keep_plot_files</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-freyja-dash-keep_plot_files" title="Link to this definition"></a></dt>
-<dd><p>Keep separate plot</p>
+<dd><p>keep the intermediate html for the core plot</p>
 <dl class="field-list simple">
 <dt class="field-odd">Default<span class="colon">:</span></dt>
 <dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">False</span></code></p>
@@ -619,7 +585,7 @@ Aggregates all the outputs</p>
 </section>
 <section id="freyja-demix">
 <h3>demix<a class="headerlink" href="#freyja-demix" title="Link to this heading"></a></h3>
-<p>Generate prevalence of lineages per sample</p>
+<p>Generate lineage abundance from VARIANTS and DEPTHS</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>freyja<span class="w"> </span>demix<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span><span class="w"> </span>VARIANTS<span class="w"> </span>DEPTHS
 </pre></div>
 </div>
@@ -627,7 +593,7 @@ Aggregates all the outputs</p>
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-freyja-demix-eps">
 <span class="sig-name descname"><span class="pre">--eps</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;eps&gt;</span></span><a class="headerlink" href="#cmdoption-freyja-demix-eps" title="Link to this definition"></a></dt>
-<dd><p>minimum abundance to include</p>
+<dd><p>minimum abundance to include for each lineage</p>
 <dl class="field-list simple">
 <dt class="field-odd">Default<span class="colon">:</span></dt>
 <dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">0.001</span></code></p>
@@ -638,7 +604,7 @@ Aggregates all the outputs</p>
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-freyja-demix-barcodes">
 <span class="sig-name descname"><span class="pre">--barcodes</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;barcodes&gt;</span></span><a class="headerlink" href="#cmdoption-freyja-demix-barcodes" title="Link to this definition"></a></dt>
-<dd><p>custom barcode file</p>
+<dd><p>Path to custom barcode file</p>
 <dl class="field-list simple">
 <dt class="field-odd">Default<span class="colon">:</span></dt>
 <dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">-1</span></code></p>
@@ -649,7 +615,7 @@ Aggregates all the outputs</p>
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-freyja-demix-meta">
 <span class="sig-name descname"><span class="pre">--meta</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;meta&gt;</span></span><a class="headerlink" href="#cmdoption-freyja-demix-meta" title="Link to this definition"></a></dt>
-<dd><p>custom lineage metadata file</p>
+<dd><p>custom lineage to variant metadata file</p>
 <dl class="field-list simple">
 <dt class="field-odd">Default<span class="colon">:</span></dt>
 <dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">-1</span></code></p>
@@ -663,7 +629,7 @@ Aggregates all the outputs</p>
 <dd><p>Output file</p>
 <dl class="field-list simple">
 <dt class="field-odd">Default<span class="colon">:</span></dt>
-<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">demixing_result.csv</span></code></p>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">output</span> <span class="pre">name</span></code></p>
 </dd>
 </dl>
 </dd></dl>
@@ -671,7 +637,7 @@ Aggregates all the outputs</p>
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-freyja-demix-covcut">
 <span class="sig-name descname"><span class="pre">--covcut</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;covcut&gt;</span></span><a class="headerlink" href="#cmdoption-freyja-demix-covcut" title="Link to this definition"></a></dt>
-<dd><p>depth cutoff for                                            coverage estimate</p>
+<dd><p>calculate percent of sites with n or greater reads</p>
 <dl class="field-list simple">
 <dt class="field-odd">Default<span class="colon">:</span></dt>
 <dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">10</span></code></p>
@@ -682,7 +648,8 @@ Aggregates all the outputs</p>
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-freyja-demix-confirmedonly">
 <span class="sig-name descname"><span class="pre">--confirmedonly</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-freyja-demix-confirmedonly" title="Link to this definition"></a></dt>
-<dd><dl class="field-list simple">
+<dd><p>exclude unconfirmed lineages</p>
+<dl class="field-list simple">
 <dt class="field-odd">Default<span class="colon">:</span></dt>
 <dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">False</span></code></p>
 </dd>
@@ -713,7 +680,7 @@ Aggregates all the outputs</p>
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-freyja-demix-lineageyml">
 <span class="sig-name descname"><span class="pre">--lineageyml</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;lineageyml&gt;</span></span><a class="headerlink" href="#cmdoption-freyja-demix-lineageyml" title="Link to this definition"></a></dt>
-<dd><p>lineage hierarchy file</p>
+<dd><p>lineage hierarchy file in a yaml format</p>
 <dl class="field-list simple">
 <dt class="field-odd">Default<span class="colon">:</span></dt>
 <dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">-1</span></code></p>
@@ -746,7 +713,7 @@ Aggregates all the outputs</p>
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-freyja-demix-region_of_interest">
 <span class="sig-name descname"><span class="pre">--region_of_interest</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;region_of_interest&gt;</span></span><a class="headerlink" href="#cmdoption-freyja-demix-region_of_interest" title="Link to this definition"></a></dt>
-<dd><p>JSON file containingregion(s) of interest for which to compute additional coverageestimates</p>
+<dd><p>JSON file containing region(s) of interest for which to compute additional coverage estimates</p>
 <dl class="field-list simple">
 <dt class="field-odd">Default<span class="colon">:</span></dt>
 <dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">-1</span></code></p>
@@ -789,7 +756,7 @@ Aggregates all the outputs</p>
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-freyja-extract-same_read">
 <span class="sig-name descname"><span class="pre">--same_read</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-freyja-extract-same_read" title="Link to this definition"></a></dt>
-<dd><p>include to specify that query reads must all occur on the                    same read</p>
+<dd><p>include to specify that query reads must all occur on the same read</p>
 <dl class="field-list simple">
 <dt class="field-odd">Default<span class="colon">:</span></dt>
 <dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">False</span></code></p>
@@ -813,7 +780,8 @@ Aggregates all the outputs</p>
 </section>
 <section id="freyja-filter">
 <h3>filter<a class="headerlink" href="#freyja-filter" title="Link to this heading"></a></h3>
-<p>excludes reads containing one or more mutations</p>
+<p>excludes reads containing one or more QUERY_MUTATIONS using INPUT_BAM,
+MIN_SITE and MAX_SITE</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>freyja<span class="w"> </span>filter<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span><span class="w"> </span>QUERY_MUTATIONS<span class="w"> </span>INPUT_BAM<span class="w"> </span><span class="o">[</span>MIN_SITE<span class="o">]</span><span class="w"> </span><span class="o">[</span>MAX_SITE<span class="o">]</span>
 </pre></div>
 </div>
@@ -857,93 +825,7 @@ Aggregates all the outputs</p>
 </section>
 <section id="freyja-plot">
 <h3>plot<a class="headerlink" href="#freyja-plot" title="Link to this heading"></a></h3>
-<blockquote>
-<div><p>create plots using the outputs
-create plots using the outputs</p>
-<dl>
-<dt>Arguments:</dt><dd><dl class="field-list simple">
-<dt class="field-odd">param agg_results<span class="colon">:</span></dt>
-<dd class="field-odd"><p>used to pass result files</p>
-</dd>
-<dt class="field-even">param lineages<span class="colon">:</span></dt>
-<dd class="field-even"><p>used to provide a lineage specific breakdown</p>
-</dd>
-<dt class="field-odd">param times<span class="colon">:</span></dt>
-<dd class="field-odd"><p>used to pass ample collection time information</p>
-</dd>
-<dt class="field-even">param interval<span class="colon">:</span></dt>
-<dd class="field-even"><p>used to pass ample collection time information</p>
-</dd>
-<dt class="field-odd">param windowsize<span class="colon">:</span></dt>
-<dd class="field-odd"><p>used to pass width of the rolling average window</p>
-</dd>
-<dt class="field-even">param config<span class="colon">:</span></dt>
-<dd class="field-even"><p>allows users to control the colors and grouping of
-lineages in the plot</p>
-</dd>
-<dt class="field-odd">param mincov<span class="colon">:</span></dt>
-<dd class="field-odd"><p>used to pass minimum genome coverage</p>
-</dd>
-<dt class="field-even">param output<span class="colon">:</span></dt>
-<dd class="field-even"><p>used to specify the output name</p>
-</dd>
-<dt class="field-odd">param lineageyml<span class="colon">:</span></dt>
-<dd class="field-odd"><p>used to pass a custom lineage hierarchy file</p>
-</dd>
-<dt class="field-even">param thresh<span class="colon">:</span></dt>
-<dd class="field-even"><p>used to pass a minum lineage abundance</p>
-</dd>
-<dt class="field-odd">param writegrouped<span class="colon">:</span></dt>
-<dd class="field-odd"><p>used for path to grouped lineage data</p>
-</dd>
-</dl>
-<p>:return : an aggregated tsv file</p>
-</dd>
-</dl>
-</div></blockquote>
-<p>create plots using the outputs</p>
-<blockquote>
-<div><dl>
-<dt>Arguments:</dt><dd><dl class="field-list simple">
-<dt class="field-odd">param agg_results<span class="colon">:</span></dt>
-<dd class="field-odd"><p>used to pass result files</p>
-</dd>
-<dt class="field-even">param lineages<span class="colon">:</span></dt>
-<dd class="field-even"><p>used to provide a lineage specific breakdown</p>
-</dd>
-<dt class="field-odd">param times<span class="colon">:</span></dt>
-<dd class="field-odd"><p>used to pass ample collection time information</p>
-</dd>
-<dt class="field-even">param interval<span class="colon">:</span></dt>
-<dd class="field-even"><p>used to pass ample collection time information</p>
-</dd>
-<dt class="field-odd">param windowsize<span class="colon">:</span></dt>
-<dd class="field-odd"><p>used to pass width of the rolling average window</p>
-</dd>
-<dt class="field-even">param config<span class="colon">:</span></dt>
-<dd class="field-even"><p>allows users to control the colors and grouping of
-lineages in the plot</p>
-</dd>
-<dt class="field-odd">param mincov<span class="colon">:</span></dt>
-<dd class="field-odd"><p>used to pass minimum genome coverage</p>
-</dd>
-<dt class="field-even">param output<span class="colon">:</span></dt>
-<dd class="field-even"><p>used to specify the output name</p>
-</dd>
-<dt class="field-odd">param lineageyml<span class="colon">:</span></dt>
-<dd class="field-odd"><p>used to pass a custom lineage hierarchy file</p>
-</dd>
-<dt class="field-even">param thresh<span class="colon">:</span></dt>
-<dd class="field-even"><p>used to pass a minum lineage abundance</p>
-</dd>
-<dt class="field-odd">param writegrouped<span class="colon">:</span></dt>
-<dd class="field-odd"><p>used for path to grouped lineage data</p>
-</dd>
-</dl>
-<p>:return : an aggregated tsv file</p>
-</dd>
-</dl>
-</div></blockquote>
+<p>create plots using the outputs AGG_RESULTS</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>freyja<span class="w"> </span>plot<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span><span class="w"> </span>AGG_RESULTS
 </pre></div>
 </div>
@@ -951,7 +833,8 @@ lineages in the plot</p>
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-freyja-plot-lineages">
 <span class="sig-name descname"><span class="pre">--lineages</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-freyja-plot-lineages" title="Link to this definition"></a></dt>
-<dd><dl class="field-list simple">
+<dd><p>modify lineage break down</p>
+<dl class="field-list simple">
 <dt class="field-odd">Default<span class="colon">:</span></dt>
 <dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">False</span></code></p>
 </dd>
@@ -961,7 +844,8 @@ lineages in the plot</p>
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-freyja-plot-times">
 <span class="sig-name descname"><span class="pre">--times</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;times&gt;</span></span><a class="headerlink" href="#cmdoption-freyja-plot-times" title="Link to this definition"></a></dt>
-<dd><dl class="field-list simple">
+<dd><p>provide sample collection information,check data/times_metadata.csv for additional information</p>
+<dl class="field-list simple">
 <dt class="field-odd">Default<span class="colon">:</span></dt>
 <dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">-1</span></code></p>
 </dd>
@@ -971,7 +855,8 @@ lineages in the plot</p>
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-freyja-plot-interval">
 <span class="sig-name descname"><span class="pre">--interval</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;interval&gt;</span></span><a class="headerlink" href="#cmdoption-freyja-plot-interval" title="Link to this definition"></a></dt>
-<dd><dl class="field-list simple">
+<dd><p>define whether the intervals are calculated daily D or monthly M use with –windowsize</p>
+<dl class="field-list simple">
 <dt class="field-odd">Default<span class="colon">:</span></dt>
 <dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">MS</span></code></p>
 </dd>
@@ -981,7 +866,7 @@ lineages in the plot</p>
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-freyja-plot-config">
 <span class="sig-name descname"><span class="pre">--config</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;config&gt;</span></span><a class="headerlink" href="#cmdoption-freyja-plot-config" title="Link to this definition"></a></dt>
-<dd><p>path to yaml file</p>
+<dd><p>allows users to control the colors and grouping of lineages in the plot</p>
 </dd></dl>
 
 <dl class="std option">
@@ -998,7 +883,7 @@ lineages in the plot</p>
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-freyja-plot-output">
 <span class="sig-name descname"><span class="pre">--output</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;output&gt;</span></span><a class="headerlink" href="#cmdoption-freyja-plot-output" title="Link to this definition"></a></dt>
-<dd><p>Output file</p>
+<dd><p>specify output file name</p>
 <dl class="field-list simple">
 <dt class="field-odd">Default<span class="colon">:</span></dt>
 <dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">mix_plot.pdf</span></code></p>
@@ -1009,7 +894,8 @@ lineages in the plot</p>
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-freyja-plot-windowsize">
 <span class="sig-name descname"><span class="pre">--windowsize</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;windowsize&gt;</span></span><a class="headerlink" href="#cmdoption-freyja-plot-windowsize" title="Link to this definition"></a></dt>
-<dd><dl class="field-list simple">
+<dd><p>width of the rolling average windowfor interval calculation</p>
+<dl class="field-list simple">
 <dt class="field-odd">Default<span class="colon">:</span></dt>
 <dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">14</span></code></p>
 </dd>
@@ -1019,7 +905,7 @@ lineages in the plot</p>
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-freyja-plot-lineageyml">
 <span class="sig-name descname"><span class="pre">--lineageyml</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;lineageyml&gt;</span></span><a class="headerlink" href="#cmdoption-freyja-plot-lineageyml" title="Link to this definition"></a></dt>
-<dd><p>lineage hierarchy file</p>
+<dd><p>Custom lineage hierarchy file</p>
 <dl class="field-list simple">
 <dt class="field-odd">Default<span class="colon">:</span></dt>
 <dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">-1</span></code></p>
@@ -1030,7 +916,7 @@ lineages in the plot</p>
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-freyja-plot-thresh">
 <span class="sig-name descname"><span class="pre">--thresh</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;thresh&gt;</span></span><a class="headerlink" href="#cmdoption-freyja-plot-thresh" title="Link to this definition"></a></dt>
-<dd><p>min lineage abundance included</p>
+<dd><p>pass a minimum lineage abundance</p>
 <dl class="field-list simple">
 <dt class="field-odd">Default<span class="colon">:</span></dt>
 <dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">0.01</span></code></p>
@@ -1059,7 +945,7 @@ lineages in the plot</p>
 </section>
 <section id="freyja-plot-covariants">
 <h3>plot-covariants<a class="headerlink" href="#freyja-plot-covariants" title="Link to this heading"></a></h3>
-<p>Plot covariants output</p>
+<p>Plot COVARIANTS output</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>freyja<span class="w"> </span>plot-covariants<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span><span class="w"> </span>COVARIANTS
 </pre></div>
 </div>
@@ -1139,7 +1025,8 @@ lineages in the plot</p>
 </section>
 <section id="freyja-relgrowthrate">
 <h3>relgrowthrate<a class="headerlink" href="#freyja-relgrowthrate" title="Link to this heading"></a></h3>
-<p>generates relative growth rate for each lineage</p>
+<p>generates relative growth rate for each lineage using
+AGG_RESULTS and METADATA</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>freyja<span class="w"> </span>relgrowthrate<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span><span class="w"> </span>AGG_RESULTS<span class="w"> </span>METADATA
 </pre></div>
 </div>
@@ -1191,7 +1078,7 @@ lineages in the plot</p>
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-freyja-relgrowthrate-config">
 <span class="sig-name descname"><span class="pre">--config</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;config&gt;</span></span><a class="headerlink" href="#cmdoption-freyja-relgrowthrate-config" title="Link to this definition"></a></dt>
-<dd><p>path to yaml file</p>
+<dd><p>control the colors and grouping of lineages in the plot</p>
 </dd></dl>
 
 <dl class="std option">
@@ -1219,7 +1106,7 @@ lineages in the plot</p>
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-freyja-relgrowthrate-days">
 <span class="sig-name descname"><span class="pre">--days</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;days&gt;</span></span><a class="headerlink" href="#cmdoption-freyja-relgrowthrate-days" title="Link to this definition"></a></dt>
-<dd><p>N Days used for growth calc</p>
+<dd><p>number of days for growth calculation</p>
 <dl class="field-list simple">
 <dt class="field-odd">Default<span class="colon">:</span></dt>
 <dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">56</span></code></p>
@@ -1230,7 +1117,7 @@ lineages in the plot</p>
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-freyja-relgrowthrate-grthresh">
 <span class="sig-name descname"><span class="pre">--grthresh</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;grthresh&gt;</span></span><a class="headerlink" href="#cmdoption-freyja-relgrowthrate-grthresh" title="Link to this definition"></a></dt>
-<dd><p>min avg prev. for growth</p>
+<dd><p>minimum prevalence to calculate relative growth rate for</p>
 <dl class="field-list simple">
 <dt class="field-odd">Default<span class="colon">:</span></dt>
 <dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">0.001</span></code></p>
@@ -1285,7 +1172,7 @@ outbreak data</p>
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-freyja-update-noncl">
 <span class="sig-name descname"><span class="pre">--noncl</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-freyja-update-noncl" title="Link to this definition"></a></dt>
-<dd><p>only include lineages in cov-lineages</p>
+<dd><p>only include lineages that areconfirmed by cov-lineages</p>
 <dl class="field-list simple">
 <dt class="field-odd">Default<span class="colon">:</span></dt>
 <dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">True</span></code></p>
@@ -1307,7 +1194,7 @@ outbreak data</p>
 </section>
 <section id="freyja-variants">
 <h3>variants<a class="headerlink" href="#freyja-variants" title="Link to this heading"></a></h3>
-<p>Perform variant calling using samtools and ivar</p>
+<p>Perform variant calling using samtools and ivar on a BAMFILE</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>freyja<span class="w"> </span>variants<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span><span class="w"> </span>BAMFILE
 </pre></div>
 </div>
@@ -1315,10 +1202,10 @@ outbreak data</p>
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-freyja-variants-ref">
 <span class="sig-name descname"><span class="pre">--ref</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;ref&gt;</span></span><a class="headerlink" href="#cmdoption-freyja-variants-ref" title="Link to this definition"></a></dt>
-<dd><p>Reference</p>
+<dd><p>Reference file in fasta format</p>
 <dl class="field-list simple">
 <dt class="field-odd">Default<span class="colon">:</span></dt>
-<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">/Users/dpilz/Desktop/Freyja/freyja/data/NC_045512_Hu-1.fasta</span></code></p>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">/storage/mahmadi/git_repos/Freyja/freyja/data/NC_045512_Hu-1.fasta</span></code></p>
 </dd>
 </dl>
 </dd></dl>
@@ -1326,7 +1213,7 @@ outbreak data</p>
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-freyja-variants-variants">
 <span class="sig-name descname"><span class="pre">--variants</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;variants&gt;</span></span><a class="headerlink" href="#cmdoption-freyja-variants-variants" title="Link to this definition"></a></dt>
-<dd><p>Variant call output file</p>
+<dd><p>Variant calling output file</p>
 </dd></dl>
 
 <dl class="std option">
