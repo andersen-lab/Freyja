@@ -21,6 +21,7 @@
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Command Line Workflow" href="command_line_workflow.html" />
     <link rel="prev" title="Installation" href="installation.html" /> 
 </head>
 
@@ -43,7 +44,7 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Freyja:</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Usage</a><ul>
@@ -65,6 +66,15 @@
 </li>
 </ul>
 </li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Wiki:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="command_line_workflow.html">Command Line Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cryptic_variants.html">Cryptic Variant Detection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="custom_plotting_tutorial.html">Custom Plotting Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lineage_barcode_extract.html">Lineage Barcode Extract</a></li>
+<li class="toctree-l1"><a class="reference internal" href="read_analysis_tutorial.html">Read Analysis Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="terra_workflow.html">Terra Workflow</a></li>
 </ul>
 
         </div>
@@ -338,7 +348,7 @@ in a BAM_FILE using MIN_SITE and MAX_SITE</p>
 <span class="sig-name descname"><span class="pre">--ref-genome</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;ref_genome&gt;</span></span><a class="headerlink" href="#cmdoption-freyja-covariants-ref-genome" title="Link to this definition"></a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Default<span class="colon">:</span></dt>
-<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">/storage/mahmadi/git_repos/Freyja/freyja/data/NC_045512_Hu-1.fasta</span></code></p>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">/Users/dpilz/Desktop/Freyja/freyja/data/NC_045512_Hu-1.fasta</span></code></p>
 </dd>
 </dl>
 </dd></dl>
@@ -782,7 +792,8 @@ in a BAM_FILE using MIN_SITE and MAX_SITE</p>
 <h3>filter<a class="headerlink" href="#freyja-filter" title="Link to this heading"></a></h3>
 <p>excludes reads containing one or more QUERY_MUTATIONS using INPUT_BAM,
 MIN_SITE and MAX_SITE</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>freyja<span class="w"> </span>filter<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span><span class="w"> </span>QUERY_MUTATIONS<span class="w"> </span>INPUT_BAM<span class="w"> </span><span class="o">[</span>MIN_SITE<span class="o">]</span><span class="w"> </span><span class="o">[</span>MAX_SITE<span class="o">]</span>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>freyja<span class="w"> </span>filter<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span><span class="w"> </span>QUERY_MUTATIONS<span class="w"> </span>INPUT_BAM<span class="w"> </span><span class="o">[</span>MIN_SITE<span class="o">]</span>
+<span class="w">              </span><span class="o">[</span>MAX_SITE<span class="o">]</span>
 </pre></div>
 </div>
 <p class="rubric">Options</p>
@@ -1205,7 +1216,7 @@ outbreak data</p>
 <dd><p>Reference file in fasta format</p>
 <dl class="field-list simple">
 <dt class="field-odd">Default<span class="colon">:</span></dt>
-<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">/storage/mahmadi/git_repos/Freyja/freyja/data/NC_045512_Hu-1.fasta</span></code></p>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">/Users/dpilz/Desktop/Freyja/freyja/data/NC_045512_Hu-1.fasta</span></code></p>
 </dd>
 </dl>
 </dd></dl>
@@ -1269,6 +1280,7 @@ outbreak data</p>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="installation.html" class="btn btn-neutral float-left" title="Installation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="command_line_workflow.html" class="btn btn-neutral float-right" title="Command Line Workflow" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

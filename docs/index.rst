@@ -13,15 +13,21 @@ To ensure reproducibility of results, we provide old (timestamped) barcodes and 
 
 .. toctree::
    :maxdepth: 2
-   :caption: Contents:
+   :caption: Freyja:
    
    installation
    usage
 
+Freyja Wiki
+==================================
 
-Indices and tables
-==================
+.. toctree::
+   :maxdepth: 2
+   :caption: Wiki:
 
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
+   command_line_workflow
+   cryptic_variants
+   custom_plotting_tutorial
+   lineage_barcode_extract
+   read_analysis_tutorial
+   terra_workflow

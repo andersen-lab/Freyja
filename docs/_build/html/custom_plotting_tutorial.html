@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Custom Plotting Tutorial &mdash; Freyja 1.4.9 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="_static/documentation_options.js?v=1699af0b"></script>
+        <script src="_static/doctools.js?v=888ff710"></script>
+        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Lineage Barcode Extract" href="lineage_barcode_extract.html" />
+    <link rel="prev" title="Cryptic Variant Detection" href="cryptic_variants.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Freyja
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Freyja:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Wiki:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="command_line_workflow.html">Command Line Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cryptic_variants.html">Cryptic Variant Detection</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Custom Plotting Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lineage_barcode_extract.html">Lineage Barcode Extract</a></li>
+<li class="toctree-l1"><a class="reference internal" href="read_analysis_tutorial.html">Read Analysis Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="terra_workflow.html">Terra Workflow</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Freyja</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Custom Plotting Tutorial</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/custom_plotting_tutorial.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="custom-plotting-tutorial">
+<h1>Custom Plotting Tutorial<a class="headerlink" href="#custom-plotting-tutorial" title="Link to this heading"></a></h1>
+<p>Once you’ve been sampling wastewater for long enough, you might find that the standard <code class="docutils literal notranslate"><span class="pre">`freyja</span> <span class="pre">plot`</span></code> function isn’t sufficiently flexible to build more complicated and/or curated plots of variant/lineage dynamics. In this tutorial, we’ll talk a little bit about how to customize plots as you see fit, using the Freyja Python library.</p>
+<ol class="arabic simple">
+<li><p>Load in necessary packages and prepare  an aggregated output file using the <code class="docutils literal notranslate"><span class="pre">`python</span> <span class="pre">freyja</span> <span class="pre">aggregate`</span></code> command. Note: this will be in tsv (tab separated value) format.</p></li>
+</ol>
+<p><a href="#id1"><span class="problematic" id="id2">``</span></a><a href="#id3"><span class="problematic" id="id4">`</span></a>python
+import pandas as pd
+import os
+import numpy as np
+import matplotlib.pyplot as plt
+import matplotlib
+import matplotlib.dates as mdates</p>
+<p># make text illustrator
+matplotlib.rcParams[‘pdf.fonttype’] = 42
+matplotlib.rcParams[‘ps.fonttype’] = 42</p>
+<p>agg_df = pd.read_csv(‘your-aggregated-data.tsv’, skipinitialspace=True, sep=’t’,index_col=0)
+## filter samples by coverage (generally 60-70 is decent cutoff, but can vary across samples)
+agg_df = agg_df[agg_df[‘coverage’]&gt;70.0]
+<a href="#id5"><span class="problematic" id="id6">``</span></a><a href="#id7"><span class="problematic" id="id8">`</span></a></p>
+<ol class="arabic simple" start="2">
+<li><p>Read the aggregated data in, and convert to a more friendly format using the <code class="docutils literal notranslate"><span class="pre">`python</span> <span class="pre">prepLineageDict()`</span></code> and <code class="docutils literal notranslate"><span class="pre">`python</span> <span class="pre">prepSummarizedDict()`</span></code> functions:</p></li>
+</ol>
+<p><a href="#id9"><span class="problematic" id="id10">``</span></a><a href="#id11"><span class="problematic" id="id12">`</span></a>python
+from freyja.utils import prepLineageDict, prepSummaryDict</p>
+<p>agg_df = prepSummaryDict(agg_df)
+agg_df = prepLineageDict(agg_df)</p>
+<p># specify which sort of data you’re looking to get out
+lineages=True # False = variant summarized, True = lineage specific
+if lineages:</p>
+<blockquote>
+<div><blockquote>
+<div><p>## lineage focused analyses</p>
+</div></blockquote>
+<p>queryType = ‘linDict’</p>
+</div></blockquote>
+<dl>
+<dt>else:</dt><dd><blockquote>
+<div><p>## analyses summarized by variant</p>
+</div></blockquote>
+<p>queryType = ‘summarized’</p>
+</dd>
+</dl>
+<p><a href="#id13"><span class="problematic" id="id14">``</span></a><a href="#id15"><span class="problematic" id="id16">`</span></a></p>
+<ol class="arabic simple" start="3">
+<li><p>Add in dates. Then convert to a single dataframe ordered by date.</p></li>
+</ol>
+<p><a href="#id17"><span class="problematic" id="id18">``</span></a><a href="#id19"><span class="problematic" id="id20">`</span></a>python
+# load time metadata
+times_df = pd.read_csv(times, skipinitialspace=True,</p>
+<blockquote>
+<div><blockquote>
+<div><p>index_col=0)</p>
+</div></blockquote>
+<dl class="simple">
+<dt>times_df[‘sample_collection_datetime’] = </dt><dd><p>pd.to_datetime(times_df[‘sample_collection_datetime’])</p>
+</dd>
+</dl>
+</div></blockquote>
+<p># build a dataframe
+df_abundances = pd.DataFrame()
+for i, sampLabel in enumerate(agg_df.index):</p>
+<blockquote>
+<div><p>dat = agg_df.loc[sampLabel, queryType]
+if isinstance(dat, list):</p>
+<blockquote>
+<div><dl class="simple">
+<dt>df_abundances = df_abundances.append(</dt><dd><dl class="simple">
+<dt>pd.Series(agg_df.loc[sampLabel, queryType][0],</dt><dd><dl class="simple">
+<dt>name=times_df.loc[sampLabel,</dt><dd><p>‘sample_collection_datetime’]))</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd>
+</dl>
+</div></blockquote>
+<dl class="simple">
+<dt>else:</dt><dd><dl class="simple">
+<dt>df_abundances = df_abundances.append(</dt><dd><dl class="simple">
+<dt>pd.Series(agg_df.loc[sampLabel, queryType],</dt><dd><dl class="simple">
+<dt>name=times_df.loc[sampLabel,</dt><dd><p>‘sample_collection_datetime’]))</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd>
+</dl>
+</div></blockquote>
+<p># fill nans, group data by the appropriate interval</p>
+<p>interval = ‘MS’ # ‘MS’ is monthly, ‘D’ is daily
+df_abundances = df_abundances.fillna(0)
+df_abundances = df_abundances.groupby(pd.Grouper(freq=interval)).mean()
+<a href="#id21"><span class="problematic" id="id22">``</span></a><a href="#id23"><span class="problematic" id="id24">`</span></a></p>
+<p>Optional: Add in custom groupings as desired. For example, if we want to group all AY lineages, we can adjust</p>
+<p><code class="docutils literal notranslate"><span class="pre">`python</span>
+<span class="pre">df_abundances['AY.X']</span> <span class="pre">=</span> <span class="pre">df_abundances.loc[:,df_abundances.columns.str.startswith('AY.')].sum(axis=1)</span>
+<span class="pre">df_abundances</span> <span class="pre">=</span> <span class="pre">df_abundances.drop(columns=</span> <span class="pre">df_abundances.columns[df_abundances.columns.str.startswith('AY.')</span> <span class="pre">&amp;</span> <span class="pre">~(df_abundances.columns=='AY.X')])</span>
+<span class="pre">`</span></code>
+For more complex groupings, relationships between lineages are made available via cov-lineages [here](<a class="reference external" href="https://github.com/cov-lineages/lineages-website/blob/master/data/lineages.yml">https://github.com/cov-lineages/lineages-website/blob/master/data/lineages.yml</a>) and can be grouped accordingly.</p>
+<ol class="arabic simple" start="4">
+<li><p>Build your custom plot, using either an existing colormap (like tab20 in matplotlib) or a custom colormap (see colors0 in the example below).</p></li>
+</ol>
+<p><a href="#id25"><span class="problematic" id="id26">``</span></a><a href="#id27"><span class="problematic" id="id28">`</span></a>python</p>
+<p>windowSize = 14 # set window size for rolling average if using daily interval</p>
+<p># replace “example” with whatever you’d like to call the output file
+outputFn = ‘<a href="#id33"><span class="problematic" id="id34">example_</span></a>’ + queryType + ‘.pdf’</p>
+<p>colors0 = []# if empty, use cmap
+#example for user specified colors
+# colors0 = [#DAF7A6,#FFC300,#FF5733,#1B4F72,#808B96,#45B39D]
+cmap = plt.cm.tab20
+fig, ax = plt.subplots()
+if interval == ‘D’:</p>
+<blockquote>
+<div><dl class="simple">
+<dt>df_abundances = df_abundances.rolling(windowSize, center=True,</dt><dd><p>min_periods=0).mean()</p>
+</dd>
+<dt>if len(colors0) == 0:</dt><dd><dl class="simple">
+<dt>ax.stackplot(df_abundances.index, df_abundances.to_numpy().T,</dt><dd><p>labels=df_abundances.columns, cmap=cmap)</p>
+</dd>
+</dl>
+</dd>
+<dt>else:</dt><dd><dl class="simple">
+<dt>ax.stackplot(df_abundances.index, df_abundances.to_numpy().T,</dt><dd><p>labels=df_abundances.columns, colors=colors0)</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p>ax.legend(loc=’center left’, bbox_to_anchor=(1, 0.5), prop={‘size’: 4})
+ax.set_ylabel(‘Variant Prevalence’)
+ax.set_ylim([0, 1])
+plt.setp(ax.get_xticklabels(), rotation=90)
+fig.tight_layout()
+plt.savefig(outputFn)
+plt.close()</p>
+</div></blockquote>
+<dl>
+<dt>elif interval == ‘MS’:</dt><dd><dl>
+<dt>for i in range(0, df_abundances.shape[1]):</dt><dd><p>label = df_abundances.columns[i]
+# color = colorDict[label]
+if len(colors0) == 0:</p>
+<blockquote>
+<div><blockquote>
+<div><p>#this should work for up to 20 colors</p>
+</div></blockquote>
+<dl class="simple">
+<dt>ax.bar(df_abundances.index, df_abundances.iloc[:, i],</dt><dd><p>width=14, bottom=df_abundances.iloc[:, 0:i].sum(axis=1),
+label=label, color=cmap(i / 20.))</p>
+</dd>
+</dl>
+</div></blockquote>
+<dl class="simple">
+<dt>else:</dt><dd><dl class="simple">
+<dt>ax.bar(df_abundances.index, df_abundances.iloc[:, i],</dt><dd><p>width=14, bottom=df_abundances.iloc[:, 0:i].sum(axis=1),
+label=label, color=colors0[i])</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd>
+</dl>
+<p>ax.legend(loc=’center left’, bbox_to_anchor=(1, 0.5), prop={‘size’: 4})
+ax.set_ylabel(‘Variant Prevalence’)
+locator = mdates.MonthLocator(bymonthday=1)
+ax.xaxis.set_major_locator(locator)
+ax.xaxis.set_major_formatter(mdates.ConciseDateFormatter(locator))
+ax.set_ylim([0, 1])
+ax.set_aspect(150)
+fig.tight_layout()
+plt.savefig(outputFn)
+plt.close()</p>
+</dd>
+</dl>
+<p><a href="#id29"><span class="problematic" id="id30">``</span></a><a href="#id31"><span class="problematic" id="id32">`</span></a></p>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="cryptic_variants.html" class="btn btn-neutral float-left" title="Cryptic Variant Detection" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="lineage_barcode_extract.html" class="btn btn-neutral float-right" title="Lineage Barcode Extract" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Andersen Lab development team.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
