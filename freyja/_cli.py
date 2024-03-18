@@ -58,9 +58,15 @@ def print_barcode_version(ctx, param, value):
 @click.option('--region_of_interest', default='', help='JSON file containing'
               'region(s) of interest for which to compute additional coverage'
               'estimates')
+@click.option('--relaxedmrca', is_flag=True, default=False,
+              help='for use with depth cutoff,'
+              'clusters are assigned robust mrca to handle outliers')
+@click.option('--relaxedthresh', default=0.9,
+              help='associated threshold for robust mrca function')
 def demix(variants, depths, output, eps, barcodes, meta,
           covcut, confirmedonly, depthcutoff, lineageyml,
-          adapt, a_eps, region_of_interest):
+          adapt, a_eps, region_of_interest,
+          relaxedmrca, relaxedthresh):
     """
     Generate prevalence of lineages per sample
 
@@ -85,7 +91,10 @@ def demix(variants, depths, output, eps, barcodes, meta,
      :param lineageyml: used to pass a custom lineage hierarchy file
      :param adapt: used to set adaptive lasso penalty parameter
      :param a_eps: used to set adaptive lasso
-     penalty parameter hard threshold
+     penalty parameter hard threshold'
+     :param relaxedmrca: for use with depth cutoff,
+     clusters are assigned robust mrca to handle outliers
+     :param relaxedthresh: associated threshold for robust mrca function
      :return : a tsv file that includes the
      lineages present,their corresponding abundances,
       and summarization by constellation.
@@ -114,7 +123,8 @@ def demix(variants, depths, output, eps, barcodes, meta,
     df_depth = pd.read_csv(depths, sep='\t', header=None, index_col=1)
     if depthcutoff != 0:
         df_barcodes = collapse_barcodes(df_barcodes, df_depth, depthcutoff,
-                                        lineageyml, locDir, output)
+                                        lineageyml, locDir, output,
+                                        relaxedmrca, relaxedthresh)
     muts = list(df_barcodes.columns)
     mapDict = buildLineageMap(meta)
     print('building mix/depth matrices')
@@ -386,8 +396,14 @@ def variants(bamfile, ref, variants, depths, refname, minq, annot, varthresh):
 @click.option('--depthcutoff', default=0,
               help='exclude sites with coverage depth below this value and'
               'group identical barcodes')
+@click.option('--relaxedmrca', is_flag=True, default=False,
+              help='for use with depth cutoff,'
+              'clusters are assigned robust mrca to handle outliers')
+@click.option('--relaxedthresh', default=0.9,
+              help='associated threshold for robust mrca function')
 def boot(variants, depths, output_base, eps, barcodes, meta,
-         nb, nt, boxplot, confirmedonly, lineageyml, depthcutoff, rawboots):
+         nb, nt, boxplot, confirmedonly, lineageyml, depthcutoff,
+         rawboots, relaxedmrca, relaxedthresh):
     """
     Perform bootstrapping method for freyja
 
@@ -408,6 +424,9 @@ def boot(variants, depths, output_base, eps, barcodes, meta,
      :param lineageyml: used to pass a custom lineage hierarchy file
      :param depthcutoff: used to exclude sites with coverage depth
      below this value andgroup identical barcodes
+     :param relaxedmrca: for use with depth cutoff,
+     clusters are assigned robust mrca to handle outliers
+     :param relaxedthresh: associated threshold for robust mrca function
 
      :return : base-name_lineages.csv and base-name_summarized.csv
     """
@@ -439,7 +458,8 @@ def boot(variants, depths, output_base, eps, barcodes, meta,
     if depthcutoff != 0:
         df_barcodes = collapse_barcodes(
             df_barcodes, df_depths, depthcutoff,
-            lineageyml, locDir, output_base)
+            lineageyml, locDir, output_base,
+            relaxedmrca, relaxedthresh)
 
     muts = list(df_barcodes.columns)
     mapDict = buildLineageMap(meta)
