@@ -950,8 +950,13 @@ def collapse_barcodes(df_barcodes, df_depth, depthcutoff,
 
     # collapse lineages into MRCA, where possible
     for tup in duplicates:
-        pango_aliases = [lineage_data[lin]['alias']
-                         for lin in tup]
+        try:
+            pango_aliases = [lineage_data[lin]['alias']
+                             for lin in tup]
+        except KeyError:
+            print('Lineage hierarchy file is likely behind'
+                  ' the selected barcode file. Try updating'
+                  ' the hierarchy file.')
         # handle cases where multiple lineage classes are being merged
         # e.g. (A.5, B.12) or (XBB, XBN)
         multiple_lin_classes = len(
