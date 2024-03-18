@@ -327,8 +327,10 @@ def barcode_build(pb, outdir, noncl):
               default='')
 @click.option('--minq', help='Minimum base quality score',
               default=20)
-@click.option('--annot', help='AA annotation output', default='')
-def variants(bamfile, ref, variants, depths, refname, minq, annot):
+@click.option('--annot', help='provide an annotation file in gff3 format',
+              default='')
+@click.option('--varthresh', help='Variant frequency threshold', default=0.0)
+def variants(bamfile, ref, variants, depths, refname, minq, annot, varthresh):
     """
     Perform variant calling using samtools and ivar
 
@@ -348,11 +350,13 @@ def variants(bamfile, ref, variants, depths, refname, minq, annot):
     if len(refname) == 0:
         bashCmd = f"samtools mpileup -aa -A -d 600000 -Q {minq} -q 0 -B -f "\
                   f"{ref} {bamfile} | tee >(cut -f1-4 > {depths}) |"\
-                  f" ivar variants -p {variants} -q {minq} -t 0.0 -r {ref}"
+                  f" ivar variants -p {variants} -q {minq} -t {varthresh}"\
+                  f" -r {ref}"
     else:
         bashCmd = f"samtools mpileup -aa -A -d 600000 -Q {minq} -q 0 -B -f "\
                   f"{ref} {bamfile} -r {refname} | tee >(cut -f1-4 > {depths}"\
-                  f") | ivar variants -p {variants} -q {minq} -t 0.0 -r {ref}"
+                  f") | ivar variants -p {variants} -q {minq} -t {varthresh}"\
+                  f" -r {ref}"
     if len(annot) > 0:
         print('Including annotation')
         bashCmd = bashCmd + f" -g {annot}"
