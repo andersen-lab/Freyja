@@ -327,7 +327,7 @@ def barcode_build(pb, outdir, noncl):
               default='')
 @click.option('--minq', help='Minimum base quality score',
               default=20)
-@click.option('--annot', help='AA annotation output', default='')
+@click.option('--annot', help='provide an annotation file in gff3 format', default='')
 @click.option('--varthresh', help='Variant frequency threshold', default=0.0)
 def variants(bamfile, ref, variants, depths, refname, minq, annot, varthresh):
     """
