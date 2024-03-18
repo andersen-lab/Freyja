@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Read Analyis Tutorial &mdash; Freyja 1.4.9 documentation</title>
+  <title>Read Analysis Tutorial &mdash; Freyja 1.4.9 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
 
@@ -55,7 +55,7 @@
 <li class="toctree-l1"><a class="reference internal" href="cryptic_variants.html">Cryptic Variant Detection</a></li>
 <li class="toctree-l1"><a class="reference internal" href="custom_plotting_tutorial.html">Custom Plotting Tutorial</a></li>
 <li class="toctree-l1"><a class="reference internal" href="lineage_barcode_extract.html">Lineage Barcode Extract</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Read Analyis Tutorial</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Read Analysis Tutorial</a></li>
 <li class="toctree-l1"><a class="reference internal" href="terra_workflow.html">Terra Workflow</a></li>
 </ul>
 
@@ -73,7 +73,7 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
-      <li class="breadcrumb-item active">Read Analyis Tutorial</li>
+      <li class="breadcrumb-item active">Read Analysis Tutorial</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/read_analysis_tutorial.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -83,8 +83,8 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="read-analyis-tutorial">
-<h1>Read Analyis Tutorial<a class="headerlink" href="#read-analyis-tutorial" title="Link to this heading"></a></h1>
+  <section id="read-analysis-tutorial">
+<h1>Read Analysis Tutorial<a class="headerlink" href="#read-analysis-tutorial" title="Link to this heading"></a></h1>
 <p>For this tutorial, we’ll begin with the same aligned, trimmed, and
 sorted BAM file,
 <a class="reference external" href="https://github.com/andersen-lab/Freyja/raw/main/freyja/data/test.bam">test.bam</a>
@@ -103,11 +103,8 @@ better sense of the data, we can generate a heatmap plot via:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>freyja<span class="w"> </span>plot-covariants<span class="w"> </span>covariants_output.tsv<span class="w"> </span>--output<span class="w"> </span>covariants_heatmap.png
 </pre></div>
 </div>
-<figure class="align-default" id="id1">
+<figure class="align-default">
 <img alt="plot-covariants" src="_images/covariants_heatmap.png" />
-<figcaption>
-<p><span class="caption-text">plot-covariants</span><a class="headerlink" href="#id1" title="Link to this image"></a></p>
-</figcaption>
 </figure>
 <p>As we can see, there appear to be a number of mutations that occur
 together in this sample, such as S:D614G and S:P681R. We can pull these
@@ -174,7 +171,7 @@ at S:P681).</p>
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2024, Andersen Lab development team.</p>
+    <p>&#169; Copyright 2024, Andersen Lab.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

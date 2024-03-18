@@ -302,11 +302,11 @@ def barcode_build(pb, outdir, noncl):
 @click.option('--depths', help='Sequencing depth output file',
               type=click.Path(), show_default=True)
 @click.option('--refname', help='Ref name (for bams with multiple sequences)',
-              default='', show_default=True)
+              default='')
 @click.option('--minq', help='Minimum base quality score',
               default=20, show_default=True)
 @click.option('--annot', help='AA annotation output',
-              default='', show_default=True)
+              default='')
 def variants(bamfile, ref, variants, depths, refname, minq, annot):
     """
     Perform variant calling using samtools and ivar on a BAMFILE
@@ -355,8 +355,7 @@ def variants(bamfile, ref, variants, depths, refname, minq, annot):
               help='Output file basename',
               type=click.Path(exists=False), show_default=True)
 @click.option('--boxplot', default='',
-              help='file format of boxplot output (e.g. pdf or png)',
-              show_default=True)
+              help='file format of boxplot output (e.g. pdf or png)')
 @click.option('--confirmedonly', is_flag=True,
               help="exclude unconfirmed lineages",
               default=False, show_default=True)

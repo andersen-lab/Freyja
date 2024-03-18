@@ -9,8 +9,8 @@
 import sys
 import os
 project = 'Freyja'
-copyright = '2024, Andersen Lab development team'
-author = 'Andersen Lab development team'
+copyright = '2024, Andersen Lab'
+author = 'Andersen Lab'
 release = '1.4.9'
 
 # -- General configuration ---------------------------------------------------

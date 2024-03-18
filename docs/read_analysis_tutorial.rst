@@ -1,4 +1,4 @@
-Read Analyis Tutorial
+Read Analysis Tutorial
 -------------------------------------------------------------------------------
 
 For this tutorial, we’ll begin with the same aligned, trimmed, and
@@ -27,7 +27,6 @@ better sense of the data, we can generate a heatmap plot via:
 .. figure:: images/covariants_heatmap.png
    :alt: plot-covariants
 
-   plot-covariants
 
 As we can see, there appear to be a number of mutations that occur
 together in this sample, such as S:D614G and S:P681R. We can pull these

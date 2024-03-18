@@ -14,7 +14,6 @@ the top left, and give the workspace a name (anything will do)
 .. figure:: images/workspaces.png
    :alt: image
 
-   image
 
 4. Select the required methods from
    `dockstore <https://dockstore.org/search?entryType=workflows&search=freyja>`__.
@@ -33,7 +32,6 @@ the top left, and give the workspace a name (anything will do)
 .. figure:: images/import.png
    :alt: image
 
-   image
 
 Once you’ve loaded the methods into your workspace, you can go ahead and
 run the workflow on your data. You’ll first want to run the Freyja_FASTQ
@@ -49,7 +47,6 @@ method on some raw data.
 .. figure:: images/dataupload.png
    :alt: uploads
 
-   uploads
 
 Note: many files can be uploaded at once using the Terra `data
 uploader <https://app.terra.bio/#upload>`__. For more details, check out
@@ -67,16 +64,12 @@ this
 .. figure:: images/setup.png
    :alt: settingup
 
-   settingup
-
 8. Add any comments you need and click “Launch”. You’ll be brought to a
    progress window. All output files will appear in the execution
    directory (open folder icon, under “Links”).
 
 .. figure:: images/progress.png
    :alt: progress
-
-   progress
 
 9. Wait until the job completes and download output files from the
    execution directory as needed. For ``Freyja_FASTQ`` you’ll find the
@@ -86,7 +79,6 @@ this
 .. figure:: images/downloadresult.png
    :alt: downloadresult
 
-   downloadresult
 
 .. |image| image:: images/dockstore.png
 .. |workflows| image:: images/workflowoptions.png
