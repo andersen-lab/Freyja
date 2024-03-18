@@ -1,0 +1,2 @@
+sphinx-click @ git+https://github.com/dylanpilz/sphinx-click.git
+sphinx_rtd_theme
