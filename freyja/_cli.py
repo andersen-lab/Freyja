@@ -26,13 +26,20 @@ from freyja.utils import (agg, calc_rel_growth_rates, checkConfig,
                           makePlot_simple, makePlot_time,
                           read_lineage_file, handle_region_of_interest)
 
-locDir = os.path.abspath(os.path.join(os.path.realpath(__file__), os.pardir))
-
 
 @click.group()
 @click.version_option('1.4.9')
 def cli():
     pass
+
+
+def get_loc_dir():
+    global LOC_DIR
+    LOC_DIR = os.path.abspath(os.path.join(os.path.realpath(__file__),
+                                           os.pardir))
+
+
+get_loc_dir()
 
 
 def print_barcode_version(ctx, param, value):
@@ -41,9 +48,8 @@ def print_barcode_version(ctx, param, value):
     """
     if not value or ctx.resilient_parsing:
         return
-    locDir = os.path.abspath(os.path.join(os.path.realpath(__file__),
-                             os.pardir))
-    f = open(os.path.join(locDir, 'data/last_barcode_update.txt'), 'r')
+
+    f = open(os.path.join(LOC_DIR, 'data/last_barcode_update.txt'), 'r')
     click.echo('Barcode version:')
     click.echo(f.readline())
     ctx.exit()
@@ -94,13 +100,12 @@ def demix(variants, depths, output, eps, barcodes, meta,
     """
     Generate lineage abundance from VARIANTS and DEPTHS
     """
-    locDir = os.path.abspath(os.path.join(os.path.realpath(__file__),
-                             os.pardir))
+
     # option for custom barcodes
     if barcodes != '-1':
         df_barcodes = pd.read_csv(barcodes, index_col=0)
     else:
-        df_barcodes = pd.read_csv(os.path.join(locDir,
+        df_barcodes = pd.read_csv(os.path.join(LOC_DIR,
                                   'data/usher_barcodes.csv'), index_col=0)
     if confirmedonly:
         confirmed = [dfi for dfi in df_barcodes.index
@@ -113,7 +118,7 @@ def demix(variants, depths, output, eps, barcodes, meta,
     df_depth = pd.read_csv(depths, sep='\t', header=None, index_col=1)
     if depthcutoff != 0:
         df_barcodes = collapse_barcodes(df_barcodes, df_depth, depthcutoff,
-                                        lineageyml, locDir, output)
+                                        lineageyml, LOC_DIR, output)
     muts = list(df_barcodes.columns)
     mapDict = buildLineageMap(meta)
     print('building mix/depth matrices')
@@ -186,13 +191,12 @@ def update(outdir, noncl, buildlocal):
     Updates the lineage information using the latest
     outbreak data
     """
-    locDir = os.path.abspath(os.path.join(os.path.realpath(__file__),
-                                          os.pardir))
+
     if outdir != '-1':
         # User specified directory
         locDir = outdir
     else:
-        locDir = os.path.join(locDir, 'data')
+        locDir = os.path.join(LOC_DIR, 'data')
 
     print('Getting outbreak data')
     get_curated_lineage_data(locDir)
@@ -249,8 +253,7 @@ def barcode_build(pb, outdir, noncl):
     """
     Building barcodes from a global tree
     """
-    locDir = os.path.abspath(os.path.join(os.path.realpath(__file__),
-                                          os.pardir))
+    locDir = LOC_DIR
     locDir = outdir
     print('Getting outbreak data')
     get_curated_lineage_data(locDir)
@@ -292,8 +295,7 @@ def barcode_build(pb, outdir, noncl):
 @click.argument('bamfile',
                 type=click.Path(exists=True))
 @click.option('--ref', help='Reference file in fasta format',
-              default=os.path.join(locDir,
-                                   'data/NC_045512_Hu-1.fasta'),
+              default='data/NC_045512_Hu-1.fasta',
               type=click.Path(), show_default=True)
 @click.option('--variants', help='Variant calling output file',
               type=click.Path(), show_default=True)
@@ -309,6 +311,10 @@ def variants(bamfile, ref, variants, depths, refname, minq, annot):
     """
     Perform variant calling using samtools and ivar on a BAMFILE
     """
+
+    if ref == 'data/NC_045512_Hu-1.fasta':
+        ref = os.path.join(LOC_DIR, ref)
+
     if len(refname) == 0:
         bashCmd = f"samtools mpileup -aa -A -d 600000 -Q {minq} -q 0 -B -f "\
                   f"{ref} {bamfile} | tee >(cut -f1-4 > {depths}) |"\
@@ -367,13 +373,12 @@ def boot(variants, depths, output_base, eps, barcodes, meta,
     """
     Perform bootstrapping method for freyja using VARIANTS and DEPTHS
     """
-    locDir = os.path.abspath(os.path.join(os.path.realpath(__file__),
-                             os.pardir))
+
     # option for custom barcodes
     if barcodes != '-1':
         df_barcodes = pd.read_csv(barcodes, index_col=0)
     else:
-        df_barcodes = pd.read_csv(os.path.join(locDir,
+        df_barcodes = pd.read_csv(os.path.join(LOC_DIR,
                                   'data/usher_barcodes.csv'), index_col=0)
 
     if confirmedonly:
@@ -389,7 +394,7 @@ def boot(variants, depths, output_base, eps, barcodes, meta,
     if depthcutoff != 0:
         df_barcodes = collapse_barcodes(
             df_barcodes, df_depths, depthcutoff,
-            lineageyml, locDir, output_base)
+            lineageyml, LOC_DIR, output_base)
 
     muts = list(df_barcodes.columns)
     mapDict = buildLineageMap(meta)
@@ -506,7 +511,7 @@ so no plot will be generated. Try changing --mincov threshold.')
 
     # convert lineages_yml to a dictionary where the lineage names are the
     # keys.
-    lineage_info = read_lineage_file(lineageyml, locDir)
+    lineage_info = read_lineage_file(lineageyml, LOC_DIR)
 
     if config is not None:
         config = checkConfig(config)
@@ -616,7 +621,7 @@ def dash(agg_results, metadata, title, intro, thresh, headercolor, bodycolor,
             except yaml.YAMLError as exc:
                 raise ValueError('Error in config file: ' + str(exc))
 
-    lineage_info = read_lineage_file(lineageyml, locDir)
+    lineage_info = read_lineage_file(lineageyml, LOC_DIR)
     if config is not None:
         config = checkConfig(config)
     else:
@@ -683,7 +688,7 @@ def relgrowthrate(agg_results, metadata, thresh, scale_by_viral_load, nboots,
             except yaml.YAMLError as exc:
                 raise ValueError('Error in config file: ' + str(exc))
 
-    lineage_info = read_lineage_file(lineageyml, locDir)
+    lineage_info = read_lineage_file(lineageyml, LOC_DIR)
     if config is not None:
         config = checkConfig(config)
     else:
@@ -737,8 +742,7 @@ def filter(query_mutations, input_bam, min_site, max_site, output):
 @click.option('--output', default='covariants.tsv',
               help='path to save co-occurring mutations', show_default=True)
 @click.option('--ref-genome', type=click.Path(exists=True),
-              default=os.path.join(locDir, 'data/NC_045512_Hu-1.fasta'),
-              show_default=True)
+              default='data/NC_045512_Hu-1.fasta', show_default=True)
 @click.option('--gff-file', type=click.Path(exists=True),
               default=None,
               help=('path to gff file corresponding to reference genome. If '
@@ -766,6 +770,9 @@ def covariants(input_bam, min_site, max_site, output,
     in a BAM_FILE using MIN_SITE and MAX_SITE
 
     """
+    if ref_genome == 'data/NC_045512_Hu-1.fasta':
+        ref_genome = os.path.join(LOC_DIR, ref_genome)
+
     _covariants(input_bam, min_site, max_site, output,
                 ref_genome, gff_file, min_quality, min_count, spans_region,
                 sort_by)

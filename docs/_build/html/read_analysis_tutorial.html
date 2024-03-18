@@ -93,7 +93,7 @@ used in the Command Line Workflow tutorial, along with the corresponding
 <p>Let’s start off by finding covariant mutations (i.e. mutations present
 on the same sequenced read) on the spike gene. We can do so using the
 command:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>freyja<span class="w"> </span>covariants<span class="w"> </span>freyja/data/test.bam<span class="w"> </span><span class="m">21563</span><span class="w"> </span><span class="m">25384</span><span class="w"> </span>--output<span class="w"> </span>covariants_output.tsv
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>freyja<span class="w"> </span>covariants<span class="w"> </span>freyja/data/test.bam<span class="w"> </span><span class="m">21563</span><span class="w"> </span><span class="m">25384</span><span class="w"> </span>--output<span class="w"> </span>covariants_output.tsv<span class="w"> </span>--gff-file<span class="w"> </span>freyja/data/NC_045512_Hu-1.gff
 </pre></div>
 </div>
 <p>This saves covariance information to covariants_output.tsv, including
