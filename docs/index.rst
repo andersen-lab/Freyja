@@ -18,9 +18,6 @@ To ensure reproducibility of results, we provide old (timestamped) barcodes and 
    installation
    usage
 
-Freyja Wiki
-==================================
-
 .. toctree::
    :maxdepth: 2
    :caption: Wiki:
