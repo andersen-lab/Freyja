@@ -1,3 +1,3 @@
 sphinx-click @ git+https://github.com/dylanpilz/sphinx-click.git
 sphinx_rtd_theme
-sphinx=7.2.6
+sphinx==7.2.6
