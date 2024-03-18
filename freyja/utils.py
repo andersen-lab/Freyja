@@ -918,7 +918,7 @@ def make_dashboard(agg_df, meta_df, thresh, title, introText,
 
 def collapse_barcodes(df_barcodes, df_depth, depthcutoff,
                       lineageyml, locDir, output,
-                      nonstrict, nonstrictthresh):
+                      relaxed, relaxedthresh):
     # drop low coverage sites
     low_cov_sites = df_depth[df_depth[3].astype(int) < depthcutoff] \
         .index.astype(str)
@@ -1015,7 +1015,7 @@ def collapse_barcodes(df_barcodes, df_depth, depthcutoff,
                            'recombinant_parents' in
                            lineage_data[alias.split('.')[0]]]
 
-        if not nonstrict:
+        if not relaxed:
             mrca = os.path.commonpath(
                 [lin.replace('.', '/') for lin in pango_aliases]
             ).replace('/', '.')
@@ -1026,12 +1026,12 @@ def collapse_barcodes(df_barcodes, df_depth, depthcutoff,
                                     for lin in pango_aliases],
                                    return_counts=True)
             coherentFrac = np.max(ext_counts[1]) / groupCt
-            if coherentFrac < nonstrictthresh:
+            if coherentFrac < relaxedthresh:
                 mrca = ''
             else:
                 maxLength = np.max([len(lin.split('.'))
                                     for lin in pango_aliases])
-                while coherentFrac >= nonstrictthresh and j0 <= maxLength:
+                while coherentFrac >= relaxedthresh and j0 <= maxLength:
                     ext_counts = np.unique([lin.split('.')[0:j0]
                                             if j0 <= len(lin.split('.'))
                                             else lin.split('.') +
