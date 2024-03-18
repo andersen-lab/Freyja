@@ -13,7 +13,7 @@ command:
 
 .. code:: bash
 
-   freyja covariants freyja/data/test.bam 21563 25384 --output covariants_output.tsv
+   freyja covariants freyja/data/test.bam 21563 25384 --output covariants_output.tsv --gff-file freyja/data/NC_045512_Hu-1.gff
 
 This saves covariance information to covariants_output.tsv, including
 the mutations present, their absolute count and frequency, as well as
@@ -22,7 +22,7 @@ better sense of the data, we can generate a heatmap plot via:
 
 .. code:: bash
 
-   freyja plot-covariants covariants_output.tsv --output covariants_heatmap.png
+   freyja plot-covariants covariants_output.tsv --output covariants_heatmap.png 
 
 .. figure:: images/covariants_heatmap.png
    :alt: plot-covariants
