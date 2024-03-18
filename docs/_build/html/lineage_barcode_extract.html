@@ -21,7 +21,7 @@
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Read Analysis Tutorial" href="read_analysis_tutorial.html" />
+    <link rel="next" title="Read Analyis Tutorial" href="read_analysis_tutorial.html" />
     <link rel="prev" title="Custom Plotting Tutorial" href="custom_plotting_tutorial.html" /> 
 </head>
 
@@ -55,7 +55,7 @@
 <li class="toctree-l1"><a class="reference internal" href="cryptic_variants.html">Cryptic Variant Detection</a></li>
 <li class="toctree-l1"><a class="reference internal" href="custom_plotting_tutorial.html">Custom Plotting Tutorial</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Lineage Barcode Extract</a></li>
-<li class="toctree-l1"><a class="reference internal" href="read_analysis_tutorial.html">Read Analysis Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="read_analysis_tutorial.html">Read Analyis Tutorial</a></li>
 <li class="toctree-l1"><a class="reference internal" href="terra_workflow.html">Terra Workflow</a></li>
 </ul>
 
@@ -85,95 +85,92 @@
              
   <section id="lineage-barcode-extract">
 <h1>Lineage Barcode Extract<a class="headerlink" href="#lineage-barcode-extract" title="Link to this heading"></a></h1>
-<p>If you’re looking to identify lineage defining mutations for your lineage of choice, look no further! You can extract this information using Freyja’s existing barcoding and a bit of python.</p>
+<p>If you’re looking to identify lineage defining mutations for your
+lineage of choice, look no further! You can extract this information
+using Freyja’s existing barcoding and a bit of python.</p>
 <ol class="arabic simple">
-<li><p>Run a freyja update and extract barcodes to the directory of your choosing (will take a few minutes):</p></li>
+<li><p>Run a freyja update and extract barcodes to the directory of your
+choosing (will take a few minutes):</p></li>
 </ol>
-<p><code class="docutils literal notranslate"><span class="pre">`</span>
-<span class="pre">freyja</span> <span class="pre">update</span> <span class="pre">--outdir</span> <span class="pre">/my/local/directory/</span>
-<span class="pre">`</span></code></p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">freyja</span> <span class="n">update</span> <span class="o">--</span><span class="n">outdir</span> <span class="o">/</span><span class="n">my</span><span class="o">/</span><span class="n">local</span><span class="o">/</span><span class="n">directory</span><span class="o">/</span>
+</pre></div>
+</div>
 <ol class="arabic simple" start="2">
-<li><p>Load the barcodes using pandas and extract barcodes for your lineages of interest</p></li>
+<li><p>Load the barcodes using pandas and extract barcodes for your lineages
+of interest</p></li>
 </ol>
-<p><a href="#id1"><span class="problematic" id="id2">``</span></a><a href="#id3"><span class="problematic" id="id4">`</span></a>python
-import pandas as pd</p>
-<dl class="simple">
-<dt>def sortFun(x):</dt><dd><p># sort based on nuc position, ignoring nuc identities
-return int(x[1:(len(x)-1)])</p>
-</dd>
-</dl>
-<p># replace “/my/local/directory/” with your chosen directory
-df = pd.read_csv(‘/my/local/directory/usher_barcodes.csv’, index_col=0)</p>
-<p># specify your lineages of interest here
-lins = [‘B.1.617.2’,’BA.1’,’BA.2’,’B.1.1.7’,’P.1’]
-df = df.loc[lins]
-# keep only columns with at least one mutation across the lins
-keepcols = df.columns[df.sum(axis=0)&gt;0]
-df = df.loc[:, keepcols]</p>
-<p><a href="#id5"><span class="problematic" id="id6">``</span></a>`
-Optional:
-3. Load in gene coordinate information to translate nucleotide mutations into possible AA mutations. An example file for doing this is available [here](<a class="reference external" href="https://github.com/andersen-lab/Freyja/wiki/SARS-CoV-2.json">https://github.com/andersen-lab/Freyja/wiki/SARS-CoV-2.json</a>). Then append AA mutations to the corresponding nucleotide mutations.</p>
-<p><a href="#id7"><span class="problematic" id="id8">``</span></a><a href="#id9"><span class="problematic" id="id10">`</span></a>python
-# build dataframe with gene data
-import json
-f1 = open(‘/my/local/directory/SARS-CoV-2.json’,)
-dat = json.load(f1)
-f1.close()
-df_genes = pd.DataFrame(columns=[“gene”,”start”,”end”], dtype=object)</p>
-<dl>
-<dt>for d in dat[“genes”]:</dt><dd><dl class="simple">
-<dt>new_row = {‘gene’:d,’start’:dat[“genes”][d][‘coordinates’][‘from’],</dt><dd><p>‘end’:dat[“genes”][d][‘coordinates’][‘to’]}</p>
-</dd>
-</dl>
-<p>df_genes = df_genes.append(new_row,ignore_index=True)</p>
-</dd>
-</dl>
-<p>df_genes = df_genes.sort_values(‘start’).set_index(‘gene’,drop=False)</p>
-<p># function for converting to gene-wise coordinate numbering
-def getGeneNum(pos,df0):</p>
-<blockquote>
-<div><p>j=0
-while j&lt;df0.shape[0]:</p>
-<blockquote>
-<div><dl class="simple">
-<dt>if pos&lt;=df0.iloc[j].loc[‘end’] and pos&gt;=df0.iloc[j].loc[‘start’]:</dt><dd><p>return df0.iloc[j].loc[‘gene’], (pos - df0.iloc[j].loc[‘start’])//3+1</p>
-</dd>
-<dt>else:</dt><dd><p>j+=1</p>
-</dd>
-</dl>
-</div></blockquote>
-<p>return ‘’,’’</p>
-</div></blockquote>
-<p># add AA mutation info into our dataframe
-cols = list(df.columns)
-cols.sort(key=lambda x: sortFun(x))
-df = df[cols]
-for i, mut in enumerate(cols):</p>
-<blockquote>
-<div><p>pos = sortFun(mut)
-g,pa = getGeneNum(pos,df_genes)
-if len(g)==0:</p>
-<blockquote>
-<div><p>refAA=’’
-mutAA=’’</p>
-</div></blockquote>
-<dl class="simple">
-<dt>else:</dt><dd><p>posInTriple = (pos - df_genes.loc[g,’start’]) % 3
-triple = ref0[pos-posInTriple-1:pos-posInTriple+2]
-refAA = triple.translate()
-tripleMut = triple
-tripleMut[posInTriple] = mut[-1]
-mutAA = tripleMut.translate()
-cols[i] = cols[i] +’(’+ g+’:’+str(refAA)+str(pa)+str(mutAA)+’)’</p>
-</dd>
-</dl>
-</div></blockquote>
-<p>df.columns = cols
-<a href="#id11"><span class="problematic" id="id12">``</span></a><a href="#id13"><span class="problematic" id="id14">`</span></a></p>
-<p>4. Export to csv format for later viewing.
-<code class="docutils literal notranslate"><span class="pre">`python</span>
-<span class="pre">df.to_csv('mutations_lineage_subset.csv')</span>
-<span class="pre">`</span></code></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+
+<span class="k">def</span> <span class="nf">sortFun</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="c1"># sort based on nuc position, ignoring nuc identities</span>
+    <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">:(</span><span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">)])</span>
+<span class="c1"># replace &quot;/my/local/directory/&quot; with your chosen directory</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">&#39;/my/local/directory/usher_barcodes.csv&#39;</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+<span class="c1"># specify your lineages of interest here</span>
+<span class="n">lins</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;B.1.617.2&#39;</span><span class="p">,</span><span class="s1">&#39;BA.1&#39;</span><span class="p">,</span><span class="s1">&#39;BA.2&#39;</span><span class="p">,</span><span class="s1">&#39;B.1.1.7&#39;</span><span class="p">,</span><span class="s1">&#39;P.1&#39;</span><span class="p">]</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">lins</span><span class="p">]</span>
+<span class="c1"># keep only columns with at least one mutation across the lins</span>
+<span class="n">keepcols</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">[</span><span class="n">df</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="n">keepcols</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>Optional: 3. Load in gene coordinate information to translate nucleotide
+mutations into possible AA mutations. An example file for doing this is
+available
+<a class="reference external" href="https://github.com/andersen-lab/Freyja/wiki/SARS-CoV-2.json">here</a>.
+Then append AA mutations to the corresponding nucleotide mutations.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># build dataframe with gene data</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="n">f1</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;/my/local/directory/SARS-CoV-2.json&#39;</span><span class="p">,)</span>
+<span class="n">dat</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f1</span><span class="p">)</span>
+<span class="n">f1</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+<span class="n">df_genes</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;gene&quot;</span><span class="p">,</span><span class="s2">&quot;start&quot;</span><span class="p">,</span><span class="s2">&quot;end&quot;</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">object</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">dat</span><span class="p">[</span><span class="s2">&quot;genes&quot;</span><span class="p">]:</span>
+    <span class="n">new_row</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;gene&#39;</span><span class="p">:</span><span class="n">d</span><span class="p">,</span><span class="s1">&#39;start&#39;</span><span class="p">:</span><span class="n">dat</span><span class="p">[</span><span class="s2">&quot;genes&quot;</span><span class="p">][</span><span class="n">d</span><span class="p">][</span><span class="s1">&#39;coordinates&#39;</span><span class="p">][</span><span class="s1">&#39;from&#39;</span><span class="p">],</span>
+               <span class="s1">&#39;end&#39;</span><span class="p">:</span><span class="n">dat</span><span class="p">[</span><span class="s2">&quot;genes&quot;</span><span class="p">][</span><span class="n">d</span><span class="p">][</span><span class="s1">&#39;coordinates&#39;</span><span class="p">][</span><span class="s1">&#39;to&#39;</span><span class="p">]}</span>
+    <span class="n">df_genes</span> <span class="o">=</span> <span class="n">df_genes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">new_row</span><span class="p">,</span><span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">df_genes</span> <span class="o">=</span> <span class="n">df_genes</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="s1">&#39;start&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s1">&#39;gene&#39;</span><span class="p">,</span><span class="n">drop</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+<span class="c1"># function for converting to gene-wise coordinate numbering</span>
+<span class="k">def</span> <span class="nf">getGeneNum</span><span class="p">(</span><span class="n">pos</span><span class="p">,</span><span class="n">df0</span><span class="p">):</span>
+    <span class="n">j</span><span class="o">=</span><span class="mi">0</span>
+    <span class="k">while</span> <span class="n">j</span><span class="o">&lt;</span><span class="n">df0</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="n">pos</span><span class="o">&lt;=</span><span class="n">df0</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s1">&#39;end&#39;</span><span class="p">]</span> <span class="ow">and</span> <span class="n">pos</span><span class="o">&gt;=</span><span class="n">df0</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s1">&#39;start&#39;</span><span class="p">]:</span>
+            <span class="k">return</span> <span class="n">df0</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s1">&#39;gene&#39;</span><span class="p">],</span> <span class="p">(</span><span class="n">pos</span> <span class="o">-</span> <span class="n">df0</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s1">&#39;start&#39;</span><span class="p">])</span><span class="o">//</span><span class="mi">3</span><span class="o">+</span><span class="mi">1</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">j</span><span class="o">+=</span><span class="mi">1</span>
+    <span class="k">return</span> <span class="s1">&#39;&#39;</span><span class="p">,</span><span class="s1">&#39;&#39;</span>
+
+<span class="c1"># add AA mutation info into our dataframe</span>
+<span class="n">cols</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
+<span class="n">cols</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">sortFun</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">cols</span><span class="p">]</span>
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">mut</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">cols</span><span class="p">):</span>
+    <span class="n">pos</span> <span class="o">=</span> <span class="n">sortFun</span><span class="p">(</span><span class="n">mut</span><span class="p">)</span>
+    <span class="n">g</span><span class="p">,</span><span class="n">pa</span> <span class="o">=</span> <span class="n">getGeneNum</span><span class="p">(</span><span class="n">pos</span><span class="p">,</span><span class="n">df_genes</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">g</span><span class="p">)</span><span class="o">==</span><span class="mi">0</span><span class="p">:</span>
+        <span class="n">refAA</span><span class="o">=</span><span class="s1">&#39;&#39;</span>
+        <span class="n">mutAA</span><span class="o">=</span><span class="s1">&#39;&#39;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">posInTriple</span> <span class="o">=</span> <span class="p">(</span><span class="n">pos</span> <span class="o">-</span> <span class="n">df_genes</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">g</span><span class="p">,</span><span class="s1">&#39;start&#39;</span><span class="p">])</span> <span class="o">%</span> <span class="mi">3</span>
+        <span class="n">triple</span> <span class="o">=</span> <span class="n">ref0</span><span class="p">[</span><span class="n">pos</span><span class="o">-</span><span class="n">posInTriple</span><span class="o">-</span><span class="mi">1</span><span class="p">:</span><span class="n">pos</span><span class="o">-</span><span class="n">posInTriple</span><span class="o">+</span><span class="mi">2</span><span class="p">]</span>
+        <span class="n">refAA</span> <span class="o">=</span> <span class="n">triple</span><span class="o">.</span><span class="n">translate</span><span class="p">()</span>
+        <span class="n">tripleMut</span> <span class="o">=</span> <span class="n">triple</span>
+        <span class="n">tripleMut</span><span class="p">[</span><span class="n">posInTriple</span><span class="p">]</span> <span class="o">=</span> <span class="n">mut</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">mutAA</span> <span class="o">=</span> <span class="n">tripleMut</span><span class="o">.</span><span class="n">translate</span><span class="p">()</span>
+        <span class="n">cols</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">cols</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span><span class="s1">&#39;(&#39;</span><span class="o">+</span> <span class="n">g</span><span class="o">+</span><span class="s1">&#39;:&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">refAA</span><span class="p">)</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">pa</span><span class="p">)</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">mutAA</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39;)&#39;</span>
+
+<span class="n">df</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="n">cols</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="4">
+<li><p>Export to csv format for later viewing.</p></li>
+</ol>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="s1">&#39;mutations_lineage_subset.csv&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
 </section>
 
 
@@ -181,7 +178,7 @@ cols[i] = cols[i] +’(’+ g+’:’+str(refAA)+str(pa)+str(mutAA)+’)’</p>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="custom_plotting_tutorial.html" class="btn btn-neutral float-left" title="Custom Plotting Tutorial" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="read_analysis_tutorial.html" class="btn btn-neutral float-right" title="Read Analysis Tutorial" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="read_analysis_tutorial.html" class="btn btn-neutral float-right" title="Read Analyis Tutorial" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

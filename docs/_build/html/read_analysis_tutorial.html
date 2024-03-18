@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Read Analysis Tutorial &mdash; Freyja 1.4.9 documentation</title>
+  <title>Read Analyis Tutorial &mdash; Freyja 1.4.9 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
 
@@ -55,7 +55,7 @@
 <li class="toctree-l1"><a class="reference internal" href="cryptic_variants.html">Cryptic Variant Detection</a></li>
 <li class="toctree-l1"><a class="reference internal" href="custom_plotting_tutorial.html">Custom Plotting Tutorial</a></li>
 <li class="toctree-l1"><a class="reference internal" href="lineage_barcode_extract.html">Lineage Barcode Extract</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Read Analysis Tutorial</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Read Analyis Tutorial</a></li>
 <li class="toctree-l1"><a class="reference internal" href="terra_workflow.html">Terra Workflow</a></li>
 </ul>
 
@@ -73,7 +73,7 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
-      <li class="breadcrumb-item active">Read Analysis Tutorial</li>
+      <li class="breadcrumb-item active">Read Analyis Tutorial</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/read_analysis_tutorial.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -83,55 +83,84 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="read-analysis-tutorial">
-<h1>Read Analysis Tutorial<a class="headerlink" href="#read-analysis-tutorial" title="Link to this heading"></a></h1>
-<p>For this tutorial, we’ll begin with the same aligned, trimmed, and sorted BAM file, [test.bam](<a class="reference external" href="https://github.com/andersen-lab/Freyja/raw/main/freyja/data/test.bam">https://github.com/andersen-lab/Freyja/raw/main/freyja/data/test.bam</a>) used in the Command Line Workflow tutorial, along with the corresponding [SARS-Cov-2 reference genome](data/NC_045512_Hu-1.fasta).</p>
-<p>Let’s start off by finding covariant mutations (i.e. mutations present on the same sequenced read) on the spike gene. We can do so using the command:</p>
-<p><code class="docutils literal notranslate"><span class="pre">`bash</span>
-<span class="pre">freyja</span> <span class="pre">covariants</span> <span class="pre">freyja/data/test.bam</span> <span class="pre">21563</span> <span class="pre">25384</span> <span class="pre">--output</span> <span class="pre">covariants_output.tsv</span>
-<span class="pre">`</span></code></p>
-<p>This saves covariance information to covariants_output.tsv, including the mutations present, their absolute count and frequency, as well as the genomic ranges covered by reads containing said mutations. To get a better sense of the data, we can generate a heatmap plot via:</p>
-<p><code class="docutils literal notranslate"><span class="pre">`bash</span>
-<span class="pre">freyja</span> <span class="pre">plot-covariants</span> <span class="pre">covariants_output.tsv</span> <span class="pre">--output</span> <span class="pre">covariants_heatmap.png</span>
-<span class="pre">`</span></code>
-![plot-covariants](images/covariants_heatmap.png)</p>
-<p>As we can see, there appear to be a number of mutations that occur together in this sample, such as S:D614G and S:P681R. We can pull these reads from test.bam using <cite>freyja extract</cite>. First, we must specify the mutations by creating a csv file, and then listing the corresponding nucleotide mutations, which are listed in covariants_output.tsv.:
-<code class="docutils literal notranslate"><span class="pre">`</span>
-<span class="pre">A23403G,C23604G</span>
-<span class="pre">`</span></code>
-We can now run <cite>freyja extract</cite>, passing in our query.csv file alongside test.bam.  We’ll include the –same_read flag since we’re only interested in reads where both mutations are present</p>
-<p><code class="docutils literal notranslate"><span class="pre">`bash</span>
-<span class="pre">freyja</span> <span class="pre">extract</span> <span class="pre">query.csv</span> <span class="pre">freyja/data/test.bam</span> <span class="pre">--same_read</span> <span class="pre">--output</span> <span class="pre">extracted.bam</span>
-<span class="pre">`</span></code></p>
-<p>Finally, we can view the pulled reads via IGV. First, we’ll need to sort and index <cite>extracted.bam</cite>:
-<code class="docutils literal notranslate"><span class="pre">`bash</span>
-<span class="pre">samtools</span> <span class="pre">sort</span> <span class="pre">extracted.bam</span> <span class="pre">&gt;</span> <span class="pre">extracted_sorted.bam</span>
-<span class="pre">samtools</span> <span class="pre">index</span> <span class="pre">extracted_sorted.bam</span>
-<span class="pre">`</span></code></p>
-<p>Now load extracted_sorted.bam into IGV!
-![igv image](images/igv_screenshot.png)</p>
-<p>In some cases, it can be useful to remove reads containing one or more mutations. For instance, we might be interested in reads containing S:D614G but <strong>not</strong> S:P681R. We can do this by first calling <cite>freyja extract</cite> to select reads containing S:D614G, and then using <cite>freyja filter</cite> on the extraced output to filter out reads containing S:P681R.</p>
+  <section id="read-analyis-tutorial">
+<h1>Read Analyis Tutorial<a class="headerlink" href="#read-analyis-tutorial" title="Link to this heading"></a></h1>
+<p>For this tutorial, we’ll begin with the same aligned, trimmed, and
+sorted BAM file,
+<a class="reference external" href="https://github.com/andersen-lab/Freyja/raw/main/freyja/data/test.bam">test.bam</a>
+used in the Command Line Workflow tutorial, along with the corresponding
+<a class="reference external" href="data/NC_045512_Hu-1.fasta">SARS-Cov-2 reference genome</a>.</p>
+<p>Let’s start off by finding covariant mutations (i.e. mutations present
+on the same sequenced read) on the spike gene. We can do so using the
+command:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>freyja<span class="w"> </span>covariants<span class="w"> </span>freyja/data/test.bam<span class="w"> </span><span class="m">21563</span><span class="w"> </span><span class="m">25384</span><span class="w"> </span>--output<span class="w"> </span>covariants_output.tsv
+</pre></div>
+</div>
+<p>This saves covariance information to covariants_output.tsv, including
+the mutations present, their absolute count and frequency, as well as
+the genomic ranges covered by reads containing said mutations. To get a
+better sense of the data, we can generate a heatmap plot via:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>freyja<span class="w"> </span>plot-covariants<span class="w"> </span>covariants_output.tsv<span class="w"> </span>--output<span class="w"> </span>covariants_heatmap.png
+</pre></div>
+</div>
+<figure class="align-default" id="id1">
+<img alt="plot-covariants" src="images/covariants_heatmap.png" />
+<figcaption>
+<p><span class="caption-text">plot-covariants</span><a class="headerlink" href="#id1" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<p>As we can see, there appear to be a number of mutations that occur
+together in this sample, such as S:D614G and S:P681R. We can pull these
+reads from test.bam using <code class="docutils literal notranslate"><span class="pre">freyja</span> <span class="pre">extract</span></code>. First, we must specify the
+mutations by creating a csv file, and then listing the corresponding
+nucleotide mutations, which are listed in covariants_output.tsv.:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">A23403G</span><span class="p">,</span><span class="n">C23604G</span>
+</pre></div>
+</div>
+<p>We can now run <code class="docutils literal notranslate"><span class="pre">freyja</span> <span class="pre">extract</span></code>, passing in our query.csv file
+alongside test.bam. We’ll include the –same_read flag since we’re only
+interested in reads where both mutations are present</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>freyja<span class="w"> </span>extract<span class="w"> </span>query.csv<span class="w"> </span>freyja/data/test.bam<span class="w"> </span>--same_read<span class="w"> </span>--output<span class="w"> </span>extracted.bam
+</pre></div>
+</div>
+<p>Finally, we can view the pulled reads via IGV. First, we’ll need to sort
+and index <code class="docutils literal notranslate"><span class="pre">extracted.bam</span></code>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>samtools<span class="w"> </span>sort<span class="w"> </span>extracted.bam<span class="w"> </span>&gt;<span class="w"> </span>extracted_sorted.bam
+samtools<span class="w"> </span>index<span class="w"> </span>extracted_sorted.bam
+</pre></div>
+</div>
+<p>Now load extracted_sorted.bam into IGV! <img alt="igv image" src="images/igv_screenshot.png" /></p>
+<p>In some cases, it can be useful to remove reads containing one or more
+mutations. For instance, we might be interested in reads containing
+S:D614G but <strong>not</strong> S:P681R. We can do this by first calling
+<code class="docutils literal notranslate"><span class="pre">freyja</span> <span class="pre">extract</span></code> to select reads containing S:D614G, and then using
+<code class="docutils literal notranslate"><span class="pre">freyja</span> <span class="pre">filter</span></code> on the extraced output to filter out reads containing
+S:P681R.</p>
 <ol class="arabic simple">
 <li><p>Extract S:D614G reads:</p></li>
 </ol>
-<p><code class="docutils literal notranslate"><span class="pre">`</span>
-<span class="pre">extract_query.csv:</span>
-<span class="pre">A23403G</span>
-<span class="pre">`</span></code>
-<code class="docutils literal notranslate"><span class="pre">`bash</span>
-<span class="pre">freyja</span> <span class="pre">extract</span> <span class="pre">extract_query.csv</span> <span class="pre">freyja/data/test.bam</span> <span class="pre">--output</span> <span class="pre">S_D614G_extracted.bam</span>
-<span class="pre">samtools</span> <span class="pre">sort</span> <span class="pre">S_D614G_extracted.bam</span> <span class="pre">&gt;</span> <span class="pre">S_D614G_extracted_sorted.bam</span>
-<span class="pre">samtools</span> <span class="pre">index</span> <span class="pre">S_D614G_extracted_sorted.bam</span>
-<span class="pre">`</span></code></p>
-<p>2. Filter S:P681R reads from <cite>S_D614G_extracted.bam</cite>
-<code class="docutils literal notranslate"><span class="pre">`</span>
-<span class="pre">filter_query.csv:</span>
-<span class="pre">C23604G</span>
-<span class="pre">`</span></code>
-<code class="docutils literal notranslate"><span class="pre">`bash</span>
-<span class="pre">freyja</span> <span class="pre">filter</span> <span class="pre">filter_query.csv</span> <span class="pre">freyja/data/test.bam</span> <span class="pre">--output</span> <span class="pre">S_D614G_filtered.bam</span>
-<span class="pre">`</span></code></p>
-<p>The resulting S_D614G_filtered.bam should only contain reads containing S:D614G (which in this case happen to be unpaired reads with no coverage at S:P681).</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">extract_query</span><span class="o">.</span><span class="n">csv</span><span class="p">:</span>
+<span class="n">A23403G</span>
+</pre></div>
+</div>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>freyja<span class="w"> </span>extract<span class="w"> </span>extract_query.csv<span class="w"> </span>freyja/data/test.bam<span class="w"> </span>--output<span class="w"> </span>S_D614G_extracted.bam
+samtools<span class="w"> </span>sort<span class="w"> </span>S_D614G_extracted.bam<span class="w"> </span>&gt;<span class="w"> </span>S_D614G_extracted_sorted.bam
+samtools<span class="w"> </span>index<span class="w"> </span>S_D614G_extracted_sorted.bam
+</pre></div>
+</div>
+<ol class="arabic simple" start="2">
+<li><p>Filter S:P681R reads from <code class="docutils literal notranslate"><span class="pre">S_D614G_extracted.bam</span></code></p></li>
+</ol>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">filter_query</span><span class="o">.</span><span class="n">csv</span><span class="p">:</span>
+<span class="n">C23604G</span>
+</pre></div>
+</div>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>freyja<span class="w"> </span>filter<span class="w"> </span>filter_query.csv<span class="w"> </span>freyja/data/test.bam<span class="w"> </span>--output<span class="w"> </span>S_D614G_filtered.bam
+</pre></div>
+</div>
+<p>The resulting S_D614G_filtered.bam should only contain reads containing
+S:D614G (which in this case happen to be unpaired reads with no coverage
+at S:P681).</p>
 </section>
 
 
