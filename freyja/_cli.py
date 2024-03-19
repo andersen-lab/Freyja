@@ -28,7 +28,7 @@ from freyja.utils import (agg, calc_rel_growth_rates, checkConfig,
 
 
 @click.group()
-@click.version_option('1.4.9')
+@click.version_option('1.5.0')
 def cli():
     pass
 
