@@ -8,3 +8,11 @@ matplotlib
 pysam
 biopython
 cvxpy
+numpy
+click
+tqdm
+matplotlib
+joblib
+plotly
+requests
+scipy
