@@ -7,3 +7,4 @@ seaborn
 matplotlib
 pysam
 biopython
+cvxpy
