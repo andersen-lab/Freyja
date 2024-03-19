@@ -3,3 +3,7 @@ sphinx_rtd_theme
 sphinx==7.2.6
 pandas
 pyyaml
+seaborn
+matplotlib
+pysam
+biopython
