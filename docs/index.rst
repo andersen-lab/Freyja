@@ -1,8 +1,3 @@
-.. Freyja documentation master file, created by
-   sphinx-quickstart on Wed Feb 21 08:25:27 2024.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
-
 Freyja Documentation
 ==================================
 Freyja is a tool to recover relative lineage abundances from mixed SARS-CoV-2 samples from a sequencing dataset (BAM aligned to the Hu-1 reference). The method uses lineage-determining mutational "barcodes" derived from the UShER global phylogenetic tree as a basis set to solve the constrained (unit sum, non-negative) de-mixing problem.

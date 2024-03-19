@@ -11,7 +11,7 @@ import os
 project = 'Freyja'
 copyright = '2024, Andersen Lab'
 author = 'Andersen Lab'
-release = '1.4.9'
+release = '1.5.0'
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
