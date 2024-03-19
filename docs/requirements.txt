@@ -1,4 +1,5 @@
 sphinx-click @ git+https://github.com/dylanpilz/sphinx-click.git
+sphinx-rtd-theme
 sphinx
 pandas
 pyyaml
