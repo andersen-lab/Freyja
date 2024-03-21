@@ -11,7 +11,7 @@ To ensure reproducibility of results, we provide old (timestamped) barcodes and 
    :caption: Freyja:
    
    src/installation
-   src/usage/usage
+   src/usage/demix
 
 .. toctree::
    :maxdepth: 2
