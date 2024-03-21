@@ -38,7 +38,7 @@ def buildLineageMap(locDir):
             for descendant in descendants:
                 mapDict[descendant] = clade
     else:
-        if locDir == '-1':
+        if locDir == '':
             locDir = os.path.abspath(
                 os.path.join(os.path.realpath(__file__), os.pardir))
             with open(os.path.join(
@@ -128,7 +128,11 @@ def reindex_dfs(df_barcodes, mix, depths):
 def map_to_constellation(sample_strains, vals, mapDict):
     # maps lineage names to constellations
     localDict = {}
-    for jj, lin in enumerate(sample_strains):
+    for jj, lin0 in enumerate(sample_strains):
+        if '-like' in lin0:
+            lin = lin0.split('-like')[0]
+        else:
+            lin = lin0
         if lin in mapDict.keys():
             if mapDict[lin] not in localDict.keys():
                 localDict[mapDict[lin]] = vals[jj]

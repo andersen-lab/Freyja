@@ -1,30 +1,9 @@
-import glob
 import os
-import subprocess
 import sys
+import yaml
 
 import click
 import pandas as pd
-import yaml
-
-from freyja.convert_paths2barcodes import (check_mutation_chain,
-                                           convert_to_barcodes,
-                                           parse_tree_paths,
-                                           reversion_checking)
-from freyja.read_analysis_tools import covariants as _covariants
-from freyja.read_analysis_tools import extract as _extract
-from freyja.read_analysis_tools import filter as _filter
-from freyja.read_analysis_tools import plot_covariants as _plot_covariants
-from freyja.sample_deconv import (build_mix_and_depth_arrays, buildLineageMap,
-                                  map_to_constellation, perform_bootstrap,
-                                  reindex_dfs, solve_demixing_problem)
-from freyja.updates import (convert_tree, convert_tree_custom,
-                            download_barcodes, download_tree, get_cl_lineages,
-                            get_curated_lineage_data)
-from freyja.utils import (agg, calc_rel_growth_rates, checkConfig,
-                          collapse_barcodes, get_abundance, make_dashboard,
-                          makePlot_simple, makePlot_time,
-                          read_lineage_file, handle_region_of_interest)
 
 
 @click.group()
@@ -55,16 +34,16 @@ def print_barcode_version(ctx, param, value):
     ctx.exit()
 
 
-@cli.command()
+@cli.command(context_settings={'show_default': True})
 @click.argument('variants', type=click.Path(exists=True))
 @click.argument('depths', type=click.Path(exists=True))
 @click.option('--eps', default=1e-3,
               help='minimum abundance to include for each'
                    ' lineage', show_default=True)
-@click.option('--barcodes', default='-1',
+@click.option('--barcodes', default='',
               help='Path to custom barcode file',
               show_default=True)
-@click.option('--meta', default='-1',
+@click.option('--meta', default='',
               help='custom lineage to variant metadata file',
               show_default=True)
 @click.option('--output', default='output name',
@@ -81,28 +60,37 @@ def print_barcode_version(ctx, param, value):
 @click.option('--depthcutoff', default=0,
               help='exclude sites with coverage depth below this value and'
               'group identical barcodes', show_default=True)
-@click.option('--lineageyml', default='-1',
-              help='lineage hierarchy file in a yaml format',
-              show_default=True)
+@click.option('--lineageyml', default='',
+              help='lineage hierarchy file in a yaml format')
 @click.option('--adapt', default=0.,
               help='adaptive lasso penalty parameter',
               show_default=True)
 @click.option('--a_eps', default=1E-8,
               help='adaptive lasso parameter, hard threshold',
               show_default=True)
-@click.option('--region_of_interest', default='-1',
+@click.option('--region_of_interest', default='',
               help='JSON file containing region(s) of interest'
-                   ' for which to compute additional coverage estimates',
-              show_default=True)
+                   ' for which to compute additional coverage estimates')
+@click.option('--relaxedmrca', is_flag=True, default=False,
+              help='for use with depth cutoff,'
+              'clusters are assigned robust mrca to handle outliers', show_default=True)
+@click.option('--relaxedthresh', default=0.9,
+              help='associated threshold for robust mrca function', show_default=True)
 def demix(variants, depths, output, eps, barcodes, meta,
           covcut, confirmedonly, depthcutoff, lineageyml,
-          adapt, a_eps, region_of_interest):
+          adapt, a_eps, region_of_interest,
+          relaxedmrca, relaxedthresh):
     """
     Generate lineage abundance from VARIANTS and DEPTHS
     """
+    from freyja.sample_deconv import (build_mix_and_depth_arrays,
+                                    buildLineageMap,
+                                    map_to_constellation,
+                                    reindex_dfs, solve_demixing_problem)
+    from freyja.utils import (collapse_barcodes, handle_region_of_interest)
 
     # option for custom barcodes
-    if barcodes != '-1':
+    if barcodes != '':
         df_barcodes = pd.read_csv(barcodes, index_col=0)
     else:
         df_barcodes = pd.read_csv(os.path.join(LOC_DIR,
@@ -118,7 +106,8 @@ def demix(variants, depths, output, eps, barcodes, meta,
     df_depth = pd.read_csv(depths, sep='\t', header=None, index_col=1)
     if depthcutoff != 0:
         df_barcodes = collapse_barcodes(df_barcodes, df_depth, depthcutoff,
-                                        lineageyml, LOC_DIR, output)
+                                        lineageyml, LOC_DIR, output,
+                                        relaxedmrca, relaxedthresh)
     muts = list(df_barcodes.columns)
     mapDict = buildLineageMap(meta)
     print('building mix/depth matrices')
@@ -163,7 +152,7 @@ def demix(variants, depths, output, eps, barcodes, meta,
                         name=mix.name)
 
     # Determine coverage in region(s) of interest (if specified)
-    if region_of_interest != '-1':
+    if region_of_interest != '':
 
         sols_df = handle_region_of_interest(region_of_interest, sols_df,
                                             df_depth, covcut, mix.name)
@@ -176,9 +165,8 @@ def demix(variants, depths, output, eps, barcodes, meta,
 
 
 @cli.command()
-@click.option('--outdir', default='-1',
-              help='Output directory save updated files',
-              show_default=True)
+@click.option('--outdir', default='',
+              help='Output directory to save updated files')
 @click.option('--noncl', is_flag=True, default=True,
               help='only include lineages that are'
                    'confirmed by cov-lineages',
@@ -191,8 +179,11 @@ def update(outdir, noncl, buildlocal):
     Updates the lineage information using the latest
     outbreak data
     """
+    from freyja.updates import (convert_tree, download_barcodes,
+                                download_tree, get_cl_lineages,
+                                get_curated_lineage_data)
 
-    if outdir != '-1':
+    if outdir != '':
         # User specified directory
         locDir = outdir
     else:
@@ -203,6 +194,10 @@ def update(outdir, noncl, buildlocal):
     get_cl_lineages(locDir)
     # # get data from UShER
     if buildlocal:
+        from freyja.convert_paths2barcodes import (check_mutation_chain,
+                                                   convert_to_barcodes,
+                                                   parse_tree_paths,
+                                                   reversion_checking)
         print('Downloading a new global tree')
         download_tree(locDir)
         print("Converting tree info to barcodes")
@@ -251,8 +246,15 @@ def update(outdir, noncl, buildlocal):
                    'confirmed by cov-lineages', show_default=True)
 def barcode_build(pb, outdir, noncl):
     """
-    Building barcodes from a global tree
+    Build barcodes from a custom protobuf tree
     """
+    from freyja.convert_paths2barcodes import (check_mutation_chain,
+                                               convert_to_barcodes,
+                                               parse_tree_paths,
+                                               reversion_checking)
+    from freyja.updates import (convert_tree_custom,
+                                get_cl_lineages,
+                                get_curated_lineage_data)
     locDir = LOC_DIR
     locDir = outdir
     print('Getting outbreak data')
@@ -304,25 +306,29 @@ def barcode_build(pb, outdir, noncl):
 @click.option('--refname', help='Ref name (for bams with multiple sequences)',
               default='')
 @click.option('--minq', help='Minimum base quality score',
-              default=20, show_default=True)
-@click.option('--annot', help='AA annotation output',
+              default=20)
+@click.option('--annot', help='provide an annotation file in gff3 format',
               default='')
-def variants(bamfile, ref, variants, depths, refname, minq, annot):
+@click.option('--varthresh', help='Variant frequency threshold', default=0.0, show_default=True)
+def variants(bamfile, ref, variants, depths, refname, minq, annot, varthresh):
     """
-    Perform variant calling using samtools and ivar on a BAMFILE
+    Perform variant calling using samtools and iVar on a BAMFILE
     """
 
     if ref == 'data/NC_045512_Hu-1.fasta':
         ref = os.path.join(LOC_DIR, ref)
 
+    import subprocess
     if len(refname) == 0:
         bashCmd = f"samtools mpileup -aa -A -d 600000 -Q {minq} -q 0 -B -f "\
                   f"{ref} {bamfile} | tee >(cut -f1-4 > {depths}) |"\
-                  f" ivar variants -p {variants} -q {minq} -t 0.0 -r {ref}"
+                  f" ivar variants -p {variants} -q {minq} -t {varthresh}"\
+                  f" -r {ref}"
     else:
         bashCmd = f"samtools mpileup -aa -A -d 600000 -Q {minq} -q 0 -B -f "\
                   f"{ref} {bamfile} -r {refname} | tee >(cut -f1-4 > {depths}"\
-                  f") | ivar variants -p {variants} -q {minq} -t 0.0 -r {ref}"
+                  f") | ivar variants -p {variants} -q {minq} -t {varthresh}"\
+                  f" -r {ref}"
     if len(annot) > 0:
         print('Including annotation')
         bashCmd = bashCmd + f" -g {annot}"
@@ -333,7 +339,7 @@ def variants(bamfile, ref, variants, depths, refname, minq, annot):
     sys.exit(completed.returncode)
 
 
-@cli.command()
+@cli.command(context_settings={'show_default': True})
 @click.argument('variants', type=click.Path(exists=True))
 @click.argument('depths', type=click.Path(exists=True))
 @click.option('--nb', default=100,
@@ -345,12 +351,12 @@ def variants(bamfile, ref, variants, depths, refname, minq, annot):
 @click.option('--eps', default=1e-3,
               help='minimum abundance to include',
               show_default=True)
-@click.option('--barcodes', default='-1',
+@click.option('--barcodes', default='',
               help='custom barcode file',
-              show_default=True)
-@click.option('--meta', default='-1',
+              )
+@click.option('--meta', default='',
               help='custom lineage to variant metadata file',
-              show_default=True)
+              )
 @click.option('--output_base', default='test',
               help='Output file basename',
               type=click.Path(exists=False), show_default=True)
@@ -361,20 +367,25 @@ def variants(bamfile, ref, variants, depths, refname, minq, annot):
               default=False, show_default=True)
 @click.option('--rawboots', is_flag=True, default=False,
               help='return raw bootstraps', show_default=True)
-@click.option('--lineageyml', default='-1',
-              help='lineage hierarchy file in a yaml format',
-              show_default=True)
+@click.option('--lineageyml', default='',
+              help='lineage hierarchy file in yaml format',
+              )
 @click.option('--depthcutoff', default=0,
               help='exclude sites with coverage depth below this value and'
               'group identical barcodes', show_default=True)
 def boot(variants, depths, output_base, eps, barcodes, meta,
-         nb, nt, boxplot, confirmedonly, lineageyml, depthcutoff, rawboots):
+         nb, nt, boxplot, confirmedonly, lineageyml, depthcutoff,
+         rawboots, relaxedmrca, relaxedthresh):
     """
     Perform bootstrapping method for freyja using VARIANTS and DEPTHS
     """
-
+    from freyja.sample_deconv import (build_mix_and_depth_arrays,
+                                    buildLineageMap,
+                                    perform_bootstrap,
+                                    reindex_dfs)
+    from freyja.utils import collapse_barcodes
     # option for custom barcodes
-    if barcodes != '-1':
+    if barcodes != '':
         df_barcodes = pd.read_csv(barcodes, index_col=0)
     else:
         df_barcodes = pd.read_csv(os.path.join(LOC_DIR,
@@ -393,7 +404,8 @@ def boot(variants, depths, output_base, eps, barcodes, meta,
     if depthcutoff != 0:
         df_barcodes = collapse_barcodes(
             df_barcodes, df_depths, depthcutoff,
-            lineageyml, LOC_DIR, output_base)
+            lineageyml, LOC_DIR, output_base,
+            relaxedmrca, relaxedthresh)
 
     muts = list(df_barcodes.columns)
     mapDict = buildLineageMap(meta)
@@ -421,9 +433,9 @@ def boot(variants, depths, output_base, eps, barcodes, meta,
 
 @cli.command()
 @click.argument('results', type=click.Path(exists=True))
-@click.option('--ext', default='-1',
+@click.option('--ext', default='',
               help='file extension option, e.g. X.ext',
-              show_default=True)
+              )
 @click.option('--output',
               help="name for aggregated results",
               default='aggregated_result.tsv',
@@ -432,7 +444,10 @@ def aggregate(results, ext, output):
     """
     Aggregates all the outputs RESULTS
     """
-    if ext != '-1':
+    import glob
+    from freyja.utils import agg
+
+    if ext != '':
         results_ = [fn for fn in glob.glob(results + '*' + ext)]
     else:
         results_ = [results + fn for fn in os.listdir(results)]
@@ -444,13 +459,13 @@ def aggregate(results, ext, output):
 @click.argument('agg_results',
                 type=click.Path(exists=True))
 @click.option('--lineages',
-              help="modify lineage break down",
+              help="modify lineage breakdown",
               is_flag=True, show_default=True)
 @click.option('--times',
               help="provide sample collection information,"
                    "check data/times_metadata.csv "
                    "for additional information",
-              default='-1', show_default=True)
+              default='')
 @click.option('--interval',
               help="define whether the intervals are"
                    " calculated daily D or monthly M "
@@ -472,7 +487,7 @@ def aggregate(results, ext, output):
                    "for interval calculation",
               default=14, show_default=True)
 @click.option('--lineageyml',
-              default='-1',
+              default='',
               help='Custom lineage hierarchy file',
               show_default=True)
 @click.option('--thresh',
@@ -480,14 +495,17 @@ def aggregate(results, ext, output):
               help='pass a minimum lineage abundance',
               show_default=True)
 @click.option('--writegrouped',
-              default='-1',
+              default='',
               help='path to write grouped lineage data',
               show_default=True)
 def plot(agg_results, lineages, times, interval, output, windowsize,
          config, mincov, lineageyml, thresh, writegrouped):
     """
-        create plots using the outputs AGG_RESULTS
+    Create plots using the demix outputs AGG_RESULTS
     """
+    from freyja.utils import (checkConfig,
+                              makePlot_simple, makePlot_time,
+                              read_lineage_file)
     agg_df = pd.read_csv(agg_results, skipinitialspace=True, sep='\t',
                          index_col=0)
     # drop poor quality samples
@@ -519,7 +537,7 @@ so no plot will be generated. Try changing --mincov threshold.')
     agg_df['abundances'] = agg_df['abundances'].astype(str)
     agg_df['summarized'] = agg_df['summarized'].astype(str)
     agg_df = agg_df[agg_df['summarized'] != '[]']
-    if times == '-1':
+    if times == '':
         # make basic plot, without time info
         makePlot_simple(agg_df, lineages, output, config, lineage_info,
                         thresh, writegrouped)
@@ -584,8 +602,8 @@ so no plot will be generated. Try changing --mincov threshold.')
               default=0.001,
               help='minimum prevalence to calculate'
                    ' relative growth rate for', show_default=True)
-@click.option('--lineageyml', default='-1',
-              help='custom lineage hierarchy file', show_default=True)
+@click.option('--lineageyml', default='',
+              help='custom lineage hierarchy file')
 @click.option('--keep_plot_files', is_flag=True,
               help='keep the intermediate html '
                    'for the core plot', show_default=True)
@@ -597,6 +615,7 @@ def dash(agg_results, metadata, title, intro, thresh, headercolor, bodycolor,
     """
     create plots using the outputs AGG_RESULTS, METADATA, TITLE and INTRO
     """
+    from freyja.utils import (checkConfig, make_dashboard, read_lineage_file)
     # drop poor quality samples
     if 'coverage' in agg_df.columns:
         agg_df = agg_df[agg_df['coverage'] > mincov]
@@ -657,15 +676,17 @@ def dash(agg_results, metadata, title, intro, thresh, headercolor, bodycolor,
 @click.option('--grthresh', default=0.001,
               help='minimum prevalence to calculate relative'
                    ' growth rate for', show_default=True)
-@click.option('--lineageyml', default='-1',
+@click.option('--lineageyml', default='',
               help='lineage hierarchy file', show_default=True)
 def relgrowthrate(agg_results, metadata, thresh, scale_by_viral_load, nboots,
                   serial_interval, config, mincov, output, days, grthresh,
                   lineageyml):
     """
-    generates relative growth rate for each lineage using
+    Generates relative growth rate for each lineage using
     AGG_RESULTS and METADATA
     """
+    from freyja.utils import (calc_rel_growth_rates, checkConfig,
+                              get_abundance, read_lineage_file)
     agg_df = pd.read_csv(agg_results, skipinitialspace=True, sep='\t',
                          index_col=0)
 
@@ -712,8 +733,9 @@ def relgrowthrate(agg_results, metadata, thresh, scale_by_viral_load, nboots,
                    ' occur on the same read', show_default=True)
 def extract(query_mutations, input_bam, output, same_read):
     """
-    extracts reads containing mutation of interest
+    Extracts reads containing one or more mutations of interest
     """
+    from freyja.read_analysis_tools import extract as _extract
     _extract(query_mutations, input_bam, output, same_read)
 
 
@@ -730,6 +752,8 @@ def filter(query_mutations, input_bam, min_site, max_site, output):
     excludes reads containing one or more QUERY_MUTATIONS using INPUT_BAM,
     MIN_SITE and MAX_SITE
     """
+    from freyja.read_analysis_tools import filter as _filter
+
     _filter(query_mutations, input_bam, min_site, max_site, output)
 
 
@@ -772,6 +796,7 @@ def covariants(input_bam, min_site, max_site, output,
     if ref_genome == 'data/NC_045512_Hu-1.fasta':
         ref_genome = os.path.join(LOC_DIR, ref_genome)
 
+    from freyja.read_analysis_tools import covariants as _covariants
     _covariants(input_bam, min_site, max_site, output,
                 ref_genome, gff_file, min_quality, min_count, spans_region,
                 sort_by)
@@ -798,6 +823,7 @@ def covariants(input_bam, min_site, max_site, output,
 def plot_covariants(covariants, output, num_clusters,
                     min_mutations, nt_muts, vmin, vmax):
     """Plot COVARIANTS output"""
+    from freyja.read_analysis_tools import plot_covariants as _plot_covariants
     _plot_covariants(covariants, output, num_clusters,
                      min_mutations, nt_muts, vmin, vmax)
 
