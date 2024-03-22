@@ -3,7 +3,7 @@
     :nested: full
     :commands: demix
 ------------
-
+  
 **Example Usage:**
 
 After running ``freyja variants`` we can run:

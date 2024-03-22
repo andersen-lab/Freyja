@@ -8,7 +8,7 @@ To ensure reproducibility of results, we provide old (timestamped) barcodes and 
 
 .. toctree::
    :maxdepth: 2
-   :caption: Freyja:
+   :caption: Usage:
    
    src/installation
    src/usage/demix

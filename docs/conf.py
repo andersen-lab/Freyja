@@ -5,19 +5,17 @@
 
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
-
 import sys
 import os
 project = 'Freyja'
 copyright = '2024, Andersen Lab'
 author = 'Andersen Lab'
-release = '1.5.0'
+version = 'v1.5.0'
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
 extensions = ['sphinx_click', 'sphinx_rtd_theme']
-
 templates_path = ['_templates']
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 
@@ -26,7 +24,9 @@ exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
 
 html_theme = 'sphinx_rtd_theme'
-html_static_path = ['_static']
+html_logo = 'src/freyja-logo.png'
+#html_static_path = ['_build/html/_static']
+
 
 # -- Setup for click -------------------------------------------------------
 sys.path.insert(0, os.path.abspath('..'))
