@@ -5,8 +5,7 @@ import yaml
 import click
 import pandas as pd
 
-
-@click.group()
+@click.group(context_settings={'show_default': True})
 @click.version_option('1.5.0')
 def cli():
     pass
@@ -16,9 +15,6 @@ def get_loc_dir():
     global LOC_DIR
     LOC_DIR = os.path.abspath(os.path.join(os.path.realpath(__file__),
                                            os.pardir))
-
-
-get_loc_dir()
 
 
 def print_barcode_version(ctx, param, value):
@@ -34,7 +30,7 @@ def print_barcode_version(ctx, param, value):
     ctx.exit()
 
 
-@cli.command(context_settings={'show_default': True})
+@cli.command()
 @click.argument('variants', type=click.Path(exists=True))
 @click.argument('depths', type=click.Path(exists=True))
 @click.option('--eps', default=1e-3,
@@ -339,7 +335,7 @@ def variants(bamfile, ref, variants, depths, refname, minq, annot, varthresh):
     sys.exit(completed.returncode)
 
 
-@cli.command(context_settings={'show_default': True})
+@cli.command()
 @click.argument('variants', type=click.Path(exists=True))
 @click.argument('depths', type=click.Path(exists=True))
 @click.option('--nb', default=100,
@@ -829,4 +825,5 @@ def plot_covariants(covariants, output, num_clusters,
 
 
 if __name__ == '__main__':
+    get_loc_dir()
     cli()
