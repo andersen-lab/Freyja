@@ -12,6 +12,7 @@ To ensure reproducibility of results, we provide old (timestamped) barcodes and 
    
    src/installation
    src/usage/demix
+   src/usage/variants
 
 .. toctree::
    :maxdepth: 2
