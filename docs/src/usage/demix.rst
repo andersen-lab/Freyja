@@ -9,8 +9,25 @@
 After running ``freyja variants`` we can run:
 ``freyja demix [variants-file] [depth-file] --output [output-file]``
 
-This outputs to a tsv file that includes the lineages present, their corresponding abundances, and summarization by constellation. This method also includes a `--eps` option, which enables the user to define the minimum lineage abundance returned to the user (e.g. `--eps 0.0001`). A custom barcode file can be provided using the `--barcodes [path-to-barcode-file]` option. By default, freyja uses the lineage hierarchy file located in`freyja/data` directory which is updated everytime the `freyja update` command is run. The user, however, can define a custom lineage hierarchy file using ``--lineageyml [path-to-lineage-file]``. Users can get the historic ``lineage.yml`` file at freyja-data GitHub repository `here <https://github.com/andersen-lab/Freyja-data/tree/main/history_lineage_hierarchy/>`_ . As the UShER tree now included proposed lineages, we now offer the ``--confirmedonly`` flag which removes unconfirmed lineages from the analysis. For additional flexibility and reproducibility of analyses, a custom lineage-to-constellation mapping metadata file can be provided using the `--meta` option. A coverage depth minimum can be specified using the `--depthcutoff` option, which excludes sites with coverage less than the specified value. An example output should have the format
-
+This outputs to a tsv file that includes the lineages present, their
+corresponding abundances, and summarization by constellation. This
+method also includes a ``--eps`` option, which enables the user to
+define the minimum lineage abundance returned to the user
+(e.g. ``--eps 0.0001``). A custom barcode file can be provided using the
+``--barcodes [path-to-barcode-file]`` option. By default, freyja uses
+the lineage hierarchy file located in\ ``freyja/data`` directory which
+is updated everytime the ``freyja update`` command is run. The user,
+however, can define a custom lineage hierarchy file
+using\ ``--lineageyml [path-to-lineage-file]``. Users can get the
+historic ``lineage.yml`` file at freyja-data GitHub repository
+`here <(%22https://github.com/andersen-lab/Freyja-data/tree/main/history_lineage_hierarchy%22)>`__.
+As the UShER tree now included proposed lineages, we now offer the
+``--confirmedonly`` flag which removes unconfirmed lineages from the
+analysis. For additional flexibility and reproducibility of analyses, a
+custom lineage-to-constellation mapping metadata file can be provided
+using the ``--meta`` option. A coverage depth minimum can be specified
+using the ``--depthcutoff`` option, which excludes sites with coverage
+less than the specified value. An example output should have the format
 
 +-------------+------------------------------------------------------+
 |             | filename                                             |

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" data-content_root="../../">
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>freyja variants &mdash; Freyja  documentation</title>
@@ -21,7 +21,7 @@
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="Command Line Workflow" href="../wiki/command_line_workflow.html" />
+    <link rel="next" title="freyja update" href="update.html" />
     <link rel="prev" title="freyja demix" href="demix.html" /> 
 </head>
 
@@ -53,6 +53,15 @@
 <li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="demix.html">freyja demix</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">freyja variants</a></li>
+<li class="toctree-l1"><a class="reference internal" href="update.html">freyja update</a></li>
+<li class="toctree-l1"><a class="reference internal" href="boot.html">freyja boot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="aggregate.html">freyja aggregate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plot.html">freyja plot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dash.html">freyja dash</a></li>
+<li class="toctree-l1"><a class="reference internal" href="relgrowthrate.html">freyja relgrowthrate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="extract.html">freyja extract</a></li>
+<li class="toctree-l1"><a class="reference internal" href="filter.html">freyja filter</a></li>
+<li class="toctree-l1"><a class="reference internal" href="covariants.html">freyja covariants</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Wiki:</span></p>
 <ul>
@@ -156,6 +165,7 @@
 
 </section>
 <hr class="docutils" />
+<p><strong>Example Usage:</strong></p>
 <p>After primer trimming in iVar, we get both variant call and sequencing depth information with the command:
 <code class="docutils literal notranslate"><span class="pre">freyja</span> <span class="pre">variants</span> <span class="pre">[bamfile]</span> <span class="pre">--variants</span> <span class="pre">[variant</span> <span class="pre">outfile</span> <span class="pre">name]</span> <span class="pre">--depths</span> <span class="pre">[depths</span> <span class="pre">outfile</span> <span class="pre">name]</span> <span class="pre">--ref</span> <span class="pre">[reference.fa]</span></code>
 which uses both samtools and iVar. Note that the reference should match the fasta file used for alignment. In cases where multiple reference genomes are present in the reference fasta, the user can specify the name of the desired reference genome with <code class="docutils literal notranslate"><span class="pre">--refname</span> <span class="pre">[name-of-reference]</span></code>. To enable alternative variant calling methods ( such as <a class="reference external" href="https://csb5.github.io/lofreq/">LoFreq</a>),  we also allow users to provide a VCF file using the <code class="docutils literal notranslate"><span class="pre">--variants</span></code> option (in addition to the usual depth file, which can be obtained using a command like <code class="docutils literal notranslate"><span class="pre">samtools</span> <span class="pre">mpileup</span> <span class="pre">-aa</span> <span class="pre">-A</span> <span class="pre">-d</span> <span class="pre">600000</span> <span class="pre">-Q</span> <span class="pre">20</span> <span class="pre">-q</span> <span class="pre">0</span> <span class="pre">-B</span> <span class="pre">-f</span> <span class="pre">ref.fasta</span> <span class="pre">sample.bam</span> <span class="pre">|</span> <span class="pre">cut</span> <span class="pre">-f1-4</span> <span class="pre">&gt;</span> <span class="pre">sample.depth</span></code>).</p>
@@ -165,7 +175,7 @@ which uses both samtools and iVar. Note that the reference should match the fast
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="demix.html" class="btn btn-neutral float-left" title="freyja demix" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="../wiki/command_line_workflow.html" class="btn btn-neutral float-right" title="Command Line Workflow" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="update.html" class="btn btn-neutral float-right" title="freyja update" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

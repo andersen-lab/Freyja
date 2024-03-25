@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" data-content_root="../../">
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>freyja demix &mdash; Freyja  documentation</title>
@@ -53,6 +53,16 @@
 <li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">freyja demix</a></li>
 <li class="toctree-l1"><a class="reference internal" href="variants.html">freyja variants</a></li>
+<li class="toctree-l1"><a class="reference internal" href="update.html">freyja update</a></li>
+<li class="toctree-l1"><a class="reference internal" href="boot.html">freyja boot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="aggregate.html">freyja aggregate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plot.html">freyja plot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dash.html">freyja dash</a></li>
+<li class="toctree-l1"><a class="reference internal" href="relgrowthrate.html">freyja relgrowthrate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="extract.html">freyja extract</a></li>
+<li class="toctree-l1"><a class="reference internal" href="filter.html">freyja filter</a></li>
+<li class="toctree-l1"><a class="reference internal" href="covariants.html">freyja covariants</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plot-covariants.html">freyja plot-covariants</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Wiki:</span></p>
 <ul>
@@ -254,7 +264,25 @@
 <p><strong>Example Usage:</strong></p>
 <p>After running <code class="docutils literal notranslate"><span class="pre">freyja</span> <span class="pre">variants</span></code> we can run:
 <code class="docutils literal notranslate"><span class="pre">freyja</span> <span class="pre">demix</span> <span class="pre">[variants-file]</span> <span class="pre">[depth-file]</span> <span class="pre">--output</span> <span class="pre">[output-file]</span></code></p>
-<p>This outputs to a tsv file that includes the lineages present, their corresponding abundances, and summarization by constellation. This method also includes a <cite>–eps</cite> option, which enables the user to define the minimum lineage abundance returned to the user (e.g. <cite>–eps 0.0001</cite>). A custom barcode file can be provided using the <cite>–barcodes [path-to-barcode-file]</cite> option. By default, freyja uses the lineage hierarchy file located in`freyja/data` directory which is updated everytime the <cite>freyja update</cite> command is run. The user, however, can define a custom lineage hierarchy file using <code class="docutils literal notranslate"><span class="pre">--lineageyml</span> <span class="pre">[path-to-lineage-file]</span></code>. Users can get the historic <code class="docutils literal notranslate"><span class="pre">lineage.yml</span></code> file at freyja-data GitHub repository <a class="reference external" href="https://github.com/andersen-lab/Freyja-data/tree/main/history_lineage_hierarchy/">here</a> . As the UShER tree now included proposed lineages, we now offer the <code class="docutils literal notranslate"><span class="pre">--confirmedonly</span></code> flag which removes unconfirmed lineages from the analysis. For additional flexibility and reproducibility of analyses, a custom lineage-to-constellation mapping metadata file can be provided using the <cite>–meta</cite> option. A coverage depth minimum can be specified using the <cite>–depthcutoff</cite> option, which excludes sites with coverage less than the specified value. An example output should have the format</p>
+<p>This outputs to a tsv file that includes the lineages present, their
+corresponding abundances, and summarization by constellation. This
+method also includes a <code class="docutils literal notranslate"><span class="pre">--eps</span></code> option, which enables the user to
+define the minimum lineage abundance returned to the user
+(e.g. <code class="docutils literal notranslate"><span class="pre">--eps</span> <span class="pre">0.0001</span></code>). A custom barcode file can be provided using the
+<code class="docutils literal notranslate"><span class="pre">--barcodes</span> <span class="pre">[path-to-barcode-file]</span></code> option. By default, freyja uses
+the lineage hierarchy file located in<code class="docutils literal notranslate"><span class="pre">freyja/data</span></code> directory which
+is updated everytime the <code class="docutils literal notranslate"><span class="pre">freyja</span> <span class="pre">update</span></code> command is run. The user,
+however, can define a custom lineage hierarchy file
+using<code class="docutils literal notranslate"><span class="pre">--lineageyml</span> <span class="pre">[path-to-lineage-file]</span></code>. Users can get the
+historic <code class="docutils literal notranslate"><span class="pre">lineage.yml</span></code> file at freyja-data GitHub repository
+<a class="reference external" href="(%22https://github.com/andersen-lab/Freyja-data/tree/main/history_lineage_hierarchy%22)">here</a>.
+As the UShER tree now included proposed lineages, we now offer the
+<code class="docutils literal notranslate"><span class="pre">--confirmedonly</span></code> flag which removes unconfirmed lineages from the
+analysis. For additional flexibility and reproducibility of analyses, a
+custom lineage-to-constellation mapping metadata file can be provided
+using the <code class="docutils literal notranslate"><span class="pre">--meta</span></code> option. A coverage depth minimum can be specified
+using the <code class="docutils literal notranslate"><span class="pre">--depthcutoff</span></code> option, which excludes sites with coverage
+less than the specified value. An example output should have the format</p>
 <table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"></th>

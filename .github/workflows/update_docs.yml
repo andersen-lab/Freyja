@@ -1,9 +1,9 @@
-name: Build and deploy documentation
+name: Build and deploy docs
 
 on:
   push:
-    branches:
-      - main
+    paths:
+      - 'freyja/**'
 
 jobs:
   build:
@@ -23,9 +23,14 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r docs/requirements.txt
 
+      - name: Build docs
+        run: |
+          cd docs
+          make html
+
       - name: Deploy to GH Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: docs/build/html
+          publish_dir: docs/_build/html
           force_orphan: true
