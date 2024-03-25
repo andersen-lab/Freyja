@@ -37,11 +37,9 @@ def print_barcode_version(ctx, param, value):
               help='minimum abundance to include for each'
                    ' lineage', show_default=True)
 @click.option('--barcodes', default='',
-              help='Path to custom barcode file',
-              show_default=True)
+              help='Path to custom barcode file')
 @click.option('--meta', default='',
-              help='custom lineage to variant metadata file',
-              show_default=True)
+              help='custom lineage to variant metadata file')
 @click.option('--output', default='output name',
               help='Output file',
               type=click.Path(exists=False), show_default=True)
@@ -484,16 +482,13 @@ def aggregate(results, ext, output):
               default=14, show_default=True)
 @click.option('--lineageyml',
               default='',
-              help='Custom lineage hierarchy file',
-              show_default=True)
+              help='Custom lineage hierarchy file')
 @click.option('--thresh',
               default=0.01,
-              help='pass a minimum lineage abundance',
-              show_default=True)
+              help='pass a minimum lineage abundance')
 @click.option('--writegrouped',
               default='',
-              help='path to write grouped lineage data',
-              show_default=True)
+              help='path to write grouped lineage data')
 def plot(agg_results, lineages, times, interval, output, windowsize,
          config, mincov, lineageyml, thresh, writegrouped):
     """
@@ -673,7 +668,7 @@ def dash(agg_results, metadata, title, intro, thresh, headercolor, bodycolor,
               help='minimum prevalence to calculate relative'
                    ' growth rate for', show_default=True)
 @click.option('--lineageyml', default='',
-              help='lineage hierarchy file', show_default=True)
+              help='lineage hierarchy file')
 def relgrowthrate(agg_results, metadata, thresh, scale_by_viral_load, nboots,
                   serial_interval, config, mincov, output, days, grthresh,
                   lineageyml):
