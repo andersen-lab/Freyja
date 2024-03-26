@@ -3,7 +3,8 @@ name: Build and deploy docs
 on:
   push:
     paths:
-      - 'freyja/**'
+      - 'docs/**'
+      - 'freyja/_cli.py'
 
 jobs:
   build:

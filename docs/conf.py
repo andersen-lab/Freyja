@@ -25,7 +25,7 @@ exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 
 html_theme = 'sphinx_rtd_theme'
 html_logo = 'src/freyja-logo.png'
-#html_static_path = ['_build/html/_static']
+# html_static_path = ['_build/html/_static']
 
 
 # -- Setup for click -------------------------------------------------------
