@@ -2,6 +2,8 @@ name: Build and deploy docs
 
 on:
   push:
+    branches:
+      - main
     paths:
       - 'docs/**'
       - 'freyja/_cli.py'
