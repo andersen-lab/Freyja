@@ -2824,6 +2824,7 @@
       - JP.1.1
       - JQ.1
       - JQ.2
+      - JQ.2.1
       - JV.1
       - JV.2
       - K.1
@@ -5459,6 +5460,7 @@
       - JP.1.1
       - JQ.1
       - JQ.2
+      - JQ.2.1
       - JV.1
       - JV.2
       - K.1
@@ -7156,6 +7158,7 @@
       - JP.1.1
       - JQ.1
       - JQ.2
+      - JQ.2.1
       - JV.1
       - JV.2
       - K.1
@@ -11328,6 +11331,7 @@
       - JP.1.1
       - JQ.1
       - JQ.2
+      - JQ.2.1
       - JV.1
       - JV.2
       - KG.1
@@ -12201,6 +12205,7 @@
       - JP.1.1
       - JQ.1
       - JQ.2
+      - JQ.2.1
       - JV.1
       - JV.2
       - KG.1
@@ -15599,6 +15604,7 @@
       - JN.13.1
       - JQ.1
       - JQ.2
+      - JQ.2.1
       - KP.1
       - KP.1.1
       - KP.2
@@ -15823,6 +15829,11 @@
       - JN.1.1.5
       - KR.1
   parent: JN.1.1
+- name: KR.1
+  alias: B.1.1.529.2.86.1.1.1.5.1
+  children:
+      - KR.1
+  parent: JN.1.1.5
 - name: JN.1.1.6
   alias: B.1.1.529.2.86.1.1.1.6
   children:
@@ -15833,11 +15844,6 @@
   children:
       - JN.1.1.7
   parent: JN.1.1
-- name: KR.1
-  alias: B.1.1.529.2.86.1.1.1.5.1
-  children:
-      - KR.1
-  parent: JN.1.1.5
 - name: JN.1.2
   alias: B.1.1.529.2.86.1.1.2
   children:
@@ -16318,6 +16324,7 @@
       - BA.2.86.3
       - JQ.1
       - JQ.2
+      - JQ.2.1
   parent: BA.2.86
 - name: JQ.1
   alias: B.1.1.529.2.86.3.1
@@ -16328,7 +16335,13 @@
   alias: B.1.1.529.2.86.3.2
   children:
       - JQ.2
+      - JQ.2.1
   parent: BA.2.86.3
+- name: JQ.2.1
+  alias: B.1.1.529.2.86.3.2.1
+  children:
+      - JQ.2.1
+  parent: JQ.2
 - name: BA.2.86.4
   alias: B.1.1.529.2.86.4
   children:
