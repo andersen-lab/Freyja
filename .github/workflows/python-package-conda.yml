@@ -52,27 +52,3 @@ jobs:
       run: |
         pip install -q flake8
         make lint
-        
-  update_docs:
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v2
-    - name: build docs
-      run: |
-        cd docs
-        rm -rf _build
-        make html
-
-    - name: commit if output is different 
-      run: |
-        echo "running git diff, committing if different"
-        if [[($(git status docs/ --porcelain | wc -c) -ne 0)]]; then
-          echo "changes were made, updating docs"
-          git config --local user.name "$GITHUB_ACTOR"
-          git config --local user.email "$GITHUB_ACTOR@users.noreply.github.com"
-          git add docs/*
-          git commit -m "updating docs with latest build"
-          git push origin main
-        else
-            echo "no changes were made, doing nothing."
-        fi; 
