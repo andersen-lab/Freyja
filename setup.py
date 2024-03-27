@@ -32,7 +32,10 @@ setup(
         ''',
     package_data={
         'freyja': ['data/*', ],
-        },
-    install_requires=["click", "numpy", "pandas", "cvxpy", "seaborn", "pysam",
-                      "biopython"],
+    },
+    install_requires=[
+        "click", "numpy", "pandas", "cvxpy", "seaborn", "pysam",
+        "biopython", "sphinx", "sphinx_rtd_theme",
+        "sphinx-click @ git+https://github.com/dylanpilz/sphinx-click.git"
+        ]
 )

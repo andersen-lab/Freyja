@@ -1,0 +1,18 @@
+sphinx-click @ git+https://github.com/dylanpilz/sphinx-click.git
+sphinx_rtd_theme
+sphinx
+pandas
+pyyaml
+seaborn
+matplotlib
+pysam
+biopython
+cvxpy
+numpy
+click
+tqdm
+matplotlib
+joblib
+plotly
+requests
+scipy
