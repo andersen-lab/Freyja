@@ -826,5 +826,22 @@ def plot_covariants(covariants, output, num_clusters,
                      min_mutations, nt_muts, vmin, vmax)
 
 
+@cli.command()
+@click.argument('lineage', type=str)
+@click.option('--barcodes', default='data/usher_barcodes.csv',
+              help='Path to custom barcode file', show_default=True)
+def get_lineage_def(lineage_of_interest, barcodes):
+    """Get the mutations defining a LINEAGE of interest from the usher tree"""
+    if barcodes == 'data/usher_barcodes.csv':
+        barcodes = os.path.join(locDir, barcodes)
+
+    df = pd.read_csv(barcodes,index_col=0)
+    target = df.loc[lineage_of_interest]
+    target = target[target>0]
+    targetMuts = list(target.index)
+    # Write muts to stdout
+    
+    print(' '.join(targetMuts))
+
 if __name__ == '__main__':
     cli()
