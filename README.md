@@ -1,5 +1,5 @@
 # Freyja
-[![freyja CI](https://github.com/andersen-lab/Freyja/actions/workflows/python-package-conda.yml/badge.svg)](https://github.com/andersen-lab/Freyja/actions/workflows/python-package-conda.yml) [![Anaconda-Server Badge](https://anaconda.org/bioconda/freyja/badges/version.svg)](https://anaconda.org/bioconda/freyja) [![Anaconda-Server Badge](https://anaconda.org/bioconda/freyja/badges/platforms.svg)](https://anaconda.org/bioconda/freyja) ![docs](https://github.com/andersen-lab/Freyja/actions/workflows/update_docs.yml/badge.svg)
+[![freyja CI](https://github.com/andersen-lab/Freyja/actions/workflows/python-package-conda.yml/badge.svg)](https://github.com/andersen-lab/Freyja/actions/workflows/python-package-conda.yml) [![Anaconda-Server Badge](https://anaconda.org/bioconda/freyja/badges/version.svg)](https://anaconda.org/bioconda/freyja) ![docs](https://github.com/andersen-lab/Freyja/actions/workflows/update_docs.yml/badge.svg)
 
 Detailed documentation, including installation, usage, and examples can be found [here](https://andersen-lab.github.io/Freyja/index.html#).
 
