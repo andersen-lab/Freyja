@@ -20,7 +20,7 @@ is updated everytime the ``freyja update`` command is run. The user,
 however, can define a custom lineage hierarchy file
 using\ ``--lineageyml [path-to-lineage-file]``. Users can get the
 historic ``lineage.yml`` file at freyja-data GitHub repository
-`here <(%22https://github.com/andersen-lab/Freyja-data/tree/main/history_lineage_hierarchy%22)>`__.
+`here <https://github.com/andersen-lab/Freyja-data/tree/main/history_lineage_hierarchy>`_.
 As the UShER tree now included proposed lineages, we now offer the
 ``--confirmedonly`` flag which removes unconfirmed lineages from the
 analysis. For additional flexibility and reproducibility of analyses, a
