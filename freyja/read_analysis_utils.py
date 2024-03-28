@@ -1,5 +1,4 @@
 import pandas as pd
-import pysam
 from Bio.Seq import MutableSeq
 from Bio import SeqIO
 
@@ -101,7 +100,7 @@ def parse_gff(gff_file):
 
 
 def translate_snps(snps, ref, gene_positions):
-    
+
     # Load reference genome
     ref = MutableSeq(next(SeqIO.parse(ref, 'fasta')).seq)
 

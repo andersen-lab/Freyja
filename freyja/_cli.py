@@ -295,14 +295,14 @@ def barcode_build(pb, outdir, noncl):
 @click.option('--barcodes', default='data/usher_barcodes.csv',
               help='Path to custom barcode file', show_default=True)
 @click.option('--annot', default=None,
-              help='Path to annotation file in gff3 format.'
-              'If included, shows amino acid mutations.')
+              help='Path to annotation file in gff3 format. '
+              'If included, shows amino acid mutations. ')
 @click.option('--ref', default=None,
-              help='Reference file in fasta format.'
+              help='Reference file in fasta format. '
               'Required to display amino acid mutations',
               show_default=True)
 @click.option('--output', default=None,
-              help='Output file to save lineage definition.'
+              help='Output file to save lineage definition. '
               'Defaults to stdout.')
 def get_lineage_def(lineage, barcodes, annot, ref, output):
     """
@@ -315,20 +315,24 @@ def get_lineage_def(lineage, barcodes, annot, ref, output):
         barcodes = os.path.join(locDir, barcodes)
 
     df = pd.read_csv(barcodes, index_col=0)
-    target = df.loc[lineage]
+    try:
+        target = df.loc[lineage]
+    except KeyError:
+        raise KeyError(f'Lineage "{lineage}" not found in barcodes')
     target = target[target > 0]
     target_muts = list(target.index)
 
     if annot is not None:
         if ref is None:
-            raise ValueError('Both annot and ref must be provided'
+            raise ValueError('Both annot and ref must be provided '
                              'to show amino acid mutations')
         else:
             gene_positions = parse_gff(annot)
             aa_mut = translate_snps(target_muts, ref, gene_positions)
             target_muts = [f'{mut}({aa_mut[mut]})' for mut in target_muts]
 
-    target_muts = ' '.join(target_muts)
+    target_muts = sorted(target_muts, key=lambda x: int(x.split('(')[0][1:-1]))
+    target_muts = '\n'.join(target_muts)
 
     if output is not None:
         with open(output, 'w') as f:
