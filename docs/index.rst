@@ -13,6 +13,8 @@ To ensure reproducibility of results, we provide old (timestamped) barcodes and 
    src/installation
    src/usage/demix
    src/usage/variants
+   src/usage/barcode-build
+   src/usage/get-lineage-def
    src/usage/update
    src/usage/boot
    src/usage/aggregate

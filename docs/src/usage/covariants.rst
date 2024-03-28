@@ -24,7 +24,7 @@ to ``freyja/data/NC_045512_Hu-1.fasta``. If you are using a different
 build to perfrom alignment, it is important to pass that file in to
 ``--ref-genome`` instead. Optionally, a gff file
 (e.g. ``freyja/data/NC_045512_Hu-1.gff``) may be included via the
-``--gff-file`` option to output amino acid mutations alongside
+``--annot`` option to output amino acid mutations alongside
 nucleotide mutations. Inclusion thresholds for read-mapping quality and
 the number of observed instances of a set of covariants can be set using
 ``--min_quality`` and ``--min_count`` respectively.
