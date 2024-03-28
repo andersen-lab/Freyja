@@ -291,6 +291,54 @@ def barcode_build(pb, outdir, noncl):
 
 
 @cli.command()
+@click.argument('lineage', type=str)
+@click.option('--barcodes', default='data/usher_barcodes.csv',
+              help='Path to custom barcode file', show_default=True)
+@click.option('--annot', default=None,
+              help='Path to annotation file in gff3 format.'
+              'If included, shows amino acid mutations.')
+@click.option('--ref', default=None,
+              help='Reference file in fasta format.'
+              'Required to display amino acid mutations',
+              show_default=True)
+@click.option('--output', default=None,
+              help='Output file to save lineage definition.'
+              'Defaults to stdout.')
+def get_lineage_def(lineage, barcodes, annot, ref, output):
+    """
+    Get the mutations defining a LINEAGE of interest
+    from provided barcodes
+    """
+    from freyja.read_analysis_utils import parse_gff, translate_snps
+
+    if barcodes == 'data/usher_barcodes.csv':
+        barcodes = os.path.join(locDir, barcodes)
+
+    df = pd.read_csv(barcodes, index_col=0)
+    target = df.loc[lineage]
+    target = target[target > 0]
+    target_muts = list(target.index)
+
+    if annot is not None:
+        if ref is None:
+            raise ValueError('Both annot and ref must be provided'
+                             'to show amino acid mutations')
+        else:
+            gene_positions = parse_gff(annot)
+            aa_mut = translate_snps(target_muts, ref, gene_positions)
+            target_muts = [f'{mut}({aa_mut[mut]})' for mut in target_muts]
+
+    target_muts = ' '.join(target_muts)
+
+    if output is not None:
+        with open(output, 'w') as f:
+            f.write(target_muts)
+    else:
+        print(target_muts)
+    return target_muts
+
+
+@cli.command()
 @click.argument('bamfile',
                 type=click.Path(exists=True))
 @click.option('--ref', help='Reference file in fasta format',
@@ -763,7 +811,7 @@ def filter(query_mutations, input_bam, min_site, max_site, output):
               help='path to save co-occurring mutations', show_default=True)
 @click.option('--ref-genome', type=click.Path(),
               default='data/NC_045512_Hu-1.fasta', show_default=True)
-@click.option('--gff-file', type=click.Path(exists=True),
+@click.option('--annot', type=click.Path(exists=True),
               default=None,
               help=('path to gff file corresponding to reference genome. If '
                     'included, outputs amino acid mutations in addition to '
@@ -783,7 +831,7 @@ def filter(query_mutations, input_bam, min_site, max_site, output):
                     '(in descending order). Set to "site" to sort patterns by '
                     'start site (n ascending order).'), show_default=True)
 def covariants(input_bam, min_site, max_site, output,
-               ref_genome, gff_file, min_quality, min_count, spans_region,
+               ref_genome, annot, min_quality, min_count, spans_region,
                sort_by):
     """
     Finds mutations co-occurring on the same read pair
@@ -796,7 +844,7 @@ def covariants(input_bam, min_site, max_site, output,
 
     from freyja.read_analysis_tools import covariants as _covariants
     _covariants(input_bam, min_site, max_site, output,
-                ref_genome, gff_file, min_quality, min_count, spans_region,
+                ref_genome, annot, min_quality, min_count, spans_region,
                 sort_by)
 
 
@@ -825,23 +873,6 @@ def plot_covariants(covariants, output, num_clusters,
     _plot_covariants(covariants, output, num_clusters,
                      min_mutations, nt_muts, vmin, vmax)
 
-
-@cli.command()
-@click.argument('lineage', type=str)
-@click.option('--barcodes', default='data/usher_barcodes.csv',
-              help='Path to custom barcode file', show_default=True)
-def get_lineage_def(lineage_of_interest, barcodes):
-    """Get the mutations defining a LINEAGE of interest from the usher tree"""
-    if barcodes == 'data/usher_barcodes.csv':
-        barcodes = os.path.join(locDir, barcodes)
-
-    df = pd.read_csv(barcodes,index_col=0)
-    target = df.loc[lineage_of_interest]
-    target = target[target>0]
-    targetMuts = list(target.index)
-    # Write muts to stdout
-    
-    print(' '.join(targetMuts))
 
 if __name__ == '__main__':
     cli()

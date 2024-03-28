@@ -1,4 +1,7 @@
 import pandas as pd
+import pysam
+from Bio.Seq import MutableSeq
+from Bio import SeqIO
 
 
 def nt_position(x):
@@ -80,3 +83,59 @@ def filter_covariants_output(cluster, nt_muts, min_mutations):
         return pd.NA
     else:
         return list(dict.fromkeys(cluster_final))
+
+
+def parse_gff(gff_file):
+    gene_positions = {}
+    with open(gff_file) as f:
+        for line in f.readlines():
+            line = line.split('\t')
+            if 'gene' in line:
+                attrs = line[-1].split(';')
+                for attr in attrs:
+                    if attr.startswith('Name='):
+                        gene_name = attr.split('=')[1]
+                        gene_positions[gene_name] = (int(line[3]),
+                                                     int(line[4]))
+    return gene_positions
+
+
+def translate_snps(snps, ref, gene_positions):
+    
+    # Load reference genome
+    ref = MutableSeq(next(SeqIO.parse(ref, 'fasta')).seq)
+
+    output = {snp: None for snp in snps}
+    for snp in snps:
+        locus = int(snp[1:-1])
+
+        # Find the key in gene_positions that corresponds to the gene
+        # containing the SNP
+        gene_info = None
+        for gene in gene_positions:
+            start, end = gene_positions[gene]
+            if start <= locus <= end:
+                gene_info = gene, start
+                break
+        if gene_info is None:
+            continue
+
+        codon_position = (locus - start) % 3
+        aa_locus = ((locus - codon_position - start) // 3) + 1
+
+        ref_codon = ref[locus - codon_position - 1:
+                        locus - codon_position + 2]
+        ref_aa = ref_codon.translate()
+
+        alt_codon = MutableSeq(str(ref_codon))
+        alt_codon[codon_position] = snp[-1]
+
+        if len(alt_codon) % 3 != 0 or len(alt_codon) == 0 \
+                or 'N' in alt_codon:
+            continue
+        alt_aa = alt_codon.translate()
+
+        aa_mut = f'{gene}:{ref_aa}{aa_locus}{alt_aa}'
+        output[snp] = aa_mut
+
+    return output
