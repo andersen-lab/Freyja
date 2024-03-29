@@ -162,7 +162,7 @@ class ReadAnalysisTests(unittest.TestCase):
 
     def test_covariants(self):
         cmd = ['freyja', 'covariants', self.input_bam,
-               '21563', '25384', '--gff-file',
+               '21563', '25384', '--annot',
                'freyja/data/NC_045512_Hu-1.gff', '--output',
                'freyja/data/test_covar.tsv']
         err = subprocess.run(cmd)

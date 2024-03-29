@@ -53,6 +53,15 @@ class CommandLineTests(unittest.TestCase):
                    --output test_dash.html')
         self.assertTrue(file_exists('.', "test_dash.html"))
 
+    def test_get_lineage_def(self):
+        os.system('freyja get-lineage-def B.1.1.7 '
+                  '--annot freyja/data/NC_045512_Hu-1.gff '
+                  '--ref freyja/data/NC_045512_Hu-1.fasta '
+                  '--output lineage_def.txt')
+        self.assertTrue(file_exists('.', "lineage_def.txt"))
+        with open('lineage_def.txt') as f:
+            self.assertEqual(len(f.readlines()), 28)
+
 
 if __name__ == '__main__':
     unittest.main()

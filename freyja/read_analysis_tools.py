@@ -11,7 +11,7 @@ from Bio import SeqIO
 
 from freyja.read_analysis_utils import nt_position, get_colnames_and_sites, \
                                        read_pair_generator, \
-                                       filter_covariants_output
+                                       filter_covariants_output, parse_gff
 
 
 def extract(query_mutations, input_bam, output, same_read):
@@ -330,27 +330,17 @@ def covariants(input_bam, min_site, max_site, output,
 
     # Load gene annotations (if present)
     if gff_file is not None:
-        gene_positions = {}
-        with open(gff_file) as f:
-            for line in f.readlines():
-                line = line.split('\t')
-                if 'gene' in line:
-                    attrs = line[-1].split(';')
-                    for attr in attrs:
-                        if attr.startswith('Name='):
-                            gene_name = attr.split('=')[1]
-                            gene_positions[gene_name] = (int(line[3]),
-                                                         int(line[4]))
+        gene_positions = parse_gff(gff_file)
 
-            # Split ORF1ab for SARS-CoV-2
-            if 'ORF1ab' in gene_positions:
-                del gene_positions['ORF1ab']
-                gene_positions['ORF1a'] = (266, 13468)
-                gene_positions['ORF1b'] = (13468, 21555)
-            elif 'orf1ab' in gene_positions:
-                del gene_positions['orf1ab']
-                gene_positions['orf1a'] = (266, 13468)
-                gene_positions['orf1b'] = (13468, 21555)
+        # Split ORF1ab for SARS-CoV-2
+        if 'ORF1ab' in gene_positions:
+            del gene_positions['ORF1ab']
+            gene_positions['ORF1a'] = (266, 13468)
+            gene_positions['ORF1b'] = (13468, 21555)
+        elif 'orf1ab' in gene_positions:
+            del gene_positions['orf1ab']
+            gene_positions['orf1a'] = (266, 13468)
+            gene_positions['orf1b'] = (13468, 21555)
 
     # Open input bam file for reading
     samfile = pysam.AlignmentFile(input_bam, 'rb')
