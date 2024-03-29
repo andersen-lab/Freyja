@@ -134,6 +134,9 @@ def translate_snps(snps, ref, gene_positions):
             continue
         alt_aa = alt_codon.translate()
 
+        if ref_aa == alt_aa or '*' in alt_aa:
+            continue # Synonymous/stop codon mutation
+
         aa_mut = f'{gene}:{ref_aa}{aa_locus}{alt_aa}'
         output[snp] = aa_mut
 

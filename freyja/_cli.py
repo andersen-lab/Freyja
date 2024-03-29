@@ -329,7 +329,8 @@ def get_lineage_def(lineage, barcodes, annot, ref, output):
         else:
             gene_positions = parse_gff(annot)
             aa_mut = translate_snps(target_muts, ref, gene_positions)
-            target_muts = [f'{mut}({aa_mut[mut]})' for mut in target_muts]
+            target_muts = [f'{mut}({aa_mut[mut]})' if aa_mut[mut] is not None
+                           else f'{mut}' for mut in target_muts]
 
     target_muts = sorted(target_muts, key=lambda x: int(x.split('(')[0][1:-1]))
     target_muts = '\n'.join(target_muts)
