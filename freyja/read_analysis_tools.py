@@ -470,9 +470,11 @@ def covariants(input_bam, min_site, max_site, output,
                 last_del_site = start+i
 
             # Find SNPs
+            
             softclip_offset = 0
-            if cigar[0][1] == 'S':
-                softclip_offset = int(cigar[0][0])
+            if cigar[0][1] == 'S' or cigar[1][1] == 'S':
+                softclip_offset += int(cigar[0][0])
+
 
             pairs = x.get_aligned_pairs(matches_only=True)
 
