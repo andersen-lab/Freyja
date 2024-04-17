@@ -5,13 +5,15 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import matplotlib.colors as mcolors
 from matplotlib.patches import Patch, Rectangle
+import concurrent.futures as cf
+from concurrent.futures import ProcessPoolExecutor
 import pysam
 from Bio.Seq import MutableSeq
 from Bio import SeqIO
 
 from freyja.read_analysis_utils import nt_position, get_colnames_and_sites, \
                                        read_pair_generator, \
-                                       filter_covariants_output, parse_gff
+                                       filter_covariants_output, parse_gff, get_gene
 
 
 def extract(query_mutations, input_bam, output, same_read):
@@ -315,15 +317,44 @@ def filter(query_mutations, input_bam, min_site, max_site, output):
     return final_reads
 
 
-def covariants(input_bam, min_site, max_site, output,
-               ref_fasta, gff_file, min_quality, min_count, spans_region,
-               sort_by):
+def run_parallel(cores, regions, input_bam, ref_fasta, gff_file, min_quality, min_count, spans_region):
+    with ProcessPoolExecutor(max_workers=cores) as p:
+        futures = {p.submit(process_covariants, input_bam, region[0], region[1], ref_fasta, gff_file, min_quality, min_count, spans_region) for region in regions}
+        for future in cf.as_completed(futures):
+            print(future.result())
+            yield future.result()
 
-    def get_gene(locus):
-        for gene in gene_positions:
-            start, end = gene_positions[gene]
-            if locus in range(start, end+1):
-                return gene, start
+def covariants(input_bam, min_site, max_site, output,
+                ref_fasta, gff_file, min_quality, min_count, spans_region,
+                sort_by, cores):
+    # Split regions into smaller chunks for parallel processing
+    regions = [(min_site, max_site)]
+    if cores > 1:
+        region_size = (max_site - min_site) // cores
+        regions = [(min_site + i * region_size, min_site + (i + 1) * region_size) for i in range(cores)]
+        regions[-1] = (regions[-1][0], max_site)
+    
+    # Run parallel processing
+    results = run_parallel(cores, regions, input_bam, ref_fasta, gff_file, min_quality, min_count, spans_region)
+
+    # Aggregate results
+    df = pd.concat(results)
+
+    # Sort patterns
+    if sort_by.lower() == 'count':
+        df = df.sort_values('Count', ascending=False)
+    elif sort_by.lower() == 'freq':
+        df = df.sort_values('Freq', ascending=False)
+    elif sort_by.lower() == 'site':
+        df['sort_col'] = [nt_position(s.split(' ')[0]) for s in df.Covariants]
+        df = df.sort_values('sort_col').drop(labels='sort_col', axis=1)
+
+    df.to_csv(output, sep='\t', index=False)
+    print(f'covariants: Output saved to {output}')
+    return df
+    
+
+def process_covariants(input_bam, min_site, max_site, ref_fasta, gff_file, min_quality, min_count, spans_region):
 
     # Load reference genome
     ref_genome = MutableSeq(next(SeqIO.parse(ref_fasta, 'fasta')).seq)
@@ -472,16 +503,23 @@ def covariants(input_bam, min_site, max_site, output,
             # Find SNPs
             
             softclip_offset = 0
-            if cigar[0][1] == 'S' or cigar[1][1] == 'S':
+            if cigar[0][1] == 'S':
                 softclip_offset += int(cigar[0][0])
+            
+            if len(cigar) > 1 and cigar[1][1] == 'S':
+                softclip_offset += int(cigar[1][0])
 
 
             pairs = x.get_aligned_pairs(matches_only=True)
 
             for tup in pairs:
                 read_site, ref_site = tup
+
                 read_site -= softclip_offset
                 ref_base = ref_genome[ref_site]
+
+                if read_site >= len(seq) -1 or read_site < 0:
+                    continue
                 if seq[read_site] != 'N' and ref_base != seq[read_site]:
                     snps_found.append(
                         f'{ref_base.upper()}{ref_site+1}{seq[read_site]}'
@@ -495,7 +533,7 @@ def covariants(input_bam, min_site, max_site, output,
             if gff_file is not None:
                 for ins in insertions_found:
                     locus = ins[0]
-                    gene_info = get_gene(locus)
+                    gene_info = get_gene(locus, gene_positions)
                     ins_string = str(ins).replace(' ', '')
                     if gene_info is None or ins_string in nt_to_aa:
                         continue
@@ -514,7 +552,7 @@ def covariants(input_bam, min_site, max_site, output,
 
                 for deletion in deletions_found:
                     locus = deletion[0]
-                    gene_info = get_gene(locus)
+                    gene_info = get_gene(locus, gene_positions)
                     deletion_string = str(deletion).replace(' ', '')
                     if gene_info is None or deletion_string in nt_to_aa:
                         continue
@@ -534,7 +572,7 @@ def covariants(input_bam, min_site, max_site, output,
 
                 for snp in snps_found:
                     locus = int(snp[1:-1])
-                    gene_info = get_gene(locus)
+                    gene_info = get_gene(locus, gene_positions)
                     if gene_info is None or snp in nt_to_aa:
                         continue
 
@@ -674,17 +712,6 @@ def covariants(input_bam, min_site, max_site, output,
 
     df = df[df['Count'] >= min_count]
 
-    # Sort patterns
-    if sort_by.lower() == 'count':
-        df = df.sort_values('Count', ascending=False)
-    elif sort_by.lower() == 'freq':
-        df = df.sort_values('Freq', ascending=False)
-    elif sort_by.lower() == 'site':
-        df['sort_col'] = [nt_position(s.split(' ')[0]) for s in df.Covariants]
-        df = df.sort_values('sort_col').drop(labels='sort_col', axis=1)
-
-    df.to_csv(output, sep='\t', index=False)
-    print(f'covariants: Output saved to {output}')
     return df
 
 
