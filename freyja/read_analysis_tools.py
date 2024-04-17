@@ -12,8 +12,8 @@ from Bio.Seq import MutableSeq
 from Bio import SeqIO
 
 from freyja.read_analysis_utils import nt_position, get_colnames_and_sites, \
-                                       read_pair_generator, \
-                                       filter_covariants_output, parse_gff, get_gene
+    read_pair_generator, \
+    filter_covariants_output, parse_gff, get_gene
 
 
 def extract(query_mutations, input_bam, output, same_read):
@@ -317,25 +317,31 @@ def filter(query_mutations, input_bam, min_site, max_site, output):
     return final_reads
 
 
-def run_parallel(cores, regions, input_bam, ref_fasta, gff_file, min_quality, min_count, spans_region):
+def run_parallel(cores, regions, input_bam, ref_fasta, gff_file, min_quality,
+                 min_count, spans_region):
     with ProcessPoolExecutor(max_workers=cores) as p:
-        futures = {p.submit(process_covariants, input_bam, region[0], region[1], ref_fasta, gff_file, min_quality, min_count, spans_region) for region in regions}
+        futures = {p.submit(process_covariants, input_bam,
+                            region[0], region[1], ref_fasta, gff_file,
+                            min_quality, min_count, spans_region)
+                   for region in regions}
         for future in cf.as_completed(futures):
-            print(future.result())
             yield future.result()
 
+
 def covariants(input_bam, min_site, max_site, output,
-                ref_fasta, gff_file, min_quality, min_count, spans_region,
-                sort_by, cores):
+               ref_fasta, gff_file, min_quality, min_count, spans_region,
+               sort_by, cores):
     # Split regions into smaller chunks for parallel processing
     regions = [(min_site, max_site)]
     if cores > 1:
         region_size = (max_site - min_site) // cores
-        regions = [(min_site + i * region_size, min_site + (i + 1) * region_size) for i in range(cores)]
+        regions = [(min_site + i * region_size, min_site +
+                    (i + 1) * region_size) for i in range(cores)]
         regions[-1] = (regions[-1][0], max_site)
-    
+
     # Run parallel processing
-    results = run_parallel(cores, regions, input_bam, ref_fasta, gff_file, min_quality, min_count, spans_region)
+    results = run_parallel(cores, regions, input_bam, ref_fasta,
+                           gff_file, min_quality, min_count, spans_region)
 
     # Aggregate results
     df = pd.concat(results)
@@ -352,9 +358,10 @@ def covariants(input_bam, min_site, max_site, output,
     df.to_csv(output, sep='\t', index=False)
     print(f'covariants: Output saved to {output}')
     return df
-    
 
-def process_covariants(input_bam, min_site, max_site, ref_fasta, gff_file, min_quality, min_count, spans_region):
+
+def process_covariants(input_bam, min_site, max_site, ref_fasta, gff_file,
+                       min_quality, min_count, spans_region):
 
     # Load reference genome
     ref_genome = MutableSeq(next(SeqIO.parse(ref_fasta, 'fasta')).seq)
@@ -501,14 +508,12 @@ def process_covariants(input_bam, min_site, max_site, ref_fasta, gff_file, min_q
                 last_del_site = start+i
 
             # Find SNPs
-            
+
             softclip_offset = 0
             if cigar[0][1] == 'S':
                 softclip_offset += int(cigar[0][0])
-            
-            if len(cigar) > 1 and cigar[1][1] == 'S':
+            if (len(cigar) > 1 and cigar[0][1] == 'H' and cigar[1][1] == 'S'):
                 softclip_offset += int(cigar[1][0])
-
 
             pairs = x.get_aligned_pairs(matches_only=True)
 
@@ -518,8 +523,6 @@ def process_covariants(input_bam, min_site, max_site, ref_fasta, gff_file, min_q
                 read_site -= softclip_offset
                 ref_base = ref_genome[ref_site]
 
-                if read_site >= len(seq) -1 or read_site < 0:
-                    continue
                 if seq[read_site] != 'N' and ref_base != seq[read_site]:
                     snps_found.append(
                         f'{ref_base.upper()}{ref_site+1}{seq[read_site]}'

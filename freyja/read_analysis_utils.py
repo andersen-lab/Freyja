@@ -142,8 +142,9 @@ def translate_snps(snps, ref, gene_positions):
 
     return output
 
+
 def get_gene(locus, gene_positions):
-        for gene in gene_positions:
-            start, end = gene_positions[gene]
-            if locus in range(start, end+1):
-                return gene, start
+    for gene in gene_positions:
+        start, end = gene_positions[gene]
+        if locus in range(start, end+1):
+            return gene, start
