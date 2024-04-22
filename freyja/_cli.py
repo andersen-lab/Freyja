@@ -426,6 +426,9 @@ def variants(bamfile, ref, variants, depths, refname, minq, annot, varthresh):
 @click.option('--depthcutoff', default=0,
               help='exclude sites with coverage depth below this value and'
               'group identical barcodes', show_default=True)
+@click.option('--bootSeed', default=0,
+              help='define a seed for bootstrapping methods',
+              show_default=True)
 def boot(variants, depths, output_base, eps, barcodes, meta,
          nb, nt, boxplot, confirmedonly, lineageyml, depthcutoff,
          rawboots, relaxedmrca, relaxedthresh):
@@ -471,7 +474,7 @@ def boot(variants, depths, output_base, eps, barcodes, meta,
     df_barcodes, mix, depths_ = reindex_dfs(df_barcodes, mix, depths_)
     lin_df, constell_df = perform_bootstrap(df_barcodes, mix, depths_,
                                             nb, eps, nt, mapDict, muts,
-                                            boxplot, output_base)
+                                            boxplot, output_base, bootSeed)
     if rawboots:
         lin_df.to_csv(output_base + '_lineages_boot.csv')
         constell_df.to_csv(output_base + '_summarized_boot.csv')
