@@ -257,7 +257,7 @@ def bootstrap_parallel(jj, samplesDefining, fracDepths_adj, mix_grp,
 def perform_bootstrap(df_barcodes, mix, depths_,
                       numBootstraps, eps0, n_jobs,
                       mapDict, muts, boxplot, basename,
-                      adapt=0., a_eps=1E-8):
+                      adapt=0., a_eps=1E-8, bootSeed=0):
     depths_.index = depths_.index.to_series().apply(lambda x:
                                                     int(x[1:len(x)-1]))
     depths_ = depths_[~depths_.index.duplicated(keep='first')]
@@ -266,7 +266,7 @@ def perform_bootstrap(df_barcodes, mix, depths_,
 
     fracDefining = fracDepths.sum()
     fracDepths_adj = fracDepths/fracDefining
-
+    np.random.seed(bootSeed)
     # get the total depth at lineage defining positions
     samplesDefining = np.random.binomial(totalDepth,
                                          fracDefining,
