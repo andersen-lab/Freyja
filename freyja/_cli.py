@@ -431,7 +431,7 @@ def variants(bamfile, ref, variants, depths, refname, minq, annot, varthresh):
               show_default=True)
 def boot(variants, depths, output_base, eps, barcodes, meta,
          nb, nt, boxplot, confirmedonly, lineageyml, depthcutoff,
-         rawboots, relaxedmrca, relaxedthresh):
+         rawboots, relaxedmrca, relaxedthresh, bootSeed):
     """
     Perform bootstrapping method for freyja using VARIANTS and DEPTHS
     """
