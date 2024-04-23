@@ -835,7 +835,8 @@ def filter(query_mutations, input_bam, min_site, max_site, output):
                     '"count" or "freq" to sort patterns by count or frequency '
                     '(in descending order). Set to "site" to sort patterns by '
                     'start site (n ascending order).'), show_default=True)
-@click.option('--cores', default=1, help='number of cpu cores to use')
+@click.option('--threads', default=1, help='number of parallet processes to '
+              'use. Recommended for large BAM files.', show_default=True)
 def covariants(input_bam, min_site, max_site, output,
                ref_genome, annot, min_quality, min_count, spans_region,
                sort_by, cores):

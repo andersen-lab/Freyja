@@ -345,6 +345,7 @@ def covariants(input_bam, min_site, max_site, output,
 
     # Aggregate results
     df = pd.concat(results)
+    df = df.drop_duplicates(subset='Covariants', keep='first')
 
     # Sort patterns
     if sort_by.lower() == 'count':
