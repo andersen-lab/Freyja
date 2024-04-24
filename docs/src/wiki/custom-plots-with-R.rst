@@ -5,12 +5,14 @@ Here we discuss freyja ``demix`` output manipulation and plotting using R progra
 language.
 
 1. Change freyja ``demix`` output to a dataframe format.
-    Code credit for parsing the demix output: https://github.com/a-roguet
+Code credit for parsing the demix output: https://github.com/a-roguet
+
 .. code:: R
 
     library(data.table)
     library(tidyverse)
     library(lubridate)
+    library(zoo)
 
     results<-read.table("test_sweep.tsv", fill = TRUE, sep = "\t", h=T)
     results<-as.data.frame(sapply(results, function(x) str_replace_all(x, "[',()\\]\\[]", ""))) # Removed the unwanted character: [], () and commas
@@ -56,7 +58,26 @@ language.
       inner_join(summarized.final, by = "Sample")
     combined_sublineage_abundance_time_data <- time_metadata %>%
       inner_join(sublineages.final, by = "Sample")
+
+- Optional: you can also add custom lineage grouping as following:
+
+.. code:: R
+
+    # get rows with sub-lineage value starting with "AY"
+    sublin_grouping <- combined_sublineage_abundance_time_data %>%
+      filter(str_detect(sublineage, "^AY"))
+    # Add a grouping column
+    sublin_grouping$grouping <- "AY.X"
+    # get rows with sub-lineage value not starting with "AY"
+    other_sublineages <-combined_sublineage_abundance_time_data %>%
+      filter(!str_detect(sublineage, "^AY"))
+    # Add a grouping column
+    other_sublineages$grouping <-"other"
+    # Merge the two dataframes
+    grouped_sublineage_data <- rbind(sublin_grouping,other_sublineages)
 3. Create lineage prevalence stacked bar plots grouped by month interval
+k defines the window size used for smoothing in moving average function.
+You may change this value accordingly.
 
 .. code:: R
 
@@ -68,6 +89,13 @@ language.
        ggplot(grouped_interval_lineage, mapping = aes(fill= lineage, y=mean_monthly_abundance, x=month)) +
        geom_bar(position="fill", stat="identity") + theme_minimal() +ylab("Variant Prevalence") +
        ggtitle("Lineage prevalence")
+
+Note: If you do not wish to smooth your data,
+you can simply use the following instead of the rollmean function.
+
+.. code:: R
+
+    summarise(mean_monthly_abundance = mean(abundance))
 
 4. Create sub-lineage prevalence stacked bar plots grouped by month interval
 
