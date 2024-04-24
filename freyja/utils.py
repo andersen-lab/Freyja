@@ -1,7 +1,6 @@
 import copy
 import os
 import re
-import sys
 import tqdm
 
 import matplotlib.dates as mdates
@@ -542,9 +541,10 @@ def get_abundance(agg_df, meta_df, thresh, scale_by_viral_load, config,
     agg_df = prepSummaryDict(agg_df)
 
     if len(meta_df.index[meta_df.index.duplicated(keep=False)]) > 0:
-        print('ERROR: multiple entries for same sample in metadata')
-        print(meta_df.index[meta_df.index.duplicated(keep=False)])
-        sys.exit(1)
+        raise ValueError(
+            'ERROR: multiple entries for same sample in metadata:'
+            f'\n{meta_df.index[meta_df.index.duplicated(keep=False)]}')
+
     agg_df.to_csv('agg_df.csv')
     # collect lineage data
     df_ab_lin = pd.DataFrame()
@@ -934,9 +934,8 @@ def collapse_barcodes(df_barcodes, df_depth, depthcutoff,
             lambda x: tuple(x.index) if len(x.index) > 1 else None
         ).dropna()
     except ValueError:
-        print(f'Error: --depthcutoff {depthcutoff} too high'
-              f'for data with max depth {max_depth}')
-        sys.exit(1)
+        raise ValueError(f'Error: --depthcutoff {depthcutoff} too high'
+                         f'for data with max depth {max_depth}')
 
     if len(duplicates) == 0:
         return df_barcodes
