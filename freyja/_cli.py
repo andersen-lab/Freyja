@@ -446,7 +446,6 @@ def boot(variants, depths, output_base, eps, barcodes, meta,
                                       buildLineageMap,
                                       perform_bootstrap,
                                       reindex_dfs)
-    from freyja.utils import collapse_barcodes
     # option for custom barcodes
     if barcodes != '':
         df_barcodes = pd.read_csv(barcodes, index_col=0)
@@ -465,6 +464,7 @@ def boot(variants, depths, output_base, eps, barcodes, meta,
 
     df_depths = pd.read_csv(depths, sep='\t', header=None, index_col=1)
     if depthcutoff != 0:
+        from freyja.utils import collapse_barcodes
         df_barcodes = collapse_barcodes(
             df_barcodes, df_depths, depthcutoff,
             lineageyml, locDir, output_base,

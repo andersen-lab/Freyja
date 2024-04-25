@@ -213,12 +213,13 @@ def bootstrap_parallel(jj, samplesDefining, fracDepths_adj, mix_grp,
     # helper function for fast bootstrap and solve
     # get sequencing depth at the position of all defining mutations
     mix_boot = mix.copy()
-    seed = bootseed
+    seed = bootseed+jj
     rng = np.random.default_rng()
     # get the BitGenerator used by default_rng
     BitGen = type(rng.bit_generator)
     # use the state from a fresh bit generator
     rng.bit_generator.state = BitGen(seed).state
+
     dps = pd.Series(rng.multinomial(samplesDefining[jj],
                     fracDepths_adj, size=1)[0, :], index=fracDepths_adj.index)
     # get number of reads of each possible nucleotide
@@ -239,8 +240,8 @@ def bootstrap_parallel(jj, samplesDefining, fracDepths_adj, mix_grp,
             if np.sum(probs) > 1.0:
                 # correct rounding errors
                 probs = np.array(probs)/np.sum(probs)
-            altCounts = np.random.multinomial(dps[mp], probs,
-                                              size=1)[0, 0:(len(probs)-1)]
+            altCounts = rng.multinomial(dps[mp], probs,
+                                        size=1)[0, 0:(len(probs)-1)]
             for j, mut0 in enumerate(mix_grp[mp]):
                 if dps[mp] > 0:
                     mix_boot.loc[mut0] = \
