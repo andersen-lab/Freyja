@@ -207,11 +207,18 @@ def solve_demixing_problem(df_barcodes, mix, depths, eps, adapt, a_eps):
 
 def bootstrap_parallel(jj, samplesDefining, fracDepths_adj, mix_grp,
                        mix, df_barcodes, eps0, muts, mapDict,
-                       adapt, a_eps):
+                       adapt, a_eps, bootseed):
     # helper function for fast bootstrap and solve
     # get sequencing depth at the position of all defining mutations
     mix_boot = mix.copy()
-    dps = pd.Series(np.random.multinomial(samplesDefining[jj],
+    seed = bootseed+jj
+    rng = np.random.default_rng()
+    # get the BitGenerator used by default_rng
+    BitGen = type(rng.bit_generator)
+    # use the state from a fresh bit generator
+    rng.bit_generator.state = BitGen(seed).state
+
+    dps = pd.Series(rng.multinomial(samplesDefining[jj],
                     fracDepths_adj, size=1)[0, :], index=fracDepths_adj.index)
     # get number of reads of each possible nucleotide
     # only for lineage defining muts observed in the dataset
@@ -219,7 +226,7 @@ def bootstrap_parallel(jj, samplesDefining, fracDepths_adj, mix_grp,
         if len(mix_grp[mp]) == 1:
             mut0 = mix_grp[mp][0]
             if dps[mp] > 0:
-                mix_boot.loc[mut0] = np.random.binomial(
+                mix_boot.loc[mut0] = rng.binomial(
                     dps[mp],
                     mix.loc[mut0])/dps[mp]
             else:
@@ -231,8 +238,8 @@ def bootstrap_parallel(jj, samplesDefining, fracDepths_adj, mix_grp,
             if np.sum(probs) > 1.0:
                 # correct rounding errors
                 probs = np.array(probs)/np.sum(probs)
-            altCounts = np.random.multinomial(dps[mp], probs,
-                                              size=1)[0, 0:(len(probs)-1)]
+            altCounts = rng.multinomial(dps[mp], probs,
+                                        size=1)[0, 0:(len(probs)-1)]
             for j, mut0 in enumerate(mix_grp[mp]):
                 if dps[mp] > 0:
                     mix_boot.loc[mut0] = \
@@ -254,7 +261,7 @@ def bootstrap_parallel(jj, samplesDefining, fracDepths_adj, mix_grp,
 
 def perform_bootstrap(df_barcodes, mix, depths_,
                       numBootstraps, eps0, n_jobs,
-                      mapDict, muts, boxplot, basename,
+                      mapDict, muts, boxplot, basename, bootseed,
                       adapt=0., a_eps=1E-8):
     depths_.index = depths_.index.to_series().apply(lambda x:
                                                     int(x[1:len(x)-1]))
@@ -265,11 +272,14 @@ def perform_bootstrap(df_barcodes, mix, depths_,
     fracDefining = fracDepths.sum()
     fracDepths_adj = fracDepths/fracDefining
 
+    seed = bootseed
+    rng = np.random.default_rng()
+    # get the BitGenerator used by default_rng
+    BitGen = type(rng.bit_generator)
+    # use the state from a fresh bit generator
+    rng.bit_generator.state = BitGen(seed).state
     # get the total depth at lineage defining positions
-    samplesDefining = np.random.binomial(totalDepth,
-                                         fracDefining,
-                                         size=numBootstraps)
-
+    samplesDefining = rng.binomial(totalDepth, fracDefining, numBootstraps)
     mixPos = pd.Series(mix.index,
                        index=mix.index.to_series()
                                       .apply(lambda x:
@@ -287,7 +297,8 @@ def perform_bootstrap(df_barcodes, mix, depths_,
                                                               muts,
                                                               mapDict,
                                                               adapt,
-                                                              a_eps)
+                                                              a_eps,
+                                                              bootseed)
                                   for jj0 in tqdm(range(numBootstraps)))
     for i in range(len(out)):
         sample_lins, abundances, localDict = out[i]
