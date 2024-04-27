@@ -2,7 +2,12 @@ name: barcode update
 
 on:
   schedule:
-    - cron: '0 1 * * *'
+    - cron: '0 0 * * *'
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/**'
 
 jobs:
   testsuite:
