@@ -2,7 +2,7 @@ name: barcode update
 
 on:
   schedule:
-    - cron: '0 0 * * *'
+    - cron: '0 1 * * *'
 
 jobs:
   testsuite:
@@ -19,7 +19,8 @@ jobs:
 
       - name: Setup for conda
         uses: conda-incubator/setup-miniconda@v2
-        with:        
+        with:
+          miniforge-version: "latest"
           auto-update-conda: true
           channels: bioconda,conda-forge
           channel-priority: true
