@@ -85,10 +85,10 @@ def extract(query_mutations, input_bam, output, same_read):
         for x in [read1, read2]:
             if x is None:
                 break
-            
+
             if x.cigarstring is None:
                 continue
-            
+
             ref_pos = set(x.get_reference_positions())
             start = x.reference_start
             sites_in = list(ref_pos & set(snp_sites))
@@ -443,7 +443,6 @@ def process_covariants(input_bam, min_site, max_site, ref_fasta, gff_file,
                 coverage_start = start
             if coverage_end is None or end > coverage_end:
                 coverage_end = end
-
 
             cigar = re.findall(r'(\d+)([A-Z]{1})', x.cigarstring)
             if 'I' in x.cigarstring:
