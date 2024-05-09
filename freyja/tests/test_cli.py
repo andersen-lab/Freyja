@@ -62,6 +62,13 @@ class CommandLineTests(unittest.TestCase):
         with open('lineage_def.txt') as f:
             self.assertEqual(len(f.readlines()), 28)
 
+    def test_boot(self):
+        os.system('freyja boot '
+                  'freyja/data/test.tsv freyja/data/test.depth '
+                  '--nt 10 --nb 10 --output_base boot_output '
+                  '--bootseed 10')
+        self.assertTrue(file_exists('.', "boot_output_lineages.csv"))
+
 
 if __name__ == '__main__':
     unittest.main()

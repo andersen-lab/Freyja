@@ -33,6 +33,8 @@ To ensure reproducibility of results, we provide old (timestamped) barcodes and 
    src/wiki/command_line_workflow
    src/wiki/cryptic_variants
    src/wiki/custom_plotting_tutorial
+   src/wiki/custom-plots-with-R
    src/wiki/lineage_barcode_extract
    src/wiki/read_analysis_tutorial
    src/wiki/terra_workflow
+

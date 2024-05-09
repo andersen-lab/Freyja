@@ -3,6 +3,11 @@ name: barcode update
 on:
   schedule:
     - cron: '0 0 * * *'
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/**'
 
 jobs:
   testsuite:
@@ -19,7 +24,8 @@ jobs:
 
       - name: Setup for conda
         uses: conda-incubator/setup-miniconda@v2
-        with:        
+        with:
+          miniforge-version: "latest"
           auto-update-conda: true
           channels: bioconda,conda-forge
           channel-priority: true
