@@ -85,16 +85,16 @@ def extract(query_mutations, input_bam, output, same_read):
         for x in [read1, read2]:
             if x is None:
                 break
-
+            
+            if x.cigarstring is None:
+                continue
+            
             ref_pos = set(x.get_reference_positions())
             start = x.reference_start
             sites_in = list(ref_pos & set(snp_sites))
 
             seq = x.query_alignment_sequence
 
-            if x.cigarstring is None:
-                # checks for a possible fail case
-                continue
             cigar = re.findall(r'(\d+)([A-Z]{1})', x.cigarstring)
 
             # Find insertions
@@ -434,15 +434,16 @@ def process_covariants(input_bam, min_site, max_site, ref_fasta, gff_file,
 
             snps_found = []
 
+            # checks for a possible fail case, mapq = 0
+            if x.cigarstring is None:
+                continue
+
             # Update coverage ranges
             if coverage_start is None or start < coverage_start:
                 coverage_start = start
             if coverage_end is None or end > coverage_end:
                 coverage_end = end
 
-            if x.cigarstring is None:
-                # checks for a possible fail case
-                continue
 
             cigar = re.findall(r'(\d+)([A-Z]{1})', x.cigarstring)
             if 'I' in x.cigarstring:
