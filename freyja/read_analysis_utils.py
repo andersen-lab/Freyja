@@ -141,3 +141,80 @@ def translate_snps(snps, ref, gene_positions):
         output[snp] = aa_mut
 
     return output
+
+
+def snv_breakdown(x):
+    # sort based on nuc position, ignoring nuc identities
+    if '+' in x:
+        return int(x[1:(x.index('+'))]), x[x.index('+')+1:]
+    elif '-' in x:
+        return int(x[1:(x.index('-'))]), x[x.index('-')+1:]
+    else:
+        return int(x[1:(len(x)-1)]), x[-1]
+
+
+def translate_snvs(snvs, ref, gene_positions):
+
+    # Load reference genome
+    ref = MutableSeq(next(SeqIO.parse(ref, 'fasta')).seq)
+
+    output = {snv: None for snv in snvs}
+    for snv in snvs:
+        locus, alt_bases = snv_breakdown(snv)
+        # Find the key in gene_positions that corresponds to the gene
+        # containing the SNV
+        gene_info = None
+        for gene in gene_positions:
+            start, end = gene_positions[gene]
+            if start <= locus <= end:
+                gene_info = gene, start
+                break
+        if gene_info is None:
+            continue
+
+        codon_position = (locus - start) % 3
+
+        if '+' in snv:
+            aa_locus = ((locus - start) // 3) + 1
+            if len(alt_bases) % 3 == 0:
+                if codon_position != 2:
+                    # check if position is 3rd, since insertions on right
+                    priorBases = ref[locus-codon_position-1:locus]
+                    postBases = ref[locus:locus+2 - codon_position]
+                    alt_bases = priorBases + alt_bases + postBases
+                    insertion_seq = MutableSeq(alt_bases).translate()[1:]
+                else:
+                    insertion_seq = MutableSeq(alt_bases).translate()
+            else:
+                # ignore frame shifts
+                insertion_seq = ''
+            aa_mut = (f'{gene}:INS{aa_locus}'
+                      f'{insertion_seq}')
+        elif '-' in snv:
+            aa_locus = ((locus - start) // 3) + 2
+            del_length = len(alt_bases) // 3
+            if del_length > 1:
+                aa_mut = f'{gene}:DEL{aa_locus}/{aa_locus+del_length-1}'
+            else:
+                aa_mut = f'{gene}:DEL{aa_locus}'
+        else:
+            aa_locus = ((locus - codon_position - start) // 3) + 1
+            ref_codon = ref[locus - codon_position - 1:
+                            locus - codon_position + 2]
+            ref_aa = ref_codon.translate()
+
+            alt_codon = MutableSeq(str(ref_codon))
+            alt_codon[codon_position] = snv[-1]
+
+            if len(alt_codon) % 3 != 0 or len(alt_codon) == 0 \
+                    or 'N' in alt_codon:
+                continue
+            alt_aa = alt_codon.translate()
+
+            if ref_aa == alt_aa or '*' in alt_aa:
+                continue  # Synonymous/stop codon mutation
+
+            aa_mut = f'{gene}:{ref_aa}{aa_locus}{alt_aa}'
+        output[snv] = aa_mut
+
+    return output

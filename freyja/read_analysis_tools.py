@@ -372,6 +372,9 @@ def covariants(input_bam, min_site, max_site, output,
         for x in [read1, read2]:
             if x is None:
                 break
+            if x.cigarstring is None:
+                # checks for a possible fail case
+                continue
 
             start = x.reference_start
             end = x.reference_end
@@ -394,14 +397,14 @@ def covariants(input_bam, min_site, max_site, output,
             snps_found = []
 
             # Update coverage ranges
-            if coverage_start is None or start < coverage_start:
+            if coverage_start is None:
                 coverage_start = start
-            if coverage_end is None or end > coverage_end:
+            elif start < coverage_start:
+                coverage_start = start
+            if coverage_end is None:
                 coverage_end = end
-
-            if x.cigarstring is None:
-                # checks for a possible fail case
-                continue
+            elif end > coverage_end:
+                coverage_end = end
 
             cigar = re.findall(r'(\d+)([A-Z]{1})', x.cigarstring)
             if 'I' in x.cigarstring:
@@ -628,6 +631,9 @@ def covariants(input_bam, min_site, max_site, output,
         for x in [read1, read2]:
             if x is None:
                 break
+            if x.cigarstring is None:
+                # checks for a possible fail case
+                continue
 
             start = x.reference_start
             end = x.reference_end
@@ -638,9 +644,13 @@ def covariants(input_bam, min_site, max_site, output,
                  for i in range(len(seq))])
 
             # Update coverage ranges
-            if coverage_start is None or start < coverage_start:
+            if coverage_start is None:
                 coverage_start = start
-            if coverage_end is None or end > coverage_end:
+            elif start < coverage_start:
+                coverage_start = start
+            if coverage_end is None:
+                coverage_end = end
+            elif end > coverage_end:
                 coverage_end = end
 
         # Skip update if reads do not span region
