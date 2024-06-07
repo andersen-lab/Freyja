@@ -845,9 +845,11 @@ def filter(query_mutations, input_bam, min_site, max_site, output):
                     '"count" or "freq" to sort patterns by count or frequency '
                     '(in descending order). Set to "site" to sort patterns by '
                     'start site (n ascending order).'), show_default=True)
+@click.option('--threads', default=1, help='number of parallet processes to '
+              'use. Recommended for large BAM files.', show_default=True)
 def covariants(input_bam, min_site, max_site, output,
                ref_genome, annot, min_quality, min_count, spans_region,
-               sort_by):
+               sort_by, threads):
     """
     Finds mutations co-occurring on the same read pair
     in BAM_FILE between MIN_SITE and MAX_SITE
@@ -860,7 +862,7 @@ def covariants(input_bam, min_site, max_site, output,
     from freyja.read_analysis_tools import covariants as _covariants
     _covariants(input_bam, min_site, max_site, output,
                 ref_genome, annot, min_quality, min_count, spans_region,
-                sort_by)
+                sort_by, threads)
 
 
 @cli.command()
