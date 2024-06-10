@@ -13,23 +13,19 @@ def download_tree(locDir):
     return treePath
 
 
-def download_barcodes_wgisaid(locDir):
-    url = "https://raw.githubusercontent.com/andersen-lab/"\
-          "Freyja/main/freyja/data/usher_barcodes_with_gisaid.csv"
-    bPath = os.path.join(locDir, "usher_barcodes_with_gisaid.csv")
-    urllib.request.urlretrieve(url, bPath)
-    return bPath
-
-
 def download_barcodes(locDir):
     url = "https://raw.githubusercontent.com/andersen-lab/"\
-          "Freyja/main/freyja/data/usher_barcodes.csv"
-    bPath = os.path.join(locDir, "usher_barcodes.csv")
+          "Freyja/main/freyja/data/usher_barcodes.feather"
+    bPath = os.path.join(locDir, "usher_barcodes.feather")
     urllib.request.urlretrieve(url, bPath)
     url2 = "https://raw.githubusercontent.com/andersen-lab/"\
            "Freyja/main/freyja/data/last_barcode_update.txt"
     bPath = os.path.join(locDir, "last_barcode_update.txt")
     urllib.request.urlretrieve(url2, bPath)
+    url3 = "https://raw.githubusercontent.com/andersen-lab/"\
+           "Freyja/main/freyja/data/lineage_mutations.json"
+    bPath = os.path.join(locDir, "lineage_mutations.json")
+    urllib.request.urlretrieve(url3, bPath)
     return bPath
 
 
