@@ -19,3 +19,4 @@ epiweeks
 pysam
 biopython
 seaborn
+pyarrow
