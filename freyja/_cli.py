@@ -224,15 +224,16 @@ def update(outdir, noncl, buildlocal):
             os.path.join(locDir, 'usher_barcodes.feather'))
 
         dictMuts = {}
-        for lin in df.index:
-            muts = sorted([df.columns[m0] for m0, v in enumerate(df.loc[lin])
-                          if v > 0], key=sortFun)
+        for lin in df_barcodes.index:
+            muts = sorted([df_barcodes.columns[m0]
+                           for m0, v in enumerate(df_barcodes.loc[lin])
+                           if v > 0], key=sortFun)
             dictMuts[lin] = muts
 
         import json
         jpath = os.path.join(locDir, "lineage_mutations.json")
         with open(jpath, "w") as outfile:
-            json.dump(dictMuts, outfile)
+            json.dump(dictMuts, outfile, indent=4)
 
         # delete files generated along the way that aren't needed anymore
         print('Cleaning up')
@@ -310,7 +311,7 @@ def barcode_build(pb, outdir, noncl):
     import json
     jpath = os.path.join(locDir, "lineage_mutations.json")
     with open(jpath, "w") as outfile:
-        json.dump(dictMuts, outfile)
+        json.dump(dictMuts, outfile, indent=4)
 
     # delete files generated along the way that aren't needed anymore
     print('Cleaning up')
