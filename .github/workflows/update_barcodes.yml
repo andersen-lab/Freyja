@@ -55,14 +55,15 @@ jobs:
       - name: commit if output is different 
         run: |
           echo "running git diff, committing if different"
-          if [[($(git status freyja/data/usher_barcodes.csv --porcelain | wc -c) -ne 0)]]; then
+          if [[($(git status freyja/data/usher_barcodes.feather --porcelain | wc -c) -ne 0)]]; then
             echo "changes were made, updating barcodes"
             git config --local user.name "$GITHUB_ACTOR"
             git config --local user.email "$GITHUB_ACTOR@users.noreply.github.com"
             echo $(date +"%m_%d_%Y-%H-%M")> freyja/data/last_barcode_update.txt
             git add freyja/data/last_barcode_update.txt
             git add freyja/data/lineages.yml
-            git add freyja/data/usher_barcodes.csv
+            git add freyja/data/usher_barcodes.feather
+            git add freyja/data/lineage_mutations.json
             git add freyja/data/curated_lineages.json
             git commit -m "updating barcodes and metadata"
             git push origin main
