@@ -9,7 +9,7 @@ locDir = os.path.abspath(os.path.join(os.path.realpath(__file__), os.pardir))
 
 
 @click.group(context_settings={'show_default': True})
-@click.version_option('1.5.0')
+@click.version_option('1.5.1')
 def cli():
     pass
 
@@ -81,15 +81,13 @@ def demix(variants, depths, output, eps, barcodes, meta,
                                       buildLineageMap,
                                       map_to_constellation,
                                       reindex_dfs, solve_demixing_problem)
-    from freyja.utils import (collapse_barcodes, handle_region_of_interest)
+    from freyja.utils import (collapse_barcodes,
+                              load_barcodes,
+                              handle_region_of_interest)
     locDir = os.path.abspath(os.path.join(os.path.realpath(__file__),
                              os.pardir))
-    # option for custom barcodes
-    if barcodes != '':
-        df_barcodes = pd.read_csv(barcodes, index_col=0)
-    else:
-        df_barcodes = pd.read_csv(os.path.join(locDir,
-                                  'data/usher_barcodes.csv'), index_col=0)
+    df_barcodes = load_barcodes(barcodes)
+
     if confirmedonly:
         confirmed = [dfi for dfi in df_barcodes.index
                      if 'proposed' not in dfi and 'misc' not in dfi]
@@ -176,6 +174,7 @@ def update(outdir, noncl, buildlocal):
     from freyja.updates import (convert_tree, download_barcodes,
                                 download_tree, get_cl_lineages,
                                 get_curated_lineage_data)
+    from freyja.convert_paths2barcodes import sortFun
     locDir = os.path.abspath(os.path.join(os.path.realpath(__file__),
                              os.pardir))
 
@@ -221,7 +220,20 @@ def update(outdir, noncl, buildlocal):
             df_barcodes = df_barcodes.loc[df_barcodes.index.isin(lineageNames)]
         else:
             print("Including lineages not yet in cov-lineages.")
-        df_barcodes.to_csv(os.path.join(locDir, 'usher_barcodes.csv'))
+        df_barcodes.reset_index().to_feather(
+            os.path.join(locDir, 'usher_barcodes.feather'))
+
+        dictMuts = {}
+        for lin in df.index:
+            muts = sorted([df.columns[m0] for m0, v in enumerate(df.loc[lin])
+                          if v > 0], key=sortFun)
+            dictMuts[lin] = muts
+
+        import json
+        jpath = os.path.join(locDir, "lineage_mutations.json")
+        with open(jpath, "w") as outfile:
+            json.dump(dictMuts, outfile)
+
         # delete files generated along the way that aren't needed anymore
         print('Cleaning up')
         os.remove(lineagePath)
@@ -247,7 +259,8 @@ def barcode_build(pb, outdir, noncl):
     from freyja.convert_paths2barcodes import (check_mutation_chain,
                                                convert_to_barcodes,
                                                parse_tree_paths,
-                                               reversion_checking)
+                                               reversion_checking,
+                                               sortFun)
     from freyja.updates import (convert_tree_custom,
                                 get_cl_lineages,
                                 get_curated_lineage_data)
@@ -284,7 +297,21 @@ def barcode_build(pb, outdir, noncl):
         df_barcodes = df_barcodes.loc[df_barcodes.index.isin(lineageNames)]
     else:
         print("Including lineages not yet in cov-lineages.")
-    df_barcodes.to_csv(os.path.join(locDir, 'usher_barcodes.csv'))
+    # df_barcodes.to_csv(os.path.join(locDir, 'usher_barcodes.csv'))
+    df_barcodes.reset_index().to_feather(
+        os.path.join(locDir, 'usher_barcodes.feather'))
+    dictMuts = {}
+    for lin in df_barcodes.index:
+        muts = sorted([df_barcodes.columns[m0]
+                       for m0, v in enumerate(df_barcodes.loc[lin])
+                       if v > 0], key=sortFun)
+        dictMuts[lin] = muts
+
+    import json
+    jpath = os.path.join(locDir, "lineage_mutations.json")
+    with open(jpath, "w") as outfile:
+        json.dump(dictMuts, outfile)
+
     # delete files generated along the way that aren't needed anymore
     print('Cleaning up')
     os.remove(lineagePath)
@@ -292,7 +319,7 @@ def barcode_build(pb, outdir, noncl):
 
 @cli.command()
 @click.argument('lineage', type=str)
-@click.option('--barcodes', default='data/usher_barcodes.csv',
+@click.option('--barcodes', default='data/usher_barcodes.feather',
               help='Path to custom barcode file', show_default=True)
 @click.option('--annot', default=None,
               help='Path to annotation file in gff3 format. '
@@ -311,10 +338,16 @@ def get_lineage_def(lineage, barcodes, annot, ref, output):
     """
     from freyja.read_analysis_utils import parse_gff, translate_snps
 
-    if barcodes == 'data/usher_barcodes.csv':
+    if 'data/usher' in barcodes:
         barcodes = os.path.join(locDir, barcodes)
 
-    df = pd.read_csv(barcodes, index_col=0)
+    if barcodes.endswith('csv'):
+        df = pd.read_csv(barcodes, index_col=0)
+    elif barcodes.endswith('feather'):
+        df = pd.read_feather(barcodes).set_index('index')
+    else:
+        raise ValueError('only csv and feather formats supported')
+
     try:
         target = df.loc[lineage]
     except KeyError:
@@ -442,16 +475,12 @@ def boot(variants, depths, output_base, eps, barcodes, meta,
     """
     Perform bootstrapping method for freyja using VARIANTS and DEPTHS
     """
+    from freyja.utils import load_barcodes
     from freyja.sample_deconv import (build_mix_and_depth_arrays,
                                       buildLineageMap,
                                       perform_bootstrap,
                                       reindex_dfs)
-    # option for custom barcodes
-    if barcodes != '':
-        df_barcodes = pd.read_csv(barcodes, index_col=0)
-    else:
-        df_barcodes = pd.read_csv(os.path.join(locDir,
-                                  'data/usher_barcodes.csv'), index_col=0)
+    df_barcodes = load_barcodes(barcodes)
 
     if confirmedonly:
         confirmed = [dfi for dfi in df_barcodes.index

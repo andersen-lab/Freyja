@@ -27,6 +27,24 @@ def agg(results):
     return df_demix
 
 
+def load_barcodes(barcodes):
+    locDir = os.path.abspath(os.path.join(os.path.realpath(__file__),
+                             os.pardir))
+    if barcodes != '':
+        if barcodes.endswith('csv'):
+            df_barcodes = pd.read_csv(barcodes, index_col=0)
+        elif barcodes.endswith('feather'):
+            df_barcodes = pd.read_feather(barcodes).set_index('index')
+        else:
+            raise ValueError('Only csv and feather barcode ' +
+                             'formats supported')
+    else:
+        df_barcodes = pd.read_feather(os.path.join(locDir,
+                                      'data/usher_barcodes.feather')
+                                      ).set_index('index')
+    return df_barcodes
+
+
 # Check the format of the config file and correct if necessary.
 def checkConfig(config):
     """
