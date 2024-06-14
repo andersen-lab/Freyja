@@ -308,7 +308,8 @@ def perform_bootstrap(df_barcodes, mix, depths_,
                                                               mapDict,
                                                               adapt,
                                                               a_eps,
-                                                              bootseed)
+                                                              bootseed,
+                                                              solver)
                                   for jj0 in tqdm(range(numBootstraps)))
     for i in range(len(out)):
         sample_lins, abundances, localDict = out[i]
