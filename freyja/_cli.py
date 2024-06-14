@@ -70,10 +70,13 @@ def print_barcode_version(ctx, param, value):
 @click.option('--relaxedthresh', default=0.9,
               help='associated threshold for robust mrca function',
               show_default=True)
+@click.option('--solver', default='CLARABEL',
+              help='solver used for estimating lineage prevalence',
+              show_default=True)
 def demix(variants, depths, output, eps, barcodes, meta,
           covcut, confirmedonly, depthcutoff, lineageyml,
           adapt, a_eps, region_of_interest,
-          relaxedmrca, relaxedthresh):
+          relaxedmrca, relaxedthresh, solver):
     """
     Generate relative lineage abundances from VARIANTS and DEPTHS
     """
@@ -109,12 +112,14 @@ def demix(variants, depths, output, eps, barcodes, meta,
                                                    covcut)
     print('demixing')
     df_barcodes, mix, depths_ = reindex_dfs(df_barcodes, mix, depths_)
+
     try:
         sample_strains, abundances, error = solve_demixing_problem(df_barcodes,
                                                                    mix,
                                                                    depths_,
                                                                    eps, adapt,
-                                                                   a_eps)
+                                                                   a_eps,
+                                                                   solver)
     except Exception as e:
         print(e)
         print('Error: Demixing step failed. Returning empty data output')
@@ -470,9 +475,13 @@ def variants(bamfile, ref, variants, depths, refname, minq, annot, varthresh):
 @click.option('--bootseed', default=0,
               help='set seed for bootstrap generation',
               show_default=True)
+@click.option('--solver', default='CLARABEL',
+              help='solver used for estimating lineage prevalence',
+              show_default=True)
 def boot(variants, depths, output_base, eps, barcodes, meta,
          nb, nt, boxplot, confirmedonly, lineageyml, depthcutoff,
-         rawboots, relaxedmrca, relaxedthresh, bootseed):
+         rawboots, relaxedmrca, relaxedthresh, bootseed,
+         solver):
     """
     Perform bootstrapping method for freyja using VARIANTS and DEPTHS
     """
@@ -511,7 +520,8 @@ def boot(variants, depths, output_base, eps, barcodes, meta,
     df_barcodes, mix, depths_ = reindex_dfs(df_barcodes, mix, depths_)
     lin_df, constell_df = perform_bootstrap(df_barcodes, mix, depths_,
                                             nb, eps, nt, mapDict, muts,
-                                            boxplot, output_base, bootseed)
+                                            boxplot, output_base, bootseed,
+                                            solver)
     if rawboots:
         lin_df.to_csv(output_base + '_lineages_boot.csv')
         constell_df.to_csv(output_base + '_summarized_boot.csv')

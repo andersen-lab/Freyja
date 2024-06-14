@@ -54,10 +54,12 @@ class DeconvTests(unittest.TestCase):
         # generate random sequencing depth at each position
         depths = negative_binomial(50, 0.25, size=len(mix))
         eps = 0.001
+        solver = 'CLARABEL'
         sample_strains, abundances, error = solve_demixing_problem(df_barcodes,
                                                                    mix, depths,
                                                                    eps, 0.,
-                                                                   1.E-8)
+                                                                   1.E-8,
+                                                                   solver)
         self.assertAlmostEqual(
             abundances[sample_strains.tolist().index(strain1)], mixFracs[0])
         self.assertAlmostEqual(
@@ -81,10 +83,12 @@ class DeconvTests(unittest.TestCase):
         numBootstraps = 3
         n_jobs = 1
         bootseed = 10
+        solver = 'CLARABEL'
         lin_df, constell_df = perform_bootstrap(df_barcodes, mix, depths,
                                                 numBootstraps, eps,
                                                 n_jobs, mapDict, muts,
-                                                '', 'test', bootseed)
+                                                '', 'test', bootseed,
+                                                solver)
         lin_out = lin_df.quantile([0.5])
         constell_out = constell_df.quantile([0.5])
         self.assertAlmostEqual(lin_out.loc[0.5, 'B.1.1.7'], 0.4, delta=0.1)
