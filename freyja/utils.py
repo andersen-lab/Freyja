@@ -9,7 +9,7 @@ import numpy as np
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
-from datetime import datetime
+from datetime import datetime, timedelta
 import yaml
 from scipy.optimize import curve_fit
 
@@ -426,7 +426,7 @@ def makePlot_simple(agg_df, lineages, outputFn, config, lineage_info,
                 labelList.append(label)
     handles, labels = ax.get_legend_handles_labels()
     ax.legend(handles[::-1], labels[::-1], loc='center left',
-              bbox_to_anchor=(1, 0.5), prop={'size': 4})
+              bbox_to_anchor=(1, 0.5))
     ax.set_ylabel('Variant Prevalence')
     ax.set_xticks(range(0, agg_df.shape[0]))
     ax.set_xticklabels(agg_df.index,
@@ -499,9 +499,10 @@ def makePlot_time(agg_df, lineages, times_df, interval, outputFn,
                      labels=df_abundances.columns, colors=cmap_dict.values())
         handles, labels = ax.get_legend_handles_labels()
         ax.legend(handles[::-1], labels[::-1], loc='center left',
-                  bbox_to_anchor=(1, 0.5), prop={'size': 4})
+                  bbox_to_anchor=(1, 0.5))
         ax.set_ylabel('Variant Prevalence')
         ax.set_ylim([0, 1])
+        ax.set_xlim([df_abundances.index.min(), df_abundances.index.max()])
         plt.setp(ax.get_xticklabels(), rotation=90)
         fig.tight_layout()
         plt.savefig(outputFn)
@@ -514,13 +515,15 @@ def makePlot_time(agg_df, lineages, times_df, interval, outputFn,
                    label=label, color=cmap_dict[label])
         handles, labels = ax.get_legend_handles_labels()
         ax.legend(handles[::-1], labels[::-1], loc='center left',
-                  bbox_to_anchor=(1, 0.5), prop={'size': 4})
+                  bbox_to_anchor=(1, 0.5))
         ax.set_ylabel('Variant Prevalence')
         locator = mdates.MonthLocator(bymonthday=1)
         ax.xaxis.set_major_locator(locator)
         ax.xaxis.set_major_formatter(mdates.ConciseDateFormatter(locator))
         ax.set_ylim([0, 1])
         ax.set_aspect(150)
+        ax.set_xlim([df_abundances.index.min()-timedelta(days=15),
+                     df_abundances.index.max()+timedelta(days=15)])
         fig.tight_layout()
         plt.savefig(outputFn)
         plt.close()
@@ -537,7 +540,7 @@ def makePlot_time(agg_df, lineages, times_df, interval, outputFn,
                    label=label, color=cmap_dict[label])
         handles, labels = ax.get_legend_handles_labels()
         ax.legend(handles[::-1], labels[::-1], loc='center left',
-                  bbox_to_anchor=(1, 0.5), prop={'size': 4})
+                  bbox_to_anchor=(1, 0.5))
         labelsAx = [item.split('-')[1] for item in df_abundances.index]
         ax.set_xticks(range(0, len(labelsAx)))
         ax.set_xticklabels(labelsAx)
