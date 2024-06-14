@@ -176,7 +176,7 @@ def solve_demixing_problem(df_barcodes, mix, depths, eps, adapt,
         solver_ = cp.CLARABEL
 
     try:
-        prob.solve(verbose=True, solver=solver_)
+        prob.solve(verbose=False, solver=solver_)
     except cp.error.SolverError:
         raise ValueError('Solver error encountered, most '
                          'likely due to insufficient sequencing depth.'
