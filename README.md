@@ -9,9 +9,10 @@ Freyja is intended as a post-processing step after primer trimming and variant c
 
 To ensure reproducibility of results, we provide old (timestamped) barcodes and metadata in the separate [Freyja-data](https://github.com/andersen-lab/Freyja-data) repository. Barcode version can be checked using the `freyja demix --version` command.
 
+NOTE: Freyja barcodes are now stored in compressed feather format, as the initial csv barcode file became too large. Specific lineage definitions are now provided in [here](https://github.com/andersen-lab/Freyja/blob/main/freyja/data/lineage_mutations.json). 
 
 ## Installation via conda
-Freyja is entirely written in Python 3, but requires preprocessing by tools like iVar and [samtools](https://github.com/samtools/samtools) mpileup to generate the required input data. We recommend using python3.7, but Freyja has been tested on python versions up to 3.10.  First, create an environment for freyja
+Freyja is entirely written in Python 3, but requires preprocessing by tools like iVar and [samtools](https://github.com/samtools/samtools) mpileup to generate the required input data. We recommend using python3.10 to take advantage of the Clarabel solver, but Freyja has been tested on python versions from 3.7 to 3.10.  First, create an environment for freyja
 ```
 conda create -n freyja-env
 ```
