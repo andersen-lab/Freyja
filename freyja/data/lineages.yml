@@ -2748,6 +2748,7 @@
       - JN.1.1.7
       - JN.1.1.8
       - JN.1.1.9
+      - JN.1.1.10
       - JN.1.2
       - JN.1.2.1
       - JN.1.3
@@ -2873,6 +2874,8 @@
       - JN.1.60
       - JN.1.61
       - JN.1.62
+      - JN.1.63
+      - JN.1.63.1
       - JN.2
       - JN.2.1
       - JN.2.2
@@ -5571,6 +5574,7 @@
       - JN.1.1.7
       - JN.1.1.8
       - JN.1.1.9
+      - JN.1.1.10
       - JN.1.2
       - JN.1.2.1
       - JN.1.3
@@ -5696,6 +5700,8 @@
       - JN.1.60
       - JN.1.61
       - JN.1.62
+      - JN.1.63
+      - JN.1.63.1
       - JN.2
       - JN.2.1
       - JN.2.2
@@ -7456,6 +7462,7 @@
       - JN.1.1.7
       - JN.1.1.8
       - JN.1.1.9
+      - JN.1.1.10
       - JN.1.2
       - JN.1.2.1
       - JN.1.3
@@ -7581,6 +7588,8 @@
       - JN.1.60
       - JN.1.61
       - JN.1.62
+      - JN.1.63
+      - JN.1.63.1
       - JN.2
       - JN.2.1
       - JN.2.2
@@ -11816,6 +11825,7 @@
       - JN.1.1.7
       - JN.1.1.8
       - JN.1.1.9
+      - JN.1.1.10
       - JN.1.2
       - JN.1.2.1
       - JN.1.3
@@ -11941,6 +11951,8 @@
       - JN.1.60
       - JN.1.61
       - JN.1.62
+      - JN.1.63
+      - JN.1.63.1
       - JN.2
       - JN.2.1
       - JN.2.2
@@ -12877,6 +12889,7 @@
       - JN.1.1.7
       - JN.1.1.8
       - JN.1.1.9
+      - JN.1.1.10
       - JN.1.2
       - JN.1.2.1
       - JN.1.3
@@ -13002,6 +13015,8 @@
       - JN.1.60
       - JN.1.61
       - JN.1.62
+      - JN.1.63
+      - JN.1.63.1
       - JN.2
       - JN.2.1
       - JN.2.2
@@ -16465,6 +16480,7 @@
       - JN.1.1.7
       - JN.1.1.8
       - JN.1.1.9
+      - JN.1.1.10
       - JN.1.2
       - JN.1.2.1
       - JN.1.3
@@ -16590,6 +16606,8 @@
       - JN.1.60
       - JN.1.61
       - JN.1.62
+      - JN.1.63
+      - JN.1.63.1
       - JN.2
       - JN.2.1
       - JN.2.2
@@ -16752,6 +16770,7 @@
       - JN.1.1.7
       - JN.1.1.8
       - JN.1.1.9
+      - JN.1.1.10
       - JN.1.2
       - JN.1.2.1
       - JN.1.3
@@ -16877,6 +16896,8 @@
       - JN.1.60
       - JN.1.61
       - JN.1.62
+      - JN.1.63
+      - JN.1.63.1
       - JN.2
       - JN.2.1
       - JN.2.2
@@ -17034,6 +17055,7 @@
       - JN.1.1.7
       - JN.1.1.8
       - JN.1.1.9
+      - JN.1.1.10
       - JN.1.2
       - JN.1.2.1
       - JN.1.3
@@ -17159,6 +17181,8 @@
       - JN.1.60
       - JN.1.61
       - JN.1.62
+      - JN.1.63
+      - JN.1.63.1
       - KP.1
       - KP.1.1
       - KP.1.1.1
@@ -17284,6 +17308,7 @@
       - JN.1.1.7
       - JN.1.1.8
       - JN.1.1.9
+      - JN.1.1.10
       - KR.1
       - KR.1.1
       - KR.1.2
@@ -17411,6 +17436,11 @@
   alias: B.1.1.529.2.86.1.1.1.9
   children:
       - JN.1.1.9
+  parent: JN.1.1
+- name: JN.1.1.10
+  alias: B.1.1.529.2.86.1.1.1.10
+  children:
+      - JN.1.1.10
   parent: JN.1.1
 - name: JN.1.2
   alias: B.1.1.529.2.86.1.1.2
@@ -18893,6 +18923,17 @@
   children:
       - JN.1.62
   parent: JN.1
+- name: JN.1.63
+  alias: B.1.1.529.2.86.1.1.63
+  children:
+      - JN.1.63
+      - JN.1.63.1
+  parent: JN.1
+- name: JN.1.63.1
+  alias: B.1.1.529.2.86.1.1.63.1
+  children:
+      - JN.1.63.1
+  parent: JN.1.63
 - name: JN.2
   alias: B.1.1.529.2.86.1.2
   children:
@@ -40706,11 +40747,23 @@
   children:
       - XDP
       - XDP.1
+      - XDP.2
+      - XDP.3
   recombinant_parents: JN.1.4,FL.15
 - name: XDP.1
   alias: XDP.1
   children:
       - XDP.1
+  parent: XDP
+- name: XDP.2
+  alias: XDP.2
+  children:
+      - XDP.2
+  parent: XDP
+- name: XDP.3
+  alias: XDP.3
+  children:
+      - XDP.3
   parent: XDP
 - name: XDQ
   alias: XDQ
@@ -40789,3 +40842,18 @@
   children:
       - XDY
   recombinant_parents: LB.1.2.1,KP.3.2
+- name: XDZ
+  alias: XDZ
+  children:
+      - XDZ
+  recombinant_parents: JG.3,JN.1.1.10
+- name: XEA
+  alias: XEA
+  children:
+      - XEA
+  recombinant_parents: JN.1.63.1,EG.5
+- name: XEB
+  alias: XEB
+  children:
+      - XEB
+  recombinant_parents: FL.15,JN.1.4,FL.15
