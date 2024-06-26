@@ -1097,7 +1097,7 @@ def collapse_barcodes(df_barcodes, df_depth, depthcutoff,
     if output == 'demixing_result.csv' or output == 'test':
         output = 'collapsed_lineages.yml'
     else:
-        output = f'{output.split(".")[0]}_collapsed_lineages.yml'
+        output = f'{os.path.dirname(output)}/collapsed_lineages.yml'
 
     with open(output, 'w') as f:
         yaml.dump(collapsed_lineages, f, default_flow_style=False)
