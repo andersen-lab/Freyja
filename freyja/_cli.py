@@ -505,6 +505,7 @@ def boot(variants, depths, output_base, eps, barcodes, meta,
     df_barcodes = df_barcodes.loc[indexSimplified, :]
 
     df_depths = pd.read_csv(depths, sep='\t', header=None, index_col=1)
+    input_basename = os.path.basename(depths).split('.')[0]
     if depthcutoff != 0:
         from freyja.utils import collapse_barcodes
         df_barcodes = collapse_barcodes(
