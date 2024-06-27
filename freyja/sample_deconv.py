@@ -94,7 +94,7 @@ def read_snv_frequencies_vcf(fn, depthFn, muts):
                 break
     file.close()
 
-    df = pd.read_csv(fn, comment='#', sep='\s+',
+    df = pd.read_csv(fn, comment='#', sep=r'\s+',
                      header=None,
                      names=vcfnames)
     vcf_info = df['INFO'].str.split(';', expand=True)
