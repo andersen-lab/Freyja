@@ -510,7 +510,7 @@ def boot(variants, depths, output_base, eps, barcodes, meta,
         df_barcodes = collapse_barcodes(
             df_barcodes, df_depths, depthcutoff,
             lineageyml, locDir, output_base,
-            relaxedmrca, relaxedthresh)
+            relaxedmrca, relaxedthresh, input_basename)
 
     muts = list(df_barcodes.columns)
     mapDict = buildLineageMap(meta)
