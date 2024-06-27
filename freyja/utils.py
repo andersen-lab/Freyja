@@ -1098,7 +1098,7 @@ def collapse_barcodes(df_barcodes, df_depth, depthcutoff,
         output = f'{input_basename}_collapsed_lineages.yml'
     else:
         output = (f'{os.path.dirname(output)}/'
-        f'{input_basename}_collapsed_lineages.yml')
+                  f'{input_basename}_collapsed_lineages.yml')
 
     with open(output, 'w') as f:
         yaml.dump(collapsed_lineages, f, default_flow_style=False)
