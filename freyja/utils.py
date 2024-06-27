@@ -939,7 +939,7 @@ def make_dashboard(agg_df, meta_df, thresh, title, introText,
 
 def collapse_barcodes(df_barcodes, df_depth, depthcutoff,
                       lineageyml, locDir, output,
-                      relaxed, relaxedthresh):
+                      relaxed, relaxedthresh, input_basename):
     # drop low coverage sites
     low_cov_sites = df_depth[df_depth[3].astype(int) < depthcutoff] \
         .index.astype(str)
@@ -1095,9 +1095,10 @@ def collapse_barcodes(df_barcodes, df_depth, depthcutoff,
 
     # defaults from demix and boot
     if output == 'demixing_result.csv' or output == 'test':
-        output = 'collapsed_lineages.yml'
+        output = f'{input_basename}_collapsed_lineages.yml'
     else:
-        output = f'{os.path.dirname(output)}/collapsed_lineages.yml'
+        output = (f'{os.path.dirname(output)}/'
+        f'{input_basename}_collapsed_lineages.yml')
 
     with open(output, 'w') as f:
         yaml.dump(collapsed_lineages, f, default_flow_style=False)
