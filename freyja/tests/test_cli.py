@@ -21,7 +21,7 @@ class CommandLineTests(unittest.TestCase):
         os.system('freyja demix freyja/data/test.tsv freyja/data/test.depth \
                    --output test.demixed.tsv --depthcutoff 100 --lineageyml \
                    freyja/data/lineages.yml')
-        self.assertTrue(file_exists('.', "collapsed_lineages.yml"))
+        self.assertTrue(file_exists('.', "test_collapsed_lineages.yml"))
 
     def test_plot(self):
         os.system('freyja plot freyja/data/aggregated_result.tsv \
