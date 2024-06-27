@@ -409,7 +409,8 @@ class UtilsTests(unittest.TestCase):
     def test_collapse_barcodes(self):
         barcodes = self.usher_barcodes.copy(deep=True)
         original = barcodes.shape
-        input_basename = os.path.basename('freyja/data/usher_barcodes.csv').split('.')[0]
+        input_basename = os.path.basename('freyja/data/'
+                                          'usher_barcodes.csv').split('.')[0]
         lineages_yml = 'freyja/data/lineages.yml'
         barcodes = collapse_barcodes(barcodes, self.depth,
                                      100, lineages_yml, 'freyja', 'test',
