@@ -946,12 +946,9 @@ def collapse_barcodes(df_barcodes, df_depth, depthcutoff,
     low_cov_muts = [mut for mut in df_barcodes.columns
                     if mut[1:-1] in low_cov_sites]
     df_barcodes = df_barcodes.drop(low_cov_muts, axis=1)
-
     max_depth = df_depth[3].astype(int).max()
     min_depth = df_depth[3].astype(int).min()
     sd_depth = df_depth[3].astype(int).sd()
-    
-
     # find lineages with identical barcodes
     try:
         duplicates = df_barcodes.groupby(df_barcodes.columns.tolist()).apply(
