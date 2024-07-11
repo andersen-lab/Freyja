@@ -4,6 +4,7 @@ numpy
 pandas
 cvxpy
 seaborn
+pyarrow
 pysam
 sphinx
 sphinx_rtd_theme
