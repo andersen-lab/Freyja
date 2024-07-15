@@ -948,17 +948,16 @@ def collapse_barcodes(df_barcodes, df_depth, depthcutoff,
     df_barcodes = df_barcodes.drop(low_cov_muts, axis=1)
     max_depth = df_depth[3].astype(int).max()
     min_depth = df_depth[3].astype(int).min()
-    sd_depth = df_depth[3].astype(int).sd()
     # find lineages with identical barcodes
     try:
         duplicates = df_barcodes.groupby(df_barcodes.columns.tolist()).apply(
             lambda x: tuple(x.index) if len(x.index) > 1 else None
         ).dropna()
     except ValueError:
-        raise ValueError(f'Error: --depthcutoff {depthcutoff} too high '
-                         f'for data with max depth {max_depth},'
+        raise ValueError(f'Error: --depthcutoff {depthcutoff} threshold'
+                         f' too high for data with max depth {max_depth},'
                          f' min depth {min_depth},'
-                         f' standard deviation {sd_depth}')
+                         f' Not enough coverage depth at all sites')
 
     if len(duplicates) == 0:
         return df_barcodes
