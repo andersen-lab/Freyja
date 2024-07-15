@@ -1095,9 +1095,8 @@ def collapse_barcodes(df_barcodes, df_depth, depthcutoff,
     df_barcodes = df_barcodes.drop_duplicates()
 
     # defaults from demix and boot
-    if output == 'demixing_result.csv' or output == 'test':
-        output = (f'{os.path.dirname(output)}/'
-                  f'test_collapsed_lineages.yml')
+    if output == 'demixing_result.csv' or output == 'test.demixed.tsv':
+        output = 'test_collapsed_lineages.yml'
     else:
         output = (f'{os.path.dirname(output)}/'
                   f'{input_basename}_collapsed_lineages.yml')
