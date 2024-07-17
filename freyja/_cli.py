@@ -38,7 +38,7 @@ def print_barcode_version(ctx, param, value):
               help='Path to custom barcode file')
 @click.option('--meta', default='',
               help='custom lineage to variant metadata file')
-@click.option('--output', default='demixing_result.csv',
+@click.option('--output', default='demixing_result.tsv',
               help='Output file',
               type=click.Path(exists=False), show_default=True)
 @click.option('--covcut', default=10,
@@ -101,12 +101,10 @@ def demix(variants, depths, output, eps, barcodes, meta,
     df_barcodes = df_barcodes.loc[indexSimplified, :]
     df_depth = pd.read_csv(depths, sep='\t', header=None, index_col=1)
 
-    input_basename = os.path.basename(variants).split('.')[0]
     if depthcutoff != 0:
         df_barcodes = collapse_barcodes(df_barcodes, df_depth, depthcutoff,
                                         lineageyml, locDir, output,
-                                        relaxedmrca, relaxedthresh,
-                                        input_basename)
+                                        relaxedmrca, relaxedthresh)
     muts = list(df_barcodes.columns)
     mapDict = buildLineageMap(meta)
     print('building mix/depth matrices')
@@ -505,13 +503,12 @@ def boot(variants, depths, output_base, eps, barcodes, meta,
     df_barcodes = df_barcodes.loc[indexSimplified, :]
 
     df_depths = pd.read_csv(depths, sep='\t', header=None, index_col=1)
-    input_basename = os.path.basename(depths).split('.')[0]
     if depthcutoff != 0:
         from freyja.utils import collapse_barcodes
         df_barcodes = collapse_barcodes(
             df_barcodes, df_depths, depthcutoff,
             lineageyml, locDir, output_base,
-            relaxedmrca, relaxedthresh, input_basename)
+            relaxedmrca, relaxedthresh)
 
     muts = list(df_barcodes.columns)
     mapDict = buildLineageMap(meta)
