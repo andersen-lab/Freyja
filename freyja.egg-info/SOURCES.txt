@@ -9,12 +9,6 @@ freyja/read_analysis_utils.py
 freyja/sample_deconv.py
 freyja/updates.py
 freyja/utils.py
-freyja.egg-info/._PKG-INFO
-freyja.egg-info/._SOURCES.txt
-freyja.egg-info/._dependency_links.txt
-freyja.egg-info/._entry_points.txt
-freyja.egg-info/._requires.txt
-freyja.egg-info/._top_level.txt
 freyja.egg-info/PKG-INFO
 freyja.egg-info/SOURCES.txt
 freyja.egg-info/dependency_links.txt
