@@ -38,7 +38,7 @@ def print_barcode_version(ctx, param, value):
               help='Path to custom barcode file')
 @click.option('--meta', default='',
               help='custom lineage to variant metadata file')
-@click.option('--output', default='output name',
+@click.option('--output', default='demixing_result.tsv',
               help='Output file',
               type=click.Path(exists=False), show_default=True)
 @click.option('--covcut', default=10,
@@ -100,6 +100,7 @@ def demix(variants, depths, output, eps, barcodes, meta,
     indexSimplified = [dfi.split('_')[0] for dfi in df_barcodes.index]
     df_barcodes = df_barcodes.loc[indexSimplified, :]
     df_depth = pd.read_csv(depths, sep='\t', header=None, index_col=1)
+
     if depthcutoff != 0:
         df_barcodes = collapse_barcodes(df_barcodes, df_depth, depthcutoff,
                                         lineageyml, locDir, output,

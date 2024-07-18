@@ -148,3 +148,88 @@ def get_gene(locus, gene_positions):
         start, end = gene_positions[gene]
         if locus in range(start, end+1):
             return gene, start
+
+
+def translate_snvs(snvs, ref, gene_positions):
+    # Load reference genome
+    ref = MutableSeq(next(SeqIO.parse(ref, 'fasta')).seq)
+    output = {snv: None for snv in snvs}
+    for snv in snvs:
+        output[snv] = snv
+        if '+' in snv:
+            ins = snv.split('+')
+            locus = int(ins[0][1:])
+            gene_info = get_gene(locus, gene_positions)
+            ins_string = str(snv).replace(' ', '')
+            if gene_info is None or 'N' in ins_string:
+                print(gene_info, ins_string, locus)
+                continue
+            gene, start_site = gene_info
+            aa_locus = ((locus - start_site) // 3) + 2
+
+            if len(ins[1]) % 3 == 0:
+                insertion_seq = MutableSeq(ins[1]).translate()
+            else:
+                insertion_seq = ''
+
+            aa_mut = (f'{ins_string}({gene}:INS{aa_locus}'
+                      f'{insertion_seq})')
+            output[snv] = aa_mut
+
+        elif '-' in snv:
+            deletion = snv.split('-')
+            locus = int(deletion[0][1:])
+            gene_info = get_gene(locus, gene_positions)
+            deletion_string = str(snv).replace(' ', '')
+            if gene_info is None:
+                print(gene_info, deletion_string, locus)
+                continue
+
+            gene, start_site = gene_info
+            aa_locus = ((locus - start_site) // 3) + 2
+
+            del_length = len(deletion[1]) // 3
+            if (len(deletion[1]) % 3) == 0:
+                aa_mut = (
+                    f'{deletion_string}({gene}:DEL{aa_locus}/'
+                    f'{aa_locus+del_length-1})'
+                )
+            else:
+                continue
+            output[snv] = aa_mut
+        else:
+            snp = snv
+            locus = int(snp[1:-1])
+
+            # Find the key in gene_positions that corresponds to the gene
+            # containing the SNP
+            gene_info = None
+            for gene in gene_positions:
+                start, end = gene_positions[gene]
+                if start <= locus <= end:
+                    gene_info = gene, start
+                    break
+            if gene_info is None:
+                continue
+
+            codon_position = (locus - start) % 3
+            aa_locus = ((locus - codon_position - start) // 3) + 1
+
+            ref_codon = ref[locus - codon_position - 1:
+                            locus - codon_position + 2]
+            ref_aa = ref_codon.translate()
+
+            alt_codon = MutableSeq(str(ref_codon))
+            alt_codon[codon_position] = snp[-1]
+
+            if len(alt_codon) % 3 != 0 or len(alt_codon) == 0 \
+                    or 'N' in alt_codon:
+                continue
+            alt_aa = alt_codon.translate()
+
+            if ref_aa == alt_aa or '*' in alt_aa:
+                continue  # Synonymous/stop codon mutation
+
+            aa_mut = f'{gene}:{ref_aa}{aa_locus}{alt_aa}'
+            output[snp] = aa_mut
+    return output

@@ -946,17 +946,18 @@ def collapse_barcodes(df_barcodes, df_depth, depthcutoff,
     low_cov_muts = [mut for mut in df_barcodes.columns
                     if mut[1:-1] in low_cov_sites]
     df_barcodes = df_barcodes.drop(low_cov_muts, axis=1)
-
     max_depth = df_depth[3].astype(int).max()
-
+    min_depth = df_depth[3].astype(int).min()
     # find lineages with identical barcodes
     try:
         duplicates = df_barcodes.groupby(df_barcodes.columns.tolist()).apply(
             lambda x: tuple(x.index) if len(x.index) > 1 else None
         ).dropna()
     except ValueError:
-        raise ValueError(f'Error: --depthcutoff {depthcutoff} too high'
-                         f'for data with max depth {max_depth}')
+        raise ValueError(f'Error: --depthcutoff {depthcutoff} threshold'
+                         f' too high for data with max depth {max_depth},'
+                         f' min depth {min_depth},'
+                         f' Not enough coverage depth at all sites')
 
     if len(duplicates) == 0:
         return df_barcodes
@@ -1092,12 +1093,13 @@ def collapse_barcodes(df_barcodes, df_depth, depthcutoff,
         collapsed_lineages[mrca] = list(tup)
         df_barcodes = df_barcodes.rename({lin: mrca for lin in tup})
     df_barcodes = df_barcodes.drop_duplicates()
-
-    # defaults from demix and boot
-    if output == 'demixing_result.csv' or output == 'test':
-        output = 'collapsed_lineages.yml'
-    else:
-        output = f'{output.split(".")[0]}_collapsed_lineages.yml'
+    baseName = output
+    if '.' in baseName:
+        baseName = os.path.basename(baseName).split(".")
+        baseName = '.'.join(baseName[0:(len(baseName)-1)])
+    output = os.path.join(os.path.dirname(output),
+                          baseName +
+                          '_collapsed_lineages.yml')
 
     with open(output, 'w') as f:
         yaml.dump(collapsed_lineages, f, default_flow_style=False)

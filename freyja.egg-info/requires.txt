@@ -5,3 +5,6 @@ cvxpy
 seaborn
 pysam
 biopython
+sphinx
+sphinx_rtd_theme
+sphinx-click@ git+https://github.com/dylanpilz/sphinx-click.git
