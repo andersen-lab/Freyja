@@ -1093,9 +1093,9 @@ def collapse_barcodes(df_barcodes, df_depth, depthcutoff,
         collapsed_lineages[mrca] = list(tup)
         df_barcodes = df_barcodes.rename({lin: mrca for lin in tup})
     df_barcodes = df_barcodes.drop_duplicates()
-
+    baseName = os.path.basename(output).split(".")
     output = os.path.join(os.path.dirname(output),
-                          f'{os.path.basename(output).split(".")[0]}' +
+                          '.'.join(baseName[0:(len(baseName)-1)]) +
                           '_collapsed_lineages.yml')
 
     with open(output, 'w') as f:
