@@ -2,89 +2,44 @@ Freyja for other pathogens- Measles
 -------------------------------------------------------------------------------
 
 If you want to detect other pathogens using freyja,
-this is a toturial on how to run the pipeline for measles samples.
+this is a toturial on how to run the pipeline for Measles samples.
 
-1. Run a freyja update and extract barcodes to the directory of your
-   choosing (will take a few minutes):
+1. Download the reference genome for your pathogen. It can be downloaded
+from NCBI database or use the references provided by `Nextstrain <https://nextstrain.orgL>`_
+For the purpose of this toturial, we will be using `NC_001498.1 <https://www.ncbi.nlm.nih.gov/nuccore/NC_001498.1`_
 
-::
 
-   freyja update --outdir /my/local/directory/
+2. Download the latest lineage barcodes from `Freyja barcodes repository <https://github.com/gp201/Freyja-barcodes>`_
 
-2. Load the barcodes using pandas and extract barcodes for your lineages
-   of interest
+3. Prepare your primer bed format file. For this toturial we will be using `artic-measles V.1.0.0 panel <https://labs.primalscheme.com/detail/artic-measles/400/v1.0.0/?q=measles>`_
 
-.. code:: python
+4. Align your reads to your reference genome using an aligner of your choice. 
+Here, we use minimap2 with parameters set for aligning short reads to a reference genome.
 
-   import pandas as pd
+.. code::
 
-   def sortFun(x):
-       # sort based on nuc position, ignoring nuc identities
-       return int(x[1:(len(x)-1)])
-   # replace "/my/local/directory/" with your chosen directory
-   df = pd.read_csv('/my/local/directory/usher_barcodes.csv', index_col=0)
+    minimap2 -ax sr reference.fasta reads.fastq > aligned.sam
 
-   # specify your lineages of interest here
-   lins = ['B.1.617.2','BA.1','BA.2','B.1.1.7','P.1']
-   df = df.loc[lins]
-   # keep only columns with at least one mutation across the lins
-   keepcols = df.columns[df.sum(axis=0)>0]
-   df = df.loc[:, keepcols]
+5. Convert sam format file to a bam file using samtools
 
-Optional: 3. Load in gene coordinate information to translate nucleotide
-mutations into possible AA mutations. An example file for doing this is
-available
-`here <https://github.com/andersen-lab/Freyja/wiki/SARS-CoV-2.json>`__.
-Then append AA mutations to the corresponding nucleotide mutations.
+.. code:: 
 
-.. code:: python
+   samtools view -bS aligned.sam > aligned.bam
 
-   # build dataframe with gene data
-   import json
-   f1 = open('/my/local/directory/SARS-CoV-2.json',)
-   dat = json.load(f1)
-   f1.close()
-   df_genes = pd.DataFrame(columns=["gene","start","end"], dtype=object)
+6. Sort your bam file using samtools.
 
-   for d in dat["genes"]:
-       new_row = {'gene':d,'start':dat["genes"][d]['coordinates']['from'],
-                  'end':dat["genes"][d]['coordinates']['to']}
-       df_genes = df_genes.append(new_row,ignore_index=True)
-   df_genes = df_genes.sort_values('start').set_index('gene',drop=False)
+.. code:: 
 
-   # function for converting to gene-wise coordinate numbering 
-   def getGeneNum(pos,df0):
-       j=0
-       while j<df0.shape[0]:
-           if pos<=df0.iloc[j].loc['end'] and pos>=df0.iloc[j].loc['start']:
-               return df0.iloc[j].loc['gene'], (pos - df0.iloc[j].loc['start'])//3+1
-           else:
-               j+=1
-       return '',''
+    samtools sort -o aligned_sorted.bam aligned.bam
 
-   # add AA mutation info into our dataframe
-   cols = list(df.columns)
-   cols.sort(key=lambda x: sortFun(x))
-   df = df[cols]
-   for i, mut in enumerate(cols):
-       pos = sortFun(mut)
-       g,pa = getGeneNum(pos,df_genes)
-       if len(g)==0:
-           refAA=''
-           mutAA=''
-       else:
-           posInTriple = (pos - df_genes.loc[g,'start']) % 3
-           triple = ref0[pos-posInTriple-1:pos-posInTriple+2]
-           refAA = triple.translate()
-           tripleMut = triple
-           tripleMut[posInTriple] = mut[-1]
-           mutAA = tripleMut.translate()
-           cols[i] = cols[i] +'('+ g+':'+str(refAA)+str(pa)+str(mutAA)+')'
+7. Index your bam file.
 
-   df.columns = cols
+.. code::
 
-4. Export to csv format for later viewing.
+    samtools index aligned_sorted.bam
 
-.. code:: python
+8. Remove primers from the reads
 
-   df.to_csv('mutations_lineage_subset.csv')
+.. code::
+
+    ivar trim -b primer_file.bed -p file_prefix -i aligned_sorted.bam -q 15 -m 50 -s 4 -e
