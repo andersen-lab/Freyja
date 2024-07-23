@@ -37,4 +37,5 @@ To ensure reproducibility of results, we provide old (timestamped) barcodes and 
    src/wiki/lineage_barcode_extract
    src/wiki/read_analysis_tutorial
    src/wiki/terra_workflow
+   src/wiki/expanded_pathogens
 
