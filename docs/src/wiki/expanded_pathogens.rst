@@ -21,8 +21,8 @@ Required Files
 To perform these analyses, you will need the following files for the MPox pathogen:
 
 *       `test.sorted.bam <https://github.com/andersen-lab/Freyja/blob/main/docs/data/test.sorted.bam>`_: Aligned, trimmed, and sorted BAM file
-*       ``reference.fasta``: Reference genome file
-*       ``barcode.csv``: Barcode file
+*       `reference.fasta <https://github.com/gp201/Freyja-barcodes/blob/main/MPX/2024-07-24/reference.fasta>`_: Reference genome file
+*       `barcode.csv <https://github.com/gp201/Freyja-barcodes/blob/main/MPX/2024-07-24/barcode.csv>`_: Barcode file
 
 
 Setting Up Output Directories
