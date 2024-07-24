@@ -18,6 +18,7 @@ use the right reference genome according to the barcode.
 
 4. Align your reads to your reference genome using an aligner of your choice. 
 Here, we use minimap2 with parameters set for aligning short reads to a reference genome.
+We will be using simulated reads produced using `this amplicon read simulation pipeline <https://github.com/mariaelf97/amplicon_sequencing_simulator>_
 
 .. code::
 
