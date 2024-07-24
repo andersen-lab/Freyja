@@ -32,7 +32,7 @@ Since you will likely be working with multiple wastewater samples, it is
 advisable to create directories for storing output files:
 
 .. code-block:: sh
-        
+
         mkdir variants_files depth_files demix_files
 
 
@@ -43,17 +43,19 @@ The first step is to generate a variant file. Use the following command to
 perform this step:
 
 .. code-block:: sh
-        
+
         freyja variants test.sorted.bam --ref reference.fasta --variants variants_files/test.tsv --depths depth_files/test.depth
 
 Please note that you will be passing the reference genome file provided in the
-pathogen folder as the ``--ref`` argument.
+pathogen folder as the ``--ref`` argument. In cases where multiple reference
+genomes are present in the reference fasta, you can specify the name of the
+desired reference genome with ``--refname [name-of-reference]``.
 
 Once the variant file is generated, proceed to the de-mixing step with the
 following command:
 
 .. code-block:: sh
-        
+
         freyja demix variants_files/test.tsv depth_files/test.depth --barcodes barcode.csv --output demix_files/test.output
 
 Please note that you will be passing the barcode file provided in the pathogen
@@ -63,7 +65,7 @@ Once you’ve run demix on a bunch of samples, you can aggregate all of
 the output files using the command
 
 .. code-block:: sh
-        
+
         freyja aggregate demix_files/ --output bunch_of_files.tsv
 
 From there, it’s easy to view the output files in any standard TSV viewer
