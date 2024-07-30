@@ -15,6 +15,9 @@ Folders are organized by pathogen, with each subfolder named after the date the
 barcode was generated, using the format ``YYYY-MM-DD``. Barcode files are named
 ``barcode.csv``, and reference genome files are named ``reference.fasta``.
 
+.. note::
+        Influenza barcodes are available upon request.
+
 Required Files
 ^^^^^^^^^^^^^^
 
