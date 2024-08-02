@@ -16,7 +16,7 @@ The reference genome file can also be found `here. <https://github.com/andersen-
 
 
 2. Download the latest lineage barcodes from `Freyja barcodes repository. <https://github.com/gp201/Freyja-barcodes>`_
-For this analysis we will be using `Measles barcodes <https://github.com/gp201/Freyja-barcodes/tree/main/MEASLES>`_
+For this analysis we will be using `Measles barcodes <https://github.com/gp201/Freyja-barcodes/tree/main/MEASLESgenome>`_
 which can also be found `here. <https://github.com/andersen-lab/Freyja/blob/main/docs/data/measles-wg-barcode.csv>`_
 
 Please note that there are two sets of barcodes available for Measles. Here, we use the whole genome barcodes but
