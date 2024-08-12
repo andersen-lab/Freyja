@@ -10,7 +10,7 @@ this is a tutorial  on how to run the pipeline for Measles samples.
 
 1. Download the reference genome for your pathogen.
 It can be downloaded
-from NCBI database or use the references provided by `Nextstrain <https://nextstrain.org>`_
+from NCBI database or use the references provided by `Nextstrain <https://nextstrain.org>`_ .
 For the purpose of this tutorial, we will be using `NC_001498.1. <https://www.ncbi.nlm.nih.gov/nuccore/NC_001498.1>`_
 The reference genome file can also be found `here. <https://github.com/andersen-lab/Freyja/blob/main/docs/data/measles-reference.fasta>`_
 
@@ -21,7 +21,7 @@ which can also be found `here. <https://github.com/andersen-lab/Freyja/blob/main
 
 Please note that there are two sets of barcodes available for Measles. Here, we use the whole genome barcodes but
 you may also use the N450 region barcodes. It is important, however, to
-use the right reference genome according to the barcode. If you are using region N450 barcodes, please make sure to
+use the right reference genome according to the barcode used. If you are using region N450 barcodes, please make sure to
 use the reference that includes N450 region only.
 
 3. Prepare your primer file in a bed format. For this tutorial, we will be using `artic-measles V1.0.0 panel <https://labs.primalscheme.com/detail/artic-measles/400/v1.0.0/?q=measles>`_
