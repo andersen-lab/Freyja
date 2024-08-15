@@ -28,10 +28,8 @@ use the reference that includes N450 region only.
 also provided `here. <https://github.com/andersen-lab/Freyja/blob/main/docs/data/artic-measles-v1.0.0.bed>`_
 This file will be used to simulate measles amplicon sequencing reads and trim the primers in the downstream analysis.
 
-4. Align your reads to your reference genome using an aligner of your choice. 
-Here, we use ``minimap2`` with parameters set for aligning short reads to a reference genome.
-We will be using simulated reads produced by `this <https://github.com/mariaelf97/amplicon_sequencing_simulator>`_
-amplicon read simulation pipeline.
+4. Prepare your reads, by assessing quality of the reads and removing the sequencing adapters.
+We will be using simulated reads produced by `MixAmp, <https://github.com/andersen-lab/MixAmp>`_ an amplicon read simulator developed by our team.
 
 For instance, we generated reads from two different measles samples using this code as following:
 
@@ -45,14 +43,20 @@ For instance, we generated reads from two different measles samples using this c
 
 .. code::
 
-    # Run after cloning the repository, follow the instruction provided in README.
-    python workflow/scripts/amplicon_simulator_wrapper.py -s GCA_031128185.1 -sp assemblies/GCA_031128185.1/GCA_031128185.1.fna -pr 1.0 -p primers/primer.bed -n 100000 -o measles-H1-100/
+    mixamp GCA_031128185.1.fna primer.bed --outdir measles-H1-100/
 
 *Mixed sample read simulation:*
 
 .. code::
     
-    python workflow/scripts/amplicon_simulator_wrapper.py -s GCA_031128185.1,GCA_031129565.1 -sp assemblies/GCA_031128185.1/GCA_031128185.1.fna, assemblies/GCA_031129565.1/GCA_031129565.1.fna -pr 0.2,0.8 -p primers/primer.bed -n 100000 -o measles-H1-20-D9-80/
+    mixamp GCA_031128185.1.fna,GCA_031129565.1.fna primers/primer.bed --outdir measles-H1-20-D9-80/ --proportions 0.2,0.8
+
+
+4. Align your reads to your reference genome using an aligner of your choice. 
+Here, we use ``minimap2`` with parameters set for aligning short reads to a reference genome.
+
+.. code::
+
     minimap2 -ax sr reference.fasta reads.fastq > aligned.sam
 
 ^^^^
@@ -81,8 +85,7 @@ Please change the file names accordingly.**
 8. Remove primers from the reads. The following command will remove reads with mean
 quality score `-q` less than 15 with sliding window `-s` size of 4 and minimum read
 length of 50 (after trimming). `-e` will make sure reads without primers are kept in the output.
-Please note that ivar trim does not trim the sequencing adapters and users need to make sure to do 
-it as a pre-processing step on the reads fastq files.
+
 
 .. code::
 
