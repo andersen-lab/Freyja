@@ -52,7 +52,7 @@ For instance, we generated reads from two different measles samples using this c
     mixamp GCA_031128185.1.fna,GCA_031129565.1.fna primers/primer.bed --outdir measles-H1-20-D9-80/ --proportions 0.2,0.8
 
 
-4. Align your reads to your reference genome using an aligner of your choice. 
+5. Align your reads to your reference genome using an aligner of your choice. 
 Here, we use ``minimap2`` with parameters set for aligning short reads to a reference genome.
 
 .. code::
@@ -64,25 +64,25 @@ Here, we use ``minimap2`` with parameters set for aligning short reads to a refe
 **From here on, the instruction will be the same for mixed and pure samples.
 Please change the file names accordingly.**
 
-5. Convert sam format file to a bam file using samtools.
+6. Convert sam format file to a bam file using samtools.
 
 .. code:: 
 
    samtools view -bS aligned.sam > aligned.bam
 
-6. Sort your bam file.
+7. Sort your bam file.
 
 .. code:: 
 
     samtools sort -o aligned_sorted.bam aligned.bam
 
-7. Index your bam file.
+8. Index your bam file.
 
 .. code::
 
     samtools index aligned_sorted.bam
 
-8. Remove primers from the reads. The following command will remove reads with mean
+9. Remove primers from the reads. The following command will remove reads with mean
 quality score `-q` less than 15 with sliding window `-s` size of 4 and minimum read
 length of 50 (after trimming). `-e` will make sure reads without primers are kept in the output.
 
@@ -91,20 +91,20 @@ length of 50 (after trimming). `-e` will make sure reads without primers are kep
 
     ivar trim -b primer.bed -p trimmed -i aligned_sorted.bam -q 15 -m 50 -s 4 -e
 
-9. Sort and index the trimmed bam file.
+10. Sort and index the trimmed bam file.
 
 .. code::
 
     samtools sort -o trimmed_sorted.bam trimmed.bam && samtools index trimmed_sorted.bam
 
-10. Generate coverage depth for each single genomic location in the reference.
+11. Generate coverage depth for each single genomic location in the reference.
 This will be used in freyja pipeline downstream analysis.
 
 .. code::
 
     samtools mpileup -aa -A -d 600000 -Q 20 -q 0 -B -f reference.fasta trimmed_sorted.bam | cut -f1-4 > depths.tsv
 
-11. Call variants using variant caller of your choice. We recommend using Lofreq or ivar and included both commands for your reference.
+12. Call variants using variant caller of your choice. We recommend using Lofreq or ivar and included both commands for your reference.
 
 .. code::
 
@@ -113,7 +113,7 @@ This will be used in freyja pipeline downstream analysis.
     # Call variants using ivar
     freyja variants trimmed_sorted.bam --variants variants.tsv --depths depths.tsv --ref reference.fasta
 
-12. Run freyja demix to estimate lineage prevalence.
+13. Run freyja demix to estimate lineage prevalence.
 
 .. code::
 
