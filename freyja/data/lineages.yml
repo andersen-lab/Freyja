@@ -3126,6 +3126,7 @@
       - LU.2
       - LU.2.1
       - LU.2.1.1
+      - LU.2.2
       - LV.1
       - LV.2
       - LW.1
@@ -6109,6 +6110,7 @@
       - LU.2
       - LU.2.1
       - LU.2.1.1
+      - LU.2.2
       - LV.1
       - LV.2
       - LW.1
@@ -8154,6 +8156,7 @@
       - LU.2
       - LU.2.1
       - LU.2.1.1
+      - LU.2.2
       - LV.1
       - LV.2
       - LW.1
@@ -12667,6 +12670,7 @@
       - LU.2
       - LU.2.1
       - LU.2.1.1
+      - LU.2.2
       - LV.1
       - LV.2
       - LW.1
@@ -13888,6 +13892,7 @@
       - LU.2
       - LU.2.1
       - LU.2.1.1
+      - LU.2.2
       - LV.1
       - LV.2
       - LW.1
@@ -17630,6 +17635,7 @@
       - LU.2
       - LU.2.1
       - LU.2.1.1
+      - LU.2.2
       - LV.1
       - LV.2
       - LW.1
@@ -18072,6 +18078,7 @@
       - LU.2
       - LU.2.1
       - LU.2.1.1
+      - LU.2.2
       - LW.1
       - LW.1.1
       - LW.1.2
@@ -18478,6 +18485,7 @@
       - LU.2
       - LU.2.1
       - LU.2.1.1
+      - LU.2.2
       - LW.1
       - LW.1.1
       - LW.1.2
@@ -20357,6 +20365,7 @@
       - LU.2
       - LU.2.1
       - LU.2.1.1
+      - LU.2.2
   parent: JN.1
 - name: JN.1.15.1
   alias: B.1.1.529.2.86.1.1.15.1
@@ -20366,6 +20375,7 @@
       - LU.2
       - LU.2.1
       - LU.2.1.1
+      - LU.2.2
   parent: JN.1.15
 - name: LU.1
   alias: B.1.1.529.2.86.1.1.15.1.1
@@ -20378,6 +20388,7 @@
       - LU.2
       - LU.2.1
       - LU.2.1.1
+      - LU.2.2
   parent: JN.1.15.1
 - name: LU.2.1
   alias: B.1.1.529.2.86.1.1.15.1.2.1
@@ -20390,6 +20401,11 @@
   children:
       - LU.2.1.1
   parent: LU.2.1
+- name: LU.2.2
+  alias: B.1.1.529.2.86.1.1.15.1.2.2
+  children:
+      - LU.2.2
+  parent: LU.2
 - name: JN.1.16
   alias: B.1.1.529.2.86.1.1.16
   children:
@@ -43356,12 +43372,26 @@
   children:
       - XDR
       - XDR.1
+      - XDR.1.1
+      - XDR.1.2
   recombinant_parents: JD.1.1.1,JN.1.1
 - name: XDR.1
   alias: XDR.1
   children:
       - XDR.1
+      - XDR.1.1
+      - XDR.1.2
   parent: XDR
+- name: XDR.1.1
+  alias: XDR.1.1
+  children:
+      - XDR.1.1
+  parent: XDR.1
+- name: XDR.1.2
+  alias: XDR.1.2
+  children:
+      - XDR.1.2
+  parent: XDR.1
 - name: XDS
   alias: XDS
   children:
@@ -43389,6 +43419,11 @@
       - XDV.1.4
       - XDV.1.5
       - XDV.1.6
+      - XDV.1.7
+      - XDV.1.8
+      - XDV.1.9
+      - XDV.1.10
+      - XDV.1.11
   recombinant_parents: XDE,JN.1,XDE,JN.1
 - name: XDV.1
   alias: XDV.1
@@ -43401,6 +43436,11 @@
       - XDV.1.4
       - XDV.1.5
       - XDV.1.6
+      - XDV.1.7
+      - XDV.1.8
+      - XDV.1.9
+      - XDV.1.10
+      - XDV.1.11
   parent: XDV
 - name: XDV.1.1
   alias: XDV.1.1
@@ -43437,6 +43477,31 @@
   alias: XDV.1.6
   children:
       - XDV.1.6
+  parent: XDV.1
+- name: XDV.1.7
+  alias: XDV.1.7
+  children:
+      - XDV.1.7
+  parent: XDV.1
+- name: XDV.1.8
+  alias: XDV.1.8
+  children:
+      - XDV.1.8
+  parent: XDV.1
+- name: XDV.1.9
+  alias: XDV.1.9
+  children:
+      - XDV.1.9
+  parent: XDV.1
+- name: XDV.1.10
+  alias: XDV.1.10
+  children:
+      - XDV.1.10
+  parent: XDV.1
+- name: XDV.1.11
+  alias: XDV.1.11
+  children:
+      - XDV.1.11
   parent: XDV.1
 - name: XDW
   alias: XDW
@@ -43489,3 +43554,8 @@
   children:
       - XEF
   recombinant_parents: LB.1.4,KP.3
+- name: XEG
+  alias: XEG
+  children:
+      - XEG
+  recombinant_parents: JN.3.2.1,GJ.1.2,JN.3.2.1,GJ.1.2
