@@ -83,8 +83,10 @@ Please change the file names accordingly.**
     samtools index aligned_sorted.bam
 
 9. Remove primers from the reads. The following command will remove reads with mean
-quality score `-q` less than 15 and minimum read length of 50 (after trimming). `-e` will make sure reads without primers are kept in the output and `-x` will
- make sure that reads that occur at the specified offset positions relative to primer positions will also be trimmed.
+quality score `-q` less than 15 and minimum read length of 50 (after trimming).
+Flag `-e` keeps reads without primers in the output and 
+the flag `-x` will make sure that reads that occur at the 
+specified offset positions relative to primer positions will also be trimmed.
 
 
 .. code::
