@@ -49,7 +49,7 @@ For instance, we generated reads from two different measles samples using this c
 
 .. code::
     
-    mixamp GCA_031128185.1.fna,GCA_031129565.1.fna primer.bed --outdir measles-H1-20-D9-80/ --proportions 0.2,0.8
+    mixamp simulate-proportions GCA_031128185.1.fna,GCA_031129565.1.fna primer.bed --outdir measles-H1-20-D9-80/ --proportions 0.2,0.8
 
 
 5. Align your reads to your reference genome using an aligner of your choice. 
