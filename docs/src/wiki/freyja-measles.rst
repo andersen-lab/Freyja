@@ -43,7 +43,7 @@ For instance, we generated reads from two different measles samples using this c
 
 .. code::
 
-    mixamp GCA_031128185.1.fna primer.bed --outdir measles-H1-100/
+    mixamp simulate-proportions GCA_031128185.1.fna primer.bed --outdir measles-H1-100/
 
 *Mixed sample read simulation:*
 
