@@ -700,17 +700,18 @@ def process_covariants(input_bam, min_site, max_site, ref_fasta, gff_file,
             if coverage_start > min_site or coverage_end < max_site:
                 continue
 
+        if coverage_start is None or coverage_end is None:
+            continue
+
         for key in co_muts_region:
             co_mut_start, co_mut_end = co_muts_region[key]
-            try:
-                if coverage_start <= co_mut_start and coverage_end >= co_mut_end:
-                    if key not in co_muts_max_reads:
-                        co_muts_max_reads[key] = 1
-                    else:
-                        co_muts_max_reads[key] += 1
-            except TypeError as e:
-                print(e)
-                continue
+
+            if coverage_start <= co_mut_start and coverage_end >= co_mut_end:
+                if key not in co_muts_max_reads:
+                    co_muts_max_reads[key] = 1
+                else:
+                    co_muts_max_reads[key] += 1
+
 
     samfile.close()
 
