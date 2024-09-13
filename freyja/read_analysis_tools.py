@@ -328,6 +328,7 @@ def run_parallel(cores, regions, input_bam, ref_fasta, gff_file, min_quality,
             yield future.result()
 
 
+
 def covariants(input_bam, min_site, max_site, output,
                ref_fasta, gff_file, min_quality, min_count, spans_region,
                sort_by, cores):
@@ -344,7 +345,9 @@ def covariants(input_bam, min_site, max_site, output,
                            gff_file, min_quality, min_count, spans_region)
 
     # Aggregate results
-    df = pd.concat(results)
+
+    results = list(results)
+    df = pd.concat(results, ignore_index=True)
 
     df = df.sort_values('Max_count', ascending=False).drop_duplicates(
         subset='Covariants', keep='first')
@@ -438,12 +441,15 @@ def process_covariants(input_bam, min_site, max_site, ref_fasta, gff_file,
             if x.cigarstring is None:
                 continue
 
+
             # Update coverage ranges
             if coverage_start is None or start < coverage_start:
                 coverage_start = start
-            if coverage_end is None or end > coverage_end:
-                coverage_end = end
-
+            try:
+                if coverage_end is None or end > coverage_end:
+                    coverage_end = end
+            except TypeError as e:
+                print(e)
             cigar = re.findall(r'(\d+)([A-Z]{1})', x.cigarstring)
             if 'I' in x.cigarstring:
                 i = 0
@@ -672,7 +678,7 @@ def process_covariants(input_bam, min_site, max_site, ref_fasta, gff_file,
         coverage_end = None
 
         for x in [read1, read2]:
-            if x is None:
+            if x is None or x.cigarstring is None:
                 break
 
             start = x.reference_start
@@ -696,11 +702,15 @@ def process_covariants(input_bam, min_site, max_site, ref_fasta, gff_file,
 
         for key in co_muts_region:
             co_mut_start, co_mut_end = co_muts_region[key]
-            if coverage_start <= co_mut_start and coverage_end >= co_mut_end:
-                if key not in co_muts_max_reads:
-                    co_muts_max_reads[key] = 1
-                else:
-                    co_muts_max_reads[key] += 1
+            try:
+                if coverage_start <= co_mut_start and coverage_end >= co_mut_end:
+                    if key not in co_muts_max_reads:
+                        co_muts_max_reads[key] = 1
+                    else:
+                        co_muts_max_reads[key] += 1
+            except TypeError as e:
+                print(e)
+                continue
 
     samfile.close()
 
