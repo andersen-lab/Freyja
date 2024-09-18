@@ -43,13 +43,13 @@ For instance, we generated reads from two different measles samples using this c
 
 .. code::
 
-    mixamp GCA_031128185.1.fna primer.bed --outdir measles-H1-100/
+    mixamp simulate-proportions GCA_031128185.1.fna primer.bed --outdir measles-H1-100/
 
 *Mixed sample read simulation:*
 
 .. code::
     
-    mixamp GCA_031128185.1.fna,GCA_031129565.1.fna primer.bed --outdir measles-H1-20-D9-80/ --proportions 0.2,0.8
+    mixamp simulate-proportions GCA_031128185.1.fna,GCA_031129565.1.fna primer.bed --outdir measles-H1-20-D9-80/ --proportions 0.2,0.8
 
 
 5. Align your reads to your reference genome using an aligner of your choice. 
@@ -83,13 +83,15 @@ Please change the file names accordingly.**
     samtools index aligned_sorted.bam
 
 9. Remove primers from the reads. The following command will remove reads with mean
-quality score `-q` less than 15 with sliding window `-s` size of 4 and minimum read
-length of 50 (after trimming). `-e` will make sure reads without primers are kept in the output.
+quality score `-q` less than 15 and minimum read length of 50 (after trimming).
+Flag `-e` keeps reads without primers in the output and 
+the flag `-x` will make sure that reads that occur at the 
+specified offset positions relative to primer positions will also be trimmed.
 
 
 .. code::
 
-    ivar trim -b primer.bed -p trimmed -i aligned_sorted.bam -q 15 -m 50 -s 4 -e
+    ivar trim -b primer.bed -p trimmed -i aligned_sorted.bam -q 15 -m 50 -e -x 3
 
 10. Sort and index the trimmed bam file.
 
