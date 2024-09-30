@@ -150,6 +150,10 @@ def map_to_constellation(sample_strains, vals, mapDict):
                 localDict['Other'] += vals[jj]
     # convert to descending order
     localDict = sorted(localDict.items(), key=lambda x: x[1], reverse=True)
+    
+    # cast np.float64 to float
+    localDict = [(x[0], float(x[1])) for x in localDict]
+    
     return localDict
 
 
