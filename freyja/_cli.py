@@ -39,8 +39,9 @@ def print_barcode_version(ctx, param, value):
 @click.option('--meta', default='',
               help='custom lineage to variant metadata file')
 @click.option('--output', default='demixing_result.tsv',
-              help='Output file',
-              type=click.Path(exists=False), show_default=True)
+              help='demix output name',
+              type=click.Path(exists=False),
+              show_default=True)
 @click.option('--covcut', default=10,
               help='calculate percent of sites with n or greater reads',
               show_default=True)
