@@ -13,19 +13,25 @@ def download_tree(locDir):
     return treePath
 
 
-def download_barcodes(locDir):
-    url = "https://raw.githubusercontent.com/andersen-lab/"\
-          "Freyja/main/freyja/data/usher_barcodes.feather"
-    bPath = os.path.join(locDir, "usher_barcodes.feather")
-    urllib.request.urlretrieve(url, bPath)
-    url2 = "https://raw.githubusercontent.com/andersen-lab/"\
-           "Freyja/main/freyja/data/last_barcode_update.txt"
-    bPath = os.path.join(locDir, "last_barcode_update.txt")
-    urllib.request.urlretrieve(url2, bPath)
-    url3 = "https://raw.githubusercontent.com/andersen-lab/"\
-           "Freyja/main/freyja/data/lineage_mutations.json"
-    bPath = os.path.join(locDir, "lineage_mutations.json")
-    urllib.request.urlretrieve(url3, bPath)
+def download_barcodes(locDir, pathogen='SARS-CoV-2'):
+    if pathogen == 'SARS-CoV-2':
+        url = "https://raw.githubusercontent.com/andersen-lab/"\
+            "Freyja/main/freyja/data/usher_barcodes.feather"
+        bPath = os.path.join(locDir, "usher_barcodes.feather")
+        urllib.request.urlretrieve(url, bPath)
+        url2 = "https://raw.githubusercontent.com/andersen-lab/"\
+            "Freyja/main/freyja/data/last_barcode_update.txt"
+        bPath = os.path.join(locDir, "last_barcode_update.txt")
+        urllib.request.urlretrieve(url2, bPath)
+        url3 = "https://raw.githubusercontent.com/andersen-lab/"\
+            "Freyja/main/freyja/data/lineage_mutations.json"
+        bPath = os.path.join(locDir, "lineage_mutations.json")
+        urllib.request.urlretrieve(url3, bPath)
+    elif pathogen == 'MPXV':
+        url = "https://raw.githubusercontent.com/andersen-lab/"\
+           "Freyja-barcodes/refs/heads/main/MPX/barcode.csv"
+        bPath = os.path.join(locDir, "mpox_barcodes.csv")
+        urllib.request.urlretrieve(url, bPath)
     return bPath
 
 
@@ -50,23 +56,32 @@ def convert_tree_custom(tree_path):
     return return_code
 
 
-def get_curated_lineage_data(locDir):
-    url2 = "https://raw.githubusercontent.com/outbreak-info/outbreak.info/"\
-           "master/web/src/assets/genomics/curated_lineages.json"
-    urllib.request.urlretrieve(url2,
-                               os.path.join(locDir,
-                                            "curated_lineages.json"))
+def get_curated_lineage_data(locDir, pathogen):
+    if pathogen == 'SARS-CoV-2':
+        url2 = "https://raw.githubusercontent.com/"\
+               "outbreak-info/outbreak.info/"\
+               "master/web/src/assets/genomics/curated_lineages.json"
+        urllib.request.urlretrieve(url2,
+                                   os.path.join(locDir,
+                                                "curated_lineages.json"))
 
 
-def get_cl_lineages(locDir):
-    # for now, use lineages metadata created using patch
-    r = requests.get('https://raw.githubusercontent.com/outbreak-info/' +
-                     'outbreak.info/master/curated_reports_prep/lineages.yml')
-    # r = requests.get('https://raw.githubusercontent.com/cov-lineages' +
-    #                  '/lineages-website/master/data/lineages.yml')
-    if r.status_code == 200:
-        with open(os.path.join(locDir, 'lineages.yml'), 'w+') as f:
-            f.write(r.text)
+def get_cl_lineages(locDir, pathogen='SARS-CoV-2'):
+    if pathogen == 'SARS-CoV-2':
+        # for now, use lineages metadata created using patch
+        r = requests.get('https://raw.githubusercontent.com/outbreak-info/' +
+                         'outbreak.info/master/curated_reports_prep/' +
+                         'lineages.yml')
+        if r.status_code == 200:
+            with open(os.path.join(locDir, 'lineages.yml'), 'w+') as f:
+                f.write(r.text)
+    elif pathogen == 'MPXV':
+        r = requests.get("https://raw.githubusercontent.com/andersen-lab/" +
+                         "Freyja-barcodes/refs/heads/main/" +
+                         "MPX/mpox_lineages.yml")
+        if r.status_code == 200:
+            with open(os.path.join(locDir, 'mpox_lineages.yml'), 'w+') as f:
+                f.write(r.text)
 
 
 if __name__ == '__main__':

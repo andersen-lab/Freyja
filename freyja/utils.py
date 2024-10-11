@@ -27,7 +27,7 @@ def agg(results):
     return df_demix
 
 
-def load_barcodes(barcodes):
+def load_barcodes(barcodes, pathogen):
     locDir = os.path.abspath(os.path.join(os.path.realpath(__file__),
                              os.pardir))
     if barcodes != '':
@@ -39,9 +39,20 @@ def load_barcodes(barcodes):
             raise ValueError('Only csv and feather barcode ' +
                              'formats supported')
     else:
-        df_barcodes = pd.read_feather(os.path.join(locDir,
-                                      'data/usher_barcodes.feather')
-                                      ).set_index('index')
+        if pathogen == 'SARS-CoV-2':
+            df_barcodes = pd.read_feather(os.path.join(locDir,
+                                          'data/usher_barcodes.feather')
+                                          ).set_index('index')
+        elif pathogen == 'MPXV':
+            try:
+                df_barcodes = pd.read_csv(os.path.join(locDir,
+                                          'data/mpox_barcodes.csv'),
+                                          index_col=0)
+            except IOError:
+                print(f"Barcode could not be opened for {pathogen}" +
+                      f"Please try running freyja update --pathogen"
+                      f"{pathogen} if you haven't yet done so")
+                return False
     return df_barcodes
 
 
@@ -163,19 +174,29 @@ def get_value(val, dict, get_val, match_key):
     return values[0]
 
 
-def read_lineage_file(lineageyml, locDir, fileOnly=False):
+def read_lineage_file(lineageyml, locDir, pathogen='SARS-CoV-2',
+                      fileOnly=False):
     if lineageyml == "":
-        with open(os.path.join(locDir, 'data/lineages.yml'), 'r') as f:
-            try:
-                lineages_yml = yaml.safe_load(f)
-            except yaml.YAMLError as exc:
-                raise ValueError('Error in lineages.yml file: ' + str(exc))
+        if pathogen == 'SARS-CoV-2':
+            with open(os.path.join(locDir, 'data/lineages.yml'), 'r') as f:
+                try:
+                    lineages_yml = yaml.safe_load(f)
+                except yaml.YAMLError as exc:
+                    raise ValueError('Error in lineages.yml file: ' + str(exc))
+        elif pathogen == 'MPXV':
+            with open(os.path.join(
+                      locDir, 'data/mpox_lineages.yml'), 'r') as f:
+                try:
+                    lineages_yml = yaml.safe_load(f)
+                except yaml.YAMLError as exc:
+                    raise ValueError('Error in mpox_lineages.yml file: ' +
+                                     str(exc))
     else:
         with open(lineageyml, 'r') as f:
             try:
                 lineages_yml = yaml.safe_load(f)
             except yaml.YAMLError as exc:
-                raise ValueError('Error in lineages.yml file: ' + str(exc))
+                raise ValueError(f'Error in {lineageyml} file: ' + str(exc))
     if fileOnly:
         return lineages_yml
     else:
@@ -939,7 +960,7 @@ def make_dashboard(agg_df, meta_df, thresh, title, introText,
 
 def collapse_barcodes(df_barcodes, df_depth, depthcutoff,
                       lineageyml, locDir, output,
-                      relaxed, relaxedthresh):
+                      relaxed, relaxedthresh, pathogen='SARS-CoV-2'):
     # drop low coverage sites
     low_cov_sites = df_depth[df_depth[3].astype(int) < depthcutoff] \
         .index.astype(str)
@@ -963,7 +984,8 @@ def collapse_barcodes(df_barcodes, df_depth, depthcutoff,
         return df_barcodes
 
     # load lineage data
-    lineage_yml = read_lineage_file(lineageyml, locDir, fileOnly=True)
+    lineage_yml = read_lineage_file(lineageyml, locDir,
+                                    pathogen, fileOnly=True)
     lineage_data = {lineage['name']: lineage for lineage in lineage_yml}
 
     alias_count = {}
