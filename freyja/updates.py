@@ -15,6 +15,14 @@ def get_pathogen_config(locDir):
     return pathogen_config
 
 
+# def download_config(locDir):
+#     url = "https://raw.githubusercontent.com/andersen-lab/"\
+#           "Freyja/main/freyja/data/pathogen_config.yml"
+#     lpath = os.path.join(locDir, 'pathogen_config.yml')
+#     urllib.request.urlretrieve(url, lpath)
+#     return lpath
+
+
 def download_tree(locDir):
     url = "https://hgdownload.soe.ucsc.edu/goldenPath/wuhCor1/"\
           "UShER_SARS-CoV-2/public-latest.all.masked.pb.gz"
