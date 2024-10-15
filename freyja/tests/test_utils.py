@@ -412,7 +412,7 @@ class UtilsTests(unittest.TestCase):
         lineages_yml = 'freyja/data/lineages.yml'
         barcodes = collapse_barcodes(barcodes, self.depth,
                                      100, lineages_yml, 'freyja', 'test',
-                                     False, 0.9)
+                                     False, 0.9, '')
         collapsed = barcodes.shape
 
         self.assertLess(collapsed[0], original[0])

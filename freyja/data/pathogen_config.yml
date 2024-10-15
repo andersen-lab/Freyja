@@ -1,0 +1,7 @@
+MPXV:
+ - name: "mpox"
+   barcodes: "https://raw.githubusercontent.com/andersen-lab/Freyja-barcodes/refs/heads/main/MPX/barcode.csv"
+   lineageyml: "https://raw.githubusercontent.com/andersen-lab/Freyja-barcodes/refs/heads/main/MPX/mpox_lineages.yml"
+H5NX:
+ - name: "H5Nx"
+   barcodes: "https://raw.githubusercontent.com/andersen-lab/Freyja-barcodes/refs/heads/main/H5Nx/barcode.csv"

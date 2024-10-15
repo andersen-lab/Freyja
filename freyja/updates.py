@@ -3,6 +3,16 @@ import os
 import sys
 import subprocess
 import requests
+import yaml
+
+
+def get_pathogen_config(locDir):
+    with open(os.path.join(locDir, 'pathogen_config.yml'), 'r') as f:
+        try:
+            pathogen_config = yaml.safe_load(f)
+        except yaml.YAMLError:
+            raise ValueError('Error loading pathogen update config')
+    return pathogen_config
 
 
 def download_tree(locDir):
@@ -27,11 +37,13 @@ def download_barcodes(locDir, pathogen='SARS-CoV-2'):
             "Freyja/main/freyja/data/lineage_mutations.json"
         bPath = os.path.join(locDir, "lineage_mutations.json")
         urllib.request.urlretrieve(url3, bPath)
-    elif pathogen == 'MPXV':
-        url = "https://raw.githubusercontent.com/andersen-lab/"\
-           "Freyja-barcodes/refs/heads/main/MPX/barcode.csv"
-        bPath = os.path.join(locDir, "mpox_barcodes.csv")
-        urllib.request.urlretrieve(url, bPath)
+    else:
+        pathogen_config = get_pathogen_config(locDir)
+        bPath = os.path.join(locDir,
+                             f"{pathogen_config[pathogen][0]['name']}" +
+                             "_barcodes.csv")
+        urllib.request.urlretrieve(pathogen_config[pathogen][0]['barcodes'],
+                                   bPath)
     return bPath
 
 
@@ -75,13 +87,18 @@ def get_cl_lineages(locDir, pathogen='SARS-CoV-2'):
         if r.status_code == 200:
             with open(os.path.join(locDir, 'lineages.yml'), 'w+') as f:
                 f.write(r.text)
-    elif pathogen == 'MPXV':
-        r = requests.get("https://raw.githubusercontent.com/andersen-lab/" +
-                         "Freyja-barcodes/refs/heads/main/" +
-                         "MPX/mpox_lineages.yml")
-        if r.status_code == 200:
-            with open(os.path.join(locDir, 'mpox_lineages.yml'), 'w+') as f:
-                f.write(r.text)
+    else:
+        pathogen_config = get_pathogen_config(locDir)
+        if 'lineageyml' in pathogen_config[pathogen][0].keys():
+            r = requests.get(pathogen_config[pathogen][0]['lineageyml'])
+            if r.status_code == 200:
+                with open(os.path.
+                          join(locDir,
+                               f"{pathogen_config[pathogen][0]['name']}" +
+                               "_lineages.yml"), 'w+') as f:
+                    f.write(r.text)
+        else:
+            print(f'Lineage hierarchy not yet set up for {pathogen}')
 
 
 if __name__ == '__main__':
