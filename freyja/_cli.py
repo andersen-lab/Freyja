@@ -1,15 +1,19 @@
 import os
 import sys
 import yaml
-
 import click
 import pandas as pd
+from freyja.updates import get_pathogen_config
 
 locDir = os.path.abspath(os.path.join(os.path.realpath(__file__), os.pardir))
 
+# pull config info for non SARS-CoV-2 pathogens
+pathogen_config = get_pathogen_config(os.path.join(locDir, 'data'))
+pathogens = ['SARS-CoV-2'] + list(pathogen_config.keys())
+
 
 @click.group(context_settings={'show_default': True})
-@click.version_option('1.5.1')
+@click.version_option('1.5.2')
 def cli():
     pass
 
@@ -73,10 +77,15 @@ def print_barcode_version(ctx, param, value):
 @click.option('--solver', default='CLARABEL',
               help='solver used for estimating lineage prevalence',
               show_default=True)
+@click.option('--pathogen', type=click.Choice(pathogens),
+              default='SARS-CoV-2',
+              help='Pathogen of interest.' +
+              'Not used if using --barcodes option.',
+              show_default=True)
 def demix(variants, depths, output, eps, barcodes, meta,
           covcut, confirmedonly, depthcutoff, lineageyml,
           adapt, a_eps, region_of_interest,
-          relaxedmrca, relaxedthresh, solver):
+          relaxedmrca, relaxedthresh, solver, pathogen):
     """
     Generate relative lineage abundances from VARIANTS and DEPTHS
     """
@@ -89,7 +98,9 @@ def demix(variants, depths, output, eps, barcodes, meta,
                               handle_region_of_interest)
     locDir = os.path.abspath(os.path.join(os.path.realpath(__file__),
                              os.pardir))
-    df_barcodes = load_barcodes(barcodes)
+    altname = '' if pathogen == 'SARS-CoV-2' else \
+              pathogen_config[pathogen][0]['name']
+    df_barcodes = load_barcodes(barcodes, pathogen, altname)
 
     if confirmedonly:
         confirmed = [dfi for dfi in df_barcodes.index
@@ -104,7 +115,8 @@ def demix(variants, depths, output, eps, barcodes, meta,
     if depthcutoff != 0:
         df_barcodes = collapse_barcodes(df_barcodes, df_depth, depthcutoff,
                                         lineageyml, locDir, output,
-                                        relaxedmrca, relaxedthresh)
+                                        relaxedmrca, relaxedthresh,
+                                        altname, pathogen)
     muts = list(df_barcodes.columns)
     mapDict = buildLineageMap(meta)
     print('building mix/depth matrices')
@@ -167,13 +179,18 @@ def demix(variants, depths, output, eps, barcodes, meta,
 @click.option('--outdir', default='',
               help='Output directory to save updated files')
 @click.option('--noncl', is_flag=True, default=True,
-              help='only include lineages that are'
+              help='only include lineages that are '
                    'confirmed by cov-lineages',
               show_default=True)
 @click.option('--buildlocal', is_flag=True, default=False,
-              help='Perform barcode building locally',
+              help='Perform barcode building locally' +
+              '(only available for SARS-CoV-2)',
               show_default=True)
-def update(outdir, noncl, buildlocal):
+@click.option('--pathogen', type=click.Choice(pathogens),
+              default='SARS-CoV-2',
+              help='Pathogen to provide update for',
+              show_default=True)
+def update(outdir, noncl, buildlocal, pathogen):
     """
     Update to the most recent barcodes and curated lineage data
     """
@@ -191,8 +208,8 @@ def update(outdir, noncl, buildlocal):
         locDir = os.path.join(locDir, 'data')
 
     print('Getting outbreak data')
-    get_curated_lineage_data(locDir)
-    get_cl_lineages(locDir)
+    get_curated_lineage_data(locDir, pathogen)
+    get_cl_lineages(locDir, pathogen)
     # # get data from UShER
     if buildlocal:
         from freyja.convert_paths2barcodes import (check_mutation_chain,
@@ -247,7 +264,7 @@ def update(outdir, noncl, buildlocal):
         os.remove(os.path.join(locDir, "public-latest.all.masked.pb.gz"))
     else:
         print('Downloading barcodes')
-        download_barcodes(locDir)
+        download_barcodes(locDir, pathogen)
 
 
 @cli.command()
@@ -479,10 +496,15 @@ def variants(bamfile, ref, variants, depths, refname, minq, annot, varthresh):
 @click.option('--solver', default='CLARABEL',
               help='solver used for estimating lineage prevalence',
               show_default=True)
+@click.option('--pathogen', type=click.Choice(pathogens),
+              default='SARS-CoV-2',
+              help='Pathogen of interest.' +
+              'Not used if using --barcodes option.',
+              show_default=True)
 def boot(variants, depths, output_base, eps, barcodes, meta,
          nb, nt, boxplot, confirmedonly, lineageyml, depthcutoff,
          rawboots, relaxedmrca, relaxedthresh, bootseed,
-         solver):
+         solver, pathogen):
     """
     Perform bootstrapping method for freyja using VARIANTS and DEPTHS
     """
@@ -491,7 +513,9 @@ def boot(variants, depths, output_base, eps, barcodes, meta,
                                       buildLineageMap,
                                       perform_bootstrap,
                                       reindex_dfs)
-    df_barcodes = load_barcodes(barcodes)
+    altname = '' if pathogen == 'SARS-CoV-2' else \
+              pathogen_config[pathogen][0]['name']
+    df_barcodes = load_barcodes(barcodes, pathogen, altname)
 
     if confirmedonly:
         confirmed = [dfi for dfi in df_barcodes.index
@@ -508,7 +532,8 @@ def boot(variants, depths, output_base, eps, barcodes, meta,
         df_barcodes = collapse_barcodes(
             df_barcodes, df_depths, depthcutoff,
             lineageyml, locDir, output_base,
-            relaxedmrca, relaxedthresh)
+            relaxedmrca, relaxedthresh, altname,
+            pathogen)
 
     muts = list(df_barcodes.columns)
     mapDict = buildLineageMap(meta)
@@ -599,8 +624,13 @@ def aggregate(results, ext, output):
 @click.option('--writegrouped',
               default='',
               help='path to write grouped lineage data')
+@click.option('--pathogen', type=click.Choice(pathogens),
+              default='SARS-CoV-2',
+              help='Pathogen of interest.' +
+              'Not used if using --lineageyml option.',
+              show_default=True)
 def plot(agg_results, lineages, times, interval, output, windowsize,
-         config, mincov, lineageyml, thresh, writegrouped):
+         config, mincov, lineageyml, thresh, writegrouped, pathogen):
     """
     Create plot from AGG_RESULTS
     """
@@ -629,7 +659,7 @@ so no plot will be generated. Try changing --mincov threshold.')
 
     # convert lineages_yml to a dictionary where the lineage names are the
     # keys.
-    lineage_info = read_lineage_file(lineageyml, locDir)
+    lineage_info = read_lineage_file(lineageyml, locDir, pathogen)
 
     if config is not None:
         config = checkConfig(config)
@@ -708,9 +738,14 @@ so no plot will be generated. Try changing --mincov threshold.')
 @click.option('--keep_plot_files', is_flag=True,
               help='keep the intermediate html '
                    'for the core plot', show_default=True)
+@click.option('--pathogen', type=click.Choice(pathogens),
+              default='SARS-CoV-2',
+              help='Pathogen of interest.' +
+              'Not used if using --lineageyml option.',
+              show_default=True)
 def dash(agg_results, metadata, title, intro, thresh, headercolor, bodycolor,
          scale_by_viral_load, nboots, serial_interval, config, mincov, output,
-         days, lineageyml, grthresh, keep_plot_files):
+         days, lineageyml, grthresh, keep_plot_files, pathogen):
     agg_df = pd.read_csv(agg_results, skipinitialspace=True, sep='\t',
                          index_col=0)
     """
@@ -740,7 +775,7 @@ def dash(agg_results, metadata, title, intro, thresh, headercolor, bodycolor,
             except yaml.YAMLError as exc:
                 raise ValueError('Error in config file: ' + str(exc))
 
-    lineage_info = read_lineage_file(lineageyml, locDir)
+    lineage_info = read_lineage_file(lineageyml, locDir, pathogen)
     if config is not None:
         config = checkConfig(config)
     else:
@@ -779,9 +814,14 @@ def dash(agg_results, metadata, title, intro, thresh, headercolor, bodycolor,
                    ' growth rate for', show_default=True)
 @click.option('--lineageyml', default='',
               help='lineage hierarchy file')
+@click.option('--pathogen', type=click.Choice(pathogens),
+              default='SARS-CoV-2',
+              help='Pathogen of interest.' +
+              'Not used if using --lineageyml option.',
+              show_default=True)
 def relgrowthrate(agg_results, metadata, thresh, scale_by_viral_load, nboots,
                   serial_interval, config, mincov, output, days, grthresh,
-                  lineageyml):
+                  lineageyml, pathogen):
     """
     Calculates relative growth rates for each lineage using AGG_RESULTS and
     METADATA
@@ -809,7 +849,7 @@ def relgrowthrate(agg_results, metadata, thresh, scale_by_viral_load, nboots,
             except yaml.YAMLError as exc:
                 raise ValueError('Error in config file: ' + str(exc))
 
-    lineage_info = read_lineage_file(lineageyml, locDir)
+    lineage_info = read_lineage_file(lineageyml, locDir, pathogen)
     if config is not None:
         config = checkConfig(config)
     else:

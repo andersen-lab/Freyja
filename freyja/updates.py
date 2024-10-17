@@ -3,6 +3,24 @@ import os
 import sys
 import subprocess
 import requests
+import yaml
+
+
+def get_pathogen_config(locDir):
+    with open(os.path.join(locDir, 'pathogen_config.yml'), 'r') as f:
+        try:
+            pathogen_config = yaml.safe_load(f)
+        except yaml.YAMLError:
+            raise ValueError('Error loading pathogen update config')
+    return pathogen_config
+
+
+# def download_config(locDir):
+#     url = "https://raw.githubusercontent.com/andersen-lab/"\
+#           "Freyja/main/freyja/data/pathogen_config.yml"
+#     lpath = os.path.join(locDir, 'pathogen_config.yml')
+#     urllib.request.urlretrieve(url, lpath)
+#     return lpath
 
 
 def download_tree(locDir):
@@ -13,19 +31,27 @@ def download_tree(locDir):
     return treePath
 
 
-def download_barcodes(locDir):
-    url = "https://raw.githubusercontent.com/andersen-lab/"\
-          "Freyja/main/freyja/data/usher_barcodes.feather"
-    bPath = os.path.join(locDir, "usher_barcodes.feather")
-    urllib.request.urlretrieve(url, bPath)
-    url2 = "https://raw.githubusercontent.com/andersen-lab/"\
-           "Freyja/main/freyja/data/last_barcode_update.txt"
-    bPath = os.path.join(locDir, "last_barcode_update.txt")
-    urllib.request.urlretrieve(url2, bPath)
-    url3 = "https://raw.githubusercontent.com/andersen-lab/"\
-           "Freyja/main/freyja/data/lineage_mutations.json"
-    bPath = os.path.join(locDir, "lineage_mutations.json")
-    urllib.request.urlretrieve(url3, bPath)
+def download_barcodes(locDir, pathogen='SARS-CoV-2'):
+    if pathogen == 'SARS-CoV-2':
+        url = "https://raw.githubusercontent.com/andersen-lab/"\
+            "Freyja/main/freyja/data/usher_barcodes.feather"
+        bPath = os.path.join(locDir, "usher_barcodes.feather")
+        urllib.request.urlretrieve(url, bPath)
+        url2 = "https://raw.githubusercontent.com/andersen-lab/"\
+            "Freyja/main/freyja/data/last_barcode_update.txt"
+        bPath = os.path.join(locDir, "last_barcode_update.txt")
+        urllib.request.urlretrieve(url2, bPath)
+        url3 = "https://raw.githubusercontent.com/andersen-lab/"\
+            "Freyja/main/freyja/data/lineage_mutations.json"
+        bPath = os.path.join(locDir, "lineage_mutations.json")
+        urllib.request.urlretrieve(url3, bPath)
+    else:
+        pathogen_config = get_pathogen_config(locDir)
+        bPath = os.path.join(locDir,
+                             f"{pathogen_config[pathogen][0]['name']}" +
+                             "_barcodes.csv")
+        urllib.request.urlretrieve(pathogen_config[pathogen][0]['barcodes'],
+                                   bPath)
     return bPath
 
 
@@ -50,23 +76,37 @@ def convert_tree_custom(tree_path):
     return return_code
 
 
-def get_curated_lineage_data(locDir):
-    url2 = "https://raw.githubusercontent.com/outbreak-info/outbreak.info/"\
-           "master/web/src/assets/genomics/curated_lineages.json"
-    urllib.request.urlretrieve(url2,
-                               os.path.join(locDir,
-                                            "curated_lineages.json"))
+def get_curated_lineage_data(locDir, pathogen):
+    if pathogen == 'SARS-CoV-2':
+        url2 = "https://raw.githubusercontent.com/"\
+               "outbreak-info/outbreak.info/"\
+               "master/web/src/assets/genomics/curated_lineages.json"
+        urllib.request.urlretrieve(url2,
+                                   os.path.join(locDir,
+                                                "curated_lineages.json"))
 
 
-def get_cl_lineages(locDir):
-    # for now, use lineages metadata created using patch
-    r = requests.get('https://raw.githubusercontent.com/outbreak-info/' +
-                     'outbreak.info/master/curated_reports_prep/lineages.yml')
-    # r = requests.get('https://raw.githubusercontent.com/cov-lineages' +
-    #                  '/lineages-website/master/data/lineages.yml')
-    if r.status_code == 200:
-        with open(os.path.join(locDir, 'lineages.yml'), 'w+') as f:
-            f.write(r.text)
+def get_cl_lineages(locDir, pathogen='SARS-CoV-2'):
+    if pathogen == 'SARS-CoV-2':
+        # for now, use lineages metadata created using patch
+        r = requests.get('https://raw.githubusercontent.com/outbreak-info/' +
+                         'outbreak.info/master/curated_reports_prep/' +
+                         'lineages.yml')
+        if r.status_code == 200:
+            with open(os.path.join(locDir, 'lineages.yml'), 'w+') as f:
+                f.write(r.text)
+    else:
+        pathogen_config = get_pathogen_config(locDir)
+        if 'lineageyml' in pathogen_config[pathogen][0].keys():
+            r = requests.get(pathogen_config[pathogen][0]['lineageyml'])
+            if r.status_code == 200:
+                with open(os.path.
+                          join(locDir,
+                               f"{pathogen_config[pathogen][0]['name']}" +
+                               "_lineages.yml"), 'w+') as f:
+                    f.write(r.text)
+        else:
+            print(f'Lineage hierarchy not yet set up for {pathogen}')
 
 
 if __name__ == '__main__':

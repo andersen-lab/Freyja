@@ -1,4 +1,19 @@
 .DS_Store
+test.demixed.tsv
+test_collapsed_lineages.yml
+test_dash.html
+test_dash_rel_growth_rates.csv
+test_demixed.tsv
+test_demixed_collapsed_lineages.yml
+test_growth_rates.csv
+test_plot.pdf
+test_plot_time.pdf
+lineage_def.txt
+agg_df.csv
+boot_output_lineages.csv
+boot_output_summarized.csv
+df_ab_lin_raw.csv
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
