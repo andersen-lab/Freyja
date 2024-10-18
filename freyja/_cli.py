@@ -276,7 +276,11 @@ def update(outdir, noncl, buildlocal, pathogen):
 @click.option('--noncl', is_flag=True, default=True,
               help='only include lineages that are'
                    'confirmed by cov-lineages', show_default=True)
-def barcode_build(pb, outdir, noncl):
+@click.option('--pathogen', type=click.Choice(pathogens),
+              default='SARS-CoV-2',
+              help='Pathogen of interest',
+              show_default=True)
+def barcode_build(pb, outdir, noncl, pathogen):
     """
     Build barcodes from a custom protobuf tree
     """
@@ -292,8 +296,8 @@ def barcode_build(pb, outdir, noncl):
                              os.pardir))
     locDir = outdir
     print('Getting outbreak data')
-    get_curated_lineage_data(locDir)
-    get_cl_lineages(locDir)
+    get_curated_lineage_data(locDir, pathogen)
+    get_cl_lineages(locDir, pathogen)
     # # get data from UShER
     print('Downloading a new global tree')
     print("Converting tree info to barcodes")
