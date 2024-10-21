@@ -15,12 +15,12 @@ def get_pathogen_config(locDir):
     return pathogen_config
 
 
-# def download_config(locDir):
-#     url = "https://raw.githubusercontent.com/andersen-lab/"\
-#           "Freyja/main/freyja/data/pathogen_config.yml"
-#     lpath = os.path.join(locDir, 'pathogen_config.yml')
-#     urllib.request.urlretrieve(url, lpath)
-#     return lpath
+def download_config(locDir):
+    url = "https://raw.githubusercontent.com/andersen-lab/"\
+          "Freyja/main/freyja/data/pathogen_config.yml"
+    lpath = os.path.join(locDir, 'pathogen_config.yml')
+    urllib.request.urlretrieve(url, lpath)
+    return lpath
 
 
 def download_tree(locDir):
