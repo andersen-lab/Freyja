@@ -196,7 +196,8 @@ def update(outdir, noncl, buildlocal, pathogen):
     """
     from freyja.updates import (convert_tree, download_barcodes,
                                 download_tree, get_cl_lineages,
-                                get_curated_lineage_data)
+                                get_curated_lineage_data,
+                                download_config)
     from freyja.convert_paths2barcodes import sortFun
     locDir = os.path.abspath(os.path.join(os.path.realpath(__file__),
                              os.pardir))
@@ -208,6 +209,7 @@ def update(outdir, noncl, buildlocal, pathogen):
         locDir = os.path.join(locDir, 'data')
 
     print('Getting outbreak data')
+    download_config(locDir)
     get_curated_lineage_data(locDir, pathogen)
     get_cl_lineages(locDir, pathogen)
     # # get data from UShER
