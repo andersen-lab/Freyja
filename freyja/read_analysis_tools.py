@@ -443,11 +443,10 @@ def process_covariants(input_bam, min_site, max_site, ref_fasta, gff_file,
             # Update coverage ranges
             if coverage_start is None or start < coverage_start:
                 coverage_start = start
-            try:
-                if coverage_end is None or end > coverage_end:
-                    coverage_end = end
-            except TypeError as e:
-                print(e)
+
+            if coverage_end is None or end > coverage_end:
+                coverage_end = end
+
             cigar = re.findall(r'(\d+)([A-Z]{1})', x.cigarstring)
             if 'I' in x.cigarstring:
                 i = 0
