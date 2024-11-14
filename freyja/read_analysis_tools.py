@@ -328,7 +328,6 @@ def run_parallel(cores, regions, input_bam, ref_fasta, gff_file, min_quality,
             yield future.result()
 
 
-
 def covariants(input_bam, min_site, max_site, output,
                ref_fasta, gff_file, min_quality, min_count, spans_region,
                sort_by, cores):
@@ -440,7 +439,6 @@ def process_covariants(input_bam, min_site, max_site, ref_fasta, gff_file,
             # checks for a possible fail case, mapq = 0
             if x.cigarstring is None:
                 continue
-
 
             # Update coverage ranges
             if coverage_start is None or start < coverage_start:
@@ -711,7 +709,6 @@ def process_covariants(input_bam, min_site, max_site, ref_fasta, gff_file,
                     co_muts_max_reads[key] = 1
                 else:
                     co_muts_max_reads[key] += 1
-
 
     samfile.close()
 
