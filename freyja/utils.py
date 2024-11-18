@@ -1004,6 +1004,18 @@ def collapse_barcodes(df_barcodes, df_depth, depthcutoff,
                   ' the hierarchy file.')
         # handle cases where multiple lineage classes are being merged
         # e.g. (A.5, B.12) or (XBB, XBN)
+        # unless all lineages are recombinants, drop recombinants from naming
+        if relaxed:
+            if not np.all(['recombinant_parents' in
+                           lineage_data[alias.split('.')[0]]
+                           for alias in pango_aliases]):
+                if np.any(['recombinant_parents' in
+                           lineage_data[alias.split('.')[0]]
+                           for alias in pango_aliases]):
+                    pango_aliases = [alias for alias in pango_aliases
+                                     if 'recombinant_parents' not in
+                                     lineage_data[alias.split('.')[0]]]
+
         multiple_lin_classes = len(
             set([alias.split('.')[0] for alias in pango_aliases])) > 1
 
@@ -1091,7 +1103,8 @@ def collapse_barcodes(df_barcodes, df_depth, depthcutoff,
                                            axis=0)
                     max_ind = np.argmax(ext_counts[1])
                     coherentFrac = ext_counts[1][max_ind] / groupCt
-                    mrca = '.'.join(ext_counts[0][max_ind])
+                    if coherentFrac >= relaxedthresh:
+                        mrca = '.'.join(ext_counts[0][max_ind])
                     j0 += 1
 
         # assign placeholder if no MRCA found
