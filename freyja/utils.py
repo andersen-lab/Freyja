@@ -1004,12 +1004,17 @@ def collapse_barcodes(df_barcodes, df_depth, depthcutoff,
                   ' the hierarchy file.')
         # handle cases where multiple lineage classes are being merged
         # e.g. (A.5, B.12) or (XBB, XBN)
-
-        #unless all lineages are recombinants, drop recombinants from naming
+        # unless all lineages are recombinants, drop recombinants from naming
         if relaxed:
-            if not np.all(['recombinant_parents' in lineage_data[alias.split('.')[0]] for alias in pango_aliases]):
-                if np.any(['recombinant_parents' in lineage_data[alias.split('.')[0]] for alias in pango_aliases]):
-                    pango_aliases = [alias for alias in pango_aliases if 'recombinant_parents' not in lineage_data[alias.split('.')[0]]]
+            if not np.all(['recombinant_parents' in
+                           lineage_data[alias.split('.')[0]]
+                           for alias in pango_aliases]):
+                if np.any(['recombinant_parents' in
+                           lineage_data[alias.split('.')[0]]
+                           for alias in pango_aliases]):
+                    pango_aliases = [alias for alias in pango_aliases
+                                     if 'recombinant_parents' not in
+                                     lineage_data[alias.split('.')[0]]]
 
         multiple_lin_classes = len(
             set([alias.split('.')[0] for alias in pango_aliases])) > 1
