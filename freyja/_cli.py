@@ -521,10 +521,14 @@ def variants(bamfile, ref, variants, depths, refname, minq, annot, varthresh):
               help='Pathogen of interest.' +
               'Not used if using --barcodes option.',
               show_default=True)
+@click.option('--autoadapt', default=False,
+              is_flag=True,
+              help='use error profile to set adapt',
+              show_default=True)
 def boot(variants, depths, output_base, eps, barcodes, meta,
          nb, nt, boxplot, confirmedonly, lineageyml, depthcutoff,
          rawboots, relaxedmrca, relaxedthresh, bootseed,
-         solver, pathogen):
+         solver, pathogen, autoadapt):
     """
     Perform bootstrapping method for freyja using VARIANTS and DEPTHS
     """
@@ -560,8 +564,11 @@ def boot(variants, depths, output_base, eps, barcodes, meta,
     print('building mix/depth matrices')
     # assemble data from (possibly) mixed samples
     covcut = 10  # set value, coverage estimate not returned to user from boot
-    mix, depths_, cov = build_mix_and_depth_arrays(variants, depths, muts,
-                                                   covcut)
+    mix, depths_, cov, adapt = build_mix_and_depth_arrays(variants,
+                                                          depths,
+                                                          muts,
+                                                          covcut,
+                                                          autoadapt)
     print('demixing')
     df_barcodes, mix, depths_ = reindex_dfs(df_barcodes, mix, depths_)
     lin_df, constell_df = perform_bootstrap(df_barcodes, mix, depths_,
