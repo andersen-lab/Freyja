@@ -82,10 +82,15 @@ def print_barcode_version(ctx, param, value):
               help='Pathogen of interest.' +
               'Not used if using --barcodes option.',
               show_default=True)
+@click.option('--autoadapt', default=False,
+              is_flag=True,
+              help='use error profile to set adapt',
+              show_default=True)
 def demix(variants, depths, output, eps, barcodes, meta,
           covcut, confirmedonly, depthcutoff, lineageyml,
           adapt, a_eps, region_of_interest,
-          relaxedmrca, relaxedthresh, solver, pathogen):
+          relaxedmrca, relaxedthresh, solver, pathogen,
+          autoadapt):
     """
     Generate relative lineage abundances from VARIANTS and DEPTHS
     """
@@ -110,9 +115,9 @@ def demix(variants, depths, output, eps, barcodes, meta,
     # drop intra-lineage diversity naming (keeps separate barcodes)
     indexSimplified = [dfi.split('_')[0] for dfi in df_barcodes.index]
     df_barcodes = df_barcodes.loc[indexSimplified, :]
-    df_depth = pd.read_csv(depths, sep='\t', header=None, index_col=1)
 
     if depthcutoff != 0:
+        df_depth = pd.read_csv(depths, sep='\t', header=None, index_col=1)
         df_barcodes = collapse_barcodes(df_barcodes, df_depth, depthcutoff,
                                         lineageyml, locDir, output,
                                         relaxedmrca, relaxedthresh,
@@ -121,11 +126,20 @@ def demix(variants, depths, output, eps, barcodes, meta,
     mapDict = buildLineageMap(meta)
     print('building mix/depth matrices')
     # assemble data from (possibly) mixed samples
-    mix, depths_, cov = build_mix_and_depth_arrays(variants, depths, muts,
-                                                   covcut)
-    print('demixing')
+    if autoadapt:
+        mix, depths_, cov, adapt = build_mix_and_depth_arrays(variants,
+                                                              depths,
+                                                              muts,
+                                                              covcut,
+                                                              autoadapt)
+    else:
+        mix, depths_, cov, _ = build_mix_and_depth_arrays(variants,
+                                                          depths,
+                                                          muts,
+                                                          covcut,
+                                                          autoadapt)
     df_barcodes, mix, depths_ = reindex_dfs(df_barcodes, mix, depths_)
-
+    print('demixing')
     try:
         sample_strains, abundances, error = solve_demixing_problem(df_barcodes,
                                                                    mix,
