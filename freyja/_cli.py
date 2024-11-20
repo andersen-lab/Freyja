@@ -126,14 +126,13 @@ def demix(variants, depths, output, eps, barcodes, meta,
     print('demixing')
     df_barcodes, mix, depths_ = reindex_dfs(df_barcodes, mix, depths_)
 
-
     sample_strains, abundances = solve_demixing_problem(df_barcodes,
-                                                            mix,
-                                                            depths_,
-                                                            eps, adapt,
-                                                            a_eps,
-                                                            solver)
-    
+                                                        mix,
+                                                        depths_,
+                                                        eps, adapt,
+                                                        a_eps,
+                                                        solver)
+
     # merge intra-lineage diversity if multiple hits.
     if len(set(sample_strains)) < len(sample_strains):
         localDict = {}
