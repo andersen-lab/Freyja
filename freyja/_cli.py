@@ -140,12 +140,13 @@ def demix(variants, depths, output, eps, barcodes, meta,
                                                           autoadapt)
     df_barcodes, mix, depths_ = reindex_dfs(df_barcodes, mix, depths_)
     print('demixing')
-    sample_strains, abundances = solve_demixing_problem(df_barcodes,
-                                                        mix,
-                                                        depths_,
-                                                        eps, adapt,
-                                                        a_eps,
-                                                        solver)
+    sample_strains, abundances, error = solve_demixing_problem(df_barcodes,
+                                                               mix,
+                                                               depths_,
+                                                               eps,
+                                                               adapt,
+                                                               a_eps,
+                                                               solver)
     # merge intra-lineage diversity if multiple hits.
     if len(set(sample_strains)) < len(sample_strains):
         localDict = {}
@@ -165,7 +166,7 @@ def demix(variants, depths, output, eps, barcodes, meta,
 
     # assemble into series and write.
     sols_df = pd.Series(data=(localDict, sample_strains, abundances,
-                              cov),
+                              error, cov),
                         index=['summarized', 'lineages',
                         'abundances', 'resid', 'coverage'],
                         name=mix.name)
