@@ -140,18 +140,13 @@ def demix(variants, depths, output, eps, barcodes, meta,
                                                           autoadapt)
     df_barcodes, mix, depths_ = reindex_dfs(df_barcodes, mix, depths_)
     print('demixing')
-    try:
-        sample_strains, abundances, error = solve_demixing_problem(df_barcodes,
-                                                                   mix,
-                                                                   depths_,
-                                                                   eps, adapt,
-                                                                   a_eps,
-                                                                   solver)
-    except Exception as e:
-        print(e)
-        print('Error: Demixing step failed. Returning empty data output')
-        sample_strains, abundances = [], []
-        error = -1
+    sample_strains, abundances, error = solve_demixing_problem(df_barcodes,
+                                                               mix,
+                                                               depths_,
+                                                               eps,
+                                                               adapt,
+                                                               a_eps,
+                                                               solver)
     # merge intra-lineage diversity if multiple hits.
     if len(set(sample_strains)) < len(sample_strains):
         localDict = {}
