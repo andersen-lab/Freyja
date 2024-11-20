@@ -59,12 +59,10 @@ def buildLineageMap(locDir):
 
 
 def get_error_rate(muts, df0, df_depths0):
-    removeKnownSites = True
-    if removeKnownSites:
-        from freyja.convert_paths2barcodes import sortFun
-        sites = set([sortFun(m) for m in muts])
-        df_depths0 = df_depths0[~df_depths0.index.isin(sites)]
-        df0 = df0[~df0['POS'].isin(sites)]
+    from freyja.convert_paths2barcodes import sortFun
+    sites = set([sortFun(m) for m in muts])
+    df_depths0 = df_depths0[~df_depths0.index.isin(sites)]
+    df0 = df0[~df0['POS'].isin(sites)]
     df0 = df0[df0['ALT_FREQ'] > 0]
     error_rate = df0['ALT_FREQ'].median()
     return error_rate
