@@ -21,8 +21,10 @@ class DeconvTests(unittest.TestCase):
         varFn = 'freyja/data/mixture.tsv'
         depthFn = 'freyja/data/mixture.depth'
         covcut = 10
-        mix, depths, cov = build_mix_and_depth_arrays(varFn, depthFn, muts,
-                                                      covcut)
+        autoadapt = False
+        mix, depths, cov, adapt = build_mix_and_depth_arrays(varFn, depthFn,
+                                                             muts, covcut,
+                                                             autoadapt)
         # just making sure the files we've read in are ready for use
         self.assertTrue(ptypes.is_float_dtype(mix))
         self.assertTrue(ptypes.is_float_dtype(depths))

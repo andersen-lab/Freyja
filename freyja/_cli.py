@@ -82,10 +82,15 @@ def print_barcode_version(ctx, param, value):
               help='Pathogen of interest.' +
               'Not used if using --barcodes option.',
               show_default=True)
+@click.option('--autoadapt', default=False,
+              is_flag=True,
+              help='use error profile to set adapt',
+              show_default=True)
 def demix(variants, depths, output, eps, barcodes, meta,
           covcut, confirmedonly, depthcutoff, lineageyml,
           adapt, a_eps, region_of_interest,
-          relaxedmrca, relaxedthresh, solver, pathogen):
+          relaxedmrca, relaxedthresh, solver, pathogen,
+          autoadapt):
     """
     Generate relative lineage abundances from VARIANTS and DEPTHS
     """
@@ -110,9 +115,9 @@ def demix(variants, depths, output, eps, barcodes, meta,
     # drop intra-lineage diversity naming (keeps separate barcodes)
     indexSimplified = [dfi.split('_')[0] for dfi in df_barcodes.index]
     df_barcodes = df_barcodes.loc[indexSimplified, :]
-    df_depth = pd.read_csv(depths, sep='\t', header=None, index_col=1)
 
     if depthcutoff != 0:
+        df_depth = pd.read_csv(depths, sep='\t', header=None, index_col=1)
         df_barcodes = collapse_barcodes(df_barcodes, df_depth, depthcutoff,
                                         lineageyml, locDir, output,
                                         relaxedmrca, relaxedthresh,
@@ -121,18 +126,26 @@ def demix(variants, depths, output, eps, barcodes, meta,
     mapDict = buildLineageMap(meta)
     print('building mix/depth matrices')
     # assemble data from (possibly) mixed samples
-    mix, depths_, cov = build_mix_and_depth_arrays(variants, depths, muts,
-                                                   covcut)
-    print('demixing')
+    if autoadapt:
+        mix, depths_, cov, adapt = build_mix_and_depth_arrays(variants,
+                                                              depths,
+                                                              muts,
+                                                              covcut,
+                                                              autoadapt)
+    else:
+        mix, depths_, cov, _ = build_mix_and_depth_arrays(variants,
+                                                          depths,
+                                                          muts,
+                                                          covcut,
+                                                          autoadapt)
     df_barcodes, mix, depths_ = reindex_dfs(df_barcodes, mix, depths_)
-
+    print('demixing')
     sample_strains, abundances = solve_demixing_problem(df_barcodes,
                                                         mix,
                                                         depths_,
                                                         eps, adapt,
                                                         a_eps,
                                                         solver)
-
     # merge intra-lineage diversity if multiple hits.
     if len(set(sample_strains)) < len(sample_strains):
         localDict = {}
@@ -502,10 +515,14 @@ def variants(bamfile, ref, variants, depths, refname, minq, annot, varthresh):
               help='Pathogen of interest.' +
               'Not used if using --barcodes option.',
               show_default=True)
+@click.option('--autoadapt', default=False,
+              is_flag=True,
+              help='use error profile to set adapt',
+              show_default=True)
 def boot(variants, depths, output_base, eps, barcodes, meta,
          nb, nt, boxplot, confirmedonly, lineageyml, depthcutoff,
          rawboots, relaxedmrca, relaxedthresh, bootseed,
-         solver, pathogen):
+         solver, pathogen, autoadapt):
     """
     Perform bootstrapping method for freyja using VARIANTS and DEPTHS
     """
@@ -541,8 +558,11 @@ def boot(variants, depths, output_base, eps, barcodes, meta,
     print('building mix/depth matrices')
     # assemble data from (possibly) mixed samples
     covcut = 10  # set value, coverage estimate not returned to user from boot
-    mix, depths_, cov = build_mix_and_depth_arrays(variants, depths, muts,
-                                                   covcut)
+    mix, depths_, cov, adapt = build_mix_and_depth_arrays(variants,
+                                                          depths,
+                                                          muts,
+                                                          covcut,
+                                                          autoadapt)
     print('demixing')
     df_barcodes, mix, depths_ = reindex_dfs(df_barcodes, mix, depths_)
     lin_df, constell_df = perform_bootstrap(df_barcodes, mix, depths_,
