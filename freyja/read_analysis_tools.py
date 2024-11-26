@@ -83,10 +83,13 @@ def extract(query_mutations, input_bam, output, same_read):
         snps_found = {site: False for site in snp_dict}
 
         for x in [read1, read2]:
-            if x is None:
-                break
 
-            if x.cigarstring is None:
+            if x is None:
+                continue
+
+            if any([val is None for val in [x.query_alignment_sequence,
+                                            x.query_alignment_qualities,
+                                            x.cigarstring]]):
                 continue
 
             ref_pos = set(x.get_reference_positions())
@@ -240,15 +243,20 @@ def filter(query_mutations, input_bam, min_site, max_site, output):
         itr = samfile.fetch(refname, site, site+1)
 
         for x in itr:
+            if x is None:
+                continue
+
+            if any([val is None for val in [x.query_alignment_sequence,
+                                            x.query_alignment_qualities,
+                                            x.cigarstring]]):
+                continue
+
             ref_pos = set(x.get_reference_positions())
             start = x.reference_start
             sites_in = list(ref_pos & set(snp_sites))
 
             seq = x.query_alignment_sequence
 
-            if x.cigarstring is None:
-                # checks for a possible fail case
-                continue
             cigar = re.findall(r'(\d+)([A-Z]{1})', x.cigarstring)
 
             # note: inserts add to read length, but not alignment coordinate
@@ -414,7 +422,12 @@ def process_covariants(input_bam, min_site, max_site, ref_fasta, gff_file,
         muts_final = []
         for x in [read1, read2]:
             if x is None:
-                break
+                continue
+
+            if any([val is None for val in [x.query_alignment_sequence,
+                                            x.query_alignment_qualities,
+                                            x.cigarstring]]):
+                continue
 
             start = x.reference_start
             end = x.reference_end
@@ -435,10 +448,6 @@ def process_covariants(input_bam, min_site, max_site, ref_fasta, gff_file,
             last_del_site = 0
 
             snps_found = []
-
-            # checks for a possible fail case, mapq = 0
-            if x.cigarstring is None:
-                continue
 
             # Update coverage ranges
             if coverage_start is None or start < coverage_start:
@@ -675,8 +684,14 @@ def process_covariants(input_bam, min_site, max_site, ref_fasta, gff_file,
         coverage_end = None
 
         for x in [read1, read2]:
-            if x is None or x.cigarstring is None:
-                break
+
+            if x is None:
+                continue
+
+            if any([val is None for val in [x.query_alignment_sequence,
+                                            x.query_alignment_qualities,
+                                            x.cigarstring]]):
+                continue
 
             start = x.reference_start
             end = x.reference_end
