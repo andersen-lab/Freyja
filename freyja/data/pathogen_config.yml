@@ -7,6 +7,11 @@ H5NX:
  - name: "H5Nx"
    barcodes: "https://raw.githubusercontent.com/andersen-lab/Freyja-barcodes/refs/heads/main/H5Nx/latest/barcode.csv"
 
+H5NX-cattle:
+  - name: "H5Nx-cattle"
+    barcodes: "https://raw.githubusercontent.com/andersen-lab/Freyja-barcodes/refs/heads/main/H5Nx-cattle/latest/barcode.csv"
+    lineageyml: "https://raw.githubusercontent.com/andersen-lab/Freyja-barcodes/refs/heads/main/H5Nx-cattle/latest/h5nx_cattle_lineages.yml"
+
 H1N1pdm:
  - name: "H1N1"
    barcodes: "https://raw.githubusercontent.com/andersen-lab/Freyja-barcodes/refs/heads/main/H1N1/latest/barcode.csv"
