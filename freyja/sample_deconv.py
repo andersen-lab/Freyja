@@ -74,8 +74,8 @@ def build_mix_and_depth_arrays(fn, depthFn, muts, covcut, autoadapt):
         df = read_snv_frequencies_vcf(fn, depthFn, muts)
     else:
         df = read_snv_frequencies_ivar(fn, depthFn, muts)
+        df = df[['REF', 'POS', 'ALT', 'ALT_FREQ', 'ALT_DP']]
 
-    df = df[['REF', 'POS', 'ALT', 'ALT_FREQ', 'ALT_DP']]
     # only works for substitutions, but that's what we get from usher tree
     df_depth = pd.read_csv(depthFn, sep='\t', header=None, index_col=1)[[3]]
 
