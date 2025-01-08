@@ -113,9 +113,9 @@ def read_snv_frequencies_vcf(fn, depthFn, muts):
     df = pd.read_csv(fn, comment='#', sep=r'\s+',
                      header=None,
                      names=vcfnames)
-    vcf_info = df['INFO'].str.split(';', expand=True)
-    df["ALT_FREQ"] = df["INFO"].str.extract( f"AF=([0-9]*\.*[0-9]+)" )
-    df["ALT_FREQ"] = pd.to_numeric( df["ALT_FREQ"], downcast="float" )
+
+    df["ALT_FREQ"] = df["INFO"].str.extract(r"AF=([0-9]*\.*[0-9]+)")
+    df["ALT_FREQ"] = pd.to_numeric(df["ALT_FREQ"], downcast="float")
     return df
 
 
