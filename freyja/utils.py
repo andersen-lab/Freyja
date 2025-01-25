@@ -595,10 +595,10 @@ def get_abundance(agg_df, meta_df, thresh, scale_by_viral_load, config,
         dat = agg_df.loc[sampLabel, 'linDict']
         if isinstance(dat, list):
             if i == 0:
-                df_ab_lin = pd.Series(
+                df_ab_lin = pd.DataFrame(pd.Series(
                     agg_df.loc[sampLabel, 'linDict'][0],
                     name=meta_df.loc[sampLabel,
-                                     'sample_collection_datetime'])
+                                     'sample_collection_datetime']))
             else:
                 df_ab_lin = pd.concat([
                     df_ab_lin,
@@ -608,10 +608,10 @@ def get_abundance(agg_df, meta_df, thresh, scale_by_viral_load, config,
                 ], axis=1)
         else:
             if i == 0:
-                df_ab_lin = pd.Series(
+                df_ab_lin = pd.DataFrame(pd.Series(
                     agg_df.loc[sampLabel, 'linDict'],
                     name=meta_df.loc[sampLabel,
-                                     'sample_collection_datetime'])
+                                     'sample_collection_datetime']))
             else:
                 df_ab_lin = pd.concat([
                     df_ab_lin,
@@ -641,10 +641,10 @@ def get_abundance(agg_df, meta_df, thresh, scale_by_viral_load, config,
         dat = agg_df.loc[sampLabel, 'summarized']
         if isinstance(dat, list):
             if i == 0:
-                df_ab_sum = pd.Series(
+                df_ab_sum = pd.DataFrame(pd.Series(
                     agg_df.loc[sampLabel, 'summarized'][0],
                     name=meta_df.loc[sampLabel,
-                                     'sample_collection_datetime'])
+                                     'sample_collection_datetime']))
             else:
                 df_ab_sum = pd.concat([
                     df_ab_sum,
@@ -654,10 +654,10 @@ def get_abundance(agg_df, meta_df, thresh, scale_by_viral_load, config,
                 ], axis=1)
         else:
             if i == 0:
-                df_ab_sum = pd.Series(
+                df_ab_sum = pd.DataFrame(pd.Series(
                     agg_df.loc[sampLabel, 'summarized'],
                     name=meta_df.loc[sampLabel,
-                                     'sample_collection_datetime'])
+                                     'sample_collection_datetime']))
             else:
                 df_ab_sum = pd.concat([
                     df_ab_sum,
