@@ -16,6 +16,11 @@ class CommandLineTests(unittest.TestCase):
         os.system('freyja demix freyja/data/test.tsv freyja/data/test.depth \
                    --output test.demixed.tsv')
         self.assertTrue(file_exists('.', "test.demixed.tsv"))
+    def test_demix_with_vcf(self):
+        os.system('freyja demix freyja/data/test.vcf freyja/data/test.depth \
+                   --output test.demixed.tsv')
+        self.assertTrue(file_exists('.', "test.demixed.tsv"))
+        
 
     def test_demix_with_cutoff(self):
         os.system('freyja demix freyja/data/test.tsv freyja/data/test.depth \
