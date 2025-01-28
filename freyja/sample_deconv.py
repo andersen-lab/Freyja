@@ -113,8 +113,11 @@ def read_snv_frequencies_vcf(fn, depthFn, muts):
     df = pd.read_csv(fn, comment='#', sep=r'\s+',
                      header=None,
                      names=vcfnames)
-
     df["ALT_FREQ"] = df["INFO"].str.extract(r"AF=([0-9]*\.*[0-9]+)")
+    if df["ALT_FREQ"].isnull().all():
+        raise ValueError(f"No AF (allele frequency) data"
+                         "found in INFO column of VCF file: {fn}")
+
     df["ALT_FREQ"] = pd.to_numeric(df["ALT_FREQ"], downcast="float")
     return df
 
