@@ -7,13 +7,6 @@ import pandas.testing as pdt
 import pandas.api.types as ptypes
 from numpy.random import negative_binomial
 
-
-class DeconvTests(unittest.TestCase):
-    def test_buildLineageMap(self):
-        mapDict = buildLineageMap('')
-        self.assertTrue('Alpha' == mapDict['B.1.1.7'])
-        self.assertTrue('Delta' == mapDict['AY.4'])
-
 class DeconvTests(unittest.TestCase):
     def test_build_mix_and_depth_plus_reindex(self):
         df_barcodes = pd.read_csv('freyja/data/usher_barcodes.csv', index_col=0)
