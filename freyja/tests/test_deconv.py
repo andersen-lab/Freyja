@@ -7,9 +7,11 @@ import pandas.testing as pdt
 import pandas.api.types as ptypes
 from numpy.random import negative_binomial
 
+
 class DeconvTests(unittest.TestCase):
     def test_build_mix_and_depth_plus_reindex(self):
-        df_barcodes = pd.read_csv('freyja/data/usher_barcodes.csv', index_col=0)
+        df_barcodes = pd.read_csv('freyja/data/usher_barcodes.csv',
+                                  index_col=0)
         muts = list(df_barcodes.columns)
         varFns = ['freyja/data/mixture.tsv', 'freyja/data/mixture.vcf']
         depthFn = 'freyja/data/mixture.depth'
@@ -17,10 +19,12 @@ class DeconvTests(unittest.TestCase):
         autoadapt = False
 
         for varFn in varFns:
-            mix, depths, cov, adapt = build_mix_and_depth_arrays(varFn, depthFn, muts, covcut, autoadapt)
+            mix, depths, cov, adapt = build_mix_and_depth_arrays(
+                varFn, depthFn, muts, covcut, autoadapt)
             self.assertTrue(ptypes.is_float_dtype(mix))
             self.assertTrue(ptypes.is_float_dtype(depths))
-            df_barcodes_reindexed, mix, depths = reindex_dfs(df_barcodes, mix, depths)
+            df_barcodes_reindexed, mix, depths = reindex_dfs(
+                df_barcodes, mix, depths)
             pdt.assert_index_equal(df_barcodes_reindexed.columns, mix.index)
             pdt.assert_index_equal(df_barcodes_reindexed.columns, depths.index)
             self.assertFalse('20C' in df_barcodes.columns)
