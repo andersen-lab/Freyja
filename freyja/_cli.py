@@ -9,7 +9,7 @@ locDir = os.path.abspath(os.path.join(os.path.realpath(__file__), os.pardir))
 
 # pull config info for non SARS-CoV-2 pathogens
 pathogen_config = get_pathogen_config(os.path.join(locDir, 'data'))
-pathogens = ['SARS-CoV-2'] + list(pathogen_config.keys())
+pathogens = ['SARS-CoV-2'] + list(pathogen_config.keys()) + ['other']
 
 
 @click.group(context_settings={'show_default': True})
