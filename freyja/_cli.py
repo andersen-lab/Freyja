@@ -308,7 +308,7 @@ def barcode_build(pb, outdir, noncl, pathogen):
     locDir = outdir
     if pathogen == "SARS-CoV-2":
         get_curated_lineage_data(locDir, pathogen)
-        get_cl_lineages(locDir, pathogen)
+    get_cl_lineages(locDir, pathogen)
     print("Converting tree info to barcodes")
     convert_tree_custom(pb)  # returns paths for each lineage
     # Now parse into barcode form
