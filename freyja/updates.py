@@ -7,11 +7,17 @@ import yaml
 
 
 def get_pathogen_config(locDir):
-    with open(os.path.join(locDir, 'pathogen_config.yml'), 'r') as f:
+    config_path = os.path.join(locDir, 'pathogen_config.yml')
+
+    if not os.path.exists(config_path):  # Check if file exists
+        return None  # Return None
+
+    with open(config_path, 'r') as f:
         try:
             pathogen_config = yaml.safe_load(f)
         except yaml.YAMLError:
             raise ValueError('Error loading pathogen update config')
+
     return pathogen_config
 
 
@@ -97,14 +103,18 @@ def get_cl_lineages(locDir, pathogen='SARS-CoV-2'):
                 f.write(r.text)
     else:
         pathogen_config = get_pathogen_config(locDir)
-        if 'lineageyml' in pathogen_config[pathogen][0].keys():
-            r = requests.get(pathogen_config[pathogen][0]['lineageyml'])
-            if r.status_code == 200:
-                with open(os.path.
-                          join(locDir,
-                               f"{pathogen_config[pathogen][0]['name']}" +
-                               "_lineages.yml"), 'w+') as f:
-                    f.write(r.text)
+        if pathogen_config and pathogen in pathogen_config:
+            if isinstance(pathogen_config[pathogen],
+                          list) and pathogen_config[pathogen]:
+                if 'lineageyml' in pathogen_config[pathogen][0]:
+                    url = pathogen_config[pathogen][0]['lineageyml']
+                    r = requests.get(url)
+                    if r.status_code == 200:
+                        file_path = os.path.join(
+                            locDir, f"{pathogen_config[pathogen][0]['name']}"
+                            "_lineages.yml")
+                        with open(file_path, 'w+') as f:
+                            f.write(r.text)
         else:
             print(f'Lineage hierarchy not yet set up for {pathogen}')
 

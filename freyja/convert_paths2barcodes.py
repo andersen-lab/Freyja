@@ -29,7 +29,8 @@ def convert_to_barcodes(df):
 
     print('separating combined splits')
     df_barcodes = df_barcodes.T
-    df_barcodes = df_barcodes.drop(columns='')
+    if '' in df_barcodes.columns:
+        df_barcodes = df_barcodes.drop(columns='')
     df_barcodes = df_barcodes.fillna(0)
     temp = pd.DataFrame()
     dropList = []
