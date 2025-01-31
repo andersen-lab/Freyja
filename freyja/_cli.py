@@ -9,7 +9,7 @@ locDir = os.path.abspath(os.path.join(os.path.realpath(__file__), os.pardir))
 
 # pull config info for non SARS-CoV-2 pathogens
 pathogen_config = get_pathogen_config(os.path.join(locDir, 'data'))
-pathogens = ['SARS-CoV-2'] + list(pathogen_config.keys()) + ['other']
+pathogens = ['SARS-CoV-2'] + list(pathogen_config.keys())
 
 
 @click.group(context_settings={'show_default': True})
@@ -287,7 +287,7 @@ def update(outdir, noncl, buildlocal, pathogen):
 @click.option('--noncl', is_flag=True, default=True,
               help='only include lineages that are'
                    'confirmed by cov-lineages', show_default=True)
-@click.option('--pathogen', type=click.Choice(pathogens),
+@click.option('--pathogen', type=click.Choice(pathogens + ['manual']),
               default='SARS-CoV-2',
               help='Pathogen of interest',
               show_default=True)
@@ -306,14 +306,13 @@ def barcode_build(pb, outdir, noncl, pathogen):
     locDir = os.path.abspath(os.path.join(os.path.realpath(__file__),
                              os.pardir))
     locDir = outdir
-    print('Getting outbreak data')
-    get_curated_lineage_data(locDir, pathogen)
-    get_cl_lineages(locDir, pathogen)
-    # # get data from UShER
-    print('Downloading a new global tree')
+    if pathogen == "SARS-CoV-2":
+        get_curated_lineage_data(locDir, pathogen)
+        get_cl_lineages(locDir, pathogen)
     print("Converting tree info to barcodes")
     convert_tree_custom(pb)  # returns paths for each lineage
     # Now parse into barcode form
+    print(os.curdir)
     lineagePath = os.path.join(os.curdir, "lineagePaths.txt")
     print('Building barcodes from global phylogenetic tree')
     df = pd.read_csv(lineagePath, sep='\t')
@@ -325,7 +324,7 @@ def barcode_build(pb, outdir, noncl, pathogen):
     # as default:
     # since usher tree can be ahead of cov-lineages,
     # we drop lineages not in cov-lineages
-    if noncl:
+    if noncl and pathogen == "SARS-CoV-2":
         # read linages.yml file
         with open(os.path.join(locDir, 'lineages.yml'), 'r') as f:
             try:
