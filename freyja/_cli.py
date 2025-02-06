@@ -782,6 +782,10 @@ def dash(agg_results, metadata, title, intro, thresh, headercolor, bodycolor,
     agg_df = agg_df[agg_df['summarized'] != '[]']
 
     meta_df = pd.read_csv(metadata, index_col=0)
+    if 'viral_load' not in meta_df.columns:
+        viral_load_present = False
+    else:
+        viral_load_present = True
     meta_df['sample_collection_datetime'] = \
         pd.to_datetime(meta_df['sample_collection_datetime'])
     # read in inputs
@@ -804,7 +808,7 @@ def dash(agg_results, metadata, title, intro, thresh, headercolor, bodycolor,
     make_dashboard(agg_df, meta_df, thresh, titleText, introText,
                    output, headercolor, bodycolor, scale_by_viral_load, config,
                    lineage_info, nboots, serial_interval, days, grthresh,
-                   keep_plot_files)
+                   keep_plot_files, viral_load_present)
 
 
 @cli.command()
