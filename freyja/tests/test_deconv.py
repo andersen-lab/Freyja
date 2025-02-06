@@ -18,22 +18,21 @@ class DeconvTests(unittest.TestCase):
         df_barcodes = pd.read_csv('freyja/data/usher_barcodes.csv',
                                   index_col=0)
         muts = list(df_barcodes.columns)
-        varFn = 'freyja/data/mixture.tsv'
+        varFns = ['freyja/data/mixture.tsv', 'freyja/data/mixture.vcf']
         depthFn = 'freyja/data/mixture.depth'
         covcut = 10
         autoadapt = False
-        mix, depths, cov, adapt = build_mix_and_depth_arrays(varFn, depthFn,
-                                                             muts, covcut,
-                                                             autoadapt)
-        # just making sure the files we've read in are ready for use
-        self.assertTrue(ptypes.is_float_dtype(mix))
-        self.assertTrue(ptypes.is_float_dtype(depths))
 
-        df_barcodes, mix, depths = reindex_dfs(df_barcodes, mix, depths)
-        pdt.assert_index_equal(df_barcodes.columns, mix.index)
-        pdt.assert_index_equal(df_barcodes.columns, depths.index)
-
-        self.assertFalse('20C' in df_barcodes.columns)
+        for varFn in varFns:
+            mix, depths, cov, adapt = build_mix_and_depth_arrays(
+                varFn, depthFn, muts, covcut, autoadapt)
+            self.assertTrue(ptypes.is_float_dtype(mix))
+            self.assertTrue(ptypes.is_float_dtype(depths))
+            df_barcodes_reindexed, mix, depths = reindex_dfs(
+                df_barcodes, mix, depths)
+            pdt.assert_index_equal(df_barcodes_reindexed.columns, mix.index)
+            pdt.assert_index_equal(df_barcodes_reindexed.columns, depths.index)
+            self.assertFalse('20C' in df_barcodes.columns)
 
     def test_constellation_mapping(self):
         mapDict = buildLineageMap('')
