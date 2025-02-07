@@ -595,10 +595,10 @@ def get_abundance(agg_df, meta_df, thresh, scale_by_viral_load, config,
         dat = agg_df.loc[sampLabel, 'linDict']
         if isinstance(dat, list):
             if i == 0:
-                df_ab_lin = pd.Series(
+                df_ab_lin = pd.DataFrame(pd.Series(
                     agg_df.loc[sampLabel, 'linDict'][0],
                     name=meta_df.loc[sampLabel,
-                                     'sample_collection_datetime'])
+                                     'sample_collection_datetime']))
             else:
                 df_ab_lin = pd.concat([
                     df_ab_lin,
@@ -608,10 +608,10 @@ def get_abundance(agg_df, meta_df, thresh, scale_by_viral_load, config,
                 ], axis=1)
         else:
             if i == 0:
-                df_ab_lin = pd.Series(
+                df_ab_lin = pd.DataFrame(pd.Series(
                     agg_df.loc[sampLabel, 'linDict'],
                     name=meta_df.loc[sampLabel,
-                                     'sample_collection_datetime'])
+                                     'sample_collection_datetime']))
             else:
                 df_ab_lin = pd.concat([
                     df_ab_lin,
@@ -641,10 +641,10 @@ def get_abundance(agg_df, meta_df, thresh, scale_by_viral_load, config,
         dat = agg_df.loc[sampLabel, 'summarized']
         if isinstance(dat, list):
             if i == 0:
-                df_ab_sum = pd.Series(
+                df_ab_sum = pd.DataFrame(pd.Series(
                     agg_df.loc[sampLabel, 'summarized'][0],
                     name=meta_df.loc[sampLabel,
-                                     'sample_collection_datetime'])
+                                     'sample_collection_datetime']))
             else:
                 df_ab_sum = pd.concat([
                     df_ab_sum,
@@ -654,10 +654,10 @@ def get_abundance(agg_df, meta_df, thresh, scale_by_viral_load, config,
                 ], axis=1)
         else:
             if i == 0:
-                df_ab_sum = pd.Series(
+                df_ab_sum = pd.DataFrame(pd.Series(
                     agg_df.loc[sampLabel, 'summarized'],
                     name=meta_df.loc[sampLabel,
-                                     'sample_collection_datetime'])
+                                     'sample_collection_datetime']))
             else:
                 df_ab_sum = pd.concat([
                     df_ab_sum,
@@ -697,14 +697,13 @@ def get_abundance(agg_df, meta_df, thresh, scale_by_viral_load, config,
         df_ab_lin = df_ab_lin_rescale.divide(meta_df.viral_load,
                                              axis=0)
         df_ab_lin = df_ab_lin.fillna(0).sort_index()
+        dates_to_keep = meta_df.index[~meta_df['viral_load'].isna()]
+        dates_to_keep = dates_to_keep.intersection(df_ab_sum.index)
     else:
         meta_df = meta_df.groupby('sample_collection_datetime').mean()\
             .sort_index()
         df_ab_lin = df_ab_lin.groupby(level=0).mean().sort_index()
-
-    dates_to_keep = meta_df.index[~meta_df['viral_load'].isna()]
-    dates_to_keep = dates_to_keep.intersection(df_ab_sum.index)
-
+        dates_to_keep = meta_df.index.intersection(df_ab_sum.index)
     df_ab_sum = df_ab_sum.groupby(level=0).mean()
     df_ab_sum = df_ab_sum.sort_index()
 
@@ -714,7 +713,9 @@ def get_abundance(agg_df, meta_df, thresh, scale_by_viral_load, config,
 def make_dashboard(agg_df, meta_df, thresh, title, introText,
                    outputFn, headerColor, bodyColor, scale_by_viral_load,
                    config, lineage_info, nboots, serial_interval, days,
-                   grthresh, keepPlotFile):
+                   grthresh, keepPlotFile, viral_load_present=True):
+    if not viral_load_present:
+        scale_by_viral_load = False
     df_ab_lin, df_ab_sum, dates_to_keep = get_abundance(agg_df, meta_df,
                                                         thresh,
                                                         scale_by_viral_load,
@@ -766,93 +767,104 @@ def make_dashboard(agg_df, meta_df, thresh, title, introText,
         ))
     # if needed, drop dates with missing viral load metadata
     meta_df = meta_df.set_index('sample_collection_datetime')
-    if len(dates_to_keep) < meta_df.shape[0]:
-        meta_df = meta_df.loc[dates_to_keep]
-        df_ab_sum = df_ab_sum.loc[dates_to_keep]
-        df_ab_lin = df_ab_lin.loc[dates_to_keep]
-    fig.add_trace(go.Scatter(
-        x=meta_df.index, y=meta_df['viral_load'],
-        hoverinfo='x+y',
-        mode='markers+lines',
-        hovertemplate="%{y:.1f} copies/L",
-        line=dict(width=1.25, color='blue'),
-        visible=False,
-    ))
-
-    # load scaled abundances
-    df_ab_lin_s = df_ab_lin.multiply(meta_df.viral_load,
-                                     axis=0) / 100.
-
-    default_color_lin_s = {
-        11: px.colors.qualitative.Vivid,
-        24: px.colors.qualitative.Dark24
-    }
-    color_lin_s = get_color_scheme(df_ab_lin_s,
-                                   default_color_lin_s,
-                                   config.get('Lineages'))
-    for j, col in enumerate(df_ab_lin_s.columns):
-
+    if viral_load_present:
+        if len(dates_to_keep) < meta_df.shape[0]:
+            meta_df = meta_df.loc[dates_to_keep]
+            df_ab_sum = df_ab_sum.loc[dates_to_keep]
+            df_ab_lin = df_ab_lin.loc[dates_to_keep]
         fig.add_trace(go.Scatter(
-            x=df_ab_lin_s.index, y=df_ab_lin_s[col],
+            x=meta_df.index, y=meta_df['viral_load'],
             hoverinfo='x+y',
-            name=col,
             mode='markers+lines',
             hovertemplate="%{y:.1f} copies/L",
-            line=dict(width=0.5, color=color_lin_s[col]),
+            line=dict(width=1.25, color='blue'),
             visible=False,
-            stackgroup='one'
         ))
 
-    df_ab_sum_s = df_ab_sum.multiply(meta_df.viral_load,
-                                     axis=0) / 100.
+        # load scaled abundances
+        df_ab_lin_s = df_ab_lin.multiply(meta_df.viral_load,
+                                         axis=0) / 100.
 
-    default_color_sum_s = {
-        11: px.colors.qualitative.Pastel,
-        24: px.colors.qualitative.Light24
-    }
-    color_sum_s = get_color_scheme(df_ab_sum,
-                                   default_color_sum_s,
-                                   config.get('VOC'))
-    for j, col in enumerate(df_ab_sum_s.columns):
-        fig.add_trace(go.Scatter(
-            x=df_ab_sum_s.index, y=df_ab_sum_s[col],
-            hoverinfo='x+y',
-            name=col,
-            mode='markers+lines',
-            hovertemplate="%{y:.1f} copies/L",
-            line=dict(width=0.5, color=color_sum_s[col]),
-            visible=False,
-            stackgroup='one'
-        ))
-    fig.update_layout(updatemenus=[dict(type="buttons",
-                      direction='right',
-                      active=0,
-                      bgcolor='lightskyblue',
-                      x=0.85,
-                      y=1.07,
-                      buttons=list([
-                                   dict(label="Variants",
+        default_color_lin_s = {
+            11: px.colors.qualitative.Vivid,
+            24: px.colors.qualitative.Dark24
+        }
+        color_lin_s = get_color_scheme(df_ab_lin_s,
+                                       default_color_lin_s,
+                                       config.get('Lineages'))
+        for j, col in enumerate(df_ab_lin_s.columns):
+
+            fig.add_trace(go.Scatter(
+                x=df_ab_lin_s.index, y=df_ab_lin_s[col],
+                hoverinfo='x+y',
+                name=col,
+                mode='markers+lines',
+                hovertemplate="%{y:.1f} copies/L",
+                line=dict(width=0.5, color=color_lin_s[col]),
+                visible=False,
+                stackgroup='one'
+            ))
+
+        df_ab_sum_s = df_ab_sum.multiply(meta_df.viral_load,
+                                         axis=0) / 100.
+
+        default_color_sum_s = {
+            11: px.colors.qualitative.Pastel,
+            24: px.colors.qualitative.Light24
+        }
+        color_sum_s = get_color_scheme(df_ab_sum,
+                                       default_color_sum_s,
+                                       config.get('VOC'))
+        for j, col in enumerate(df_ab_sum_s.columns):
+            fig.add_trace(go.Scatter(
+                x=df_ab_sum_s.index, y=df_ab_sum_s[col],
+                hoverinfo='x+y',
+                name=col,
+                mode='markers+lines',
+                hovertemplate="%{y:.1f} copies/L",
+                line=dict(width=0.5, color=color_sum_s[col]),
+                visible=False,
+                stackgroup='one'
+            ))
+    if viral_load_present:
+        fig.update_layout(
+            template="plotly_white",
+            hovermode="x unified",
+            xaxis=dict(hoverformat="%B %d, %Y"),
+            legend=dict(yanchor="top",
+                        y=0.99,
+                        xanchor="left",
+                        x=1.1,
+                        itemsizing='constant'),
+            updatemenus=[dict(type="buttons",
+                              direction='right',
+                              active=0,
+                              bgcolor='lightskyblue',
+                              x=0.85,
+                              y=1.07,
+                              buttons=list(
+                                  [dict(label="Variants",
                                         method="update",
                                         args=[{
-                                             "visible":
-                                             [False] * df_ab_lin.shape[1] +
-                                             [True] * df_ab_sum.shape[1] +
-                                             [False] +
-                                             [False] * df_ab_lin_s.shape[1] +
-                                             [False] * df_ab_sum_s.shape[1]},
-                                            {"yaxis": {"title":
-                                             'VOC Prevalence',
-                                                       "ticksuffix": '%',
-                                                       "range": [0, 100]}}]),
+                                               "visible":
+                                               [False] * df_ab_lin.shape[1] +
+                                               [True] * df_ab_sum.shape[1] +
+                                               [False] +
+                                               [False] * df_ab_lin_s.shape[1] +
+                                               [False] * df_ab_sum_s.shape[1]},
+                                              {"yaxis": {"title":
+                                               'VOC Prevalence',
+                                                         "ticksuffix": '%',
+                                                         "range": [0, 100]}}]),
                                    dict(label="Lineages",
                                         method="update",
                                         args=[{
-                                              "visible":
-                                              [True] * df_ab_lin.shape[1] +
-                                              [False] * df_ab_sum.shape[1] +
-                                              [False] +
-                                              [False] * df_ab_lin_s.shape[1] +
-                                              [False] * df_ab_sum_s.shape[1]},
+                                               "visible":
+                                               [True] * df_ab_lin.shape[1] +
+                                               [False] * df_ab_sum.shape[1] +
+                                               [False] +
+                                               [False] * df_ab_lin_s.shape[1] +
+                                               [False] * df_ab_sum_s.shape[1]},
                                               {"yaxis": {"title":
                                                'Lineage Prevalence',
                                                          "ticksuffix": '%',
@@ -860,12 +872,12 @@ def make_dashboard(agg_df, meta_df, thresh, title, introText,
                                    dict(label="Viral Load",
                                         method="update",
                                         args=[{
-                                              "visible":
-                                              [False] * df_ab_lin.shape[1] +
-                                              [False] * df_ab_sum.shape[1] +
-                                              [True] +
-                                              [False] * df_ab_lin_s.shape[1] +
-                                              [False] * df_ab_sum_s.shape[1]},
+                                               "visible":
+                                               [False] * df_ab_lin.shape[1] +
+                                               [False] * df_ab_sum.shape[1] +
+                                               [True] +
+                                               [False] * df_ab_lin_s.shape[1] +
+                                               [False] * df_ab_sum_s.shape[1]},
                                               {"yaxis": {"title":
                                                          'Virus copies/L',
                                                          "range":
@@ -873,45 +885,77 @@ def make_dashboard(agg_df, meta_df, thresh, title, introText,
                                                           meta_df['viral_load']
                                                           .max() * 1.1]}}]),
                                    dict(
-                                       label="Load Scaled Variants",
-                                       method="update",
-                                       args=[{
-                                              "visible":
-                                              [False] * df_ab_lin.shape[1] +
-                                              [False] * df_ab_sum.shape[1] +
-                                              [False] +
-                                              [False] * df_ab_lin_s.shape[1] +
-                                              [True] * df_ab_sum_s.shape[1]},
-                                             {"yaxis": {"title":
-                                              'Variant copies/L',
-                                                        "range":
-                                                        [0,
-                                                         meta_df['viral_load']
-                                                         .max() * 1.1]}}]),
+                                        label="Load Scaled Variants",
+                                        method="update",
+                                        args=[{
+                                               "visible":
+                                               [False] * df_ab_lin.shape[1] +
+                                               [False] * df_ab_sum.shape[1] +
+                                               [False] +
+                                               [False] * df_ab_lin_s.shape[1] +
+                                               [True] * df_ab_sum_s.shape[1]},
+                                              {"yaxis": {"title":
+                                               'Variant copies/L',
+                                                         "range":
+                                                         [0,
+                                                          meta_df['viral_load']
+                                                          .max() * 1.1]}}]),
                                    dict(
-                                       label="Load Scaled Lineages",
-                                       method="update",
-                                       args=[{
-                                              "visible":
-                                              [False] * df_ab_lin.shape[1] +
-                                              [False] * df_ab_sum.shape[1] +
-                                              [False] +
-                                              [True] * df_ab_lin_s.shape[1] +
-                                              [False] * df_ab_sum_s.shape[1]},
-                                             {"yaxis": {"title":
-                                                        'Lineage copies/L',
-                                                        "range":
-                                                        [0,
-                                                         meta_df['viral_load']
-                                                         .max() * 1.1]}}])]))],
-                      template="plotly_white",
-                      hovermode="x unified",
-                      xaxis=dict(hoverformat="%B %d, %Y"),
-                      legend=dict(yanchor="top",
-                                  y=0.99,
-                                  xanchor="left",
-                                  x=1.1,
-                                  itemsizing='constant'))
+                                        label="Load Scaled Lineages",
+                                        method="update",
+                                        args=[{
+                                               "visible":
+                                               [False] * df_ab_lin.shape[1] +
+                                               [False] * df_ab_sum.shape[1] +
+                                               [False] +
+                                               [True] * df_ab_lin_s.shape[1] +
+                                               [False] * df_ab_sum_s.shape[1]},
+                                              {"yaxis": {"title":
+                                                         'Lineage copies/L',
+                                                         "range":
+                                                         [0,
+                                                          meta_df['viral_load']
+                                                          .max() * 1.1]}
+                                               }])]))])
+    else:
+        fig.update_layout(
+            template="plotly_white",
+            hovermode="x unified",
+            xaxis=dict(hoverformat="%B %d, %Y"),
+            legend=dict(yanchor="top",
+                        y=0.99,
+                        xanchor="left",
+                        x=1.1,
+                        itemsizing='constant'),
+            updatemenus=[dict(type="buttons",
+                         direction='right',
+                         active=0,
+                         bgcolor='lightskyblue',
+                         x=0.6,
+                         y=1.07,
+                         buttons=list([
+                                    dict(label="Variants",
+                                         method="update",
+                                         args=[{
+                                                "visible":
+                                                [False] * df_ab_lin.shape[1] +
+                                                [True] * df_ab_sum.shape[1]},
+                                               {"yaxis": {"title":
+                                                'VOC Prevalence',
+                                                          "ticksuffix": '%',
+                                                          "range": [0, 100]}}
+                                               ]),
+                                    dict(label="Lineages",
+                                         method="update",
+                                         args=[{
+                                                "visible":
+                                                [True] * df_ab_lin.shape[1] +
+                                                [False] * df_ab_sum.shape[1]},
+                                               {"yaxis": {"title":
+                                                'Lineage Prevalence',
+                                                          "ticksuffix": '%',
+                                                          "range": [0, 100]}}
+                                               ])]))])
 
     fig.update_layout(yaxis_title='Variant Prevalence',
                       yaxis_ticksuffix="%",
