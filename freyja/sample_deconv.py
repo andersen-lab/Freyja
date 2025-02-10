@@ -212,7 +212,7 @@ def solve_demixing_problem(df_barcodes, mix, depths, eps, adapt,
         constraints = [sum(x) == 1, x >= 0]
         prob = cp.Problem(cp.Minimize(cost), constraints)
         try:
-            prob.solve(verbose=False, solver=cp.ECOS)
+            prob.solve(verbose=False, solver=solver_)
         except cp.error.SolverError:
             raise ValueError('Solver error encountered, most'
                              'likely due to insufficient sequencing depth.'
