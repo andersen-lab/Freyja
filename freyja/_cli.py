@@ -4,6 +4,7 @@ import yaml
 import click
 import pandas as pd
 from freyja.updates import get_pathogen_config
+import csv
 
 locDir = os.path.abspath(os.path.join(os.path.realpath(__file__), os.pardir))
 
@@ -998,7 +999,6 @@ def plot_covariants(covariants, output, num_clusters,
 
 
 @cli.command()
-@click.argument('ampstat', type=click.Path(exists=True))
 @click.option('--primer',
               help='primer bed file used for amplicon sequencing')
 @click.option('--output',
@@ -1016,7 +1016,11 @@ def ampliconstat(input_bam, primer, min_depth, output):
     from freyja.utils import process_bed_file,check_amplicon_coverage
     processed_primers = process_bed_file(primer)
     results = check_amplicon_coverage(input_bam, processed_primers, min_depth)
-    results.to_csv()
+    with open(output, 'w', newline='') as file:
+        writer = csv.writer(file)
+        writer.writerow(["Chromosome", "Start", "End", "Number", "Status", "Mean Depth"])
+        writer.writerows(results)
+
  
 
 

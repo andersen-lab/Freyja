@@ -1233,7 +1233,8 @@ def handle_region_of_interest(region_of_interest, output_df,
 def process_bed_file(bed_file):
     # Read in the bed file
     primer_df = pd.read_csv(bed_file, sep='\t', header=None,
-                            names=["chromosome", "start", "end", "name", "pool", "strand", "primer_sequence"])
+                            names=["chromosome", "start", "end",
+                                   "name", "pool", "strand", "primer_sequence"])
     
     # Split the 'name' column to get 'number', 'side', and 'index'
     primer_df[['name', 'number', 'side', 'index']] = primer_df['name'].str.split('_', expand=True)
@@ -1258,8 +1259,7 @@ def check_amplicon_coverage(bam_file, amplicons, min_coverage):
     bam = pysam.AlignmentFile(bam_file, 'rb')
     
     for _, row in amplicons.iterrows():
-        chrom, start, end, number = row['chromosome_left'],
-        row['start_left'], row['end_right'], row['number']
+        chrom, start, end, number = row['chromosome_left'],row['start_left'], row['end_right'], row['number']
         
         # Get total coverage for the region (number of reads)
         total_coverage = bam.count(chrom, start, end)
@@ -1273,7 +1273,6 @@ def check_amplicon_coverage(bam_file, amplicons, min_coverage):
         
         # Add the result
         results.append((chrom, start, end, number, status, mean_depth))
-    
     bam.close()
     return results
 
