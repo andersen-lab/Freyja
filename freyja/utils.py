@@ -1229,6 +1229,29 @@ def handle_region_of_interest(region_of_interest, output_df,
     return output_df
 
 
+def process_bed_file(bed_file):
+    # Read in the bed file
+    primer_df = pd.read_csv(bed_file, sep='\t', header=None,
+                            names=["chromosome", "start", "end", "name", "pool", "strand", "primer_sequence"])
+    
+    # Split the 'name' column to get 'number', 'side', and 'index'
+    primer_df[['name', 'number', 'side', 'index']] = primer_df['name'].str.split('_', expand=True)
+    
+    # Separate LEFT and RIGHT primers
+    left_primers = primer_df[primer_df['side'] == 'LEFT']
+    right_primers = primer_df[primer_df['side'] == 'RIGHT']
+    
+    # Perform inner join on left and right primers based on matching 'number' and 'pool'
+    amplicons = left_primers.merge(right_primers, on=['number', 'pool'], suffixes=('_left', '_right'))
+    
+    # Filter amplicons where the 'start' of the left primer is less than the 'end' of the right primer
+    amplicons = amplicons[amplicons['start_left'] < amplicons['end_right']]
+    
+    # Return the relevant columns
+    amplicons = amplicons[['chromosome_left', 'start_left', 'end_right', 'number']]
+    
+    return amplicons
+
 if __name__ == '__main__':
     agg_results = 'freyja/data/test_sweep.tsv'
     agg_df = pd.read_csv(agg_results, skipinitialspace=True, sep='\t',
