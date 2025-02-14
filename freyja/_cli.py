@@ -995,11 +995,12 @@ def plot_covariants(covariants, output, num_clusters,
     from freyja.read_analysis_tools import plot_covariants as _plot_covariants
     _plot_covariants(covariants, output, num_clusters,
                      min_mutations, nt_muts, vmin, vmax)
+
+
 @cli.command()
-@click.argument('ampstat',
-                type=click.Path(exists=True))
+@click.argument('ampstat', type=click.Path(exists=True))
 @click.option('--primer',
-              help= 'primer bed file used for amplicon sequencing')
+              help='primer bed file used for amplicon sequencing')
 @click.option('--output',
               default='amplicon_dropout.csv', show_default=True)
 @click.option('--input_bam',
@@ -1012,8 +1013,10 @@ def ampliconstat(input_bam, primer, min_depth, output):
     gives a summary of amplicon dropouts based
     on the provided primer file
     """
-    locDir = os.path.abspath(os.path.join(
-        os.path.realpath(__file__), os.pardir))
+    from freyja.utils import process_bed_file,check_amplicon_coverage
+    processed_primers = process_bed_file(primer)
+    results = check_amplicon_coverage(input_bam, processed_primers, min_depth)
+    results.to_csv()
  
 
 
