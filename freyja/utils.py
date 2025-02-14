@@ -7,6 +7,7 @@ import matplotlib.dates as mdates
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+import pysam
 import plotly.express as px
 import plotly.graph_objects as go
 from datetime import datetime, timedelta
@@ -1251,6 +1252,31 @@ def process_bed_file(bed_file):
     amplicons = amplicons[['chromosome_left', 'start_left', 'end_right', 'number']]
     
     return amplicons
+
+def check_amplicon_coverage(bam_file, amplicons, min_coverage):
+    results = []
+    bam = pysam.AlignmentFile(bam_file, 'rb')
+    
+    for _, row in amplicons.iterrows():
+        chrom, start, end, number = row['chromosome_left'],
+        row['start_left'], row['end_right'], row['number']
+        
+        # Get total coverage for the region (number of reads)
+        total_coverage = bam.count(chrom, start, end)
+        
+        # Calculate the mean depth (coverage per base)
+        region_length = end - start
+        mean_depth = round(total_coverage / region_length if region_length > 0 else 0,2)
+        
+        # Determine if the amplicon is amplified based on min_coverage
+        status = "Amplified" if total_coverage >= min_coverage else "Not Amplified"
+        
+        # Add the result
+        results.append((chrom, start, end, number, status, mean_depth))
+    
+    bam.close()
+    return results
+
 
 if __name__ == '__main__':
     agg_results = 'freyja/data/test_sweep.tsv'
