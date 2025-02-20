@@ -13,6 +13,7 @@ import plotly.graph_objects as go
 from datetime import datetime, timedelta
 import yaml
 from scipy.optimize import curve_fit
+import csv
 
 # parameters to make plots illustrator friendly
 import matplotlib
@@ -1254,26 +1255,34 @@ def process_bed_file(bed_file):
     
     return amplicons
 
-def check_amplicon_coverage(bam_file, amplicons, min_coverage):
+
+def check_amplicon_coverage(depth_file, amplicons, min_coverage,output):
+    # Read the depth file into a DataFrame
+    depth_df = pd.read_csv(depth_file, sep='\t', header=None, names=['chromosome', 'position', 'ref_base', 'depth'])
+    
     results = []
-    bam = pysam.AlignmentFile(bam_file, 'rb')
     
     for _, row in amplicons.iterrows():
-        chrom, start, end, number = row['chromosome_left'],row['start_left'], row['end_right'], row['number']
+        chrom, start, end, number = row['chromosome_left'], row['start_left'], row['end_right'], row['number']
         
-        # Get total coverage for the region (number of reads)
-        total_coverage = bam.count(chrom, start, end)
+        # Filter the depth data for the given amplicon region
+        region_depths = depth_df[(depth_df['chromosome'] == chrom) & (depth_df['position'].between(start, end))]
         
-        # Calculate the mean depth (coverage per base)
-        region_length = end - start
-        mean_depth = round(total_coverage / region_length if region_length > 0 else 0,2)
+        # Get total coverage and mean depth
+        total_coverage = region_depths['depth'].sum()
+        region_length = len(region_depths)
+        mean_depth = round(total_coverage / region_length if region_length > 0 else 0, 2)
         
-        # Determine if the amplicon is amplified based on min_coverage
+        # Determine amplification status
         status = "Amplified" if total_coverage >= min_coverage else "Not Amplified"
         
-        # Add the result
+        # Append result
         results.append((chrom, start, end, number, status, mean_depth))
-    bam.close()
+        with open(output, 'w', newline='') as file:
+            writer = csv.writer(file)
+            writer.writerow(["Chromosome", "Start", "End", "Number", "Status", "Mean Depth"])
+            writer.writerows(results)
+
     return results
 
 

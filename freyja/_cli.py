@@ -1003,25 +1003,19 @@ def plot_covariants(covariants, output, num_clusters,
               help='primer bed file used for amplicon sequencing')
 @click.option('--output',
               default='amplicon_dropout.csv', show_default=True)
-@click.option('--input_bam',
-              help='bam file of reads aligned to the reference')
+@click.option('--input_depth',
+              help='depths file of reads aligned to the reference')
 @click.option('--min_depth', default=5,
               help='minimum coverage depth to define amplicon dropout',
               show_default=True)
-def ampliconstat(input_bam, primer, min_depth, output):
+def ampliconstat(input_depth, primer, min_depth, output):
     """
     gives a summary of amplicon dropouts based
     on the provided primer file
     """
     from freyja.utils import process_bed_file,check_amplicon_coverage
     processed_primers = process_bed_file(primer)
-    results = check_amplicon_coverage(input_bam, processed_primers, min_depth)
-    with open(output, 'w', newline='') as file:
-        writer = csv.writer(file)
-        writer.writerow(["Chromosome", "Start", "End", "Number", "Status", "Mean Depth"])
-        writer.writerows(results)
-
- 
+    check_amplicon_coverage(input_depth, processed_primers, min_depth, output)
 
 
 if __name__ == '__main__':
