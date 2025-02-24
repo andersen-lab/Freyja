@@ -7,7 +7,9 @@ import matplotlib.dates as mdates
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import pysam
+import seaborn as sns
+import matplotlib.pyplot as plt
+from matplotlib.ticker import MaxNLocator
 import plotly.express as px
 import plotly.graph_objects as go
 from datetime import datetime, timedelta
@@ -1238,7 +1240,7 @@ def process_bed_file(bed_file):
                                    "name", "pool", "strand", "primer_sequence"])
     
     # Split the 'name' column to get 'number', 'side', and 'index'
-    primer_df[['name', 'number', 'side', 'index']] = primer_df['name'].str.split('_', expand=True)
+    primer_df[['name', 'number', 'side']] = primer_df['name'].str.split('_', expand=True)
     
     # Separate LEFT and RIGHT primers
     left_primers = primer_df[primer_df['side'] == 'LEFT']
@@ -1256,17 +1258,23 @@ def process_bed_file(bed_file):
     return amplicons
 
 
-def check_amplicon_coverage(depth_file, amplicons, min_coverage,output):
-    # Read the depth file into a DataFrame
-    depth_df = pd.read_csv(depth_file, sep='\t', header=None, names=['chromosome', 'position', 'ref_base', 'depth'])
-    
-    results = []
-    
+def check_amplicon_coverage(depth_file, amplicons, min_coverage):
+    aggregated_results = []
+    unaggregated_results = []
+
     for _, row in amplicons.iterrows():
         chrom, start, end, number = row['chromosome_left'], row['start_left'], row['end_right'], row['number']
         
-        # Filter the depth data for the given amplicon region
-        region_depths = depth_df[(depth_df['chromosome'] == chrom) & (depth_df['position'].between(start, end))]
+        # Filter the depth data for the given amplicon region and create an explicit copy
+        region_depths = depth_file.loc[
+            (depth_file['chromosome'] == chrom) & (depth_file['position'].between(start, end))
+        ].copy()  # Create a copy to avoid SettingWithCopyWarning
+        # Add amplicon metadata
+        region_depths.loc[:, 'amplicon_number'] = number  # Safe modification with .loc
+        region_depths.loc[:, 'amplicon_start'] = start
+        region_depths.loc[:, 'amplicon_end'] = end
+
+        unaggregated_results.append(region_depths)
         
         # Get total coverage and mean depth
         total_coverage = region_depths['depth'].sum()
@@ -1276,15 +1284,43 @@ def check_amplicon_coverage(depth_file, amplicons, min_coverage,output):
         # Determine amplification status
         status = "Amplified" if total_coverage >= min_coverage else "Not Amplified"
         
-        # Append result
-        results.append((chrom, start, end, number, status, mean_depth))
-        with open(output, 'w', newline='') as file:
-            writer = csv.writer(file)
-            writer.writerow(["Chromosome", "Start", "End", "Number", "Status", "Mean Depth"])
-            writer.writerows(results)
+        # Append aggregated result
+        aggregated_results.append((chrom, start, end, number, status, mean_depth))
 
-    return results
+    # Combine unaggregated results
+    unaggregated_df = pd.concat(unaggregated_results, ignore_index=True) if unaggregated_results else pd.DataFrame()
 
+    # Create aggregated DataFrame
+    aggregated_df = pd.DataFrame(aggregated_results, columns=["Chromosome", "Start", "End", "Number", "Status", "Mean Depth"])
+
+    return unaggregated_df, aggregated_df
+
+
+
+def plot_amplicon_depth(unaggregated_df, output):
+    """
+    Creates a bax plot of sequencing depth across amplicons.
+    
+    Parameters:
+    - unaggregated_df: DataFrame containing depth values per amplicon
+    - output_file: Path to save the output plot
+    """
+    plt.figure(figsize=(12, 6))
+    unaggregated_df = unaggregated_df.sort_values("position")
+    unaggregated_df['log2_depth'] = np.log2(unaggregated_df['depth']+1)
+    unaggregated_df['bins'] = unaggregated_df['amplicon_start'].astype(str) + "_" + unaggregated_df['amplicon_end'].astype(str)
+    # Create a box plot to visualize depth distribution per amplicon
+    sns.boxplot(x="bins", y="log2_depth", data=unaggregated_df, showfliers=False)
+
+    plt.xlabel("Genomic position", fontsize=14)
+    plt.ylabel("Log2 depth", fontsize=14)
+    plt.title("Amplicon Coverage Depth Distribution", fontsize=16)
+    plt.xticks(rotation=45, fontsize=12)  # Rotate x-axis labels if there are many amplicons
+    plt.gca().xaxis.set_major_locator(MaxNLocator(nbins=50))
+    plt.tight_layout()
+    plt.savefig(output, dpi=1000)
+    plt.show()
+    
 
 if __name__ == '__main__':
     agg_results = 'freyja/data/test_sweep.tsv'
