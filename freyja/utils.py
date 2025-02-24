@@ -1263,34 +1263,36 @@ def check_amplicon_coverage(depth_file, amplicons, min_coverage):
 
     for _, row in amplicons.iterrows():
         chrom, start, end, number = row['chromosome_left'], row['start_left'], row['end_right'], row['number']
-        
-        # Filter the depth data for the given amplicon region and create an explicit copy
-        region_depths = depth_file.loc[
-            (depth_file['chromosome'] == chrom) & (depth_file['position'].between(start, end))
-        ].copy()  # Create a copy to avoid SettingWithCopyWarning
-        # Add amplicon metadata
-        region_depths.loc[:, 'amplicon_number'] = number  # Safe modification with .loc
-        region_depths.loc[:, 'amplicon_start'] = start
-        region_depths.loc[:, 'amplicon_end'] = end
+        if depth_file['chromosome'][0] != chrom:
+            raise ValueError(f"Chromosome names do not match: {depth_file['chromosome'][0]} vs {chrom}")
+        else:
+            # Filter the depth data for the given amplicon region and create an explicit copy
+            region_depths = depth_file.loc[
+                (depth_file['chromosome'] == chrom) & (depth_file['position'].between(start, end))
+            ].copy()  # Create a copy to avoid SettingWithCopyWarning
+            # Add amplicon metadata
+            region_depths.loc[:, 'amplicon_number'] = number  # Safe modification with .loc
+            region_depths.loc[:, 'amplicon_start'] = start
+            region_depths.loc[:, 'amplicon_end'] = end
 
-        unaggregated_results.append(region_depths)
-        
-        # Get total coverage and mean depth
-        total_coverage = region_depths['depth'].sum()
-        region_length = len(region_depths)
-        mean_depth = round(total_coverage / region_length if region_length > 0 else 0, 2)
-        
-        # Determine amplification status
-        status = "Amplified" if total_coverage >= min_coverage else "Not Amplified"
-        
-        # Append aggregated result
-        aggregated_results.append((chrom, start, end, number, status, mean_depth))
+            unaggregated_results.append(region_depths)
+            
+            # Get total coverage and mean depth
+            total_coverage = region_depths['depth'].sum()
+            region_length = len(region_depths)
+            mean_depth = round(total_coverage / region_length if region_length > 0 else 0, 2)
+            
+            # Determine amplification status
+            status = "Amplified" if total_coverage >= min_coverage else "Not Amplified"
+            
+            # Append aggregated result
+            aggregated_results.append((chrom, start, end, number, status, mean_depth))
 
-    # Combine unaggregated results
-    unaggregated_df = pd.concat(unaggregated_results, ignore_index=True) if unaggregated_results else pd.DataFrame()
+        # Combine unaggregated results
+        unaggregated_df = pd.concat(unaggregated_results, ignore_index=True) if unaggregated_results else pd.DataFrame()
 
-    # Create aggregated DataFrame
-    aggregated_df = pd.DataFrame(aggregated_results, columns=["Chromosome", "Start", "End", "Number", "Status", "Mean Depth"])
+        # Create aggregated DataFrame
+        aggregated_df = pd.DataFrame(aggregated_results, columns=["Chromosome", "Start", "End", "Number", "Status", "Mean Depth"])
 
     return unaggregated_df, aggregated_df
 
