@@ -15,7 +15,6 @@ import plotly.graph_objects as go
 from datetime import datetime, timedelta
 import yaml
 from scipy.optimize import curve_fit
-import csv
 
 # parameters to make plots illustrator friendly
 import matplotlib

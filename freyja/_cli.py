@@ -4,7 +4,6 @@ import yaml
 import click
 import pandas as pd
 from freyja.updates import get_pathogen_config
-import csv
 
 locDir = os.path.abspath(os.path.join(os.path.realpath(__file__), os.pardir))
 
