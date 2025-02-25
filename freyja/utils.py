@@ -1256,9 +1256,9 @@ def process_bed_file(bed_file):
     amplicons = amplicons[amplicons['start_left'] < amplicons['end_right']]
     # Adjust end position by adding the length of the primer sequence
     amplicons['end_right'] = amplicons['end_right'] + amplicons['primer_sequence_right'].str.len()
-    
+    amplicons['length'] = amplicons["end_right"] - amplicons["start_left"]
     # Return the relevant columns
-    return amplicons[['chromosome_left', 'start_left', 'end_right', 'number']]
+    return amplicons[['chromosome_left', 'start_left', 'end_right', 'number','length']]
 
 
 def check_amplicon_coverage(depth_file, amplicons, min_coverage):
@@ -1266,7 +1266,7 @@ def check_amplicon_coverage(depth_file, amplicons, min_coverage):
     unaggregated_results = []
 
     for _, row in amplicons.iterrows():
-        chrom, start, end, number = row['chromosome_left'], row['start_left'], row['end_right'], row['number']
+        chrom, start, end, number, length = row['chromosome_left'], row['start_left'], row['end_right'], row['number'],row['length']
         if depth_file['chromosome'][0] != chrom:
             raise ValueError(f"Chromosome names do not match: {depth_file['chromosome'][0]} vs {chrom}")
         else:
@@ -1278,7 +1278,6 @@ def check_amplicon_coverage(depth_file, amplicons, min_coverage):
             region_depths.loc[:, 'amplicon_number'] = number  # Safe modification with .loc
             region_depths.loc[:, 'amplicon_start'] = start
             region_depths.loc[:, 'amplicon_end'] = end
-
             unaggregated_results.append(region_depths)
             
             # Get total coverage and mean depth
@@ -1287,15 +1286,15 @@ def check_amplicon_coverage(depth_file, amplicons, min_coverage):
             mean_depth = round(total_coverage / region_length if region_length > 0 else 0, 2)
             # Determine amplification status
             status = "Amplified" if total_coverage >= min_coverage else "Not Amplified"
-            
+            length = length if status == "Amplified" else 0
             # Append aggregated result
-            aggregated_results.append((chrom, start, end, number, status, mean_depth))
+            aggregated_results.append((chrom, start, end, number, status, mean_depth,length))
 
         # Combine unaggregated results
         unaggregated_df = pd.concat(unaggregated_results, ignore_index=True) if unaggregated_results else pd.DataFrame()
 
         # Create aggregated DataFrame
-        aggregated_df = pd.DataFrame(aggregated_results, columns=["Chromosome", "Start", "End", "Number", "Status", "Mean Depth"])
+        aggregated_df = pd.DataFrame(aggregated_results, columns=["chromosome", "start", "end", "amplicon_name", "amplification_status", "mean_depth","amplicon_length"])
 
     return unaggregated_df, aggregated_df
 
