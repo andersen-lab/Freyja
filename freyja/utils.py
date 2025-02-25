@@ -1285,8 +1285,8 @@ def check_amplicon_coverage(depth_file, amplicons, min_coverage):
             region_length = len(region_depths)
             mean_depth = round(total_coverage / region_length if region_length > 0 else 0, 2)
             # Determine amplification status
-            status = "Amplified" if total_coverage >= min_coverage else "Not Amplified"
-            length = length if status == "Amplified" else 0
+            status = "amplified" if total_coverage >= min_coverage else "not_amplified"
+            length = length if status == "amplified" else 0
             # Append aggregated result
             aggregated_results.append((chrom, start, end, number, status, mean_depth,length))
 
