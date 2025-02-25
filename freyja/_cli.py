@@ -999,7 +999,8 @@ def plot_covariants(covariants, output, num_clusters,
 
 @cli.command()
 @click.option('--primer',
-              help='primer bed file used for amplicon sequencing')
+              help='primer bed file used for amplicon sequencing.\
+                  Primer name format example: SARS-CoV-2_1_RIGHT.Primer sequence must be included in the bed file.')
 @click.option('--output_plot',default="amplicon_dropout_plot.png",
               help = "output name for the amplicon dropout plots")
 @click.option('--output_csv',default="amplicon_dropout.csv",
