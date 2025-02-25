@@ -75,6 +75,15 @@ class CommandLineTests(unittest.TestCase):
                   '--bootseed 10')
         self.assertTrue(file_exists('.', "boot_output_lineages.csv"))
 
+    def test_ampstat(self):
+        os.system('freyja ampliconstat '
+                  '--primer freyja/data/ARTIC_V4-1.bed '
+                  '--input_depth freyja/data/test.depth '
+                  '--output_csv test.amplicon.csv '
+                  '--output_plot test.amplicon.png')
+        self.assertTrue(file_exists('.', "test.amplicon.csv"))
+        self.assertTrue(file_exists('.', "test.amplicon.png"))
+
 
 if __name__ == '__main__':
     unittest.main()
