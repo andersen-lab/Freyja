@@ -1237,24 +1237,32 @@ def process_bed_file(bed_file):
     primer_df = pd.read_csv(bed_file, sep='\t', header=None,
                             names=["chromosome", "start", "end",
                                    "name", "pool", "strand", "primer_sequence"])
-    
-    # Split the 'name' column to get 'number', 'side', and 'index'
-    primer_df[['name', 'number', 'side']] = primer_df['name'].str.split('_', expand=True)
-    
-    # Separate LEFT and RIGHT primers
-    left_primers = primer_df[primer_df['side'] == 'LEFT']
-    right_primers = primer_df[primer_df['side'] == 'RIGHT']
-    
-    # Perform inner join on left and right primers based on matching 'number' and 'pool'
-    amplicons = left_primers.merge(right_primers, on=['number', 'pool'], suffixes=('_left', '_right'))
-    
-    # Filter amplicons where the 'start' of the left primer is less than the 'end' of the right primer
-    amplicons = amplicons[amplicons['start_left'] < amplicons['end_right']]
-    
-    # Return the relevant columns
-    amplicons = amplicons[['chromosome_left', 'start_left', 'end_right', 'number']]
-    
-    return amplicons
+    split_counts = primer_df['name'].str.count('_')  # Count underscores in each row
+
+    # Find rows where the number of parts exceeds three (i.e., more than 2 underscores)
+    invalid_rows = primer_df.loc[split_counts > 2, 'name']
+
+    if not invalid_rows.empty:
+        raise ValueError(f"Error: Some rows contain too many parts when split by '_'.\nProblematic rows:\n{invalid_rows.to_string(index=False)}"
+                         "\nexample valid name: SARS-CoV-2_57_RIGHT")
+    else:
+        # Split the 'name' column to get 'number', 'side', and 'index'
+        primer_df[['name', 'number', 'side']] = primer_df['name'].str.split('_', expand=True)
+        
+        # Separate LEFT and RIGHT primers
+        left_primers = primer_df[primer_df['side'] == 'LEFT']
+        right_primers = primer_df[primer_df['side'] == 'RIGHT']
+        
+        # Perform inner join on left and right primers based on matching 'number' and 'pool'
+        amplicons = left_primers.merge(right_primers, on=['number', 'pool'], suffixes=('_left', '_right'))
+        
+        # Filter amplicons where the 'start' of the left primer is less than the 'end' of the right primer
+        amplicons = amplicons[amplicons['start_left'] < amplicons['end_right']]
+        
+        # Return the relevant columns
+        amplicons = amplicons[['chromosome_left', 'start_left', 'end_right', 'number']]
+        
+        return amplicons
 
 
 def check_amplicon_coverage(depth_file, amplicons, min_coverage):
