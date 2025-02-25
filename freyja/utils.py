@@ -1231,38 +1231,30 @@ def handle_region_of_interest(region_of_interest, output_df,
 
     return output_df
 
-
 def process_bed_file(bed_file):
     # Read in the bed file
     primer_df = pd.read_csv(bed_file, sep='\t', header=None,
                             names=["chromosome", "start", "end",
                                    "name", "pool", "strand", "primer_sequence"])
-    split_counts = primer_df['name'].str.count('_')  # Count underscores in each row
-
-    # Find rows where the number of parts exceeds three (i.e., more than 2 underscores)
-    invalid_rows = primer_df.loc[split_counts > 2, 'name']
-
-    if not invalid_rows.empty:
-        raise ValueError(f"Error: Some rows contain too many parts when split by '_'.\nProblematic rows:\n{invalid_rows.to_string(index=False)}"
-                         "\nexample valid name: SARS-CoV-2_57_RIGHT")
-    else:
-        # Split the 'name' column to get 'number', 'side', and 'index'
-        primer_df[['name', 'number', 'side']] = primer_df['name'].str.split('_', expand=True)
-        
-        # Separate LEFT and RIGHT primers
-        left_primers = primer_df[primer_df['side'] == 'LEFT']
-        right_primers = primer_df[primer_df['side'] == 'RIGHT']
-        
-        # Perform inner join on left and right primers based on matching 'number' and 'pool'
-        amplicons = left_primers.merge(right_primers, on=['number', 'pool'], suffixes=('_left', '_right'))
-        
-        # Filter amplicons where the 'start' of the left primer is less than the 'end' of the right primer
-        amplicons = amplicons[amplicons['start_left'] < amplicons['end_right']]
-        
-        # Return the relevant columns
-        amplicons = amplicons[['chromosome_left', 'start_left', 'end_right', 'number']]
-        
-        return amplicons
+    
+    # Extract number and side (LEFT/RIGHT) using regex
+    primer_df[['number', 'side']] = primer_df['name'].str.extract(r'(.+?)_(LEFT|RIGHT)')
+    
+    # Drop rows where extraction failed (invalid names)
+    primer_df.dropna(subset=['number', 'side'], inplace=True)
+    
+    # Separate LEFT and RIGHT primers
+    left_primers = primer_df[primer_df['side'] == 'LEFT']
+    right_primers = primer_df[primer_df['side'] == 'RIGHT']
+    
+    # Perform inner join on left and right primers based on matching 'number' and 'pool'
+    amplicons = left_primers.merge(right_primers, on=['number', 'pool'], suffixes=('_left', '_right'))
+    
+    # Filter amplicons where the 'start' of the left primer is less than the 'end' of the right primer
+    amplicons = amplicons[amplicons['start_left'] < amplicons['end_right']]
+    
+    # Return the relevant columns
+    return amplicons[['chromosome_left', 'start_left', 'end_right', 'number']]
 
 
 def check_amplicon_coverage(depth_file, amplicons, min_coverage):
@@ -1289,7 +1281,6 @@ def check_amplicon_coverage(depth_file, amplicons, min_coverage):
             total_coverage = region_depths['depth'].sum()
             region_length = len(region_depths)
             mean_depth = round(total_coverage / region_length if region_length > 0 else 0, 2)
-            
             # Determine amplification status
             status = "Amplified" if total_coverage >= min_coverage else "Not Amplified"
             
