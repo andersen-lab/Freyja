@@ -1300,31 +1300,36 @@ def check_amplicon_coverage(depth_file, amplicons, min_coverage):
     return unaggregated_df, aggregated_df
 
 
-
 def plot_amplicon_depth(unaggregated_df, output):
     """
-    Creates a bax plot of sequencing depth across amplicons.
-    
+    Creates a box plot of sequencing depth across amplicons.
+
     Parameters:
     - unaggregated_df: DataFrame containing depth values per amplicon
-    - output_file: Path to save the output plot
+    - output: Path to save the output plot
     """
     plt.figure(figsize=(12, 6))
     unaggregated_df = unaggregated_df.sort_values("position")
-    unaggregated_df['log2_depth'] = np.log2(unaggregated_df['depth']+1)
+    unaggregated_df['log2_depth'] = np.log2(unaggregated_df['depth'] + 1)
     unaggregated_df['bins'] = unaggregated_df['amplicon_start'].astype(str) + "_" + unaggregated_df['amplicon_end'].astype(str)
+
     # Create a box plot to visualize depth distribution per amplicon
     sns.boxplot(x="bins", y="log2_depth", data=unaggregated_df, showfliers=False)
+
+    # Compute mean depth and add a dashed line
+    mean_depth = np.log2(unaggregated_df['depth'].mean() + 1)
+    plt.axhline(mean_depth, color='red', linestyle='dashed', linewidth=1.5, label=f'Mean Depth (log2): {mean_depth:.2f}')
 
     plt.xlabel("Genomic position", fontsize=14)
     plt.ylabel("Log2 depth", fontsize=14)
     plt.title("Amplicon Coverage Depth Distribution", fontsize=16)
     plt.xticks(rotation=45, fontsize=12)  # Rotate x-axis labels if there are many amplicons
     plt.gca().xaxis.set_major_locator(MaxNLocator(nbins=50))
+    plt.legend()
     plt.tight_layout()
     plt.savefig(output, dpi=1000)
     plt.show()
-    
+
 
 if __name__ == '__main__':
     agg_results = 'freyja/data/test_sweep.tsv'
