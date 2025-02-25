@@ -1231,6 +1231,8 @@ def handle_region_of_interest(region_of_interest, output_df,
 
     return output_df
 
+import pandas as pd
+
 def process_bed_file(bed_file):
     # Read in the bed file
     primer_df = pd.read_csv(bed_file, sep='\t', header=None,
@@ -1252,6 +1254,8 @@ def process_bed_file(bed_file):
     
     # Filter amplicons where the 'start' of the left primer is less than the 'end' of the right primer
     amplicons = amplicons[amplicons['start_left'] < amplicons['end_right']]
+    # Adjust end position by adding the length of the primer sequence
+    amplicons['end_right'] = amplicons['end_right'] + amplicons['primer_sequence_right'].str.len()
     
     # Return the relevant columns
     return amplicons[['chromosome_left', 'start_left', 'end_right', 'number']]
