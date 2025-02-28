@@ -48905,6 +48905,8 @@
       - XEC.9
       - XEC.10
       - XEC.11
+      - XEC.11.1
+      - XEC.11.1.1
       - XEC.12
       - XEC.13
       - XEC.14
@@ -48919,6 +48921,7 @@
       - XEC.22
       - XEC.23
       - XEC.24
+      - XEC.25
   recombinant_parents: KS.1.1,KP.3.3
 - name: XEC.1
   alias: XEC.1
@@ -49005,7 +49008,20 @@
   alias: XEC.11
   children:
       - XEC.11
+      - XEC.11.1
+      - XEC.11.1.1
   parent: XEC
+- name: XEC.11.1
+  alias: XEC.11.1
+  children:
+      - XEC.11.1
+      - XEC.11.1.1
+  parent: XEC.11
+- name: XEC.11.1.1
+  alias: XEC.11.1.1
+  children:
+      - XEC.11.1.1
+  parent: XEC.11.1
 - name: XEC.12
   alias: XEC.12
   children:
@@ -49076,6 +49092,11 @@
   alias: XEC.24
   children:
       - XEC.24
+  parent: XEC
+- name: XEC.25
+  alias: XEC.25
+  children:
+      - XEC.25
   parent: XEC
 - name: XED
   alias: XED
