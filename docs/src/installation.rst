@@ -15,7 +15,7 @@ Local build from source::
     pip install -e .
 
 Please note that pip will not install all the requirements.
-You need to install some requirements via Conda by following these steps:
+You need to install some requirements via Conda by following these steps::
 
     conda create -n freyja
     conda activate freyja
