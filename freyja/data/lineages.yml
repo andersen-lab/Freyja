@@ -1871,6 +1871,7 @@
       - BA.2.87.1
       - BA.3
       - BA.3.1
+      - BA.3.2
       - BA.4
       - BA.4.1
       - BA.4.1.1
@@ -3164,6 +3165,11 @@
       - LF.7.2.1
       - LF.7.3
       - LF.7.3.1
+      - LF.7.3.2
+      - LF.7.3.3
+      - LF.7.3.4
+      - LF.7.3.5
+      - LF.7.3.6
       - LF.7.4
       - LF.7.5
       - LF.7.6
@@ -3351,6 +3357,7 @@
       - MC.38
       - MC.39
       - MC.40
+      - MC.40.1
       - MD.1
       - MD.1.1
       - MD.1.1.1
@@ -5151,6 +5158,7 @@
       - BA.2.87.1
       - BA.3
       - BA.3.1
+      - BA.3.2
       - BA.4
       - BA.4.1
       - BA.4.1.1
@@ -6444,6 +6452,11 @@
       - LF.7.2.1
       - LF.7.3
       - LF.7.3.1
+      - LF.7.3.2
+      - LF.7.3.3
+      - LF.7.3.4
+      - LF.7.3.5
+      - LF.7.3.6
       - LF.7.4
       - LF.7.5
       - LF.7.6
@@ -6631,6 +6644,7 @@
       - MC.38
       - MC.39
       - MC.40
+      - MC.40.1
       - MD.1
       - MD.1.1
       - MD.1.1.1
@@ -7495,6 +7509,7 @@
       - BA.2.87.1
       - BA.3
       - BA.3.1
+      - BA.3.2
       - BA.4
       - BA.4.1
       - BA.4.1.1
@@ -8786,6 +8801,11 @@
       - LF.7.2.1
       - LF.7.3
       - LF.7.3.1
+      - LF.7.3.2
+      - LF.7.3.3
+      - LF.7.3.4
+      - LF.7.3.5
+      - LF.7.3.6
       - LF.7.4
       - LF.7.5
       - LF.7.6
@@ -8973,6 +8993,7 @@
       - MC.38
       - MC.39
       - MC.40
+      - MC.40.1
       - MD.1
       - MD.1.1
       - MD.1.1.1
@@ -12363,6 +12384,7 @@
       - BA.2.87.1
       - BA.3
       - BA.3.1
+      - BA.3.2
       - BA.4
       - BA.4.1
       - BA.4.1.1
@@ -13596,6 +13618,11 @@
       - LF.7.2.1
       - LF.7.3
       - LF.7.3.1
+      - LF.7.3.2
+      - LF.7.3.3
+      - LF.7.3.4
+      - LF.7.3.5
+      - LF.7.3.6
       - LF.7.4
       - LF.7.5
       - LF.7.6
@@ -13780,6 +13807,7 @@
       - MC.38
       - MC.39
       - MC.40
+      - MC.40.1
       - MD.1
       - MD.1.1
       - MD.1.1.1
@@ -15114,6 +15142,11 @@
       - LF.7.2.1
       - LF.7.3
       - LF.7.3.1
+      - LF.7.3.2
+      - LF.7.3.3
+      - LF.7.3.4
+      - LF.7.3.5
+      - LF.7.3.6
       - LF.7.4
       - LF.7.5
       - LF.7.6
@@ -15298,6 +15331,7 @@
       - MC.38
       - MC.39
       - MC.40
+      - MC.40.1
       - MD.1
       - MD.1.1
       - MD.1.1.1
@@ -19153,6 +19187,11 @@
       - LF.7.2.1
       - LF.7.3
       - LF.7.3.1
+      - LF.7.3.2
+      - LF.7.3.3
+      - LF.7.3.4
+      - LF.7.3.5
+      - LF.7.3.6
       - LF.7.4
       - LF.7.5
       - LF.7.6
@@ -19337,6 +19376,7 @@
       - MC.38
       - MC.39
       - MC.40
+      - MC.40.1
       - MD.1
       - MD.1.1
       - MD.1.1.1
@@ -19892,6 +19932,11 @@
       - LF.7.2.1
       - LF.7.3
       - LF.7.3.1
+      - LF.7.3.2
+      - LF.7.3.3
+      - LF.7.3.4
+      - LF.7.3.5
+      - LF.7.3.6
       - LF.7.4
       - LF.7.5
       - LF.7.6
@@ -20074,6 +20119,7 @@
       - MC.38
       - MC.39
       - MC.40
+      - MC.40.1
       - MD.1
       - MD.1.1
       - MD.1.1.1
@@ -20595,6 +20641,11 @@
       - LF.7.2.1
       - LF.7.3
       - LF.7.3.1
+      - LF.7.3.2
+      - LF.7.3.3
+      - LF.7.3.4
+      - LF.7.3.5
+      - LF.7.3.6
       - LF.7.4
       - LF.7.5
       - LF.7.6
@@ -20777,6 +20828,7 @@
       - MC.38
       - MC.39
       - MC.40
+      - MC.40.1
       - MD.1
       - MD.1.1
       - MD.1.1.1
@@ -22039,6 +22091,7 @@
       - MC.38
       - MC.39
       - MC.40
+      - MC.40.1
       - MG.1
       - MG.2
       - MG.3
@@ -22334,6 +22387,7 @@
       - MC.38
       - MC.39
       - MC.40
+      - MC.40.1
       - MG.1
       - MG.2
       - MG.3
@@ -23513,6 +23567,7 @@
       - MC.38
       - MC.39
       - MC.40
+      - MC.40.1
       - MK.1
       - MK.2
       - MK.3
@@ -23634,6 +23689,7 @@
       - MC.38
       - MC.39
       - MC.40
+      - MC.40.1
       - MK.1
       - MK.2
       - MK.3
@@ -23733,6 +23789,7 @@
       - MC.38
       - MC.39
       - MC.40
+      - MC.40.1
       - PA.1
   parent: KP.3.1
 - name: MC.1
@@ -24232,7 +24289,13 @@
   alias: B.1.1.529.2.86.1.1.11.1.3.1.1.40
   children:
       - MC.40
+      - MC.40.1
   parent: KP.3.1.1
+- name: MC.40.1
+  alias: B.1.1.529.2.86.1.1.11.1.3.1.1.40.1
+  children:
+      - MC.40.1
+  parent: MC.40
 - name: KP.3.1.2
   alias: B.1.1.529.2.86.1.1.11.1.3.1.2
   children:
@@ -24920,6 +24983,11 @@
       - LF.7.2.1
       - LF.7.3
       - LF.7.3.1
+      - LF.7.3.2
+      - LF.7.3.3
+      - LF.7.3.4
+      - LF.7.3.5
+      - LF.7.3.6
       - LF.7.4
       - LF.7.5
       - LF.7.6
@@ -24988,6 +25056,11 @@
       - LF.7.2.1
       - LF.7.3
       - LF.7.3.1
+      - LF.7.3.2
+      - LF.7.3.3
+      - LF.7.3.4
+      - LF.7.3.5
+      - LF.7.3.6
       - LF.7.4
       - LF.7.5
       - LF.7.6
@@ -25099,6 +25172,11 @@
       - LF.7.2.1
       - LF.7.3
       - LF.7.3.1
+      - LF.7.3.2
+      - LF.7.3.3
+      - LF.7.3.4
+      - LF.7.3.5
+      - LF.7.3.6
       - LF.7.4
       - LF.7.5
       - LF.7.6
@@ -25185,11 +25263,41 @@
   children:
       - LF.7.3
       - LF.7.3.1
+      - LF.7.3.2
+      - LF.7.3.3
+      - LF.7.3.4
+      - LF.7.3.5
+      - LF.7.3.6
   parent: LF.7
 - name: LF.7.3.1
   alias: B.1.1.529.2.86.1.1.16.1.7.3.1
   children:
       - LF.7.3.1
+  parent: LF.7.3
+- name: LF.7.3.2
+  alias: B.1.1.529.2.86.1.1.16.1.7.3.2
+  children:
+      - LF.7.3.2
+  parent: LF.7.3
+- name: LF.7.3.3
+  alias: B.1.1.529.2.86.1.1.16.1.7.3.3
+  children:
+      - LF.7.3.3
+  parent: LF.7.3
+- name: LF.7.3.4
+  alias: B.1.1.529.2.86.1.1.16.1.7.3.4
+  children:
+      - LF.7.3.4
+  parent: LF.7.3
+- name: LF.7.3.5
+  alias: B.1.1.529.2.86.1.1.16.1.7.3.5
+  children:
+      - LF.7.3.5
+  parent: LF.7.3
+- name: LF.7.3.6
+  alias: B.1.1.529.2.86.1.1.16.1.7.3.6
+  children:
+      - LF.7.3.6
   parent: LF.7.3
 - name: LF.7.4
   alias: B.1.1.529.2.86.1.1.16.1.7.4
@@ -26984,11 +27092,17 @@
   children:
       - BA.3
       - BA.3.1
+      - BA.3.2
   parent: B.1.1.529
 - name: BA.3.1
   alias: B.1.1.529.3.1
   children:
       - BA.3.1
+  parent: BA.3
+- name: BA.3.2
+  alias: B.1.1.529.3.2
+  children:
+      - BA.3.2
   parent: BA.3
 - name: BA.4
   alias: B.1.1.529.4
@@ -48977,6 +49091,7 @@
       - XEC.6
       - XEC.7
       - XEC.8
+      - XEC.8.1
       - XEC.9
       - XEC.10
       - XEC.11
@@ -48996,7 +49111,9 @@
       - XEC.22
       - XEC.23
       - XEC.24
+      - XEC.24.1
       - XEC.25
+      - XEC.25.1
   recombinant_parents: KS.1.1,KP.3.3
 - name: XEC.1
   alias: XEC.1
@@ -49068,7 +49185,13 @@
   alias: XEC.8
   children:
       - XEC.8
+      - XEC.8.1
   parent: XEC
+- name: XEC.8.1
+  alias: XEC.8.1
+  children:
+      - XEC.8.1
+  parent: XEC.8
 - name: XEC.9
   alias: XEC.9
   children:
@@ -49167,12 +49290,24 @@
   alias: XEC.24
   children:
       - XEC.24
+      - XEC.24.1
   parent: XEC
+- name: XEC.24.1
+  alias: XEC.24.1
+  children:
+      - XEC.24.1
+  parent: XEC.24
 - name: XEC.25
   alias: XEC.25
   children:
       - XEC.25
+      - XEC.25.1
   parent: XEC
+- name: XEC.25.1
+  alias: XEC.25.1
+  children:
+      - XEC.25.1
+  parent: XEC.25
 - name: XED
   alias: XED
   children:
@@ -49435,3 +49570,8 @@
   children:
       - XFG
   recombinant_parents: LF.7,LP.8.1.2,LF.7
+- name: XFH
+  alias: XFH
+  children:
+      - XFH
+  recombinant_parents: LF.7.1,XEF,LF.7.1
