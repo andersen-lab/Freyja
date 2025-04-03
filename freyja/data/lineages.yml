@@ -49557,3 +49557,8 @@
   children:
       - XFH
   recombinant_parents: LF.7.1,XEF,LF.7.1
+- name: XFJ
+  alias: XFJ
+  children:
+      - XFJ
+  recombinant_parents: LF.7,LS.2
