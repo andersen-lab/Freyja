@@ -51,7 +51,7 @@ information such as amplicon number, genomic location,
 mean coverage depth, amplicon length and amplification status.
 The function use 5 as the threshold for minimum number of reads
 present to discern the amplification status but you can set it
-to a custom number using `--min_depth`.
+to a custom number using ``--min_depth``.
 
 Here is an example of how the plot will look like with the test data.
 
