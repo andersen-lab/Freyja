@@ -997,5 +997,64 @@ def plot_covariants(covariants, output, num_clusters,
                      min_mutations, nt_muts, vmin, vmax)
 
 
+@cli.command()
+@click.option(
+    '--primer',
+    help=(
+        'Primer bed file used for amplicon sequencing. Primer name format '
+        'example: SARS-CoV-2_1_RIGHT. Primer sequence must be included in '
+        'the bed file.'
+    ),
+)
+@click.option(
+    '--output_plot',
+    default="amplicon_dropout_plot.png",
+    help="Output name for the amplicon dropout plots",
+)
+@click.option(
+    '--output_csv',
+    default="amplicon_dropout.csv",
+    help="Output name for the amplicon dropout CSV file",
+)
+@click.option(
+    '--input_depth',
+    help='Depths file of reads aligned to the reference',
+)
+@click.option(
+    '--min_depth',
+    default=5,
+    help='Minimum coverage depth to define amplicon dropout',
+    show_default=True,
+)
+def ampliconstat(input_depth, primer, min_depth, output_plot, output_csv):
+    """
+    Provides a summary of amplicon dropouts based on the provided primer file.
+    """
+    from freyja.utils import (
+        process_bed_file,
+        check_amplicon_coverage,
+        plot_amplicon_depth,
+    )
+
+    processed_primers = process_bed_file(primer)
+    depth_df = pd.read_csv(
+        input_depth,
+        sep='\t',
+        header=None,
+        names=['chromosome', 'position', 'ref_base', 'depth'],
+    )
+
+    print("Processing depth file...")
+    unaggregated_df, aggregated_df = check_amplicon_coverage(
+        depth_df, processed_primers, min_depth
+    )
+
+    print("Creating amplicon dropout plot...")
+    plot_amplicon_depth(unaggregated_df, output_plot)
+
+    print("Writing amplicon dropout CSV file...")
+    aggregated_df.to_csv(output_csv, index=False)
+
+
 if __name__ == '__main__':
     cli()

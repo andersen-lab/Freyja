@@ -11,9 +11,10 @@ Alignment can be done using a variety of methods, including
 trimming and sorting, check out the `iVar
 manual <https://andersen-lab.github.io/ivar/html/index.html>`__.
 
+
 Once you’ve got your BAM file, you’ll just need the reference that you
 used for the alignment (i.e. Hu-1 for SARS-CoV-2 samples, like
-`this <data/NC_045512_Hu-1.fasta>`__). Since we’re generally going to be
+`this <data/NC_045512_Hu-1.fasta>`__).Since we’re generally going to be
 working with many wastewater samples at the same time, it’s a good idea
 to create folders to store each of the output files, using
 ``mkdir variants_files depth_files demix_files``, for example. From
@@ -37,7 +38,28 @@ copy (good to keep around in case you want to compare results with
 past/future barcode libraries) you can also add in the ``--outdir``
 option, and specify the location where you want to put the barcode
 library. This just needs to be done once (per session – new lineages are
-being added every day), and then we can proceed to the de-mixing step.
+being added every day).You can also check the overal coverage depth status
+across amplicons using the following command:
+
+``freyja ampliconstat --primer primer.bed --input_depth depth_files/test.depth``
+
+This command will creat a figure with distribution of depth for each
+amplicon that is provided in the primer bed file. The plot will show genomic
+coordinates of each amplicon, which can be cross-referenced with the
+csv output created by this function. The csv file will provide
+information such as amplicon number, genomic location,
+mean coverage depth, amplicon length and amplification status.
+The function use 5 as the threshold for minimum number of reads
+present to discern the amplification status but you can set it
+to a custom number using ``--min_depth``.
+
+Here is an example of how the plot will look like with the test data.
+
+.. |freyja_dropout_plot| image:: images/amplicon_dropout_plot.png
+
+|freyja_dropout_plot|
+ 
+Then we can proceed to the de-mixing step.
 Demixing can be performed using the command
 
 ``freyja demix variants_files/test.variants.tsv depth_files/test.depth --output demix_files/test.output --confirmedonly``

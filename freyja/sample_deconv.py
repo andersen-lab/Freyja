@@ -117,7 +117,7 @@ def read_snv_frequencies_vcf(fn, depthFn, muts):
     if df["ALT_FREQ"].isnull().all():
         raise ValueError(
             f"No AF (allele frequency) data found in the INFO column of "
-            f"VCF file: {fn}")
+            f"VCF file: {fn} or the VCF file is empty")
     df["ALT_FREQ"] = pd.to_numeric(df["ALT_FREQ"], downcast="float")
     return df
 
