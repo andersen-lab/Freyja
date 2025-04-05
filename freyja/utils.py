@@ -1320,7 +1320,7 @@ def plot_amplicon_depth(unaggregated_df, output):
     unaggregated_df = unaggregated_df.sort_values("position")
     unaggregated_df['log2_depth'] = np.log2(unaggregated_df['depth'] + 1)
     unaggregated_df['bins'] = (
-        unaggregated_df['amplicon_start'].astype(str) + "_" +
+        unaggregated_df['amplicon_start'].astype(str) + "-" +
         unaggregated_df['amplicon_end'].astype(str)
     )
     sns.boxplot(x="bins", y="log2_depth",
@@ -1333,7 +1333,7 @@ def plot_amplicon_depth(unaggregated_df, output):
     plt.xlabel("Genomic position", fontsize=14)
     plt.ylabel("Log2 depth", fontsize=14)
     plt.title("Amplicon Coverage Depth Distribution", fontsize=16)
-    plt.xticks(rotation=45, fontsize=12)
+    plt.xticks(rotation=90, fontsize=12)
     plt.gca().xaxis.set_major_locator(MaxNLocator(nbins=50))
     plt.legend()
     plt.tight_layout()
