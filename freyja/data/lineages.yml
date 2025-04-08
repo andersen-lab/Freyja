@@ -49070,6 +49070,7 @@
       - XEC.4
       - XEC.4.1
       - XEC.5
+      - XEC.5.1
       - XEC.6
       - XEC.7
       - XEC.8
@@ -49152,7 +49153,13 @@
   alias: XEC.5
   children:
       - XEC.5
+      - XEC.5.1
   parent: XEC
+- name: XEC.5.1
+  alias: XEC.5.1
+  children:
+      - XEC.5.1
+  parent: XEC.5
 - name: XEC.6
   alias: XEC.6
   children:
@@ -49562,3 +49569,8 @@
   children:
       - XFJ
   recombinant_parents: LF.7,LS.2
+- name: XFK
+  alias: XFK
+  children:
+      - XFK
+  recombinant_parents: KP.3.1.1,XEC.5
