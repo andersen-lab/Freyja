@@ -27,7 +27,7 @@ also provided `here. <https://github.com/andersen-lab/Freyja/blob/main/docs/data
 This file will be used to simulate measles amplicon sequencing reads and trim the primers in the downstream analysis.
 
 1. Prepare your reads, by assessing quality of the reads and removing the sequencing adapters.
-We will be using simulated reads produced by `MixAmp, <https://github.com/andersen-lab/MixAmp>`_ an amplicon read simulator developed by our team.
+We will be using simulated reads produced by `Bygul, <https://github.com/andersen-lab/Bygul>`_ an amplicon read simulator developed by our team.
 
 For instance, we generated reads from two different measles samples using this code as following:
 
@@ -41,16 +41,16 @@ For instance, we generated reads from two different measles samples using this c
 
 .. code::
 
-    mixamp simulate-proportions GCA_031128185.1.fna primer.bed measles-reference.fasta --outdir measles-H1-100/
+    bygul simulate-proportions GCA_031128185.1.fna primer.bed measles-reference.fasta --outdir measles-H1-100/
 
 *Mixed sample read simulation:*
 
 .. code::
     
-    mixamp simulate-proportions GCA_031128185.1.fna,GCA_031129565.1.fna primer.bed measles-reference.fasta --outdir measles-H1-20-D9-80/ --proportions 0.2,0.8
+    bygul simulate-proportions GCA_031128185.1.fna,GCA_031129565.1.fna primer.bed measles-reference.fasta --outdir measles-H1-20-D9-80/ --proportions 0.2,0.8
 
 
-5. Align your reads to your reference genome using an aligner of your choice. 
+1. Align your reads to your reference genome using an aligner of your choice. 
 Here, we use ``minimap2`` with parameters set for aligning short reads to a reference genome.
 
 .. code::
