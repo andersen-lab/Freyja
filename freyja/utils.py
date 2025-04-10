@@ -7,6 +7,8 @@ import matplotlib.dates as mdates
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+import seaborn as sns
+from matplotlib.ticker import MaxNLocator
 import plotly.express as px
 import plotly.graph_objects as go
 from datetime import datetime, timedelta
@@ -1227,6 +1229,116 @@ def handle_region_of_interest(region_of_interest, output_df,
     output_df.name = title
 
     return output_df
+
+
+def process_bed_file(bed_file):
+    # Read in the bed file
+    primer_df = pd.read_csv(
+        bed_file, sep='\t', header=None,
+        names=["chromosome", "start",
+               "end", "name", "pool",
+               "strand", "primer_sequence"]
+    )
+    # Extract number and side (LEFT/RIGHT) using regex
+    primer_df[['number', 'side']] =\
+        primer_df['name'].str.extract(r'(.+?)_(LEFT|RIGHT)')
+    # Drop rows where extraction failed (invalid names)
+    primer_df.dropna(subset=['number', 'side'], inplace=True)
+    # Separate LEFT and RIGHT primers
+    left_primers = primer_df[primer_df['side'] == 'LEFT']
+    right_primers = primer_df[primer_df['side'] == 'RIGHT']
+    # Perform inner join on left and right
+    # primers based on matching 'number' and 'pool'
+    amplicons = left_primers.merge(
+        right_primers, on=['number', 'pool'],
+        suffixes=('_left', '_right')
+    )
+    # Filter amplicons where the 'start'
+    # of the left primer is less than the 'end' of the right primer
+    amplicons = amplicons[amplicons['start_left'] < amplicons['end_right']]
+    # Adjust end position by adding the length of the primer sequence
+    amplicons['end_right'] += amplicons['primer_sequence_right'].str.len()
+    amplicons['length'] = amplicons["end_right"] - amplicons["start_left"]
+    # Return the relevant columns
+    return amplicons[['chromosome_left',
+                      'start_left', 'end_right',
+                      'number', 'length']]
+
+
+def check_amplicon_coverage(depth_file, amplicons, min_coverage):
+    aggregated_results = []
+    unaggregated_results = []
+
+    for _, row in amplicons.iterrows():
+        chrom, start, end, number, length = (
+            row['chromosome_left'], row['start_left'], row['end_right'],
+            row['number'], row['length']
+        )
+        if depth_file['chromosome'][0] != chrom:
+            raise ValueError(
+                f"Chromosome names do not match:\
+                    {depth_file['chromosome'][0]} vs {chrom}"
+            )
+        else:
+            region_depths = depth_file.loc[
+                (depth_file['chromosome'] == chrom) &
+                (depth_file['position'].between(start, end))
+            ].copy()
+            region_depths.loc[:, 'amplicon_number'] = number
+            region_depths.loc[:, 'amplicon_start'] = start
+            region_depths.loc[:, 'amplicon_end'] = end
+            unaggregated_results.append(region_depths)
+            total_coverage = region_depths['depth'].sum()
+            region_length = len(region_depths)
+            mean_depth = round(
+                total_coverage / region_length if
+                region_length > 0 else 0, 2
+            )
+            status = "amplified" if total_coverage >=\
+                min_coverage else "not_amplified"
+            length = length if status == "amplified" else 0
+            aggregated_results.append(
+                (chrom, start, end, number, status, mean_depth, length)
+            )
+    unaggregated_df = (
+        pd.concat(unaggregated_results, ignore_index=True)
+        if unaggregated_results else pd.DataFrame()
+    )
+    aggregated_df = pd.DataFrame(
+        aggregated_results,
+        columns=["chromosome", "start", "end", "amplicon_name",
+                 "amplification_status", "mean_depth", "amplicon_length"]
+    )
+    return unaggregated_df, aggregated_df
+
+
+def plot_amplicon_depth(unaggregated_df, output):
+    """
+    Creates a box plot of sequencing depth across amplicons.
+    """
+    plt.figure(figsize=(12, 6))
+    unaggregated_df = unaggregated_df.sort_values("position")
+    unaggregated_df['log2_depth'] = np.log2(unaggregated_df['depth'] + 1)
+    unaggregated_df['bins'] = (
+        unaggregated_df['amplicon_start'].astype(str) + "-" +
+        unaggregated_df['amplicon_end'].astype(str)
+    )
+    sns.boxplot(x="bins", y="log2_depth",
+                data=unaggregated_df, showfliers=False)
+    mean_depth = np.log2(unaggregated_df['depth'].mean() + 1)
+    plt.axhline(
+        mean_depth, color='red', linestyle='dashed', linewidth=1.5,
+        label=f'Mean Depth (log2): {mean_depth:.2f}'
+    )
+    plt.xlabel("Genomic position", fontsize=14)
+    plt.ylabel("Log2 depth", fontsize=14)
+    plt.title("Amplicon Coverage Depth Distribution", fontsize=16)
+    plt.xticks(rotation=90, fontsize=12)
+    plt.gca().xaxis.set_major_locator(MaxNLocator(nbins=50))
+    plt.legend()
+    plt.tight_layout()
+    plt.savefig(output, dpi=1000)
+    plt.show()
 
 
 if __name__ == '__main__':

@@ -15,21 +15,19 @@ For the purpose of this tutorial, we will be using `NC_001498.1. <https://www.nc
 The reference genome file can also be found `here. <https://github.com/andersen-lab/Freyja/blob/main/docs/data/measles-reference.fasta>`_
 
 
-2. Download the latest lineage barcodes from `Freyja barcodes repository. <https://github.com/gp201/Freyja-barcodes>`_
-For this analysis we will be using `Measles barcodes <https://github.com/gp201/Freyja-barcodes/tree/main/MEASLESgenome>`_
-which can also be found `here. <https://github.com/andersen-lab/Freyja/blob/main/docs/data/measles-wg-barcode.csv>`_
-
-Please note that there are two sets of barcodes available for Measles. Here, we use the whole genome barcodes but
+2. Choose barcode type. Please note that there are two sets of barcodes available for Measles.
+Freyja provides two barcode options as MEASLES and MEASLESN450. Here, we use the whole genome barcodes but
 you may also use the N450 region barcodes. It is important, however, to
-use the right reference genome according to the barcode used. If you are using region N450 barcodes, please make sure to
+use the right reference genome according to the barcode used.
+If you are using region N450 barcodes, please make sure to
 use the reference that includes N450 region only.
 
-3. Prepare your primer file in a bed format. For this tutorial, we will be using `artic-measles V1.0.0 panel <https://labs.primalscheme.com/detail/artic-measles/400/v1.0.0/?q=measles>`_
+1. Prepare your primer file in a bed format. For this tutorial, we will be using `artic-measles V1.0.0 panel <https://labs.primalscheme.com/detail/artic-measles/400/v1.0.0/?q=measles>`_
 also provided `here. <https://github.com/andersen-lab/Freyja/blob/main/docs/data/artic-measles-v1.0.0.bed>`_
 This file will be used to simulate measles amplicon sequencing reads and trim the primers in the downstream analysis.
 
-4. Prepare your reads, by assessing quality of the reads and removing the sequencing adapters.
-We will be using simulated reads produced by `MixAmp, <https://github.com/andersen-lab/MixAmp>`_ an amplicon read simulator developed by our team.
+1. Prepare your reads, by assessing quality of the reads and removing the sequencing adapters.
+We will be using simulated reads produced by `Bygul, <https://github.com/andersen-lab/Bygul>`_ an amplicon read simulator developed by our team.
 
 For instance, we generated reads from two different measles samples using this code as following:
 
@@ -43,16 +41,16 @@ For instance, we generated reads from two different measles samples using this c
 
 .. code::
 
-    mixamp simulate-proportions GCA_031128185.1.fna primer.bed --outdir measles-H1-100/
+    bygul simulate-proportions GCA_031128185.1.fna primer.bed measles-reference.fasta --outdir measles-H1-100/
 
 *Mixed sample read simulation:*
 
 .. code::
     
-    mixamp simulate-proportions GCA_031128185.1.fna,GCA_031129565.1.fna primer.bed --outdir measles-H1-20-D9-80/ --proportions 0.2,0.8
+    bygul simulate-proportions GCA_031128185.1.fna,GCA_031129565.1.fna primer.bed measles-reference.fasta --outdir measles-H1-20-D9-80/ --proportions 0.2,0.8
 
 
-5. Align your reads to your reference genome using an aligner of your choice. 
+1. Align your reads to your reference genome using an aligner of your choice. 
 Here, we use ``minimap2`` with parameters set for aligning short reads to a reference genome.
 
 .. code::
@@ -119,7 +117,7 @@ This will be used in freyja pipeline downstream analysis.
 
 .. code::
 
-    freyja demix variants.tsv depths.tsv --output freyja_demix.txt --barcodes barcodes.csv
+    freyja demix variants.tsv depths.tsv --output freyja_demix.txt --pathogen MEASLES
 
 
 The final demix outputs for the pure and mixed sample are as following:
