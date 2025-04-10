@@ -1,0 +1,202 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Running Freyja on other pathogens &mdash; Freyja  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="prev" title="Terra Workflow" href="terra_workflow.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            Freyja
+              <img src="../../_static/freyja-logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Usage:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/demix.html">freyja demix</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/variants.html">freyja variants</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/barcode-build.html">freyja barcode-build</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/get-lineage-def.html">freyja get-lineage-def</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/update.html">freyja update</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/boot.html">freyja boot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/aggregate.html">freyja aggregate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/plot.html">freyja plot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/dash.html">freyja dash</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/relgrowthrate.html">freyja relgrowthrate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/extract.html">freyja extract</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/filter.html">freyja filter</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/covariants.html">freyja covariants</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/plot-covariants.html">freyja plot-covariants</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Wiki:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="command_line_workflow.html">Command Line Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cryptic_variants.html">Cryptic Variant Detection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="custom_plotting_tutorial.html">Custom Plotting Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="freyja-measles.html">Running Freyja on other pathogens - Measles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="custom-plots-with-R.html">Demix output manipulation and plotting using R</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lineage_barcode_extract.html">Lineage Barcode Extract</a></li>
+<li class="toctree-l1"><a class="reference internal" href="read_analysis_tutorial.html">Read Analysis Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="terra_workflow.html">Terra Workflow</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Running Freyja on other pathogens</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#data-availability">Data Availability</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#required-files">Required Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#setting-up-output-directories">Setting Up Output Directories</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#analysis-steps">Analysis Steps</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Freyja</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Running Freyja on other pathogens</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/src/wiki/expanded_pathogens.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="running-freyja-on-other-pathogens">
+<h1>Running Freyja on other pathogens<a class="headerlink" href="#running-freyja-on-other-pathogens" title="Link to this heading"></a></h1>
+<p>This guide provides instructions for analyzing non-SARS-CoV-2 pathogens such as
+influenza or MPox using Freyja. The process is similar to SARS-CoV-2 analysis,
+but with some key differences.</p>
+<section id="data-availability">
+<h2>Data Availability<a class="headerlink" href="#data-availability" title="Link to this heading"></a></h2>
+<p>Data for various pathogens can be found in the following repository:
+<a class="reference external" href="https://github.com/gp201/Freyja-barcodes">Freyja Barcodes</a></p>
+<p>Folders are organized by pathogen, with each subfolder named after the date the
+barcode was generated, using the format <code class="docutils literal notranslate"><span class="pre">YYYY-MM-DD</span></code>. Barcode files are named
+<code class="docutils literal notranslate"><span class="pre">barcode.csv</span></code>, and reference genome files are named <code class="docutils literal notranslate"><span class="pre">reference.fasta</span></code>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Influenza barcodes are available upon request.</p>
+</div>
+</section>
+<section id="required-files">
+<h2>Required Files<a class="headerlink" href="#required-files" title="Link to this heading"></a></h2>
+<p>To perform these analyses, you will need the following files for the MPox pathogen:</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://github.com/andersen-lab/Freyja/blob/main/docs/data/test.sorted.bam">test.sorted.bam</a>: Aligned, trimmed, and sorted BAM file</p></li>
+<li><p><a class="reference external" href="https://github.com/gp201/Freyja-barcodes/blob/main/MPX/2024-07-24/reference.fasta">reference.fasta</a>: Reference genome file</p></li>
+<li><p><a class="reference external" href="https://github.com/gp201/Freyja-barcodes/blob/main/MPX/2024-07-24/barcode.csv">barcode.csv</a>: Barcode file</p></li>
+</ul>
+</section>
+<section id="setting-up-output-directories">
+<h2>Setting Up Output Directories<a class="headerlink" href="#setting-up-output-directories" title="Link to this heading"></a></h2>
+<p>Since you will likely be working with multiple wastewater samples, it is
+advisable to create directories for storing output files:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>mkdir<span class="w"> </span>variants_files<span class="w"> </span>depth_files<span class="w"> </span>demix_files
+</pre></div>
+</div>
+</section>
+<section id="analysis-steps">
+<h2>Analysis Steps<a class="headerlink" href="#analysis-steps" title="Link to this heading"></a></h2>
+<p>The first step is to generate a variant file. Use the following command to
+perform this step:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>freyja<span class="w"> </span>variants<span class="w"> </span>test.sorted.bam<span class="w"> </span>--ref<span class="w"> </span>reference.fasta<span class="w"> </span>--variants<span class="w"> </span>variants_files/test.tsv<span class="w"> </span>--depths<span class="w"> </span>depth_files/test.depth
+</pre></div>
+</div>
+<p>Please note that you will be passing the reference genome file provided in the
+pathogen folder as the <code class="docutils literal notranslate"><span class="pre">--ref</span></code> argument. In cases where multiple reference
+genomes are present in the reference fasta, you can specify the name of the
+desired reference genome with <code class="docutils literal notranslate"><span class="pre">--refname</span> <span class="pre">[name-of-reference]</span></code>.</p>
+<p>Once the variant file is generated, proceed to the de-mixing step with the
+following command:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>freyja<span class="w"> </span>demix<span class="w"> </span>variants_files/test.tsv<span class="w"> </span>depth_files/test.depth<span class="w"> </span>--barcodes<span class="w"> </span>barcode.csv<span class="w"> </span>--output<span class="w"> </span>demix_files/test.output
+</pre></div>
+</div>
+<p>Please note that you will be passing the barcode file provided in the pathogen
+folder as the <code class="docutils literal notranslate"><span class="pre">--barcodes</span></code> argument.</p>
+<p>Once you’ve run demix on a bunch of samples, you can aggregate all of
+the output files using the command</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>freyja<span class="w"> </span>aggregate<span class="w"> </span>demix_files/<span class="w"> </span>--output<span class="w"> </span>bunch_of_files.tsv
+</pre></div>
+</div>
+<p>From there, it’s easy to view the output files in any standard TSV viewer
+(Excel, Numbers, LibreOffice Calc, etc.). You should see something like this:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>        <span class="n">summarized</span>      <span class="n">lineages</span>        <span class="n">abundances</span>      <span class="n">resid</span>   <span class="n">coverage</span>
+<span class="n">test</span><span class="o">.</span><span class="n">tsv</span>        <span class="p">[(</span><span class="s1">&#39;Other&#39;</span><span class="p">,</span> <span class="mf">0.999999999530878</span><span class="p">)]</span>  <span class="n">MPX</span><span class="o">-</span><span class="n">A</span><span class="mf">.3</span> <span class="n">MPX</span><span class="o">-</span><span class="n">A</span><span class="mf">.2.2</span>       <span class="mf">0.79798000</span> <span class="mf">0.20202000</span>   <span class="mf">7.5952064496123075</span>      <span class="mf">99.94117915510955</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="terra_workflow.html" class="btn btn-neutral float-left" title="Terra Workflow" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Andersen Lab.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,267 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>freyja covariants &mdash; Freyja  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="freyja plot-covariants" href="plot-covariants.html" />
+    <link rel="prev" title="freyja filter" href="filter.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            Freyja
+              <img src="../../_static/freyja-logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Usage:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="demix.html">freyja demix</a></li>
+<li class="toctree-l1"><a class="reference internal" href="variants.html">freyja variants</a></li>
+<li class="toctree-l1"><a class="reference internal" href="barcode-build.html">freyja barcode-build</a></li>
+<li class="toctree-l1"><a class="reference internal" href="get-lineage-def.html">freyja get-lineage-def</a></li>
+<li class="toctree-l1"><a class="reference internal" href="update.html">freyja update</a></li>
+<li class="toctree-l1"><a class="reference internal" href="boot.html">freyja boot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="aggregate.html">freyja aggregate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plot.html">freyja plot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dash.html">freyja dash</a></li>
+<li class="toctree-l1"><a class="reference internal" href="relgrowthrate.html">freyja relgrowthrate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="extract.html">freyja extract</a></li>
+<li class="toctree-l1"><a class="reference internal" href="filter.html">freyja filter</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">freyja covariants</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plot-covariants.html">freyja plot-covariants</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Wiki:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../wiki/command_line_workflow.html">Command Line Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../wiki/cryptic_variants.html">Cryptic Variant Detection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../wiki/custom_plotting_tutorial.html">Custom Plotting Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../wiki/freyja-measles.html">Running Freyja on other pathogens - Measles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../wiki/custom-plots-with-R.html">Demix output manipulation and plotting using R</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../wiki/lineage_barcode_extract.html">Lineage Barcode Extract</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../wiki/read_analysis_tutorial.html">Read Analysis Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../wiki/terra_workflow.html">Terra Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../wiki/expanded_pathogens.html">Running Freyja on other pathogens</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Freyja</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">freyja covariants</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/src/usage/covariants.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="freyja-covariants">
+<h1>freyja covariants<a class="headerlink" href="#freyja-covariants" title="Link to this heading"></a></h1>
+<p>Finds mutations co-occurring on the same read pair
+in BAM_FILE between MIN_SITE and MAX_SITE</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>freyja<span class="w"> </span>covariants<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span><span class="w"> </span>INPUT_BAM<span class="w"> </span><span class="o">[</span>MIN_SITE<span class="o">]</span><span class="w"> </span><span class="o">[</span>MAX_SITE<span class="o">]</span>
+</pre></div>
+</div>
+<p class="rubric">Options</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-freyja-covariants-output">
+<span class="sig-name descname"><span class="pre">--output</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;output&gt;</span></span><a class="headerlink" href="#cmdoption-freyja-covariants-output" title="Link to this definition"></a></dt>
+<dd><p>path to save co-occurring mutations</p>
+<dl class="field-list simple">
+<dt class="field-odd">Default<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">covariants.tsv</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-freyja-covariants-ref-genome">
+<span class="sig-name descname"><span class="pre">--ref-genome</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;ref_genome&gt;</span></span><a class="headerlink" href="#cmdoption-freyja-covariants-ref-genome" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Default<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">data/NC_045512_Hu-1.fasta</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-freyja-covariants-annot">
+<span class="sig-name descname"><span class="pre">--annot</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;annot&gt;</span></span><a class="headerlink" href="#cmdoption-freyja-covariants-annot" title="Link to this definition"></a></dt>
+<dd><p>path to gff file corresponding to reference genome. If included, outputs amino acid mutations in addition to nucleotide mutations.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-freyja-covariants-min_quality">
+<span class="sig-name descname"><span class="pre">--min_quality</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;min_quality&gt;</span></span><a class="headerlink" href="#cmdoption-freyja-covariants-min_quality" title="Link to this definition"></a></dt>
+<dd><p>minimum quality for a base to be considered</p>
+<dl class="field-list simple">
+<dt class="field-odd">Default<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">20</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-freyja-covariants-min_count">
+<span class="sig-name descname"><span class="pre">--min_count</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;min_count&gt;</span></span><a class="headerlink" href="#cmdoption-freyja-covariants-min_count" title="Link to this definition"></a></dt>
+<dd><p>minimum count for a set of mutations to be saved</p>
+<dl class="field-list simple">
+<dt class="field-odd">Default<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">10</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-freyja-covariants-spans_region">
+<span class="sig-name descname"><span class="pre">--spans_region</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-freyja-covariants-spans_region" title="Link to this definition"></a></dt>
+<dd><p>if included, consider only reads that span the region defined by (min_site, max_site)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Default<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">False</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-freyja-covariants-sort_by">
+<span class="sig-name descname"><span class="pre">--sort_by</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;sort_by&gt;</span></span><a class="headerlink" href="#cmdoption-freyja-covariants-sort_by" title="Link to this definition"></a></dt>
+<dd><p>method by which to sort covariants patterns. Set to “count” or “freq” to sort patterns by count or frequency (in descending order). Set to “site” to sort patterns by start site (n ascending order).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Default<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">count</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-freyja-covariants-threads">
+<span class="sig-name descname"><span class="pre">--threads</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;threads&gt;</span></span><a class="headerlink" href="#cmdoption-freyja-covariants-threads" title="Link to this definition"></a></dt>
+<dd><p>number of parallet processes to use. Recommended for large BAM files.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Default<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">1</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<p class="rubric">Arguments</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-freyja-covariants-arg-INPUT_BAM">
+<span class="sig-name descname"><span class="pre">INPUT_BAM</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-freyja-covariants-arg-INPUT_BAM" title="Link to this definition"></a></dt>
+<dd><p>Required argument</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-freyja-covariants-arg-MIN_SITE">
+<span class="sig-name descname"><span class="pre">MIN_SITE</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-freyja-covariants-arg-MIN_SITE" title="Link to this definition"></a></dt>
+<dd><p>Optional argument</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-freyja-covariants-arg-MAX_SITE">
+<span class="sig-name descname"><span class="pre">MAX_SITE</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-freyja-covariants-arg-MAX_SITE" title="Link to this definition"></a></dt>
+<dd><p>Optional argument</p>
+</dd></dl>
+
+</section>
+<hr class="docutils" />
+<p><strong>Example Usage:</strong></p>
+<p>In many cases, it can be useful to study covariant mutations
+(i.e. mutations co-occurring on the same read pair). This outputs to a tsv file that includes the mutations present in each
+set of covariants, their absolute counts (the number of read pairs with
+the mutations), their coverage ranges (the minimum and maximum position
+for read-pairs with the mutations), their “maximum” counts (the number
+of read pairs that span the positions in the mutations), and their
+frequencies (the absolute count divided by the maximum count). Should
+the user wish to only consider read pairs that span the entire genomic
+region defined by (min_site, max_site), they may include the
+<code class="docutils literal notranslate"><span class="pre">--spans_region</span></code> flag. By default, the covariant patterns are sorted
+in descending order by count, however they can also be sorted in
+descending order by frequency by setting the <code class="docutils literal notranslate"><span class="pre">--sort_by</span></code> option to
+“freq”, or sorted sequentially by mutation site by setting the
+<code class="docutils literal notranslate"><span class="pre">--sort_by</span></code> option to “site”. The <code class="docutils literal notranslate"><span class="pre">--ref-genome</span></code> argument defaults
+to <code class="docutils literal notranslate"><span class="pre">freyja/data/NC_045512_Hu-1.fasta</span></code>. If you are using a different
+build to perfrom alignment, it is important to pass that file in to
+<code class="docutils literal notranslate"><span class="pre">--ref-genome</span></code> instead. Optionally, a gff file
+(e.g. <code class="docutils literal notranslate"><span class="pre">freyja/data/NC_045512_Hu-1.gff</span></code>) may be included via the
+<code class="docutils literal notranslate"><span class="pre">--annot</span></code> option to output amino acid mutations alongside
+nucleotide mutations. Inclusion thresholds for read-mapping quality and
+the number of observed instances of a set of covariants can be set using
+<code class="docutils literal notranslate"><span class="pre">--min_quality</span></code> and <code class="docutils literal notranslate"><span class="pre">--min_count</span></code> respectively.</p>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="filter.html" class="btn btn-neutral float-left" title="freyja filter" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="plot-covariants.html" class="btn btn-neutral float-right" title="freyja plot-covariants" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Andersen Lab.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

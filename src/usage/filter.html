@@ -1,0 +1,190 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>freyja filter &mdash; Freyja  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="freyja covariants" href="covariants.html" />
+    <link rel="prev" title="freyja extract" href="extract.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            Freyja
+              <img src="../../_static/freyja-logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Usage:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="demix.html">freyja demix</a></li>
+<li class="toctree-l1"><a class="reference internal" href="variants.html">freyja variants</a></li>
+<li class="toctree-l1"><a class="reference internal" href="barcode-build.html">freyja barcode-build</a></li>
+<li class="toctree-l1"><a class="reference internal" href="get-lineage-def.html">freyja get-lineage-def</a></li>
+<li class="toctree-l1"><a class="reference internal" href="update.html">freyja update</a></li>
+<li class="toctree-l1"><a class="reference internal" href="boot.html">freyja boot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="aggregate.html">freyja aggregate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plot.html">freyja plot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dash.html">freyja dash</a></li>
+<li class="toctree-l1"><a class="reference internal" href="relgrowthrate.html">freyja relgrowthrate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="extract.html">freyja extract</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">freyja filter</a></li>
+<li class="toctree-l1"><a class="reference internal" href="covariants.html">freyja covariants</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plot-covariants.html">freyja plot-covariants</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Wiki:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../wiki/command_line_workflow.html">Command Line Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../wiki/cryptic_variants.html">Cryptic Variant Detection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../wiki/custom_plotting_tutorial.html">Custom Plotting Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../wiki/freyja-measles.html">Running Freyja on other pathogens - Measles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../wiki/custom-plots-with-R.html">Demix output manipulation and plotting using R</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../wiki/lineage_barcode_extract.html">Lineage Barcode Extract</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../wiki/read_analysis_tutorial.html">Read Analysis Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../wiki/terra_workflow.html">Terra Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../wiki/expanded_pathogens.html">Running Freyja on other pathogens</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Freyja</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">freyja filter</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/src/usage/filter.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="freyja-filter">
+<h1>freyja filter<a class="headerlink" href="#freyja-filter" title="Link to this heading"></a></h1>
+<p>Excludes reads from INPUT_BAM containing one or more QUERY_MUTATIONS
+between MIN_SITE and MAX_SITE (genomic coordinates)</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>freyja<span class="w"> </span>filter<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span><span class="w"> </span>QUERY_MUTATIONS<span class="w"> </span>INPUT_BAM<span class="w"> </span><span class="o">[</span>MIN_SITE<span class="o">]</span><span class="w"> </span><span class="o">[</span>MAX_SITE<span class="o">]</span>
+</pre></div>
+</div>
+<p class="rubric">Options</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-freyja-filter-output">
+<span class="sig-name descname"><span class="pre">--output</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;output&gt;</span></span><a class="headerlink" href="#cmdoption-freyja-filter-output" title="Link to this definition"></a></dt>
+<dd><p>path to save filtered reads</p>
+<dl class="field-list simple">
+<dt class="field-odd">Default<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">filtered.bam</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<p class="rubric">Arguments</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-freyja-filter-arg-QUERY_MUTATIONS">
+<span class="sig-name descname"><span class="pre">QUERY_MUTATIONS</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-freyja-filter-arg-QUERY_MUTATIONS" title="Link to this definition"></a></dt>
+<dd><p>Required argument</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-freyja-filter-arg-INPUT_BAM">
+<span class="sig-name descname"><span class="pre">INPUT_BAM</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-freyja-filter-arg-INPUT_BAM" title="Link to this definition"></a></dt>
+<dd><p>Required argument</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-freyja-filter-arg-MIN_SITE">
+<span class="sig-name descname"><span class="pre">MIN_SITE</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-freyja-filter-arg-MIN_SITE" title="Link to this definition"></a></dt>
+<dd><p>Optional argument</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-freyja-filter-arg-MAX_SITE">
+<span class="sig-name descname"><span class="pre">MAX_SITE</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-freyja-filter-arg-MAX_SITE" title="Link to this definition"></a></dt>
+<dd><p>Optional argument</p>
+</dd></dl>
+
+</section>
+<hr class="docutils" />
+<p><strong>Example Usage:</strong></p>
+<p>Excludes reads containing one or more mutations, akin to <code class="docutils literal notranslate"><span class="pre">freyja</span> <span class="pre">extract</span></code> but with the opposite effect.</p>
+<p><code class="docutils literal notranslate"><span class="pre">[min-site]</span></code> and <code class="docutils literal notranslate"><span class="pre">[max-site]</span></code> specify the range of reads to
+include. Formatting requirements for <code class="docutils literal notranslate"><span class="pre">[query-mutations.csv]</span></code> can be
+found below, where SNPs, insertions, and deletions are listed in
+separate lines.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">C75T</span><span class="p">,</span><span class="n">G230A</span><span class="p">,</span><span class="n">A543C</span>
+<span class="p">(</span><span class="mi">732</span><span class="p">:</span><span class="s1">&#39;TT&#39;</span><span class="p">),(</span><span class="mi">1349</span><span class="p">:</span><span class="s1">&#39;A&#39;</span><span class="p">),(</span><span class="mi">12333</span><span class="p">:</span><span class="s1">&#39;A&#39;</span><span class="p">)</span>
+<span class="p">(</span><span class="mi">1443</span><span class="p">:</span><span class="mi">32</span><span class="p">),(</span><span class="mi">1599</span><span class="p">:</span><span class="mi">2</span><span class="p">),(</span><span class="mi">2036</span><span class="p">:</span><span class="mi">3</span><span class="p">)</span>
+</pre></div>
+</div>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="extract.html" class="btn btn-neutral float-left" title="freyja extract" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="covariants.html" class="btn btn-neutral float-right" title="freyja covariants" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Andersen Lab.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

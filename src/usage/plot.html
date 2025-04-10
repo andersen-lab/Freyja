@@ -1,0 +1,297 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>freyja plot &mdash; Freyja  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="freyja dash" href="dash.html" />
+    <link rel="prev" title="freyja aggregate" href="aggregate.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            Freyja
+              <img src="../../_static/freyja-logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Usage:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="demix.html">freyja demix</a></li>
+<li class="toctree-l1"><a class="reference internal" href="variants.html">freyja variants</a></li>
+<li class="toctree-l1"><a class="reference internal" href="barcode-build.html">freyja barcode-build</a></li>
+<li class="toctree-l1"><a class="reference internal" href="get-lineage-def.html">freyja get-lineage-def</a></li>
+<li class="toctree-l1"><a class="reference internal" href="update.html">freyja update</a></li>
+<li class="toctree-l1"><a class="reference internal" href="boot.html">freyja boot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="aggregate.html">freyja aggregate</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">freyja plot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dash.html">freyja dash</a></li>
+<li class="toctree-l1"><a class="reference internal" href="relgrowthrate.html">freyja relgrowthrate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="extract.html">freyja extract</a></li>
+<li class="toctree-l1"><a class="reference internal" href="filter.html">freyja filter</a></li>
+<li class="toctree-l1"><a class="reference internal" href="covariants.html">freyja covariants</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plot-covariants.html">freyja plot-covariants</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Wiki:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../wiki/command_line_workflow.html">Command Line Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../wiki/cryptic_variants.html">Cryptic Variant Detection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../wiki/custom_plotting_tutorial.html">Custom Plotting Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../wiki/freyja-measles.html">Running Freyja on other pathogens - Measles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../wiki/custom-plots-with-R.html">Demix output manipulation and plotting using R</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../wiki/lineage_barcode_extract.html">Lineage Barcode Extract</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../wiki/read_analysis_tutorial.html">Read Analysis Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../wiki/terra_workflow.html">Terra Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../wiki/expanded_pathogens.html">Running Freyja on other pathogens</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Freyja</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">freyja plot</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/src/usage/plot.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="freyja-plot">
+<h1>freyja plot<a class="headerlink" href="#freyja-plot" title="Link to this heading"></a></h1>
+<p>Create plot from AGG_RESULTS</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>freyja<span class="w"> </span>plot<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span><span class="w"> </span>AGG_RESULTS
+</pre></div>
+</div>
+<p class="rubric">Options</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-freyja-plot-lineages">
+<span class="sig-name descname"><span class="pre">--lineages</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-freyja-plot-lineages" title="Link to this definition"></a></dt>
+<dd><p>modify lineage breakdown</p>
+<dl class="field-list simple">
+<dt class="field-odd">Default<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">False</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-freyja-plot-times">
+<span class="sig-name descname"><span class="pre">--times</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;times&gt;</span></span><a class="headerlink" href="#cmdoption-freyja-plot-times" title="Link to this definition"></a></dt>
+<dd><p>provide sample collection information,check data/times_metadata.csv for additional information</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-freyja-plot-interval">
+<span class="sig-name descname"><span class="pre">--interval</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;interval&gt;</span></span><a class="headerlink" href="#cmdoption-freyja-plot-interval" title="Link to this definition"></a></dt>
+<dd><p>define whether the intervals are calculated daily D or monthly M use with –windowsize</p>
+<dl class="field-list simple">
+<dt class="field-odd">Default<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">MS</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-freyja-plot-config">
+<span class="sig-name descname"><span class="pre">--config</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;config&gt;</span></span><a class="headerlink" href="#cmdoption-freyja-plot-config" title="Link to this definition"></a></dt>
+<dd><p>allows users to control the colors and grouping of lineages in the plot</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-freyja-plot-mincov">
+<span class="sig-name descname"><span class="pre">--mincov</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;mincov&gt;</span></span><a class="headerlink" href="#cmdoption-freyja-plot-mincov" title="Link to this definition"></a></dt>
+<dd><p>min genome coverage included</p>
+<dl class="field-list simple">
+<dt class="field-odd">Default<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">60.0</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-freyja-plot-output">
+<span class="sig-name descname"><span class="pre">--output</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;output&gt;</span></span><a class="headerlink" href="#cmdoption-freyja-plot-output" title="Link to this definition"></a></dt>
+<dd><p>specify output file name</p>
+<dl class="field-list simple">
+<dt class="field-odd">Default<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">mix_plot.pdf</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-freyja-plot-windowsize">
+<span class="sig-name descname"><span class="pre">--windowsize</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;windowsize&gt;</span></span><a class="headerlink" href="#cmdoption-freyja-plot-windowsize" title="Link to this definition"></a></dt>
+<dd><p>width of the rolling average windowfor interval calculation</p>
+<dl class="field-list simple">
+<dt class="field-odd">Default<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">14</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-freyja-plot-lineageyml">
+<span class="sig-name descname"><span class="pre">--lineageyml</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;lineageyml&gt;</span></span><a class="headerlink" href="#cmdoption-freyja-plot-lineageyml" title="Link to this definition"></a></dt>
+<dd><p>Custom lineage hierarchy file</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-freyja-plot-thresh">
+<span class="sig-name descname"><span class="pre">--thresh</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;thresh&gt;</span></span><a class="headerlink" href="#cmdoption-freyja-plot-thresh" title="Link to this definition"></a></dt>
+<dd><p>pass a minimum lineage abundance</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-freyja-plot-writegrouped">
+<span class="sig-name descname"><span class="pre">--writegrouped</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;writegrouped&gt;</span></span><a class="headerlink" href="#cmdoption-freyja-plot-writegrouped" title="Link to this definition"></a></dt>
+<dd><p>path to write grouped lineage data</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-freyja-plot-pathogen">
+<span class="sig-name descname"><span class="pre">--pathogen</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;pathogen&gt;</span></span><a class="headerlink" href="#cmdoption-freyja-plot-pathogen" title="Link to this definition"></a></dt>
+<dd><p>Pathogen of interest.Not used if using –lineageyml option.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Default<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">SARS-CoV-2</span></code></p>
+</dd>
+<dt class="field-even">Options<span class="colon">:</span></dt>
+<dd class="field-even"><p>SARS-CoV-2 | MPXV | H5NX | H5NX-cattle | H1N1pdm | FLU-B-VIC | MEASLESN450 | MEASLES | RSVa | RSVb</p>
+</dd>
+</dl>
+</dd></dl>
+
+<p class="rubric">Arguments</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-freyja-plot-arg-AGG_RESULTS">
+<span class="sig-name descname"><span class="pre">AGG_RESULTS</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-freyja-plot-arg-AGG_RESULTS" title="Link to this definition"></a></dt>
+<dd><p>Required argument</p>
+</dd></dl>
+
+</section>
+<hr class="docutils" />
+<p><strong>Example Usage:</strong></p>
+<p>This resulting aggregated data can analyzed directly as a tsv file, or
+can be visualized using</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">freyja</span> <span class="n">plot</span> <span class="p">[</span><span class="n">aggregated</span><span class="o">-</span><span class="n">filename</span><span class="o">-</span><span class="n">tsv</span><span class="p">]</span> <span class="o">--</span><span class="n">output</span> <span class="p">[</span><span class="n">plot</span><span class="o">-</span><span class="n">filename</span><span class="p">(</span><span class="o">.</span><span class="n">pdf</span><span class="p">,</span><span class="o">.</span><span class="n">png</span><span class="p">,</span><span class="n">etc</span><span class="o">.</span><span class="p">)]</span>
+</pre></div>
+</div>
+<p>which provides a fractional abundance estimate for all aggregated
+samples. To provide a specific lineage breakdown, the <code class="docutils literal notranslate"><span class="pre">--lineages</span></code>
+flag can be used. We now provide a
+<code class="docutils literal notranslate"><span class="pre">--config</span> <span class="pre">[path-to-plot-config-file]</span></code> option that allows users to
+control the colors and grouping of lineages in the plot. The <a class="reference external" href="freyja/data/plot_config.yml">plot
+config file</a> is a yaml file. More
+information about the plot config file can be found in the <a class="reference external" href="freyja/data/plot_config.yml">sample
+config file</a>. Example outputs:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p><strong>Summarized</strong></p></th>
+<th class="head"><p><strong>Lineage-Specific</strong></p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><img alt="testSummary" src="../../_images/testSummary.png" /></p></td>
+<td><p><img alt="test0" src="../../_images/test0.png" /></p></td>
+</tr>
+</tbody>
+</table>
+<p>If users wish to include sample collection time information, this can be
+done using</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>freyja plot [aggregated-filename-tsv] --output [plot-filename(.pdf,.png,etc.)] --times [times_metadata.csv(note csv!)] --interval [MS or D (month/day bins)] --lineageyml [path-to-lineage.yml-file]
+</pre></div>
+</div>
+<p>A custom lineage hierarchy file can be provided using <code class="docutils literal notranslate"><span class="pre">--lineageyml</span></code>
+option for visualization purposes. When using the <code class="docutils literal notranslate"><span class="pre">--interval</span> <span class="pre">D</span></code>
+option, the <code class="docutils literal notranslate"><span class="pre">--windowsize</span> <span class="pre">NN</span></code> should also be specified, where <code class="docutils literal notranslate"><span class="pre">NN</span></code>
+is the width of the rolling average window. See
+<code class="docutils literal notranslate"><span class="pre">freyja/data/times_metadata.csv</span></code> for an example collection time
+metadata file. Example outputs:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p><strong>Month binning</strong></p></th>
+<th class="head"><p><strong>Daily binning (with smoothing)</strong></p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><img alt="test2" src="../../_images/test2.png" /></p></td>
+<td><p><img alt="test" src="../../_images/test.png" /></p></td>
+</tr>
+</tbody>
+</table>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="aggregate.html" class="btn btn-neutral float-left" title="freyja aggregate" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="dash.html" class="btn btn-neutral float-right" title="freyja dash" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Andersen Lab.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

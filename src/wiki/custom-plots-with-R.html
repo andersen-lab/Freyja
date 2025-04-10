@@ -1,0 +1,288 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Demix output manipulation and plotting using R &mdash; Freyja  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Lineage Barcode Extract" href="lineage_barcode_extract.html" />
+    <link rel="prev" title="Running Freyja on other pathogens - Measles" href="freyja-measles.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            Freyja
+              <img src="../../_static/freyja-logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Usage:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/demix.html">freyja demix</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/variants.html">freyja variants</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/barcode-build.html">freyja barcode-build</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/get-lineage-def.html">freyja get-lineage-def</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/update.html">freyja update</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/boot.html">freyja boot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/aggregate.html">freyja aggregate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/plot.html">freyja plot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/dash.html">freyja dash</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/relgrowthrate.html">freyja relgrowthrate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/extract.html">freyja extract</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/filter.html">freyja filter</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/covariants.html">freyja covariants</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/plot-covariants.html">freyja plot-covariants</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Wiki:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="command_line_workflow.html">Command Line Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cryptic_variants.html">Cryptic Variant Detection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="custom_plotting_tutorial.html">Custom Plotting Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="freyja-measles.html">Running Freyja on other pathogens - Measles</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Demix output manipulation and plotting using R</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lineage_barcode_extract.html">Lineage Barcode Extract</a></li>
+<li class="toctree-l1"><a class="reference internal" href="read_analysis_tutorial.html">Read Analysis Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="terra_workflow.html">Terra Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="expanded_pathogens.html">Running Freyja on other pathogens</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Freyja</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Demix output manipulation and plotting using R</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/src/wiki/custom-plots-with-R.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="demix-output-manipulation-and-plotting-using-r">
+<h1>Demix output manipulation and plotting using R<a class="headerlink" href="#demix-output-manipulation-and-plotting-using-r" title="Link to this heading"></a></h1>
+<p>Here we discuss freyja <code class="docutils literal notranslate"><span class="pre">demix</span></code> output manipulation and plotting using R programming
+language.</p>
+<ol class="arabic simple">
+<li><p>Change freyja <code class="docutils literal notranslate"><span class="pre">demix</span></code> output to a dataframe format.</p></li>
+</ol>
+<div class="highlight-R notranslate"><div class="highlight"><pre><span></span><span class="nf">library</span><span class="p">(</span><span class="n">data.table</span><span class="p">)</span>
+<span class="nf">library</span><span class="p">(</span><span class="n">tidyverse</span><span class="p">)</span>
+<span class="nf">library</span><span class="p">(</span><span class="n">lubridate</span><span class="p">)</span>
+<span class="nf">library</span><span class="p">(</span><span class="n">runner</span><span class="p">)</span>
+<span class="c1"># Code credit for parsing the demix output: https://github.com/a-roguet</span>
+
+<span class="n">results</span><span class="o">&lt;-</span><span class="nf">read.table</span><span class="p">(</span><span class="s">&quot;test_sweep.tsv&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">fill</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">TRUE</span><span class="p">,</span><span class="w"> </span><span class="n">sep</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;\t&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">h</span><span class="o">=</span><span class="bp">T</span><span class="p">)</span>
+<span class="n">results</span><span class="o">&lt;-</span><span class="nf">as.data.frame</span><span class="p">(</span><span class="nf">sapply</span><span class="p">(</span><span class="n">results</span><span class="p">,</span><span class="w"> </span><span class="kr">function</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="nf">str_replace_all</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;[&#39;,()\\]\\[]&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;&quot;</span><span class="p">)))</span><span class="w"> </span><span class="c1"># Removed the unwanted character: [], () and commas</span>
+<span class="n">results</span><span class="o">&lt;-</span><span class="nf">as.data.frame</span><span class="p">(</span><span class="nf">sapply</span><span class="p">(</span><span class="n">results</span><span class="p">,</span><span class="w"> </span><span class="kr">function</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="nf">trimws</span><span class="p">(</span><span class="nf">gsub</span><span class="p">(</span><span class="s">&quot;\\s+&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot; &quot;</span><span class="p">,</span><span class="w"> </span><span class="n">x</span><span class="p">))))</span><span class="w"> </span><span class="c1"># Removed double spaces</span>
+
+<span class="c1"># Summarized data</span>
+<span class="n">summarized</span><span class="o">&lt;-</span><span class="nf">as.data.frame</span><span class="p">(</span><span class="nf">setDT</span><span class="p">(</span><span class="nf">tstrsplit</span><span class="p">(</span><span class="nf">as.character</span><span class="p">(</span><span class="n">results</span><span class="o">$</span><span class="n">summarized</span><span class="p">),</span><span class="w"> </span><span class="s">&quot; &quot;</span><span class="p">,</span><span class="w"> </span><span class="n">fixed</span><span class="o">=</span><span class="kc">TRUE</span><span class="p">))[])</span><span class="w"> </span><span class="c1"># Extract Summarized data</span>
+<span class="n">summarized</span><span class="o">$</span><span class="n">sample</span><span class="o">&lt;-</span><span class="n">results</span><span class="o">$</span><span class="n">X</span>
+
+<span class="kr">for</span><span class="p">(</span><span class="n">i</span><span class="w"> </span><span class="kr">in</span><span class="w"> </span><span class="m">1</span><span class="o">:</span><span class="p">((</span><span class="nf">ncol</span><span class="p">(</span><span class="n">summarized</span><span class="p">)</span><span class="m">-1</span><span class="p">)</span><span class="o">/</span><span class="m">2</span><span class="p">)){</span>
+<span class="w">  </span><span class="kr">if</span><span class="p">(</span><span class="n">i</span><span class="o">==</span><span class="m">1</span><span class="p">){</span>
+<span class="w">    </span><span class="n">summarized.final</span><span class="o">&lt;-</span><span class="n">summarized</span><span class="p">[,</span><span class="nf">c</span><span class="p">(</span><span class="nf">ncol</span><span class="p">(</span><span class="n">summarized</span><span class="p">),</span><span class="m">1</span><span class="o">:</span><span class="m">2</span><span class="p">)]</span>
+<span class="w">  </span><span class="p">}</span><span class="w"> </span><span class="kr">else</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">start</span><span class="o">=</span><span class="n">i</span><span class="o">*</span><span class="m">2-1</span><span class="p">;</span><span class="w"> </span><span class="n">end</span><span class="o">=</span><span class="n">i</span><span class="o">*</span><span class="m">2</span>
+<span class="w">    </span><span class="n">summarized.final</span><span class="o">&lt;-</span><span class="nf">rbind</span><span class="p">(</span><span class="n">summarized.final</span><span class="p">,</span><span class="w"> </span><span class="nf">setNames</span><span class="p">(</span><span class="n">summarized</span><span class="p">[,</span><span class="nf">c</span><span class="p">(</span><span class="nf">ncol</span><span class="p">(</span><span class="n">summarized</span><span class="p">),</span><span class="w"> </span><span class="n">start</span><span class="o">:</span><span class="n">end</span><span class="p">)],</span><span class="w"> </span><span class="nf">names</span><span class="p">(</span><span class="n">summarized.final</span><span class="p">)))</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+<span class="n">summarized.final</span><span class="o">&lt;-</span><span class="n">summarized.final</span><span class="p">[</span><span class="nf">complete.cases</span><span class="p">(</span><span class="n">summarized.final</span><span class="p">),</span><span class="w"> </span><span class="p">]</span>
+<span class="nf">names</span><span class="p">(</span><span class="n">summarized.final</span><span class="p">)</span><span class="o">&lt;-</span><span class="nf">c</span><span class="p">(</span><span class="s">&quot;Sample&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;lineage&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;abundance&quot;</span><span class="p">)</span>
+
+
+<span class="c1"># Sublineages data</span>
+<span class="kr">for</span><span class="p">(</span><span class="n">i</span><span class="w"> </span><span class="kr">in</span><span class="w"> </span><span class="m">1</span><span class="o">:</span><span class="nf">nrow</span><span class="p">(</span><span class="n">results</span><span class="p">)){</span>
+<span class="w">  </span><span class="n">lineages.temp</span><span class="o">&lt;-</span><span class="nf">as.data.frame</span><span class="p">(</span><span class="nf">t</span><span class="p">(</span><span class="nf">setDT</span><span class="p">(</span><span class="nf">tstrsplit</span><span class="p">(</span><span class="nf">as.character</span><span class="p">(</span><span class="n">results</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="m">3</span><span class="p">]),</span><span class="w"> </span><span class="s">&quot; &quot;</span><span class="p">,</span><span class="w"> </span><span class="n">fixed</span><span class="o">=</span><span class="kc">TRUE</span><span class="p">))[]))</span>
+<span class="w">  </span><span class="n">abundances.temp</span><span class="o">&lt;-</span><span class="nf">as.data.frame</span><span class="p">(</span><span class="nf">t</span><span class="p">(</span><span class="nf">setDT</span><span class="p">(</span><span class="nf">tstrsplit</span><span class="p">(</span><span class="nf">as.character</span><span class="p">(</span><span class="n">results</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="m">4</span><span class="p">]),</span><span class="w"> </span><span class="s">&quot; &quot;</span><span class="p">,</span><span class="w"> </span><span class="n">fixed</span><span class="o">=</span><span class="kc">TRUE</span><span class="p">))[]))</span>
+<span class="w">  </span><span class="n">sample.temp</span><span class="o">&lt;-</span><span class="nf">rep</span><span class="p">(</span><span class="n">results</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="m">1</span><span class="p">],</span><span class="w"> </span><span class="nf">nrow</span><span class="p">(</span><span class="n">lineages.temp</span><span class="p">))</span>
+<span class="w">  </span><span class="kr">if</span><span class="p">(</span><span class="n">i</span><span class="o">==</span><span class="m">1</span><span class="p">){</span>
+<span class="w">    </span><span class="n">sublineages.final</span><span class="o">&lt;-</span><span class="nf">cbind</span><span class="p">(</span><span class="n">sample.temp</span><span class="p">,</span><span class="w"> </span><span class="n">lineages.temp</span><span class="p">,</span><span class="w"> </span><span class="n">abundances.temp</span><span class="p">)</span>
+<span class="w">  </span><span class="p">}</span><span class="w"> </span><span class="kr">else</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">sublineages.final</span><span class="o">&lt;-</span><span class="nf">rbind</span><span class="p">(</span><span class="n">sublineages.final</span><span class="p">,</span><span class="w"> </span><span class="nf">cbind</span><span class="p">(</span><span class="n">sample.temp</span><span class="p">,</span><span class="w"> </span><span class="n">lineages.temp</span><span class="p">,</span><span class="w"> </span><span class="n">abundances.temp</span><span class="p">))</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+<span class="nf">names</span><span class="p">(</span><span class="n">sublineages.final</span><span class="p">)</span><span class="o">&lt;-</span><span class="nf">c</span><span class="p">(</span><span class="s">&quot;Sample&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;sublineage&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;abundance&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="2">
+<li><p>Read in time metadata information and merge it with abundance dataframe</p></li>
+</ol>
+<div class="highlight-R notranslate"><div class="highlight"><pre><span></span><span class="n">time_metadata</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nf">fread</span><span class="p">(</span><span class="s">&quot;sweep_metadata.csv&quot;</span><span class="p">)</span>
+<span class="n">combined_lineage_abundance_time_data</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">time_metadata</span><span class="w"> </span><span class="o">%&gt;%</span>
+<span class="w">  </span><span class="nf">inner_join</span><span class="p">(</span><span class="n">summarized.final</span><span class="p">,</span><span class="w"> </span><span class="n">by</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;Sample&quot;</span><span class="p">)</span>
+<span class="n">combined_sublineage_abundance_time_data</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">time_metadata</span><span class="w"> </span><span class="o">%&gt;%</span>
+<span class="w">  </span><span class="nf">inner_join</span><span class="p">(</span><span class="n">sublineages.final</span><span class="p">,</span><span class="w"> </span><span class="n">by</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;Sample&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>Optional: you can also add custom lineage grouping as following:</p></li>
+</ul>
+<div class="highlight-R notranslate"><div class="highlight"><pre><span></span><span class="c1"># get rows with sub-lineage value starting with &quot;AY&quot;</span>
+<span class="n">sublin_grouping</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">combined_sublineage_abundance_time_data</span><span class="w"> </span><span class="o">%&gt;%</span>
+<span class="w">  </span><span class="nf">filter</span><span class="p">(</span><span class="nf">str_detect</span><span class="p">(</span><span class="n">sublineage</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;^AY&quot;</span><span class="p">))</span>
+<span class="c1"># Add a grouping column</span>
+<span class="n">sublin_grouping</span><span class="o">$</span><span class="n">grouping</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="s">&quot;AY.X&quot;</span>
+<span class="c1"># get rows with sub-lineage value not starting with &quot;AY&quot;</span>
+<span class="n">other_sublineages</span><span class="w"> </span><span class="o">&lt;-</span><span class="n">combined_sublineage_abundance_time_data</span><span class="w"> </span><span class="o">%&gt;%</span>
+<span class="w">  </span><span class="nf">filter</span><span class="p">(</span><span class="o">!</span><span class="nf">str_detect</span><span class="p">(</span><span class="n">sublineage</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;^AY&quot;</span><span class="p">))</span>
+<span class="c1"># Add a grouping column</span>
+<span class="n">other_sublineages</span><span class="o">$</span><span class="n">grouping</span><span class="w"> </span><span class="o">&lt;-</span><span class="s">&quot;other&quot;</span>
+<span class="c1"># Merge the two dataframes</span>
+<span class="n">grouped_sublineage_data</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nf">rbind</span><span class="p">(</span><span class="n">sublin_grouping</span><span class="p">,</span><span class="n">other_sublineages</span><span class="p">)</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="3">
+<li><p>Create Variant prevalence stacked bar plots grouped by month intervals</p></li>
+</ol>
+<div class="highlight-R notranslate"><div class="highlight"><pre><span></span><span class="n">combined_lineage_abundance_time_data</span><span class="w"> </span><span class="o">%&gt;%</span>
+<span class="w"> </span><span class="nf">mutate</span><span class="p">(</span><span class="n">month</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">as.factor</span><span class="p">(</span><span class="nf">month</span><span class="p">(</span><span class="nf">mdy</span><span class="p">(</span><span class="n">sample_collection_datetime</span><span class="p">),</span><span class="n">abbr</span><span class="o">=</span><span class="kc">TRUE</span><span class="p">,</span><span class="n">label</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">TRUE</span><span class="p">)))</span><span class="o">%&gt;%</span>
+<span class="w"> </span><span class="nf">mutate</span><span class="p">(</span><span class="n">abundance</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">as.numeric</span><span class="p">(</span><span class="n">abundance</span><span class="p">))</span><span class="o">%&gt;%</span>
+<span class="w"> </span><span class="nf">group_by</span><span class="p">(</span><span class="n">lineage</span><span class="p">,</span><span class="n">month</span><span class="p">)</span><span class="o">%&gt;%</span>
+<span class="w"> </span><span class="nf">summarise</span><span class="p">(</span><span class="n">mean_monthly_abundance</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">mean</span><span class="p">(</span><span class="n">abundance</span><span class="p">))</span><span class="w"> </span><span class="o">%&gt;%</span>
+<span class="w">  </span><span class="nf">ggplot</span><span class="p">(</span><span class="n">grouped_interval_lineage</span><span class="p">,</span>
+<span class="w">         </span><span class="n">mapping</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">aes</span><span class="p">(</span><span class="n">fill</span><span class="o">=</span><span class="w"> </span><span class="n">lineage</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="o">=</span><span class="n">mean_monthly_abundance</span><span class="p">,</span><span class="w"> </span><span class="n">x</span><span class="o">=</span><span class="n">month</span><span class="p">))</span><span class="w"> </span><span class="o">+</span>
+<span class="w">  </span><span class="nf">geom_bar</span><span class="p">(</span><span class="n">position</span><span class="o">=</span><span class="s">&quot;fill&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">stat</span><span class="o">=</span><span class="s">&quot;identity&quot;</span><span class="p">)</span><span class="w"> </span><span class="o">+</span>
+<span class="w">  </span><span class="nf">theme_minimal</span><span class="p">()</span><span class="w"> </span><span class="o">+</span><span class="nf">ylab</span><span class="p">(</span><span class="s">&quot;Variant Prevalence&quot;</span><span class="p">)</span><span class="w"> </span><span class="o">+</span>
+<span class="w">  </span><span class="nf">ggtitle</span><span class="p">(</span><span class="s">&quot;Variant prevalence per month&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><img alt="month_var_prev" src="../../_images/variant_prevalence_monthly.png" /></p>
+<ol class="arabic simple" start="4">
+<li><p>Create lineage prevalence stacked bar plots grouped by month interval</p></li>
+</ol>
+<div class="highlight-R notranslate"><div class="highlight"><pre><span></span><span class="n">combined_sublineage_abundance_time_data</span><span class="w"> </span><span class="o">%&gt;%</span>
+<span class="nf">mutate</span><span class="p">(</span><span class="n">month</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">as.factor</span><span class="p">(</span><span class="nf">month</span><span class="p">(</span><span class="nf">mdy</span><span class="p">(</span><span class="n">sample_collection_datetime</span><span class="p">),</span><span class="n">abbr</span><span class="o">=</span><span class="kc">TRUE</span><span class="p">,</span><span class="n">label</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">TRUE</span><span class="p">)))</span><span class="o">%&gt;%</span>
+<span class="nf">mutate</span><span class="p">(</span><span class="n">month</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">as.factor</span><span class="p">(</span><span class="n">month</span><span class="p">))</span><span class="w"> </span><span class="o">%&gt;%</span>
+<span class="nf">mutate</span><span class="p">(</span><span class="n">abundance</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">as.numeric</span><span class="p">(</span><span class="n">abundance</span><span class="p">))</span><span class="o">%&gt;%</span>
+<span class="w">  </span><span class="nf">filter</span><span class="p">(</span><span class="n">abundance</span><span class="w"> </span><span class="o">&gt;</span><span class="m">0.01</span><span class="p">)</span><span class="o">%&gt;%</span>
+<span class="nf">group_by</span><span class="p">(</span><span class="n">sublineage</span><span class="p">,</span><span class="n">month</span><span class="p">)</span><span class="o">%&gt;%</span>
+<span class="nf">summarise</span><span class="p">(</span><span class="n">mean_monthly_abundance</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">mean</span><span class="p">(</span><span class="n">abundance</span><span class="p">))</span><span class="o">%&gt;%</span>
+<span class="nf">ggplot</span><span class="p">(</span><span class="n">grouped_interval_sublineage</span><span class="p">,</span>
+<span class="w">       </span><span class="n">mapping</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">aes</span><span class="p">(</span><span class="n">fill</span><span class="o">=</span><span class="n">sublineage</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="o">=</span><span class="n">mean_monthly_abundance</span><span class="p">,</span><span class="w"> </span><span class="n">x</span><span class="o">=</span><span class="n">month</span><span class="p">))</span><span class="w"> </span><span class="o">+</span>
+<span class="nf">geom_bar</span><span class="p">(</span><span class="n">position</span><span class="o">=</span><span class="s">&quot;fill&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">stat</span><span class="o">=</span><span class="s">&quot;identity&quot;</span><span class="p">)</span><span class="w"> </span><span class="o">+</span>
+<span class="w">  </span><span class="nf">theme_minimal</span><span class="p">()</span><span class="w"> </span><span class="o">+</span><span class="nf">ylab</span><span class="p">(</span><span class="s">&quot;Variant Prevalence&quot;</span><span class="p">)</span><span class="w"> </span><span class="o">+</span>
+<span class="nf">ggtitle</span><span class="p">(</span><span class="s">&quot;Lineage prevalence per month&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><img alt="month_lineage_prev" src="../../_images/lineage_prevalence_monthly.png" /></p>
+<ol class="arabic simple" start="5">
+<li><p>Create variant prevalence per sample stacked bar plot</p></li>
+</ol>
+<div class="highlight-R notranslate"><div class="highlight"><pre><span></span><span class="n">combined_lineage_abundance_time_data</span><span class="w"> </span><span class="o">%&gt;%</span>
+<span class="w">  </span><span class="nf">mutate</span><span class="p">(</span><span class="n">abundance</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">as.numeric</span><span class="p">(</span><span class="n">abundance</span><span class="p">))</span><span class="o">%&gt;%</span>
+<span class="w">  </span><span class="nf">group_by</span><span class="p">(</span><span class="n">lineage</span><span class="p">,</span><span class="w"> </span><span class="n">Sample</span><span class="p">)</span><span class="o">%&gt;%</span>
+<span class="w">  </span><span class="nf">summarise</span><span class="p">(</span><span class="n">mean_sample_abundance</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">mean</span><span class="p">(</span><span class="n">abundance</span><span class="p">))</span><span class="w"> </span><span class="o">%&gt;%</span>
+<span class="w">  </span><span class="nf">ggplot</span><span class="p">(</span><span class="n">grouped_interval_lineage</span><span class="p">,</span>
+<span class="w">         </span><span class="n">mapping</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">aes</span><span class="p">(</span><span class="n">fill</span><span class="o">=</span><span class="w"> </span><span class="n">lineage</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="o">=</span><span class="n">mean_sample_abundance</span><span class="p">,</span><span class="w"> </span><span class="n">x</span><span class="o">=</span><span class="n">Sample</span><span class="p">))</span><span class="w"> </span><span class="o">+</span>
+<span class="w">  </span><span class="nf">geom_bar</span><span class="p">(</span><span class="n">position</span><span class="o">=</span><span class="s">&quot;fill&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">stat</span><span class="o">=</span><span class="s">&quot;identity&quot;</span><span class="p">)</span><span class="w"> </span><span class="o">+</span>
+<span class="w">  </span><span class="nf">theme_minimal</span><span class="p">()</span><span class="w"> </span><span class="o">+</span><span class="nf">ylab</span><span class="p">(</span><span class="s">&quot;Variant Prevalence&quot;</span><span class="p">)</span><span class="w"> </span><span class="o">+</span>
+<span class="w">  </span><span class="nf">ggtitle</span><span class="p">(</span><span class="s">&quot;variant prevalence&quot;</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nf">theme</span><span class="p">(</span><span class="n">axis.text.x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">element_text</span><span class="p">(</span><span class="n">angle</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">45</span><span class="p">))</span>
+</pre></div>
+</div>
+<p><img alt="sample_var_prev" src="../../_images/variant_prevalence_sample.png" /></p>
+<ol class="arabic simple" start="6">
+<li><p>Create lineage prevalence per sample stacked bar plot</p></li>
+</ol>
+<div class="highlight-R notranslate"><div class="highlight"><pre><span></span><span class="n">combined_sublineage_abundance_time_data</span><span class="w"> </span><span class="o">%&gt;%</span>
+<span class="w">  </span><span class="nf">mutate</span><span class="p">(</span><span class="n">abundance</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">as.numeric</span><span class="p">(</span><span class="n">abundance</span><span class="p">))</span><span class="o">%&gt;%</span>
+<span class="w">  </span><span class="nf">filter</span><span class="p">(</span><span class="n">abundance</span><span class="w"> </span><span class="o">&gt;</span><span class="m">0.01</span><span class="p">)</span><span class="o">%&gt;%</span>
+<span class="w">  </span><span class="nf">group_by</span><span class="p">(</span><span class="n">sublineage</span><span class="p">,</span><span class="n">Sample</span><span class="p">)</span><span class="o">%&gt;%</span>
+<span class="w">  </span><span class="nf">summarise</span><span class="p">(</span><span class="n">mean_sample_abundance</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">mean</span><span class="p">(</span><span class="n">abundance</span><span class="p">))</span><span class="o">%&gt;%</span>
+<span class="w">  </span><span class="nf">ggplot</span><span class="p">(</span><span class="n">grouped_interval_sublineage</span><span class="p">,</span>
+<span class="w">         </span><span class="n">mapping</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">aes</span><span class="p">(</span><span class="n">fill</span><span class="o">=</span><span class="n">sublineage</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="o">=</span><span class="n">mean_sample_abundance</span><span class="p">,</span><span class="w"> </span><span class="n">x</span><span class="o">=</span><span class="n">Sample</span><span class="p">))</span><span class="w"> </span><span class="o">+</span>
+<span class="w">  </span><span class="nf">geom_bar</span><span class="p">(</span><span class="n">position</span><span class="o">=</span><span class="s">&quot;fill&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">stat</span><span class="o">=</span><span class="s">&quot;identity&quot;</span><span class="p">)</span><span class="w"> </span><span class="o">+</span>
+<span class="w">  </span><span class="nf">theme_minimal</span><span class="p">()</span><span class="w"> </span><span class="o">+</span><span class="nf">ylab</span><span class="p">(</span><span class="s">&quot;lineage Prevalence&quot;</span><span class="p">)</span><span class="w"> </span><span class="o">+</span>
+<span class="w">  </span><span class="nf">ggtitle</span><span class="p">(</span><span class="s">&quot;lineage prevalence&quot;</span><span class="p">)</span><span class="o">+</span><span class="w"> </span><span class="nf">theme</span><span class="p">(</span><span class="n">axis.text.x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">element_text</span><span class="p">(</span><span class="n">angle</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">45</span><span class="p">))</span>
+</pre></div>
+</div>
+<p><img alt="sample_lin_prev" src="../../_images/lineage_prevalence_sample.png" /></p>
+<ol class="arabic simple" start="7">
+<li><p>Create stacked area plot showing variant prevalence based on moving average of three days</p></li>
+</ol>
+<div class="highlight-R notranslate"><div class="highlight"><pre><span></span><span class="n">combined_lineage_abundance_time_data</span><span class="w"> </span><span class="o">%&gt;%</span>
+<span class="w">  </span><span class="nf">mutate</span><span class="p">(</span><span class="n">sample_collection_datetime</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">mdy</span><span class="p">(</span><span class="n">sample_collection_datetime</span><span class="p">))</span><span class="w"> </span><span class="o">%&gt;%</span>
+<span class="w">  </span><span class="nf">mutate</span><span class="p">(</span><span class="n">abundance</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">as.numeric</span><span class="p">(</span><span class="n">abundance</span><span class="p">))</span><span class="o">%&gt;%</span>
+<span class="w">  </span><span class="nf">group_by</span><span class="p">(</span><span class="n">lineage</span><span class="p">)</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w"> </span><span class="nf">arrange</span><span class="p">(</span><span class="n">sample_collection_datetime</span><span class="p">)</span><span class="w"> </span><span class="o">%&gt;%</span>
+<span class="w">  </span><span class="nf">mutate</span><span class="p">(</span><span class="n">mov_avg_abun</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">mean_run</span><span class="p">(</span><span class="n">abundance</span><span class="p">,</span><span class="w"> </span><span class="n">k</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">3</span><span class="p">,</span><span class="w"> </span><span class="n">lag</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="n">idx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">as.Date</span><span class="p">(</span><span class="n">sample_collection_datetime</span><span class="p">)))</span><span class="w"> </span><span class="o">%&gt;%</span>
+<span class="w">  </span><span class="nf">ggplot</span><span class="p">(</span><span class="nf">aes</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">sample_collection_datetime</span><span class="p">,</span><span class="n">y</span><span class="o">=</span><span class="n">mov_avg_abun</span><span class="p">,</span><span class="n">group</span><span class="o">=</span><span class="n">lineage</span><span class="p">,</span><span class="n">fill</span><span class="o">=</span><span class="n">lineage</span><span class="p">))</span><span class="w"> </span><span class="o">+</span>
+<span class="w">  </span><span class="nf">geom_area</span><span class="p">(</span><span class="n">position</span><span class="o">=</span><span class="s">&quot;fill&quot;</span><span class="p">)</span><span class="o">+</span><span class="w"> </span><span class="nf">theme_minimal</span><span class="p">()</span><span class="w"> </span><span class="o">+</span><span class="nf">ylab</span><span class="p">(</span><span class="s">&quot;Variant Prevalence&quot;</span><span class="p">)</span><span class="o">+</span>
+<span class="w">  </span><span class="nf">xlab</span><span class="p">(</span><span class="s">&quot;Sample collection date&quot;</span><span class="p">)</span><span class="o">+</span><span class="w">  </span><span class="nf">ggtitle</span><span class="p">(</span><span class="s">&quot;Smooted variant prevalence plot with window size of 3 days&quot;</span><span class="p">)</span><span class="w"> </span><span class="o">+</span>
+<span class="w">  </span><span class="nf">theme</span><span class="p">(</span><span class="n">axis.text.x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">element_text</span><span class="p">(</span><span class="n">angle</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">45</span><span class="p">))</span>
+</pre></div>
+</div>
+<p><img alt="stacked_area" src="../../_images/stacked_area_plot.png" /></p>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="freyja-measles.html" class="btn btn-neutral float-left" title="Running Freyja on other pathogens - Measles" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="lineage_barcode_extract.html" class="btn btn-neutral float-right" title="Lineage Barcode Extract" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Andersen Lab.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
