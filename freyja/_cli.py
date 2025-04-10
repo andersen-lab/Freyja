@@ -281,7 +281,7 @@ def update(outdir, noncl, buildlocal, pathogen):
 @cli.command()
 @click.option('--pb', type=click.Path(exists=True),
               help='protobuf tree', show_default=True)
-@click.option('--outdir', type=click.Path(exists=True),
+@click.option('--outdir', type=click.Path(exists=False),
               help='Output directory save updated files',
               show_default=True)
 @click.option('--noncl', is_flag=True, default=True,
@@ -306,6 +306,13 @@ def barcode_build(pb, outdir, noncl, pathogen):
     locDir = os.path.abspath(os.path.join(os.path.realpath(__file__),
                              os.pardir))
     locDir = outdir
+    if os.path.exists(locDir):
+        print(f"Directory '{locDir}' already exists."
+              " Exiting program to prevent overwriting.")
+        sys.exit()  # Exit the program if the directory exists
+    else:
+        os.makedirs(locDir)  # Create the directory if it does not exist
+        print(f"Directory '{locDir}' created successfully.")
     if pathogen == "SARS-CoV-2":
         get_curated_lineage_data(locDir, pathogen)
     get_cl_lineages(locDir, pathogen)
