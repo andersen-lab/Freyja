@@ -14,7 +14,7 @@ manual <https://andersen-lab.github.io/ivar/html/index.html>`__.
 
 Once you’ve got your BAM file, you’ll just need the reference that you
 used for the alignment (i.e. Hu-1 for SARS-CoV-2 samples, like
-`this <data/NC_045512_Hu-1.fasta>`__).Since we’re generally going to be
+`this <https://github.com/andersen-lab/Freyja/blob/main/freyja/data/NC_045512_Hu-1.fasta>`__).Since we’re generally going to be
 working with many wastewater samples at the same time, it’s a good idea
 to create folders to store each of the output files, using
 ``mkdir variants_files depth_files demix_files``, for example. From
