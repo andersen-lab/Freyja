@@ -51,7 +51,7 @@ jobs:
         run: |
           conda activate test
           wget "${TREELINK}"
-          freyja barcode-build --pb "${ZIPNAME}" --outdir freyja/data/
+          freyja barcode-build --pb "${ZIPNAME}" --outdir freyja/data/ --redo
 
       - name: commit if output is different 
         run: |
