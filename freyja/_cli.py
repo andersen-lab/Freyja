@@ -284,6 +284,9 @@ def update(outdir, noncl, buildlocal, pathogen):
 @click.option('--outdir', type=click.Path(exists=False),
               help='Output directory save updated files',
               show_default=True)
+@click.option('--redo', is_flag=True, default=False,
+              help='Allow for overwriting of output directory',
+              show_default=True)
 @click.option('--noncl', is_flag=True, default=True,
               help='only include lineages that are'
                    'confirmed by cov-lineages', show_default=True)
@@ -291,7 +294,7 @@ def update(outdir, noncl, buildlocal, pathogen):
               default='SARS-CoV-2',
               help='Pathogen of interest',
               show_default=True)
-def barcode_build(pb, outdir, noncl, pathogen):
+def barcode_build(pb, outdir, redo, noncl, pathogen):
     """
     Build barcodes from a custom protobuf tree
     """
@@ -306,11 +309,11 @@ def barcode_build(pb, outdir, noncl, pathogen):
     locDir = os.path.abspath(os.path.join(os.path.realpath(__file__),
                              os.pardir))
     locDir = outdir
-    if os.path.exists(locDir):
+    if os.path.exists(locDir) and not redo:
         print(f"Directory '{locDir}' already exists."
               " Exiting program to prevent overwriting.")
         sys.exit()  # Exit the program if the directory exists
-    else:
+    elif not os.path.exists(locDir):
         os.makedirs(locDir)  # Create the directory if it does not exist
         print(f"Directory '{locDir}' created successfully.")
     if pathogen == "SARS-CoV-2":
