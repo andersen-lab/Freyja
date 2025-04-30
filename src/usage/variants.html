@@ -1,0 +1,205 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>freyja variants &mdash; Freyja  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="freyja barcode-build" href="barcode-build.html" />
+    <link rel="prev" title="freyja demix" href="demix.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            Freyja
+              <img src="../../_static/freyja-logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Usage:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="demix.html">freyja demix</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">freyja variants</a></li>
+<li class="toctree-l1"><a class="reference internal" href="barcode-build.html">freyja barcode-build</a></li>
+<li class="toctree-l1"><a class="reference internal" href="get-lineage-def.html">freyja get-lineage-def</a></li>
+<li class="toctree-l1"><a class="reference internal" href="update.html">freyja update</a></li>
+<li class="toctree-l1"><a class="reference internal" href="boot.html">freyja boot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="aggregate.html">freyja aggregate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plot.html">freyja plot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dash.html">freyja dash</a></li>
+<li class="toctree-l1"><a class="reference internal" href="relgrowthrate.html">freyja relgrowthrate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="extract.html">freyja extract</a></li>
+<li class="toctree-l1"><a class="reference internal" href="filter.html">freyja filter</a></li>
+<li class="toctree-l1"><a class="reference internal" href="covariants.html">freyja covariants</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plot-covariants.html">freyja plot-covariants</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Wiki:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../wiki/command_line_workflow.html">Command Line Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../wiki/cryptic_variants.html">Cryptic Variant Detection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../wiki/custom_plotting_tutorial.html">Custom Plotting Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../wiki/freyja-measles.html">Running Freyja on other pathogens - Measles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../wiki/custom-plots-with-R.html">Demix output manipulation and plotting using R</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../wiki/lineage_barcode_extract.html">Lineage Barcode Extract</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../wiki/read_analysis_tutorial.html">Read Analysis Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../wiki/terra_workflow.html">Terra Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../wiki/expanded_pathogens.html">Running Freyja on other pathogens</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Freyja</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">freyja variants</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/src/usage/variants.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="freyja-variants">
+<h1>freyja variants<a class="headerlink" href="#freyja-variants" title="Link to this heading"></a></h1>
+<p>Perform variant calling using samtools and iVar on a BAMFILE</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>freyja<span class="w"> </span>variants<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span><span class="w"> </span>BAMFILE
+</pre></div>
+</div>
+<p class="rubric">Options</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-freyja-variants-ref">
+<span class="sig-name descname"><span class="pre">--ref</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;ref&gt;</span></span><a class="headerlink" href="#cmdoption-freyja-variants-ref" title="Link to this definition"></a></dt>
+<dd><p>Reference file in fasta format</p>
+<dl class="field-list simple">
+<dt class="field-odd">Default<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">data/NC_045512_Hu-1.fasta</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-freyja-variants-variants">
+<span class="sig-name descname"><span class="pre">--variants</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;variants&gt;</span></span><a class="headerlink" href="#cmdoption-freyja-variants-variants" title="Link to this definition"></a></dt>
+<dd><p>Variant calling output file</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-freyja-variants-depths">
+<span class="sig-name descname"><span class="pre">--depths</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;depths&gt;</span></span><a class="headerlink" href="#cmdoption-freyja-variants-depths" title="Link to this definition"></a></dt>
+<dd><p>Sequencing depth output file</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-freyja-variants-refname">
+<span class="sig-name descname"><span class="pre">--refname</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;refname&gt;</span></span><a class="headerlink" href="#cmdoption-freyja-variants-refname" title="Link to this definition"></a></dt>
+<dd><p>Ref name (for bams with multiple sequences)</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-freyja-variants-minq">
+<span class="sig-name descname"><span class="pre">--minq</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;minq&gt;</span></span><a class="headerlink" href="#cmdoption-freyja-variants-minq" title="Link to this definition"></a></dt>
+<dd><p>Minimum base quality score</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-freyja-variants-annot">
+<span class="sig-name descname"><span class="pre">--annot</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;annot&gt;</span></span><a class="headerlink" href="#cmdoption-freyja-variants-annot" title="Link to this definition"></a></dt>
+<dd><p>provide an annotation file in gff3 format</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-freyja-variants-varthresh">
+<span class="sig-name descname"><span class="pre">--varthresh</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;varthresh&gt;</span></span><a class="headerlink" href="#cmdoption-freyja-variants-varthresh" title="Link to this definition"></a></dt>
+<dd><p>Variant frequency threshold</p>
+<dl class="field-list simple">
+<dt class="field-odd">Default<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">0.0</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<p class="rubric">Arguments</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-freyja-variants-arg-BAMFILE">
+<span class="sig-name descname"><span class="pre">BAMFILE</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-freyja-variants-arg-BAMFILE" title="Link to this definition"></a></dt>
+<dd><p>Required argument</p>
+</dd></dl>
+
+</section>
+<hr class="docutils" />
+<p><strong>Example Usage:</strong></p>
+<p>After primer trimming in iVar, we get both variant call and sequencing depth information with the command:
+<code class="docutils literal notranslate"><span class="pre">freyja</span> <span class="pre">variants</span> <span class="pre">[bamfile]</span> <span class="pre">--variants</span> <span class="pre">[variant</span> <span class="pre">outfile</span> <span class="pre">name]</span> <span class="pre">--depths</span> <span class="pre">[depths</span> <span class="pre">outfile</span> <span class="pre">name]</span> <span class="pre">--ref</span> <span class="pre">[reference.fa]</span></code>
+which uses both samtools and iVar. Note that the reference should match the fasta file used for alignment. In cases where multiple reference genomes are present in the reference fasta, the user can specify the name of the desired reference genome with <code class="docutils literal notranslate"><span class="pre">--refname</span> <span class="pre">[name-of-reference]</span></code>. To enable alternative variant calling methods ( such as <a class="reference external" href="https://csb5.github.io/lofreq/">LoFreq</a>),  we also allow users to provide a VCF file using the <code class="docutils literal notranslate"><span class="pre">--variants</span></code> option (in addition to the usual depth file, which can be obtained using a command like <code class="docutils literal notranslate"><span class="pre">samtools</span> <span class="pre">mpileup</span> <span class="pre">-aa</span> <span class="pre">-A</span> <span class="pre">-d</span> <span class="pre">600000</span> <span class="pre">-Q</span> <span class="pre">20</span> <span class="pre">-q</span> <span class="pre">0</span> <span class="pre">-B</span> <span class="pre">-f</span> <span class="pre">ref.fasta</span> <span class="pre">sample.bam</span> <span class="pre">|</span> <span class="pre">cut</span> <span class="pre">-f1-4</span> <span class="pre">&gt;</span> <span class="pre">sample.depth</span></code>).</p>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="demix.html" class="btn btn-neutral float-left" title="freyja demix" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="barcode-build.html" class="btn btn-neutral float-right" title="freyja barcode-build" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Andersen Lab.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,213 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Terra Workflow &mdash; Freyja  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Running Freyja on other pathogens" href="expanded_pathogens.html" />
+    <link rel="prev" title="Read Analysis Tutorial" href="read_analysis_tutorial.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            Freyja
+              <img src="../../_static/freyja-logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Usage:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/demix.html">freyja demix</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/variants.html">freyja variants</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/barcode-build.html">freyja barcode-build</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/get-lineage-def.html">freyja get-lineage-def</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/update.html">freyja update</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/boot.html">freyja boot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/aggregate.html">freyja aggregate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/plot.html">freyja plot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/dash.html">freyja dash</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/relgrowthrate.html">freyja relgrowthrate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/extract.html">freyja extract</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/filter.html">freyja filter</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/covariants.html">freyja covariants</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/plot-covariants.html">freyja plot-covariants</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Wiki:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="command_line_workflow.html">Command Line Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cryptic_variants.html">Cryptic Variant Detection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="custom_plotting_tutorial.html">Custom Plotting Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="freyja-measles.html">Running Freyja on other pathogens - Measles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="custom-plots-with-R.html">Demix output manipulation and plotting using R</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lineage_barcode_extract.html">Lineage Barcode Extract</a></li>
+<li class="toctree-l1"><a class="reference internal" href="read_analysis_tutorial.html">Read Analysis Tutorial</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Terra Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="expanded_pathogens.html">Running Freyja on other pathogens</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Freyja</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Terra Workflow</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/src/wiki/terra_workflow.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="terra-workflow">
+<h1>Terra Workflow<a class="headerlink" href="#terra-workflow" title="Link to this heading"></a></h1>
+<p>To run Freyja using a web interface, we recommend using the Terra
+ecosystem. If you haven’t used Terra before, it’s pretty easy to set
+things up. You’ll need to: 1. Sign up for a Terra account at
+<a class="reference external" href="https://app.terra.bio/">https://app.terra.bio/</a> 2. Set up billing: All accounts get $300 in free
+credit (see
+<a class="reference external" href="https://support.terra.bio/hc/en-us/articles/360046295092">here</a>),
+which will allow you to run the pipeline on a ton of samples 3. Create a
+<a class="reference external" href="https://app.terra.bio/#workspaces">workspace</a>. - Click the “+” in
+the top left, and give the workspace a name (anything will do)</p>
+<figure class="align-default">
+<img alt="image" src="../../_images/workspaces.png" />
+</figure>
+<ol class="arabic simple" start="4">
+<li><p>Select the required methods from
+<a class="reference external" href="https://dockstore.org/search?entryType=workflows&amp;search=freyja">dockstore</a>.
+Clicking on the Terra button on the right hand side will take you to
+Terra and allow you to import the method into your workspace. <img alt="image" src="../../_images/dockstore.png" /></p></li>
+</ol>
+<ul class="simple">
+<li><p><a class="reference external" href="https://dockstore.org/workflows/github.com/theiagen/public_health_viral_genomics/Freyja_FASTQ:main?tab=info">Freyja_FASTQ</a>:
+takes you from raw data to de-mixed output in a single step (combines
+the <code class="docutils literal notranslate"><span class="pre">freyja</span> <span class="pre">variants</span></code> and <code class="docutils literal notranslate"><span class="pre">freyja</span> <span class="pre">demix</span></code> steps described in the
+README).</p></li>
+<li><p><a class="reference external" href="https://dockstore.org/workflows/github.com/theiagen/public_health_viral_genomics/Freyja_Plot:main?tab=info">Freyja_Plot</a>:
+takes in output files from Freyja_FASTQ and renders plots of virus
+lineage fractions (using the <code class="docutils literal notranslate"><span class="pre">freyja</span> <span class="pre">plot</span></code> function described in
+the README)</p></li>
+</ul>
+<figure class="align-default">
+<img alt="image" src="../../_images/import.png" />
+</figure>
+<p>Once you’ve loaded the methods into your workspace, you can go ahead and
+run the workflow on your data. You’ll first want to run the Freyja_FASTQ
+method on some raw data.</p>
+<ol class="arabic simple" start="5">
+<li><p>Add all of the data you need to your workspace. This is done by
+clicking the “Data” tab, and then the “Files” option on the left side
+of the page. Files can then be added by dragging files (one at a
+time) into the window or by clicking the “+” sign in the bottom
+right. If you’re not sure which files you need, proceed to steps 6-7
+to see the required input data.</p></li>
+</ol>
+<figure class="align-default">
+<img alt="uploads" src="../../_images/dataupload.png" />
+</figure>
+<p>Note: many files can be uploaded at once using the Terra <a class="reference external" href="https://app.terra.bio/#upload">data
+uploader</a>. For more details, check out
+this
+<a class="reference external" href="https://www.protocols.io/view/uploading-data-files-to-terra-byxjpxkn.html">protocol</a>.</p>
+<ol class="arabic simple" start="6">
+<li><p>Inside of your new workspace, go to the workflows tab and select the
+workflow you want to run. <img alt="workflows" src="../../_images/workflowoptions.png" /></p></li>
+<li><p>Add all of the necessary files to be used in the workflow, add any
+options you want, save, and click “Run Analysis” to start the
+workflow. Note that the filename needs to be given in quotes as shown
+below:</p></li>
+</ol>
+<figure class="align-default">
+<img alt="settingup" src="../../_images/setup.png" />
+</figure>
+<ol class="arabic simple" start="8">
+<li><p>Add any comments you need and click “Launch”. You’ll be brought to a
+progress window. All output files will appear in the execution
+directory (open folder icon, under “Links”).</p></li>
+</ol>
+<figure class="align-default">
+<img alt="progress" src="../../_images/progress.png" />
+</figure>
+<ol class="arabic simple" start="9">
+<li><p>Wait until the job completes and download output files from the
+execution directory as needed. For <code class="docutils literal notranslate"><span class="pre">Freyja_FASTQ</span></code> you’ll find the
+de-mixed results in the <code class="docutils literal notranslate"><span class="pre">[mysamplename]_freyja_demixed.tsv</span></code> file.
+Download files by clicking downward arrow symbol on the right.</p></li>
+</ol>
+<figure class="align-default">
+<img alt="downloadresult" src="../../_images/downloadresult.png" />
+</figure>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="read_analysis_tutorial.html" class="btn btn-neutral float-left" title="Read Analysis Tutorial" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="expanded_pathogens.html" class="btn btn-neutral float-right" title="Running Freyja on other pathogens" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Andersen Lab.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

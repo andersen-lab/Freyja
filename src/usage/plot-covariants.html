@@ -1,0 +1,225 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>freyja plot-covariants &mdash; Freyja  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Command Line Workflow" href="../wiki/command_line_workflow.html" />
+    <link rel="prev" title="freyja covariants" href="covariants.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            Freyja
+              <img src="../../_static/freyja-logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Usage:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="demix.html">freyja demix</a></li>
+<li class="toctree-l1"><a class="reference internal" href="variants.html">freyja variants</a></li>
+<li class="toctree-l1"><a class="reference internal" href="barcode-build.html">freyja barcode-build</a></li>
+<li class="toctree-l1"><a class="reference internal" href="get-lineage-def.html">freyja get-lineage-def</a></li>
+<li class="toctree-l1"><a class="reference internal" href="update.html">freyja update</a></li>
+<li class="toctree-l1"><a class="reference internal" href="boot.html">freyja boot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="aggregate.html">freyja aggregate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plot.html">freyja plot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dash.html">freyja dash</a></li>
+<li class="toctree-l1"><a class="reference internal" href="relgrowthrate.html">freyja relgrowthrate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="extract.html">freyja extract</a></li>
+<li class="toctree-l1"><a class="reference internal" href="filter.html">freyja filter</a></li>
+<li class="toctree-l1"><a class="reference internal" href="covariants.html">freyja covariants</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">freyja plot-covariants</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Wiki:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../wiki/command_line_workflow.html">Command Line Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../wiki/cryptic_variants.html">Cryptic Variant Detection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../wiki/custom_plotting_tutorial.html">Custom Plotting Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../wiki/freyja-measles.html">Running Freyja on other pathogens - Measles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../wiki/custom-plots-with-R.html">Demix output manipulation and plotting using R</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../wiki/lineage_barcode_extract.html">Lineage Barcode Extract</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../wiki/read_analysis_tutorial.html">Read Analysis Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../wiki/terra_workflow.html">Terra Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../wiki/expanded_pathogens.html">Running Freyja on other pathogens</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Freyja</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">freyja plot-covariants</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/src/usage/plot-covariants.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="freyja-plot-covariants">
+<h1>freyja plot-covariants<a class="headerlink" href="#freyja-plot-covariants" title="Link to this heading"></a></h1>
+<p>Plot COVARIANTS output as a heatmap</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>freyja<span class="w"> </span>plot-covariants<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span><span class="w"> </span>COVARIANTS
+</pre></div>
+</div>
+<p class="rubric">Options</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-freyja-plot-covariants-output">
+<span class="sig-name descname"><span class="pre">--output</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;output&gt;</span></span><a class="headerlink" href="#cmdoption-freyja-plot-covariants-output" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Default<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">covariants_plot.pdf</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-freyja-plot-covariants-num_clusters">
+<span class="sig-name descname"><span class="pre">--num_clusters</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;num_clusters&gt;</span></span><a class="headerlink" href="#cmdoption-freyja-plot-covariants-num_clusters" title="Link to this definition"></a></dt>
+<dd><p>number of clusters to plot (sorted by frequency)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Default<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">10</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-freyja-plot-covariants-min_mutations">
+<span class="sig-name descname"><span class="pre">--min_mutations</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;min_mutations&gt;</span></span><a class="headerlink" href="#cmdoption-freyja-plot-covariants-min_mutations" title="Link to this definition"></a></dt>
+<dd><p>minimum number of mutations in a cluster to be plotted</p>
+<dl class="field-list simple">
+<dt class="field-odd">Default<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">1</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-freyja-plot-covariants-nt_muts">
+<span class="sig-name descname"><span class="pre">--nt_muts</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-freyja-plot-covariants-nt_muts" title="Link to this definition"></a></dt>
+<dd><p>if included, include nucleotide mutations in x-labels</p>
+<dl class="field-list simple">
+<dt class="field-odd">Default<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">False</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-freyja-plot-covariants-vmin">
+<span class="sig-name descname"><span class="pre">--vmin</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;vmin&gt;</span></span><a class="headerlink" href="#cmdoption-freyja-plot-covariants-vmin" title="Link to this definition"></a></dt>
+<dd><p>minimum value for colorbar (log scale)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Default<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">-5</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-freyja-plot-covariants-vmax">
+<span class="sig-name descname"><span class="pre">--vmax</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;vmax&gt;</span></span><a class="headerlink" href="#cmdoption-freyja-plot-covariants-vmax" title="Link to this definition"></a></dt>
+<dd><p>maximum value for colorbar (log scale)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Default<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">0</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<p class="rubric">Arguments</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-freyja-plot-covariants-arg-COVARIANTS">
+<span class="sig-name descname"><span class="pre">COVARIANTS</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-freyja-plot-covariants-arg-COVARIANTS" title="Link to this definition"></a></dt>
+<dd><p>Required argument</p>
+</dd></dl>
+
+</section>
+<hr class="docutils" />
+<p><strong>Example Usage:</strong></p>
+<p>This generates an informative heatmap visualization showing the
+frequency and coverage ranges of each observed covariant pattern. <code class="docutils literal notranslate"><span class="pre">--num_clusters</span></code> sets the
+number of patterns (i.e. rows in the plot) to display, while the
+threshold <code class="docutils literal notranslate"><span class="pre">--min_mutations</span></code> sets a minimum number of mutations per set
+of covariants for inclusion in the plot. The flag <code class="docutils literal notranslate"><span class="pre">--nt_muts</span></code> can be
+included to provide nucleotide-specific information in the plot
+(e.g. C22995A(S:T478K) as opposed to S:T478K), making it possible to
+view multi-nucleotide variants.</p>
+<p><strong>Example output:</strong></p>
+<p><img alt="image2" src="../../_images/example_covariants_plot.png" /></p>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="covariants.html" class="btn btn-neutral float-left" title="freyja covariants" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../wiki/command_line_workflow.html" class="btn btn-neutral float-right" title="Command Line Workflow" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Andersen Lab.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,209 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Read Analysis Tutorial &mdash; Freyja  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Terra Workflow" href="terra_workflow.html" />
+    <link rel="prev" title="Lineage Barcode Extract" href="lineage_barcode_extract.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            Freyja
+              <img src="../../_static/freyja-logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Usage:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/demix.html">freyja demix</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/variants.html">freyja variants</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/barcode-build.html">freyja barcode-build</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/get-lineage-def.html">freyja get-lineage-def</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/update.html">freyja update</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/boot.html">freyja boot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/aggregate.html">freyja aggregate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/plot.html">freyja plot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/dash.html">freyja dash</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/relgrowthrate.html">freyja relgrowthrate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/extract.html">freyja extract</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/filter.html">freyja filter</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/covariants.html">freyja covariants</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/plot-covariants.html">freyja plot-covariants</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Wiki:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="command_line_workflow.html">Command Line Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cryptic_variants.html">Cryptic Variant Detection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="custom_plotting_tutorial.html">Custom Plotting Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="freyja-measles.html">Running Freyja on other pathogens - Measles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="custom-plots-with-R.html">Demix output manipulation and plotting using R</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lineage_barcode_extract.html">Lineage Barcode Extract</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Read Analysis Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="terra_workflow.html">Terra Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="expanded_pathogens.html">Running Freyja on other pathogens</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Freyja</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Read Analysis Tutorial</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/src/wiki/read_analysis_tutorial.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="read-analysis-tutorial">
+<h1>Read Analysis Tutorial<a class="headerlink" href="#read-analysis-tutorial" title="Link to this heading"></a></h1>
+<p>For this tutorial, we’ll begin with the same aligned, trimmed, and
+sorted BAM file,
+<a class="reference external" href="https://github.com/andersen-lab/Freyja/raw/main/freyja/data/test.bam">test.bam</a>
+used in the Command Line Workflow tutorial, along with the corresponding
+<a class="reference external" href="data/NC_045512_Hu-1.fasta">SARS-Cov-2 reference genome</a>.</p>
+<p>Let’s start off by finding covariant mutations (i.e. mutations present
+on the same sequenced read) on the spike gene. We can do so using the
+command:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>freyja<span class="w"> </span>covariants<span class="w"> </span>freyja/data/test.bam<span class="w"> </span><span class="m">21563</span><span class="w"> </span><span class="m">25384</span><span class="w"> </span>--output<span class="w"> </span>covariants_output.tsv<span class="w"> </span>--gff-file<span class="w"> </span>freyja/data/NC_045512_Hu-1.gff
+</pre></div>
+</div>
+<p>This saves covariance information to covariants_output.tsv, including
+the mutations present, their absolute count and frequency, as well as
+the genomic ranges covered by reads containing said mutations. To get a
+better sense of the data, we can generate a heatmap plot via:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>freyja<span class="w"> </span>plot-covariants<span class="w"> </span>covariants_output.tsv<span class="w"> </span>--output<span class="w"> </span>covariants_heatmap.png
+</pre></div>
+</div>
+<figure class="align-default">
+<img alt="plot-covariants" src="../../_images/covariants_heatmap.png" />
+</figure>
+<p>As we can see, there appear to be a number of mutations that occur
+together in this sample, such as S:D614G and S:P681R. We can pull these
+reads from test.bam using <code class="docutils literal notranslate"><span class="pre">freyja</span> <span class="pre">extract</span></code>. First, we must specify the
+mutations by creating a csv file, and then listing the corresponding
+nucleotide mutations, which are listed in covariants_output.tsv.:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">A23403G</span><span class="p">,</span><span class="n">C23604G</span>
+</pre></div>
+</div>
+<p>We can now run <code class="docutils literal notranslate"><span class="pre">freyja</span> <span class="pre">extract</span></code>, passing in our query.csv file
+alongside test.bam. We’ll include the –same_read flag since we’re only
+interested in reads where both mutations are present</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>freyja<span class="w"> </span>extract<span class="w"> </span>query.csv<span class="w"> </span>freyja/data/test.bam<span class="w"> </span>--same_read<span class="w"> </span>--output<span class="w"> </span>extracted.bam
+</pre></div>
+</div>
+<p>Finally, we can view the pulled reads via IGV. First, we’ll need to sort
+and index <code class="docutils literal notranslate"><span class="pre">extracted.bam</span></code>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>samtools<span class="w"> </span>sort<span class="w"> </span>extracted.bam<span class="w"> </span>&gt;<span class="w"> </span>extracted_sorted.bam
+samtools<span class="w"> </span>index<span class="w"> </span>extracted_sorted.bam
+</pre></div>
+</div>
+<p>Now load extracted_sorted.bam into IGV! <img alt="igv image" src="../../_images/igv_screenshot.png" /></p>
+<p>In some cases, it can be useful to remove reads containing one or more
+mutations. For instance, we might be interested in reads containing
+S:D614G but <strong>not</strong> S:P681R. We can do this by first calling
+<code class="docutils literal notranslate"><span class="pre">freyja</span> <span class="pre">extract</span></code> to select reads containing S:D614G, and then using
+<code class="docutils literal notranslate"><span class="pre">freyja</span> <span class="pre">filter</span></code> on the extraced output to filter out reads containing
+S:P681R.</p>
+<ol class="arabic simple">
+<li><p>Extract S:D614G reads:</p></li>
+</ol>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">extract_query</span><span class="o">.</span><span class="n">csv</span><span class="p">:</span>
+<span class="n">A23403G</span>
+</pre></div>
+</div>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>freyja<span class="w"> </span>extract<span class="w"> </span>extract_query.csv<span class="w"> </span>freyja/data/test.bam<span class="w"> </span>--output<span class="w"> </span>S_D614G_extracted.bam
+samtools<span class="w"> </span>sort<span class="w"> </span>S_D614G_extracted.bam<span class="w"> </span>&gt;<span class="w"> </span>S_D614G_extracted_sorted.bam
+samtools<span class="w"> </span>index<span class="w"> </span>S_D614G_extracted_sorted.bam
+</pre></div>
+</div>
+<ol class="arabic simple" start="2">
+<li><p>Filter S:P681R reads from <code class="docutils literal notranslate"><span class="pre">S_D614G_extracted.bam</span></code></p></li>
+</ol>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">filter_query</span><span class="o">.</span><span class="n">csv</span><span class="p">:</span>
+<span class="n">C23604G</span>
+</pre></div>
+</div>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>freyja<span class="w"> </span>filter<span class="w"> </span>filter_query.csv<span class="w"> </span>freyja/data/test.bam<span class="w"> </span>--output<span class="w"> </span>S_D614G_filtered.bam
+</pre></div>
+</div>
+<p>The resulting S_D614G_filtered.bam should only contain reads containing
+S:D614G (which in this case happen to be unpaired reads with no coverage
+at S:P681).</p>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="lineage_barcode_extract.html" class="btn btn-neutral float-left" title="Lineage Barcode Extract" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="terra_workflow.html" class="btn btn-neutral float-right" title="Terra Workflow" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Andersen Lab.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,205 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cryptic Variant Detection &mdash; Freyja  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Custom Plotting Tutorial" href="custom_plotting_tutorial.html" />
+    <link rel="prev" title="Command Line Workflow" href="command_line_workflow.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            Freyja
+              <img src="../../_static/freyja-logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Usage:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/demix.html">freyja demix</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/variants.html">freyja variants</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/barcode-build.html">freyja barcode-build</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/get-lineage-def.html">freyja get-lineage-def</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/update.html">freyja update</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/boot.html">freyja boot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/aggregate.html">freyja aggregate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/plot.html">freyja plot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/dash.html">freyja dash</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/relgrowthrate.html">freyja relgrowthrate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/extract.html">freyja extract</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/filter.html">freyja filter</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/covariants.html">freyja covariants</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/plot-covariants.html">freyja plot-covariants</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Wiki:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="command_line_workflow.html">Command Line Workflow</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Cryptic Variant Detection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="custom_plotting_tutorial.html">Custom Plotting Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="freyja-measles.html">Running Freyja on other pathogens - Measles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="custom-plots-with-R.html">Demix output manipulation and plotting using R</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lineage_barcode_extract.html">Lineage Barcode Extract</a></li>
+<li class="toctree-l1"><a class="reference internal" href="read_analysis_tutorial.html">Read Analysis Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="terra_workflow.html">Terra Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="expanded_pathogens.html">Running Freyja on other pathogens</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Freyja</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Cryptic Variant Detection</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/src/wiki/cryptic_variants.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="cryptic-variant-detection">
+<h1>Cryptic Variant Detection<a class="headerlink" href="#cryptic-variant-detection" title="Link to this heading"></a></h1>
+<p>Oftentimes, it is possible to detect certain variants in wastewater
+weeks before they show up in clinical sequencing (if at all). In this
+tutorial, we will utilize freyja’s covariants utility to detect cryptic
+mutations in wastewater, and use the <a class="reference external" href="https://github.com/outbreak-info/python-outbreak-info">Python Outbreak
+API</a> in order
+to compare these results against clinical sequencing data published to
+GISAID.</p>
+<p>Let’s begin by creating a fresh conda environment and installing the
+requisite packages:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>conda<span class="w"> </span>create<span class="w"> </span>-n<span class="w"> </span>cryptic-variants
+conda<span class="w"> </span>activate<span class="w"> </span>cryptic-variants
+
+conda<span class="w"> </span>install<span class="w"> </span>-c<span class="w"> </span>bioconda<span class="w"> </span>freyja
+pip<span class="w"> </span>install<span class="w"> </span>python-outbreak-info<span class="o">==</span><span class="m">1</span>.0.1
+</pre></div>
+</div>
+<p>For this analysis, we’re going to be looking at a sample collected from
+Point Loma, San Diego on Jan. 17th, 2022, available
+<a class="reference external" href="https://www.ncbi.nlm.nih.gov/sra/?term=SRR18541029">here</a> via SRA.
+We’ll also need the SARS-CoV-2 <a class="reference external" href="https://www.ncbi.nlm.nih.gov/nuccore/1798174254">reference
+genome</a> and <a class="reference external" href="https://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/009/858/895/GCF_009858895.2_ASM985889v3/GCF_009858895.2_ASM985889v3_genomic.gff.gz">gff
+file</a>.
+Next, run alignment, trimming, sorting, and indexing as outlined in the
+Command Line Workflow tutorial. Once finished, you should have both the
+processed bam file, along with the corresponding index file
+(filename.bam.bai). We are now ready to run <code class="docutils literal notranslate"><span class="pre">freyja</span> <span class="pre">covariants</span></code>, which
+looks for SNVs that occur together on the same read. For our purposes,
+we’re mainly interested in the spike gene, so min_site is set to 21563,
+and max_site is set to 25384. We’ll also pass in the same reference
+genome used for alignment along with the gff file for gene-level
+mutation annotations.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>freyja<span class="w"> </span>covariants<span class="w"> </span>SRR18541029_trimmed.bam<span class="w"> </span><span class="m">21563</span><span class="w"> </span><span class="m">25384</span><span class="w"> </span>--ref-genome<span class="w"> </span>NC_045512_Hu-1.fasta<span class="w"> </span>--gff-file<span class="w"> </span>NC_045512_Hu-1.gff<span class="w"> </span>--output<span class="w"> </span>SRR18541029_covariants.tsv
+</pre></div>
+</div>
+<p>Let’s inspect the output using any spreadsheet software (e.g. Excel,
+Numbers). Upon first glance, we see a lot of mutations characteristic of
+Omicron sequences occuring together in the sample (S:A67V, S:DEL69/70,
+S:E484A, S:N501Y etc.). Of note, we see a few variants that are
+relatively uncommon in most other samples, such as S:G593D. A quick
+ctrl+F for this SNV tells us that it has been detected alone, and also
+alongside S:D614G and S:T572N in separate instances, giving us more
+confidence that the SNV we’re observing is indeed present in the sample.</p>
+<p>For our next step, we’ll be using the Python outbreak API to look at the
+clinical prevalence of this SNV and deduce which lineage it most likely
+belongs to. First, we’ll need to authenticate via GISAID by running the
+following:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python
+&gt;&gt;&gt;<span class="w"> </span>from<span class="w"> </span>outbreak_data<span class="w"> </span>import<span class="w"> </span>authenticate_user
+&gt;&gt;&gt;<span class="w"> </span>authenticate_user.authenticate_new_user<span class="o">()</span>
+</pre></div>
+</div>
+<p>This opens a browser prompting you to enter your GISAID login
+credentials. Once finished, create a new python file and paste the
+following:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">outbreak_data</span><span class="w"> </span><span class="kn">import</span> <span class="n">outbreak_data</span>
+
+<span class="n">df</span> <span class="o">=</span> <span class="n">outbreak_data</span><span class="o">.</span><span class="n">mutations_by_lineage</span><span class="p">(</span><span class="n">mutation</span><span class="o">=</span><span class="s1">&#39;S:G593D&#39;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">head</span><span class="p">())</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>  <span class="n">pangolin_lineage</span>  <span class="n">lineage_count</span>  <span class="n">mutation_count</span>  <span class="n">proportion</span>  <span class="n">proportion_ci_lower</span>  <span class="n">proportion_ci_upper</span>
+<span class="mi">0</span>            <span class="n">xbb</span><span class="mf">.1</span>          <span class="mi">27879</span>               <span class="mi">1</span>    <span class="mf">0.000036</span>             <span class="mf">0.000004</span>             <span class="mf">0.000168</span>
+</pre></div>
+</div>
+<p>As we can see, this mutation has only been detected once, and in a
+single sequence, belonging to the xbb.1 lineage. It would be good to
+validate this SNV by seeing if it is found in other samples, but for
+now, we can be fairly confident that this is a real mutation.</p>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="command_line_workflow.html" class="btn btn-neutral float-left" title="Command Line Workflow" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="custom_plotting_tutorial.html" class="btn btn-neutral float-right" title="Custom Plotting Tutorial" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Andersen Lab.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,343 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>freyja boot &mdash; Freyja  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="freyja aggregate" href="aggregate.html" />
+    <link rel="prev" title="freyja update" href="update.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            Freyja
+              <img src="../../_static/freyja-logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Usage:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="demix.html">freyja demix</a></li>
+<li class="toctree-l1"><a class="reference internal" href="variants.html">freyja variants</a></li>
+<li class="toctree-l1"><a class="reference internal" href="barcode-build.html">freyja barcode-build</a></li>
+<li class="toctree-l1"><a class="reference internal" href="get-lineage-def.html">freyja get-lineage-def</a></li>
+<li class="toctree-l1"><a class="reference internal" href="update.html">freyja update</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">freyja boot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="aggregate.html">freyja aggregate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plot.html">freyja plot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dash.html">freyja dash</a></li>
+<li class="toctree-l1"><a class="reference internal" href="relgrowthrate.html">freyja relgrowthrate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="extract.html">freyja extract</a></li>
+<li class="toctree-l1"><a class="reference internal" href="filter.html">freyja filter</a></li>
+<li class="toctree-l1"><a class="reference internal" href="covariants.html">freyja covariants</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plot-covariants.html">freyja plot-covariants</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Wiki:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../wiki/command_line_workflow.html">Command Line Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../wiki/cryptic_variants.html">Cryptic Variant Detection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../wiki/custom_plotting_tutorial.html">Custom Plotting Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../wiki/freyja-measles.html">Running Freyja on other pathogens - Measles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../wiki/custom-plots-with-R.html">Demix output manipulation and plotting using R</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../wiki/lineage_barcode_extract.html">Lineage Barcode Extract</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../wiki/read_analysis_tutorial.html">Read Analysis Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../wiki/terra_workflow.html">Terra Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../wiki/expanded_pathogens.html">Running Freyja on other pathogens</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Freyja</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">freyja boot</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/src/usage/boot.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="freyja-boot">
+<h1>freyja boot<a class="headerlink" href="#freyja-boot" title="Link to this heading"></a></h1>
+<p>Perform bootstrapping method for freyja using VARIANTS and DEPTHS</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>freyja<span class="w"> </span>boot<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span><span class="w"> </span>VARIANTS<span class="w"> </span>DEPTHS
+</pre></div>
+</div>
+<p class="rubric">Options</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-freyja-boot-nb">
+<span class="sig-name descname"><span class="pre">--nb</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;nb&gt;</span></span><a class="headerlink" href="#cmdoption-freyja-boot-nb" title="Link to this definition"></a></dt>
+<dd><p>number of times bootstrapping is performed</p>
+<dl class="field-list simple">
+<dt class="field-odd">Default<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">100</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-freyja-boot-nt">
+<span class="sig-name descname"><span class="pre">--nt</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;nt&gt;</span></span><a class="headerlink" href="#cmdoption-freyja-boot-nt" title="Link to this definition"></a></dt>
+<dd><p>max number of cpus to use</p>
+<dl class="field-list simple">
+<dt class="field-odd">Default<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">1</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-freyja-boot-eps">
+<span class="sig-name descname"><span class="pre">--eps</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;eps&gt;</span></span><a class="headerlink" href="#cmdoption-freyja-boot-eps" title="Link to this definition"></a></dt>
+<dd><p>minimum abundance to include</p>
+<dl class="field-list simple">
+<dt class="field-odd">Default<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">0.001</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-freyja-boot-barcodes">
+<span class="sig-name descname"><span class="pre">--barcodes</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;barcodes&gt;</span></span><a class="headerlink" href="#cmdoption-freyja-boot-barcodes" title="Link to this definition"></a></dt>
+<dd><p>custom barcode file</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-freyja-boot-meta">
+<span class="sig-name descname"><span class="pre">--meta</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;meta&gt;</span></span><a class="headerlink" href="#cmdoption-freyja-boot-meta" title="Link to this definition"></a></dt>
+<dd><p>custom lineage to variant metadata file</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-freyja-boot-output_base">
+<span class="sig-name descname"><span class="pre">--output_base</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;output_base&gt;</span></span><a class="headerlink" href="#cmdoption-freyja-boot-output_base" title="Link to this definition"></a></dt>
+<dd><p>Output file basename</p>
+<dl class="field-list simple">
+<dt class="field-odd">Default<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">test</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-freyja-boot-boxplot">
+<span class="sig-name descname"><span class="pre">--boxplot</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;boxplot&gt;</span></span><a class="headerlink" href="#cmdoption-freyja-boot-boxplot" title="Link to this definition"></a></dt>
+<dd><p>file format of boxplot output (e.g. pdf or png)</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-freyja-boot-confirmedonly">
+<span class="sig-name descname"><span class="pre">--confirmedonly</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-freyja-boot-confirmedonly" title="Link to this definition"></a></dt>
+<dd><p>exclude unconfirmed lineages</p>
+<dl class="field-list simple">
+<dt class="field-odd">Default<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">False</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-freyja-boot-rawboots">
+<span class="sig-name descname"><span class="pre">--rawboots</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-freyja-boot-rawboots" title="Link to this definition"></a></dt>
+<dd><p>return raw bootstraps</p>
+<dl class="field-list simple">
+<dt class="field-odd">Default<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">False</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-freyja-boot-lineageyml">
+<span class="sig-name descname"><span class="pre">--lineageyml</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;lineageyml&gt;</span></span><a class="headerlink" href="#cmdoption-freyja-boot-lineageyml" title="Link to this definition"></a></dt>
+<dd><p>lineage hierarchy file in yaml format</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-freyja-boot-depthcutoff">
+<span class="sig-name descname"><span class="pre">--depthcutoff</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;depthcutoff&gt;</span></span><a class="headerlink" href="#cmdoption-freyja-boot-depthcutoff" title="Link to this definition"></a></dt>
+<dd><p>exclude sites with coverage depth below this value andgroup identical barcodes</p>
+<dl class="field-list simple">
+<dt class="field-odd">Default<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">0</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-freyja-boot-relaxedmrca">
+<span class="sig-name descname"><span class="pre">--relaxedmrca</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-freyja-boot-relaxedmrca" title="Link to this definition"></a></dt>
+<dd><p>for use with depth cutoff,clusters are assigned robust mrca to handle outliers</p>
+<dl class="field-list simple">
+<dt class="field-odd">Default<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">False</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-freyja-boot-relaxedthresh">
+<span class="sig-name descname"><span class="pre">--relaxedthresh</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;relaxedthresh&gt;</span></span><a class="headerlink" href="#cmdoption-freyja-boot-relaxedthresh" title="Link to this definition"></a></dt>
+<dd><p>associated threshold for robust mrca function</p>
+<dl class="field-list simple">
+<dt class="field-odd">Default<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">0.9</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-freyja-boot-bootseed">
+<span class="sig-name descname"><span class="pre">--bootseed</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;bootseed&gt;</span></span><a class="headerlink" href="#cmdoption-freyja-boot-bootseed" title="Link to this definition"></a></dt>
+<dd><p>set seed for bootstrap generation</p>
+<dl class="field-list simple">
+<dt class="field-odd">Default<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">0</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-freyja-boot-solver">
+<span class="sig-name descname"><span class="pre">--solver</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;solver&gt;</span></span><a class="headerlink" href="#cmdoption-freyja-boot-solver" title="Link to this definition"></a></dt>
+<dd><p>solver used for estimating lineage prevalence</p>
+<dl class="field-list simple">
+<dt class="field-odd">Default<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">CLARABEL</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-freyja-boot-pathogen">
+<span class="sig-name descname"><span class="pre">--pathogen</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;pathogen&gt;</span></span><a class="headerlink" href="#cmdoption-freyja-boot-pathogen" title="Link to this definition"></a></dt>
+<dd><p>Pathogen of interest.Not used if using –barcodes option.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Default<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">SARS-CoV-2</span></code></p>
+</dd>
+<dt class="field-even">Options<span class="colon">:</span></dt>
+<dd class="field-even"><p>SARS-CoV-2 | MPXV | H5NX | H5NX-cattle | H1N1pdm | FLU-B-VIC | MEASLESN450 | MEASLES | RSVa | RSVb</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-freyja-boot-autoadapt">
+<span class="sig-name descname"><span class="pre">--autoadapt</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-freyja-boot-autoadapt" title="Link to this definition"></a></dt>
+<dd><p>use error profile to set adapt</p>
+<dl class="field-list simple">
+<dt class="field-odd">Default<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">False</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<p class="rubric">Arguments</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-freyja-boot-arg-VARIANTS">
+<span class="sig-name descname"><span class="pre">VARIANTS</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-freyja-boot-arg-VARIANTS" title="Link to this definition"></a></dt>
+<dd><p>Required argument</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-freyja-boot-arg-DEPTHS">
+<span class="sig-name descname"><span class="pre">DEPTHS</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-freyja-boot-arg-DEPTHS" title="Link to this definition"></a></dt>
+<dd><p>Required argument</p>
+</dd></dl>
+
+</section>
+<hr class="docutils" />
+<p><strong>Example Usage:</strong></p>
+<p>We provide a fast bootstrapping method for freyja, which can be run
+using the command</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">freyja</span> <span class="n">boot</span> <span class="p">[</span><span class="n">variants</span><span class="o">-</span><span class="n">file</span><span class="p">]</span> <span class="p">[</span><span class="n">depth</span><span class="o">-</span><span class="n">file</span><span class="p">]</span> <span class="o">--</span><span class="n">nt</span> <span class="p">[</span><span class="n">number</span><span class="o">-</span><span class="n">of</span><span class="o">-</span><span class="n">cpus</span><span class="p">]</span> <span class="o">--</span><span class="n">nb</span> <span class="p">[</span><span class="n">number</span><span class="o">-</span><span class="n">of</span><span class="o">-</span><span class="n">bootstraps</span><span class="p">]</span> <span class="o">--</span><span class="n">output_basename</span> <span class="p">[</span><span class="n">base</span><span class="o">-</span><span class="n">name</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>which results in two output files: <code class="docutils literal notranslate"><span class="pre">base-name_lineages.csv</span></code> and
+<code class="docutils literal notranslate"><span class="pre">base-name_summarized.csv</span></code>, which contain the 0.025, 0.05, 0.25, 0.5
+(median),0.75, 0.95, and 0.975 percentiles for each lineage and WHO
+designated VOI/VOC, respectively, as obtained via the bootstrap. A
+custom lineage hierarchy file can be provided using <code class="docutils literal notranslate"><span class="pre">--lineageyml</span></code>
+option. If the <code class="docutils literal notranslate"><span class="pre">--rawboots</span></code> option is used, it will return two
+additional output files <code class="docutils literal notranslate"><span class="pre">base-name_lineages_boot.csv</span></code> and
+<code class="docutils literal notranslate"><span class="pre">base-name_summarized_boot.csv</span></code>, which contain the bootstrap estimates
+(rather than summary statistics). We also provide the <code class="docutils literal notranslate"><span class="pre">--eps</span></code>,
+<code class="docutils literal notranslate"><span class="pre">--barcodes</span></code>, and <code class="docutils literal notranslate"><span class="pre">--meta</span></code> options as in <code class="docutils literal notranslate"><span class="pre">freyja</span> <span class="pre">demix</span></code>. We now
+also provide a <code class="docutils literal notranslate"><span class="pre">--boxplot</span></code> option, which should be specified in the
+form <code class="docutils literal notranslate"><span class="pre">--boxplot</span> <span class="pre">pdf</span></code> if you want the boxplot in pdf format.</p>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="update.html" class="btn btn-neutral float-left" title="freyja update" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="aggregate.html" class="btn btn-neutral float-right" title="freyja aggregate" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Andersen Lab.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
