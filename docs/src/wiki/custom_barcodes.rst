@@ -57,6 +57,7 @@ Follow these steps to generate lineage‑specific barcodes with **BarcodeForge**
         - mamba: Uses Mamba for package management.
 
         If you wish to use a specific version of the pipeline, replace ``-latest`` with the desired version tag (e.g. ``-r "v1.0.0"``).
+        More information about ``-r`` can be found here: https://www.nextflow.io/docs/latest/cli.html#using-a-specific-revision
 
 4. Retrieve the output
 
@@ -108,6 +109,7 @@ The following example shows how to generate barcodes for the RSV-A lineage tree:
 
     .. note::
         If you wish to use a specific version of the pipeline, replace ``-latest`` with the desired version tag (e.g. ``-r "v1.0.0"``).
+        More information about ``-r`` can be found here: https://www.nextflow.io/docs/latest/cli.html#using-a-specific-revision
 
 4. Retrieve the output:
     The pipeline writes results to ``results/barcode/``:
