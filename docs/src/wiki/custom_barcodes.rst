@@ -3,6 +3,8 @@ Creating custom barcodes
 
 Follow these steps to generate lineage‑specific barcodes with **BarcodeForge**.
 
+1. Install **Nextflow** >=24.04.2 (see https://www.nextflow.io/docs/latest/install.html for installation instructions) and **Mamba/Conda** (see https://mamba.readthedocs.io/en/latest/installation/mamba-installation.html).
+
 1. Prepare a lineage tree
 
    Build a phylogenetic tree that includes every lineage you want covered in the barcode set
@@ -45,13 +47,16 @@ Follow these steps to generate lineage‑specific barcodes with **BarcodeForge**
    .. code-block:: bash
 
       nextflow run https://github.com/andersen-lab/BarcodeForge.git \
-        --profile conda \
-        --params-file params.json
+        -profile <conda/mamba> \
+        -params-file <path to the params.json file> \
+        -latest
 
     .. note::
         The pipeline can use the following profiles:
         - conda: Uses Conda for package management.
         - mamba: Uses Mamba for package management.
+
+        If you wish to use a specific version of the pipeline, replace ``-latest`` with the desired version tag (e.g. ``-r "v1.0.0"``).
 
 4. Retrieve the output
 
@@ -97,8 +102,12 @@ The following example shows how to generate barcodes for the RSV-A lineage tree:
     .. code-block:: bash
 
         nextflow run https://github.com/andersen-lab/BarcodeForge.git \
-            --profile mamba \
-            --params-file params.json
+            -profile mamba \
+            -params-file params.json \
+            -latest
+
+    .. note::
+        If you wish to use a specific version of the pipeline, replace ``-latest`` with the desired version tag (e.g. ``-r "v1.0.0"``).
 
 4. Retrieve the output:
     The pipeline writes results to ``results/barcode/``:
