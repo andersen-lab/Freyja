@@ -3593,6 +3593,7 @@
       - PJ.1
       - PK.1
       - PK.1.1
+      - PL.1
       - Q.1
       - Q.2
       - Q.3
@@ -6935,6 +6936,7 @@
       - PJ.1
       - PK.1
       - PK.1.1
+      - PL.1
       - Q.1
       - Q.2
       - Q.3
@@ -9339,6 +9341,7 @@
       - PJ.1
       - PK.1
       - PK.1.1
+      - PL.1
       - Q.1
       - Q.2
       - Q.3
@@ -14169,6 +14172,7 @@
       - PJ.1
       - PK.1
       - PK.1.1
+      - PL.1
   parent: B.1.1
 - name: BA.1
   alias: B.1.1.529.1
@@ -15748,6 +15752,7 @@
       - PJ.1
       - PK.1
       - PK.1.1
+      - PL.1
   parent: B.1.1.529
 - name: BA.2.1
   alias: B.1.1.529.2.1
@@ -19848,6 +19853,7 @@
       - PJ.1
       - PK.1
       - PK.1.1
+      - PL.1
   parent: BA.2
 - name: BA.2.86.1
   alias: B.1.1.529.2.86.1
@@ -20644,6 +20650,7 @@
       - PJ.1
       - PK.1
       - PK.1.1
+      - PL.1
   parent: BA.2.86
 - name: JN.1
   alias: B.1.1.529.2.86.1.1
@@ -21408,6 +21415,7 @@
       - PJ.1
       - PK.1
       - PK.1.1
+      - PL.1
   parent: BA.2.86.1
 - name: JN.1.1
   alias: B.1.1.529.2.86.1.1.1
@@ -25842,6 +25850,7 @@
       - PC.3.2
       - PC.4
       - PC.4.1
+      - PL.1
   parent: JN.1
 - name: JN.1.16.1
   alias: B.1.1.529.2.86.1.1.16.1
@@ -25920,6 +25929,7 @@
       - PC.3.2
       - PC.4
       - PC.4.1
+      - PL.1
   parent: JN.1.16
 - name: LF.1
   alias: B.1.1.529.2.86.1.1.16.1.1
@@ -26040,6 +26050,7 @@
       - PC.3.2
       - PC.4
       - PC.4.1
+      - PL.1
   parent: JN.1.16.1
 - name: LF.7.1
   alias: B.1.1.529.2.86.1.1.16.1.7.1
@@ -26057,6 +26068,7 @@
       - LF.7.1.10
       - NT.1
       - NT.2
+      - PL.1
   parent: LF.7
 - name: LF.7.1.1
   alias: B.1.1.529.2.86.1.1.16.1.7.1.1
@@ -26119,7 +26131,13 @@
   alias: B.1.1.529.2.86.1.1.16.1.7.1.10
   children:
       - LF.7.1.10
+      - PL.1
   parent: LF.7.1
+- name: PL.1
+  alias: B.1.1.529.2.86.1.1.16.1.7.1.10.1
+  children:
+      - PL.1
+  parent: LF.7.1.10
 - name: LF.7.2
   alias: B.1.1.529.2.86.1.1.16.1.7.2
   children:
@@ -50138,6 +50156,7 @@
       - XEC.2.2.1
       - XEC.2.3
       - XEC.2.3.1
+      - XEC.2.4
       - XEC.3
       - XEC.4
       - XEC.4.1
@@ -50182,6 +50201,7 @@
       - XEC.35.1
       - XEC.36
       - XEC.37
+      - XEC.38
   recombinant_parents: KS.1.1,KP.3.3
 - name: XEC.1
   alias: XEC.1
@@ -50197,6 +50217,7 @@
       - XEC.2.2.1
       - XEC.2.3
       - XEC.2.3.1
+      - XEC.2.4
   parent: XEC
 - name: XEC.2.1
   alias: XEC.2.1
@@ -50225,6 +50246,11 @@
   children:
       - XEC.2.3.1
   parent: XEC.2.3
+- name: XEC.2.4
+  alias: XEC.2.4
+  children:
+      - XEC.2.4
+  parent: XEC.2
 - name: XEC.3
   alias: XEC.3
   children:
@@ -50454,6 +50480,11 @@
   alias: XEC.37
   children:
       - XEC.37
+  parent: XEC
+- name: XEC.38
+  alias: XEC.38
+  children:
+      - XEC.38
   parent: XEC
 - name: XED
   alias: XED
