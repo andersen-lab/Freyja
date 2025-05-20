@@ -39,4 +39,5 @@ To ensure reproducibility of results, we provide old (timestamped) barcodes and 
    src/wiki/read_analysis_tutorial
    src/wiki/terra_workflow
    src/wiki/expanded_pathogens
+   src/wiki/custom_barcodes
 
