@@ -1872,6 +1872,8 @@
       - BA.3
       - BA.3.1
       - BA.3.2
+      - BA.3.2.1
+      - BA.3.2.2
       - BA.4
       - BA.4.1
       - BA.4.1.1
@@ -3252,6 +3254,8 @@
       - LR.3
       - LS.1
       - LS.2
+      - LS.2.1
+      - LS.2.1.1
       - LT.1
       - LU.1
       - LU.2
@@ -3523,6 +3527,7 @@
       - NL.14
       - NL.15
       - NL.16
+      - NL.16.1
       - NL.17
       - NL.18
       - NL.19
@@ -5292,6 +5297,8 @@
       - BA.3
       - BA.3.1
       - BA.3.2
+      - BA.3.2.1
+      - BA.3.2.2
       - BA.4
       - BA.4.1
       - BA.4.1.1
@@ -6672,6 +6679,8 @@
       - LR.3
       - LS.1
       - LS.2
+      - LS.2.1
+      - LS.2.1.1
       - LT.1
       - LU.1
       - LU.2
@@ -6943,6 +6952,7 @@
       - NL.14
       - NL.15
       - NL.16
+      - NL.16.1
       - NL.17
       - NL.18
       - NL.19
@@ -7776,6 +7786,8 @@
       - BA.3
       - BA.3.1
       - BA.3.2
+      - BA.3.2.1
+      - BA.3.2.2
       - BA.4
       - BA.4.1
       - BA.4.1.1
@@ -9154,6 +9166,8 @@
       - LR.3
       - LS.1
       - LS.2
+      - LS.2.1
+      - LS.2.1.1
       - LT.1
       - LU.1
       - LU.2
@@ -9425,6 +9439,7 @@
       - NL.14
       - NL.15
       - NL.16
+      - NL.16.1
       - NL.17
       - NL.18
       - NL.19
@@ -12784,6 +12799,8 @@
       - BA.3
       - BA.3.1
       - BA.3.2
+      - BA.3.2.1
+      - BA.3.2.2
       - BA.4
       - BA.4.1
       - BA.4.1.1
@@ -14104,6 +14121,8 @@
       - LR.3
       - LS.1
       - LS.2
+      - LS.2.1
+      - LS.2.1.1
       - LT.1
       - LU.1
       - LU.2
@@ -14362,6 +14381,7 @@
       - NL.14
       - NL.15
       - NL.16
+      - NL.16.1
       - NL.17
       - NL.18
       - NL.19
@@ -15761,6 +15781,8 @@
       - LR.3
       - LS.1
       - LS.2
+      - LS.2.1
+      - LS.2.1.1
       - LT.1
       - LU.1
       - LU.2
@@ -16019,6 +16041,7 @@
       - NL.14
       - NL.15
       - NL.16
+      - NL.16.1
       - NL.17
       - NL.18
       - NL.19
@@ -19939,6 +19962,8 @@
       - LR.3
       - LS.1
       - LS.2
+      - LS.2.1
+      - LS.2.1.1
       - LT.1
       - LU.1
       - LU.2
@@ -20197,6 +20222,7 @@
       - NL.14
       - NL.15
       - NL.16
+      - NL.16.1
       - NL.17
       - NL.18
       - NL.19
@@ -20817,6 +20843,8 @@
       - LR.3
       - LS.1
       - LS.2
+      - LS.2.1
+      - LS.2.1.1
       - LT.1
       - LU.1
       - LU.2
@@ -21071,6 +21099,7 @@
       - NL.14
       - NL.15
       - NL.16
+      - NL.16.1
       - NL.17
       - NL.18
       - NL.19
@@ -21659,6 +21688,8 @@
       - LR.3
       - LS.1
       - LS.2
+      - LS.2.1
+      - LS.2.1.1
       - LT.1
       - LU.1
       - LU.2
@@ -21913,6 +21944,7 @@
       - NL.14
       - NL.15
       - NL.16
+      - NL.16.1
       - NL.17
       - NL.18
       - NL.19
@@ -22559,6 +22591,7 @@
       - NL.14
       - NL.15
       - NL.16
+      - NL.16.1
       - NL.17
       - NL.18
       - NL.19
@@ -22629,6 +22662,7 @@
       - NL.14
       - NL.15
       - NL.16
+      - NL.16.1
       - NL.17
       - NL.18
       - NL.19
@@ -22693,6 +22727,7 @@
       - NL.14
       - NL.15
       - NL.16
+      - NL.16.1
       - NL.17
       - NL.18
       - NL.19
@@ -22766,6 +22801,7 @@
       - NL.14
       - NL.15
       - NL.16
+      - NL.16.1
       - NL.17
       - NL.18
       - NL.19
@@ -22805,6 +22841,7 @@
       - NL.14
       - NL.15
       - NL.16
+      - NL.16.1
       - NL.17
       - NL.18
       - NL.19
@@ -22953,7 +22990,13 @@
   alias: B.1.1.529.2.86.1.1.9.2.1.3.1.16
   children:
       - NL.16
+      - NL.16.1
   parent: LB.1.3.1
+- name: NL.16.1
+  alias: B.1.1.529.2.86.1.1.9.2.1.3.1.16.1
+  children:
+      - NL.16.1
+  parent: NL.16
 - name: NL.17
   alias: B.1.1.529.2.86.1.1.9.2.1.3.1.17
   children:
@@ -28091,6 +28134,8 @@
       - LQ.3
       - LS.1
       - LS.2
+      - LS.2.1
+      - LS.2.1.1
       - LY.1
       - LY.2
       - LZ.1
@@ -28282,6 +28327,8 @@
       - JN.1.18.5
       - LS.1
       - LS.2
+      - LS.2.1
+      - LS.2.1.1
   parent: JN.1.18
 - name: LS.1
   alias: B.1.1.529.2.86.1.1.18.5.1
@@ -28292,7 +28339,20 @@
   alias: B.1.1.529.2.86.1.1.18.5.2
   children:
       - LS.2
+      - LS.2.1
+      - LS.2.1.1
   parent: JN.1.18.5
+- name: LS.2.1
+  alias: B.1.1.529.2.86.1.1.18.5.2.1
+  children:
+      - LS.2.1
+      - LS.2.1.1
+  parent: LS.2
+- name: LS.2.1.1
+  alias: B.1.1.529.2.86.1.1.18.5.2.1.1
+  children:
+      - LS.2.1.1
+  parent: LS.2.1
 - name: JN.1.18.6
   alias: B.1.1.529.2.86.1.1.18.6
   children:
@@ -29697,6 +29757,8 @@
       - BA.3
       - BA.3.1
       - BA.3.2
+      - BA.3.2.1
+      - BA.3.2.2
   parent: B.1.1.529
 - name: BA.3.1
   alias: B.1.1.529.3.1
@@ -29707,7 +29769,19 @@
   alias: B.1.1.529.3.2
   children:
       - BA.3.2
+      - BA.3.2.1
+      - BA.3.2.2
   parent: BA.3
+- name: BA.3.2.1
+  alias: B.1.1.529.3.2.1
+  children:
+      - BA.3.2.1
+  parent: BA.3.2
+- name: BA.3.2.2
+  alias: B.1.1.529.3.2.2
+  children:
+      - BA.3.2.2
+  parent: BA.3.2
 - name: BA.4
   alias: B.1.1.529.4
   children:
@@ -52762,7 +52836,8 @@
       - XFJ.1
       - XFJ.2
       - XFJ.3
-  recombinant_parents: LS.2,LF.7.2,LS.2,LF.7.2
+      - XFJ.4
+  recombinant_parents: LS.2.1.1,LF.7.2,LS.2.1.1,LF.7.2
 - name: XFJ.1
   alias: XFJ.1
   children:
@@ -52778,6 +52853,11 @@
   children:
       - XFJ.3
   parent: XFJ
+- name: XFJ.4
+  alias: XFJ.4
+  children:
+      - XFJ.4
+  parent: XFJ
 - name: XFK
   alias: XFK
   children:
@@ -52792,7 +52872,7 @@
   alias: XFM
   children:
       - XFM
-  recombinant_parents: LF.7.6.2,LS.2
+  recombinant_parents: LF.7.6.2,LS.2.1.1
 - name: XFN
   alias: XFN
   children:
@@ -52802,4 +52882,4 @@
   alias: XFP
   children:
       - XFP
-  recombinant_parents: LS.2,LF.7,LS.2
+  recombinant_parents: LS.2.1.1,LF.7,LS.2.1.1
