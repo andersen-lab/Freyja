@@ -1123,10 +1123,14 @@ def collapse_barcodes(df_barcodes, df_depth, depthcutoff,
                            'recombinant_parents' in
                            lineage_data[alias.split('.')[0]]]
 
+        def get_path_to_root(lineage, lineage_data):
+            if 'parent' not in lineage_data[lineage]:
+                return lineage + '/'
+            return get_path_to_root(lineage_data[lineage]['parent'], lineage_data) + lineage + '/'
+
         if not relaxed:
-            mrca = os.path.commonpath(
-                [lin.replace('.', '/') for lin in pango_aliases]
-            ).replace('/', '.')
+            paths = [get_path_to_root(lineage, lineage_data) for lineage in pango_aliases]
+            mrca = os.path.commonpath(paths).split('/')[-1]
         else:
             j0 = 1
             groupCt = float(len(pango_aliases))
