@@ -1167,15 +1167,14 @@ def collapse_barcodes(df_barcodes, df_depth, depthcutoff,
         if len(mrca) == 0:
             mrca = 'Misc'
         else:
-            if mrca[-1] == '.':
-                mrca = mrca[0:(len(mrca)-1)]
-            # otherwise, get the shortened alias, if available
+            # get shortened alias if available
             for lineage in lineage_data:
                 if lineage_data[lineage]['alias'] == mrca:
                     # add flag to indicate that this is a merged lineage
                     mrca = lineage + '-like'
                     break
-
+            if not mrca.endswith('-like'):
+                mrca += '-like'
         # include index for multiple barcode classes with same MRCA
         if mrca not in alias_count:
             alias_count[mrca] = 0
