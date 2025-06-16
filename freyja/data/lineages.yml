@@ -3170,6 +3170,8 @@
       - LF.7.1.9
       - LF.7.1.10
       - LF.7.1.11
+      - LF.7.1.12
+      - LF.7.1.13
       - LF.7.2
       - LF.7.2.1
       - LF.7.3
@@ -3559,6 +3561,10 @@
       - NS.3
       - NT.1
       - NT.2
+      - NT.2.1
+      - NT.3
+      - NT.4
+      - NT.5
       - NU.1
       - NV.1
       - NW.1
@@ -3597,6 +3603,8 @@
       - NY.17
       - NY.17.1
       - NY.17.2
+      - NY.18
+      - NY.18.1
       - NZ.1
       - P.1
       - P.1.1
@@ -3719,6 +3727,14 @@
       - Q.6
       - Q.7
       - Q.8
+      - QA.1
+      - QA.2
+      - QA.3
+      - QA.4
+      - QA.5
+      - QA.6
+      - QA.7
+      - QB.1
       - R.1
       - R.2
       - S.1
@@ -6630,6 +6646,8 @@
       - LF.7.1.9
       - LF.7.1.10
       - LF.7.1.11
+      - LF.7.1.12
+      - LF.7.1.13
       - LF.7.2
       - LF.7.2.1
       - LF.7.3
@@ -7019,6 +7037,10 @@
       - NS.3
       - NT.1
       - NT.2
+      - NT.2.1
+      - NT.3
+      - NT.4
+      - NT.5
       - NU.1
       - NV.1
       - NW.1
@@ -7057,6 +7079,8 @@
       - NY.17
       - NY.17.1
       - NY.17.2
+      - NY.18
+      - NY.18.1
       - NZ.1
       - P.1
       - P.1.1
@@ -7179,6 +7203,14 @@
       - Q.6
       - Q.7
       - Q.8
+      - QA.1
+      - QA.2
+      - QA.3
+      - QA.4
+      - QA.5
+      - QA.6
+      - QA.7
+      - QB.1
       - R.1
       - R.2
       - S.1
@@ -9152,6 +9184,8 @@
       - LF.7.1.9
       - LF.7.1.10
       - LF.7.1.11
+      - LF.7.1.12
+      - LF.7.1.13
       - LF.7.2
       - LF.7.2.1
       - LF.7.3
@@ -9541,6 +9575,10 @@
       - NS.3
       - NT.1
       - NT.2
+      - NT.2.1
+      - NT.3
+      - NT.4
+      - NT.5
       - NU.1
       - NV.1
       - NW.1
@@ -9579,6 +9617,8 @@
       - NY.17
       - NY.17.1
       - NY.17.2
+      - NY.18
+      - NY.18.1
       - NZ.1
       - P.1
       - P.1.1
@@ -9701,6 +9741,14 @@
       - Q.6
       - Q.7
       - Q.8
+      - QA.1
+      - QA.2
+      - QA.3
+      - QA.4
+      - QA.5
+      - QA.6
+      - QA.7
+      - QB.1
       - R.1
       - R.2
       - S.1
@@ -14142,6 +14190,8 @@
       - LF.7.1.9
       - LF.7.1.10
       - LF.7.1.11
+      - LF.7.1.12
+      - LF.7.1.13
       - LF.7.2
       - LF.7.2.1
       - LF.7.3
@@ -14518,6 +14568,10 @@
       - NS.3
       - NT.1
       - NT.2
+      - NT.2.1
+      - NT.3
+      - NT.4
+      - NT.5
       - NU.1
       - NV.1
       - NW.1
@@ -14556,6 +14610,8 @@
       - NY.17
       - NY.17.1
       - NY.17.2
+      - NY.18
+      - NY.18.1
       - NZ.1
       - PA.1
       - PA.1.1
@@ -14641,6 +14697,14 @@
       - PY.5
       - PY.6
       - PZ.1
+      - QA.1
+      - QA.2
+      - QA.3
+      - QA.4
+      - QA.5
+      - QA.6
+      - QA.7
+      - QB.1
   parent: B.1.1
 - name: BA.1
   alias: B.1.1.529.1
@@ -15837,6 +15901,8 @@
       - LF.7.1.9
       - LF.7.1.10
       - LF.7.1.11
+      - LF.7.1.12
+      - LF.7.1.13
       - LF.7.2
       - LF.7.2.1
       - LF.7.3
@@ -16213,6 +16279,10 @@
       - NS.3
       - NT.1
       - NT.2
+      - NT.2.1
+      - NT.3
+      - NT.4
+      - NT.5
       - NU.1
       - NV.1
       - NW.1
@@ -16251,6 +16321,8 @@
       - NY.17
       - NY.17.1
       - NY.17.2
+      - NY.18
+      - NY.18.1
       - NZ.1
       - PA.1
       - PA.1.1
@@ -16336,6 +16408,14 @@
       - PY.5
       - PY.6
       - PZ.1
+      - QA.1
+      - QA.2
+      - QA.3
+      - QA.4
+      - QA.5
+      - QA.6
+      - QA.7
+      - QB.1
   parent: B.1.1.529
 - name: BA.2.1
   alias: B.1.1.529.2.1
@@ -20053,6 +20133,8 @@
       - LF.7.1.9
       - LF.7.1.10
       - LF.7.1.11
+      - LF.7.1.12
+      - LF.7.1.13
       - LF.7.2
       - LF.7.2.1
       - LF.7.3
@@ -20429,6 +20511,10 @@
       - NS.3
       - NT.1
       - NT.2
+      - NT.2.1
+      - NT.3
+      - NT.4
+      - NT.5
       - NU.1
       - NV.1
       - NW.1
@@ -20467,6 +20553,8 @@
       - NY.17
       - NY.17.1
       - NY.17.2
+      - NY.18
+      - NY.18.1
       - NZ.1
       - PA.1
       - PA.1.1
@@ -20552,6 +20640,14 @@
       - PY.5
       - PY.6
       - PZ.1
+      - QA.1
+      - QA.2
+      - QA.3
+      - QA.4
+      - QA.5
+      - QA.6
+      - QA.7
+      - QB.1
   parent: BA.2
 - name: BA.2.86.1
   alias: B.1.1.529.2.86.1
@@ -20969,6 +21065,8 @@
       - LF.7.1.9
       - LF.7.1.10
       - LF.7.1.11
+      - LF.7.1.12
+      - LF.7.1.13
       - LF.7.2
       - LF.7.2.1
       - LF.7.3
@@ -21341,6 +21439,10 @@
       - NS.3
       - NT.1
       - NT.2
+      - NT.2.1
+      - NT.3
+      - NT.4
+      - NT.5
       - NU.1
       - NV.1
       - NW.1
@@ -21379,6 +21481,8 @@
       - NY.17
       - NY.17.1
       - NY.17.2
+      - NY.18
+      - NY.18.1
       - NZ.1
       - PA.1
       - PA.1.1
@@ -21464,6 +21568,14 @@
       - PY.5
       - PY.6
       - PZ.1
+      - QA.1
+      - QA.2
+      - QA.3
+      - QA.4
+      - QA.5
+      - QA.6
+      - QA.7
+      - QB.1
   parent: BA.2.86
 - name: JN.1
   alias: B.1.1.529.2.86.1.1
@@ -21849,6 +21961,8 @@
       - LF.7.1.9
       - LF.7.1.10
       - LF.7.1.11
+      - LF.7.1.12
+      - LF.7.1.13
       - LF.7.2
       - LF.7.2.1
       - LF.7.3
@@ -22221,6 +22335,10 @@
       - NS.3
       - NT.1
       - NT.2
+      - NT.2.1
+      - NT.3
+      - NT.4
+      - NT.5
       - NU.1
       - NV.1
       - NW.1
@@ -22259,6 +22377,8 @@
       - NY.17
       - NY.17.1
       - NY.17.2
+      - NY.18
+      - NY.18.1
       - NZ.1
       - PA.1
       - PA.1.1
@@ -22344,6 +22464,14 @@
       - PY.5
       - PY.6
       - PZ.1
+      - QA.1
+      - QA.2
+      - QA.3
+      - QA.4
+      - QA.5
+      - QA.6
+      - QA.7
+      - QB.1
   parent: BA.2.86.1
 - name: JN.1.1
   alias: B.1.1.529.2.86.1.1.1
@@ -23767,6 +23895,8 @@
       - NY.17
       - NY.17.1
       - NY.17.2
+      - NY.18
+      - NY.18.1
       - PA.1
       - PA.1.1
       - PA.1.2
@@ -24162,6 +24292,8 @@
       - NY.17
       - NY.17.1
       - NY.17.2
+      - NY.18
+      - NY.18.1
       - PA.1
       - PA.1.1
       - PA.1.2
@@ -24310,6 +24442,8 @@
       - NY.17
       - NY.17.1
       - NY.17.2
+      - NY.18
+      - NY.18.1
       - PD.1
       - PD.1.1
       - PD.1.2
@@ -24424,6 +24558,8 @@
       - NY.17
       - NY.17.1
       - NY.17.2
+      - NY.18
+      - NY.18.1
       - PD.1
       - PD.1.1
       - PD.1.2
@@ -24552,6 +24688,8 @@
       - NY.17
       - NY.17.1
       - NY.17.2
+      - NY.18
+      - NY.18.1
       - PD.1
       - PD.1.1
       - PD.1.2
@@ -24684,6 +24822,8 @@
       - NY.17
       - NY.17.1
       - NY.17.2
+      - NY.18
+      - NY.18.1
       - PD.1
       - PD.1.1
       - PD.1.2
@@ -24759,6 +24899,8 @@
       - NY.17
       - NY.17.1
       - NY.17.2
+      - NY.18
+      - NY.18.1
       - PD.1
       - PD.1.1
       - PD.1.2
@@ -24813,6 +24955,8 @@
       - NY.17
       - NY.17.1
       - NY.17.2
+      - NY.18
+      - NY.18.1
   parent: LP.8.1
 - name: NY.1
   alias: B.1.1.529.2.86.1.1.11.1.1.1.3.8.1.1.1
@@ -24979,6 +25123,17 @@
   children:
       - NY.17.2
   parent: NY.17
+- name: NY.18
+  alias: B.1.1.529.2.86.1.1.11.1.1.1.3.8.1.1.18
+  children:
+      - NY.18
+      - NY.18.1
+  parent: LP.8.1.1
+- name: NY.18.1
+  alias: B.1.1.529.2.86.1.1.11.1.1.1.3.8.1.1.18.1
+  children:
+      - NY.18.1
+  parent: NY.18
 - name: LP.8.1.2
   alias: B.1.1.529.2.86.1.1.11.1.1.1.3.8.1.2
   children:
@@ -27827,6 +27982,8 @@
       - LF.7.1.9
       - LF.7.1.10
       - LF.7.1.11
+      - LF.7.1.12
+      - LF.7.1.13
       - LF.7.2
       - LF.7.2.1
       - LF.7.3
@@ -27880,6 +28037,10 @@
       - NS.3
       - NT.1
       - NT.2
+      - NT.2.1
+      - NT.3
+      - NT.4
+      - NT.5
       - PC.1
       - PC.2
       - PC.2.1
@@ -27909,6 +28070,14 @@
       - PY.5
       - PY.6
       - PZ.1
+      - QA.1
+      - QA.2
+      - QA.3
+      - QA.4
+      - QA.5
+      - QA.6
+      - QA.7
+      - QB.1
   parent: JN.1
 - name: JN.1.16.1
   alias: B.1.1.529.2.86.1.1.16.1
@@ -27939,6 +28108,8 @@
       - LF.7.1.9
       - LF.7.1.10
       - LF.7.1.11
+      - LF.7.1.12
+      - LF.7.1.13
       - LF.7.2
       - LF.7.2.1
       - LF.7.3
@@ -27979,6 +28150,10 @@
       - ND.3
       - NT.1
       - NT.2
+      - NT.2.1
+      - NT.3
+      - NT.4
+      - NT.5
       - PC.1
       - PC.2
       - PC.2.1
@@ -28008,6 +28183,14 @@
       - PY.5
       - PY.6
       - PZ.1
+      - QA.1
+      - QA.2
+      - QA.3
+      - QA.4
+      - QA.5
+      - QA.6
+      - QA.7
+      - QB.1
   parent: JN.1.16
 - name: LF.1
   alias: B.1.1.529.2.86.1.1.16.1.1
@@ -28094,6 +28277,8 @@
       - LF.7.1.9
       - LF.7.1.10
       - LF.7.1.11
+      - LF.7.1.12
+      - LF.7.1.13
       - LF.7.2
       - LF.7.2.1
       - LF.7.3
@@ -28120,6 +28305,10 @@
       - LF.7.10.1
       - NT.1
       - NT.2
+      - NT.2.1
+      - NT.3
+      - NT.4
+      - NT.5
       - PC.1
       - PC.2
       - PC.2.1
@@ -28149,6 +28338,14 @@
       - PY.5
       - PY.6
       - PZ.1
+      - QA.1
+      - QA.2
+      - QA.3
+      - QA.4
+      - QA.5
+      - QA.6
+      - QA.7
+      - QB.1
   parent: JN.1.16.1
 - name: LF.7.1
   alias: B.1.1.529.2.86.1.1.16.1.7.1
@@ -28165,12 +28362,26 @@
       - LF.7.1.9
       - LF.7.1.10
       - LF.7.1.11
+      - LF.7.1.12
+      - LF.7.1.13
       - NT.1
       - NT.2
+      - NT.2.1
+      - NT.3
+      - NT.4
+      - NT.5
       - PL.1
       - PL.1.1
       - PL.2
       - PZ.1
+      - QA.1
+      - QA.2
+      - QA.3
+      - QA.4
+      - QA.5
+      - QA.6
+      - QA.7
+      - QB.1
   parent: LF.7
 - name: LF.7.1.1
   alias: B.1.1.529.2.86.1.1.16.1.7.1.1
@@ -28183,6 +28394,10 @@
       - LF.7.1.2
       - NT.1
       - NT.2
+      - NT.2.1
+      - NT.3
+      - NT.4
+      - NT.5
   parent: LF.7.1
 - name: NT.1
   alias: B.1.1.529.2.86.1.1.16.1.7.1.2.1
@@ -28193,12 +28408,75 @@
   alias: B.1.1.529.2.86.1.1.16.1.7.1.2.2
   children:
       - NT.2
+      - NT.2.1
+  parent: LF.7.1.2
+- name: NT.2.1
+  alias: B.1.1.529.2.86.1.1.16.1.7.1.2.2.1
+  children:
+      - NT.2.1
+  parent: NT.2
+- name: NT.3
+  alias: B.1.1.529.2.86.1.1.16.1.7.1.2.3
+  children:
+      - NT.3
+  parent: LF.7.1.2
+- name: NT.4
+  alias: B.1.1.529.2.86.1.1.16.1.7.1.2.4
+  children:
+      - NT.4
+  parent: LF.7.1.2
+- name: NT.5
+  alias: B.1.1.529.2.86.1.1.16.1.7.1.2.5
+  children:
+      - NT.5
   parent: LF.7.1.2
 - name: LF.7.1.3
   alias: B.1.1.529.2.86.1.1.16.1.7.1.3
   children:
       - LF.7.1.3
+      - QA.1
+      - QA.2
+      - QA.3
+      - QA.4
+      - QA.5
+      - QA.6
+      - QA.7
   parent: LF.7.1
+- name: QA.1
+  alias: B.1.1.529.2.86.1.1.16.1.7.1.3.1
+  children:
+      - QA.1
+  parent: LF.7.1.3
+- name: QA.2
+  alias: B.1.1.529.2.86.1.1.16.1.7.1.3.2
+  children:
+      - QA.2
+  parent: LF.7.1.3
+- name: QA.3
+  alias: B.1.1.529.2.86.1.1.16.1.7.1.3.3
+  children:
+      - QA.3
+  parent: LF.7.1.3
+- name: QA.4
+  alias: B.1.1.529.2.86.1.1.16.1.7.1.3.4
+  children:
+      - QA.4
+  parent: LF.7.1.3
+- name: QA.5
+  alias: B.1.1.529.2.86.1.1.16.1.7.1.3.5
+  children:
+      - QA.5
+  parent: LF.7.1.3
+- name: QA.6
+  alias: B.1.1.529.2.86.1.1.16.1.7.1.3.6
+  children:
+      - QA.6
+  parent: LF.7.1.3
+- name: QA.7
+  alias: B.1.1.529.2.86.1.1.16.1.7.1.3.7
+  children:
+      - QA.7
+  parent: LF.7.1.3
 - name: LF.7.1.4
   alias: B.1.1.529.2.86.1.1.16.1.7.1.4
   children:
@@ -28264,6 +28542,22 @@
   children:
       - LF.7.1.11
   parent: LF.7.1
+- name: LF.7.1.12
+  alias: B.1.1.529.2.86.1.1.16.1.7.1.12
+  children:
+      - LF.7.1.12
+  parent: LF.7.1
+- name: LF.7.1.13
+  alias: B.1.1.529.2.86.1.1.16.1.7.1.13
+  children:
+      - LF.7.1.13
+      - QB.1
+  parent: LF.7.1
+- name: QB.1
+  alias: B.1.1.529.2.86.1.1.16.1.7.1.13.1
+  children:
+      - QB.1
+  parent: LF.7.1.13
 - name: LF.7.2
   alias: B.1.1.529.2.86.1.1.16.1.7.2
   children:
@@ -52680,6 +52974,13 @@
       - XDY.5.1
       - XDY.6
       - XDY.7
+      - XDY.8
+      - XDY.9
+      - XDY.10
+      - XDY.11
+      - XDY.12
+      - XDY.12.1
+      - XDY.12.1.1
   recombinant_parents: LB.1.2.1,KP.3.2
 - name: XDY.1
   alias: XDY.1
@@ -52728,6 +53029,44 @@
   children:
       - XDY.7
   parent: XDY
+- name: XDY.8
+  alias: XDY.8
+  children:
+      - XDY.8
+  parent: XDY
+- name: XDY.9
+  alias: XDY.9
+  children:
+      - XDY.9
+  parent: XDY
+- name: XDY.10
+  alias: XDY.10
+  children:
+      - XDY.10
+  parent: XDY
+- name: XDY.11
+  alias: XDY.11
+  children:
+      - XDY.11
+  parent: XDY
+- name: XDY.12
+  alias: XDY.12
+  children:
+      - XDY.12
+      - XDY.12.1
+      - XDY.12.1.1
+  parent: XDY
+- name: XDY.12.1
+  alias: XDY.12.1
+  children:
+      - XDY.12.1
+      - XDY.12.1.1
+  parent: XDY.12
+- name: XDY.12.1.1
+  alias: XDY.12.1.1
+  children:
+      - XDY.12.1.1
+  parent: XDY.12.1
 - name: XDZ
   alias: XDZ
   children:
@@ -52759,6 +53098,7 @@
       - XEC.2.4
       - XEC.2.5
       - XEC.2.6
+      - XEC.2.7
       - XEC.2.8
       - XEC.2.9
       - XEC.2.10
@@ -52859,6 +53199,7 @@
       - XEC.2.4
       - XEC.2.5
       - XEC.2.6
+      - XEC.2.7
       - XEC.2.8
       - XEC.2.9
       - XEC.2.10
@@ -52904,6 +53245,11 @@
   alias: XEC.2.6
   children:
       - XEC.2.6
+  parent: XEC.2
+- name: XEC.2.7
+  alias: XEC.2.7
+  children:
+      - XEC.2.7
   parent: XEC.2
 - name: XEC.2.8
   alias: XEC.2.8
@@ -53780,6 +54126,9 @@
       - XFG.2
       - XFG.3
       - XFG.3.1
+      - XFG.4
+      - XFG.5
+      - XFG.6
   recombinant_parents: LF.7,LP.8.1.2,LF.7
 - name: XFG.1
   alias: XFG.1
@@ -53802,13 +54151,28 @@
   children:
       - XFG.3.1
   parent: XFG.3
+- name: XFG.4
+  alias: XFG.4
+  children:
+      - XFG.4
+  parent: XFG
+- name: XFG.5
+  alias: XFG.5
+  children:
+      - XFG.5
+  parent: XFG
+- name: XFG.6
+  alias: XFG.6
+  children:
+      - XFG.6
+  parent: XFG
 - name: XFH
   alias: XFH
   children:
       - XFH
       - XFH.1
       - XFH.2
-  recombinant_parents: LF.7.1,XEF,LF.7.1
+  recombinant_parents: LF.7.1.13,XEF,LF.7.1.13
 - name: XFH.1
   alias: XFH.1
   children:
@@ -53872,4 +54236,10 @@
   alias: XFP
   children:
       - XFP
+      - XFP.1
   recombinant_parents: LS.2.1.1,LF.7,LS.2.1.1
+- name: XFP.1
+  alias: XFP.1
+  children:
+      - XFP.1
+  parent: XFP
