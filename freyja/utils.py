@@ -1131,13 +1131,18 @@ def collapse_barcodes(df_barcodes, df_depth, depthcutoff,
                         break
             if 'parent' not in lineage_data[lineage]:
                 return lineage + '/'
-            return get_path_to_root(lineage_data[lineage]['parent'], lineage_data) + lineage + '/'
+            return get_path_to_root(
+                lineage_data[lineage]['parent'],
+                lineage_data
+            ) + lineage + '/'
 
         if not relaxed:
-            paths = [get_path_to_root(lineage, lineage_data) for lineage in pango_aliases]
+            paths = [get_path_to_root(lineage, lineage_data)
+                     for lineage in pango_aliases]
             mrca = os.path.commonpath(paths).split('/')[-1]
         else:
-            paths = [get_path_to_root(lineage, lineage_data)[:-1] for lineage in pango_aliases]
+            paths = [get_path_to_root(lineage, lineage_data)[:-1]
+                     for lineage in pango_aliases]
             j0 = 1
             groupCt = float(len(paths))
             ext_counts = np.unique([lin.split('/')[0:j0]
@@ -1158,7 +1163,7 @@ def collapse_barcodes(df_barcodes, df_depth, depthcutoff,
                                            return_counts=True,
                                            axis=0)
                     max_ind = np.argmax(ext_counts[1])
-                    
+
                     coherentFrac = ext_counts[1][max_ind] / groupCt
                     if coherentFrac >= relaxedthresh:
                         mrca = ext_counts[0][max_ind][-1]
