@@ -20,9 +20,9 @@ FLU-B-VIC:
  - name: "FLU-B-VIC"
    barcodes: "https://raw.githubusercontent.com/andersen-lab/Freyja-barcodes/refs/heads/main/FLU-B-VIC/latest/barcode.csv"
 
-H1N1pdm:
- - name: "H1N1"
-   barcodes: "https://raw.githubusercontent.com/andersen-lab/Freyja-barcodes/refs/heads/main/H1N1/latest/barcode.csv"
+H3N2:
+ - name: "H3N2"
+   barcodes: "https://raw.githubusercontent.com/andersen-lab/Freyja-barcodes/refs/heads/main/H3N2/latest/barcode.csv"
 
 
 MEASLESN450:
