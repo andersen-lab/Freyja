@@ -1123,49 +1123,64 @@ def collapse_barcodes(df_barcodes, df_depth, depthcutoff,
                            'recombinant_parents' in
                            lineage_data[alias.split('.')[0]]]
 
+        def get_path_to_root(lineage, lineage_data):
+            if lineage not in lineage_data:
+                for lin in lineage_data:
+                    if lineage_data[lin]['alias'] == lineage:
+                        lineage = lin
+                        break
+            if 'parent' not in lineage_data[lineage]:
+                return lineage + '/'
+            return get_path_to_root(
+                lineage_data[lineage]['parent'],
+                lineage_data
+            ) + lineage + '/'
+
         if not relaxed:
-            mrca = os.path.commonpath(
-                [lin.replace('.', '/') for lin in pango_aliases]
-            ).replace('/', '.')
+            paths = [get_path_to_root(lineage, lineage_data)
+                     for lineage in pango_aliases]
+            mrca = os.path.commonpath(paths).split('/')[-1]
         else:
+            paths = [get_path_to_root(lineage, lineage_data)[:-1]
+                     for lineage in pango_aliases]
             j0 = 1
-            groupCt = float(len(pango_aliases))
-            ext_counts = np.unique([lin.split('.')[0:j0]
-                                    for lin in pango_aliases],
+            groupCt = float(len(paths))
+            ext_counts = np.unique([lin.split('/')[0:j0]
+                                    for lin in paths],
                                    return_counts=True)
             coherentFrac = np.max(ext_counts[1]) / groupCt
             if coherentFrac < relaxedthresh:
                 mrca = ''
             else:
-                maxLength = np.max([len(lin.split('.'))
-                                    for lin in pango_aliases])
+                maxLength = np.max([len(lin.split('/'))
+                                    for lin in paths])
                 while coherentFrac >= relaxedthresh and j0 <= maxLength:
-                    ext_counts = np.unique([lin.split('.')[0:j0]
-                                            if j0 <= len(lin.split('.'))
-                                            else lin.split('.') +
-                                            ['']*(j0-len(lin.split('.')))
-                                            for lin in pango_aliases],
+                    ext_counts = np.unique([lin.split('/')[0:j0]
+                                            if j0 <= len(lin.split('/'))
+                                            else lin.split('/') +
+                                            ['']*(j0-len(lin.split('/')))
+                                            for lin in paths],
                                            return_counts=True,
                                            axis=0)
                     max_ind = np.argmax(ext_counts[1])
+
                     coherentFrac = ext_counts[1][max_ind] / groupCt
                     if coherentFrac >= relaxedthresh:
-                        mrca = '.'.join(ext_counts[0][max_ind])
+                        mrca = ext_counts[0][max_ind][-1]
                     j0 += 1
 
         # assign placeholder if no MRCA found
         if len(mrca) == 0:
             mrca = 'Misc'
         else:
-            if mrca[-1] == '.':
-                mrca = mrca[0:(len(mrca)-1)]
-            # otherwise, get the shortened alias, if available
+            # get shortened alias if available
             for lineage in lineage_data:
                 if lineage_data[lineage]['alias'] == mrca:
                     # add flag to indicate that this is a merged lineage
                     mrca = lineage + '-like'
                     break
-
+            if not mrca.endswith('-like'):
+                mrca += '-like'
         # include index for multiple barcode classes with same MRCA
         if mrca not in alias_count:
             alias_count[mrca] = 0
