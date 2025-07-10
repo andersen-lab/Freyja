@@ -150,7 +150,7 @@ def calc_rel_growth_rates(df, nboots=1000, serial_interval=5.5,
         coef_upper = np.percentile(coef_ests, 97.5)
 
         rate0 = fit[1]
-        trans_increase = np.exp(serial_interval * rate0) -1
+        trans_increase = np.exp(serial_interval * rate0) - 1
 
         rel_growth_rate['Lineage'].append(lineage)
         rel_growth_rate['Estimated Advantage'].append(f'{trans_increase:.1%}')
