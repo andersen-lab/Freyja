@@ -13,7 +13,7 @@ pathogens = ['SARS-CoV-2'] + list(pathogen_config.keys())
 
 
 @click.group(context_settings={'show_default': True})
-@click.version_option('1.5.3')
+@click.version_option('2.0.0')
 def cli():
     pass
 
@@ -26,13 +26,40 @@ def print_barcode_version(ctx, param, value):
         return
     locDir = os.path.abspath(os.path.join(os.path.realpath(__file__),
                              os.pardir))
+    if '--barcodes' in sys.argv:
+        barcodes = sys.argv[sys.argv.index('--barcodes')+1]
+        click.echo('Using user-supplied barcodes at path:')
+        click.echo(os.path.abspath(barcodes))
+        ctx.exit()
+
+    elif '--pathogen' in sys.argv:
+        pathogen = sys.argv[sys.argv.index('--pathogen')+1]
+        if pathogen in pathogens:
+            click.echo(f'Using {pathogen} barcodes in:')
+            click.echo(os.path.join(locDir,
+                                    'data/',
+                                    pathogen_config[pathogen][0]['name'] +
+                                    '_barcodes.csv'))
+            ctx.exit()
+        else:
+            click.echo('Pathogen not in available list (see'
+                       ' freyja-barcodes repo).'
+                       ' May require re-running freyja update.')
+            click.echo(f"Available pathogens:{pathogens}")
+            ctx.exit()
     f = open(os.path.join(locDir, 'data/last_barcode_update.txt'), 'r')
-    click.echo('Barcode version:')
-    click.echo(f.readline())
+    click.echo('SARS-CoV-2 Barcode version:')
+    click.echo(f.readline().strip())
+    click.echo('Local barcode path:')
+    click.echo(os.path.join(locDir, 'data/usher_barcodes.feather'))
     ctx.exit()
 
 
 @cli.command()
+@click.option('--version', is_flag=True, callback=print_barcode_version,
+              expose_value=False, is_eager=True, show_default=True,
+              help="get barcode version, "
+              "returns filename for custom barcodes")
 @click.argument('variants', type=click.Path(exists=True))
 @click.argument('depths', type=click.Path(exists=True))
 @click.option('--eps', default=1e-3,
@@ -51,8 +78,6 @@ def print_barcode_version(ctx, param, value):
 @click.option('--confirmedonly', is_flag=True,
               help="exclude unconfirmed lineages",
               default=False, show_default=True)
-@click.option('--version', is_flag=True, callback=print_barcode_version,
-              expose_value=False, is_eager=True, show_default=True)
 @click.option('--depthcutoff', default=0,
               help='exclude sites with coverage depth below this value and'
               'group identical barcodes', show_default=True)
