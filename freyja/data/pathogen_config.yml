@@ -40,3 +40,19 @@ RSVa:
 RSVb:
  - name: "RSVb"
    barcodes: "https://raw.githubusercontent.com/andersen-lab/Freyja-barcodes/refs/heads/main/RSVb/latest/barcode.csv"
+
+DENV1:
+ - name: "DENV1"
+   barcodes: "https://raw.githubusercontent.com/andersen-lab/Freyja-barcodes/refs/heads/main/DENV1/latest/barcode.csv"
+
+DENV2:
+ - name: "DENV2"
+   barcodes: "https://raw.githubusercontent.com/andersen-lab/Freyja-barcodes/refs/heads/main/DENV2/latest/barcode.csv"
+
+DENV3:
+ - name: "DENV3"
+   barcodes: "https://raw.githubusercontent.com/andersen-lab/Freyja-barcodes/refs/heads/main/DENV3/latest/barcode.csv"
+
+DENV4:
+ - name: "DENV4"
+   barcodes: "https://raw.githubusercontent.com/andersen-lab/Freyja-barcodes/refs/heads/main/DENV4/latest/barcode.csv"
