@@ -80,7 +80,7 @@ def print_barcode_version(ctx, param, value):
               default=False, show_default=True)
 @click.option('--depthcutoff', default=0,
               help='exclude sites with coverage depth below this value and'
-              'group identical barcodes', show_default=True)
+              ' group identical barcodes', show_default=True)
 @click.option('--lineageyml', default='',
               help='lineage hierarchy file in a yaml format')
 @click.option('--adapt', default=0.,
@@ -94,7 +94,7 @@ def print_barcode_version(ctx, param, value):
                    ' for which to compute additional coverage estimates')
 @click.option('--relaxedmrca', is_flag=True, default=False,
               help='for use with depth cutoff,'
-              'clusters are assigned robust mrca to handle outliers',
+              ' clusters are assigned robust mrca to handle outliers',
               show_default=True)
 @click.option('--relaxedthresh', default=0.9,
               help='associated threshold for robust mrca function',
@@ -110,7 +110,7 @@ def print_barcode_version(ctx, param, value):
 @click.option('--pathogen', type=click.Choice(pathogens),
               default='SARS-CoV-2',
               help='Pathogen of interest.' +
-              'Not used if using --barcodes option.',
+              ' Not used if using --barcodes option.',
               show_default=True)
 @click.option('--autoadapt', default=False,
               is_flag=True,

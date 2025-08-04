@@ -200,7 +200,7 @@ def solve_demixing_problem(df_barcodes, mix, depths, eps, adapt,
         prob.solve(verbose=verbose, solver=solver_, **solver_kwargs)
     except cp.error.SolverError:
         raise ValueError('Solver error encountered, most '
-                         'likely due to insufficient sequencing depth.'
+                         'likely due to insufficient sequencing depth. '
                          'Try running with --depthcutoff.')
     sol = x.value
     rnorm0 = cp.norm(A @ x - b, 1).value
@@ -219,7 +219,7 @@ def solve_demixing_problem(df_barcodes, mix, depths, eps, adapt,
             prob.solve(verbose=verbose, solver=solver_, **solver_kwargs)
         except cp.error.SolverError:
             raise ValueError('Solver error encountered, most '
-                             'likely due to insufficient sequencing depth.'
+                             'likely due to insufficient sequencing depth. '
                              'Try running with --depthcutoff.')
         sol = np.zeros(len(sol))
         sol[solNz] = x.value
