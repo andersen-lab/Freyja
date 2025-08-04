@@ -102,6 +102,11 @@ def print_barcode_version(ctx, param, value):
 @click.option('--solver', default='CLARABEL',
               help='solver used for estimating lineage prevalence',
               show_default=True)
+@click.option('--max-solver-threads', default=0, type=int,
+              help='maximum number of threads for multithreaded demix'
+              ' solvers (0 to choose automatically)', show_default=True)
+@click.option('--verbose-solver', is_flag=True,
+              help='enable solver verbosity')
 @click.option('--pathogen', type=click.Choice(pathogens),
               default='SARS-CoV-2',
               help='Pathogen of interest.' +
@@ -114,8 +119,8 @@ def print_barcode_version(ctx, param, value):
 def demix(variants, depths, output, eps, barcodes, meta,
           covcut, confirmedonly, depthcutoff, lineageyml,
           adapt, a_eps, region_of_interest,
-          relaxedmrca, relaxedthresh, solver, pathogen,
-          autoadapt):
+          relaxedmrca, relaxedthresh, solver, max_solver_threads,
+          verbose_solver, pathogen, autoadapt):
     """
     Generate relative lineage abundances from VARIANTS and DEPTHS
     """
@@ -171,7 +176,9 @@ def demix(variants, depths, output, eps, barcodes, meta,
                                                                eps,
                                                                adapt,
                                                                a_eps,
-                                                               solver)
+                                                               solver,
+                                                               max_solver_threads,
+                                                               verbose_solver)
     # merge intra-lineage diversity if multiple hits.
     if len(set(sample_strains)) < len(sample_strains):
         localDict = {}
