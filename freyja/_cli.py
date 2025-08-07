@@ -102,7 +102,7 @@ def print_barcode_version(ctx, param, value):
 @click.option('--solver', default='CLARABEL',
               help='solver used for estimating lineage prevalence',
               show_default=True)
-@click.option('--max-solver-threads', default=0, type=int,
+@click.option('--max-solver-threads', default=1, type=int,
               help='maximum number of threads for multithreaded demix'
               ' solvers (0 to choose automatically)', show_default=True)
 @click.option('--verbose-solver', is_flag=True,

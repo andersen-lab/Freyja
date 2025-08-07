@@ -171,7 +171,7 @@ def map_to_constellation(sample_strains, vals, mapDict):
 
 
 def solve_demixing_problem(df_barcodes, mix, depths, eps, adapt,
-                           a_eps, solver, max_threads=0, verbose=False):
+                           a_eps, solver, max_threads=1, verbose=False):
     # single file problem setup, solving
 
     dep = np.log2(depths+1)
@@ -182,7 +182,7 @@ def solve_demixing_problem(df_barcodes, mix, depths, eps, adapt,
     b = np.array(pd.to_numeric(mix)*dep)
     x = cp.Variable(A.shape[1])
     cost = cp.norm(A @ x - b, 1)
-    constraints = [sum(x) == 1, x >= 0]
+    constraints = [cp.sum(x) == 1, x >= 0]
     prob = cp.Problem(cp.Minimize(cost), constraints)
 
     solver_kwargs = {}
@@ -213,7 +213,7 @@ def solve_demixing_problem(df_barcodes, mix, depths, eps, adapt,
         x = cp.Variable(A.shape[1])
         cost = cp.norm(A @ x - b, 1) +\
             (rnorm0*adapt)*cp.norm(cp.multiply(solFlip, x), 1)
-        constraints = [sum(x) == 1, x >= 0]
+        constraints = [cp.sum(x) == 1, x >= 0]
         prob = cp.Problem(cp.Minimize(cost), constraints)
         try:
             prob.solve(verbose=verbose, solver=solver_, **solver_kwargs)
@@ -221,6 +221,8 @@ def solve_demixing_problem(df_barcodes, mix, depths, eps, adapt,
             raise ValueError('Solver error encountered, most '
                              'likely due to insufficient sequencing depth. '
                              'Try running with --depthcutoff.')
+        # except TypeError:
+        #     raise
         sol = np.zeros(len(sol))
         sol[solNz] = x.value
 
