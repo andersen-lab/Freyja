@@ -80,7 +80,7 @@ def print_barcode_version(ctx, param, value):
               default=False, show_default=True)
 @click.option('--depthcutoff', default=0,
               help='exclude sites with coverage depth below this value and'
-              'group identical barcodes', show_default=True)
+              ' group identical barcodes', show_default=True)
 @click.option('--lineageyml', default='',
               help='lineage hierarchy file in a yaml format')
 @click.option('--adapt', default=0.,
@@ -94,7 +94,7 @@ def print_barcode_version(ctx, param, value):
                    ' for which to compute additional coverage estimates')
 @click.option('--relaxedmrca', is_flag=True, default=False,
               help='for use with depth cutoff,'
-              'clusters are assigned robust mrca to handle outliers',
+              ' clusters are assigned robust mrca to handle outliers',
               show_default=True)
 @click.option('--relaxedthresh', default=0.9,
               help='associated threshold for robust mrca function',
@@ -102,10 +102,15 @@ def print_barcode_version(ctx, param, value):
 @click.option('--solver', default='CLARABEL',
               help='solver used for estimating lineage prevalence',
               show_default=True)
+@click.option('--max-solver-threads', default=1, type=int,
+              help='maximum number of threads for multithreaded demix'
+              ' solvers (0 to choose automatically)', show_default=True)
+@click.option('--verbose-solver', is_flag=True,
+              help='enable solver verbosity')
 @click.option('--pathogen', type=click.Choice(pathogens),
               default='SARS-CoV-2',
               help='Pathogen of interest.' +
-              'Not used if using --barcodes option.',
+              ' Not used if using --barcodes option.',
               show_default=True)
 @click.option('--autoadapt', default=False,
               is_flag=True,
@@ -114,8 +119,8 @@ def print_barcode_version(ctx, param, value):
 def demix(variants, depths, output, eps, barcodes, meta,
           covcut, confirmedonly, depthcutoff, lineageyml,
           adapt, a_eps, region_of_interest,
-          relaxedmrca, relaxedthresh, solver, pathogen,
-          autoadapt):
+          relaxedmrca, relaxedthresh, solver, max_solver_threads,
+          verbose_solver, pathogen, autoadapt):
     """
     Generate relative lineage abundances from VARIANTS and DEPTHS
     """
@@ -165,13 +170,17 @@ def demix(variants, depths, output, eps, barcodes, meta,
                                                           autoadapt)
     df_barcodes, mix, depths_ = reindex_dfs(df_barcodes, mix, depths_)
     print('demixing')
-    sample_strains, abundances, error = solve_demixing_problem(df_barcodes,
-                                                               mix,
-                                                               depths_,
-                                                               eps,
-                                                               adapt,
-                                                               a_eps,
-                                                               solver)
+    sample_strains, abundances, error = solve_demixing_problem(
+        df_barcodes,
+        mix,
+        depths_,
+        eps,
+        adapt,
+        a_eps,
+        solver,
+        max_solver_threads,
+        verbose_solver
+    )
     # merge intra-lineage diversity if multiple hits.
     if len(set(sample_strains)) < len(sample_strains):
         localDict = {}

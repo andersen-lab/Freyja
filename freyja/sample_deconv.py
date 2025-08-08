@@ -171,7 +171,7 @@ def map_to_constellation(sample_strains, vals, mapDict):
 
 
 def solve_demixing_problem(df_barcodes, mix, depths, eps, adapt,
-                           a_eps, solver):
+                           a_eps, solver, max_threads=1, verbose=False):
     # single file problem setup, solving
 
     dep = np.log2(depths+1)
@@ -182,21 +182,25 @@ def solve_demixing_problem(df_barcodes, mix, depths, eps, adapt,
     b = np.array(pd.to_numeric(mix)*dep)
     x = cp.Variable(A.shape[1])
     cost = cp.norm(A @ x - b, 1)
-    constraints = [sum(x) == 1, x >= 0]
+    constraints = [cp.sum(x) == 1, x >= 0]
     prob = cp.Problem(cp.Minimize(cost), constraints)
 
+    solver_kwargs = {}
     if solver == 'ECOS':
         solver_ = cp.ECOS
     elif solver == 'OSQP':
         solver_ = cp.OSQP
     else:
         solver_ = cp.CLARABEL
+        # Setup CLARABEL thread limit if necessary
+        if int(max_threads) != 0:
+            solver_kwargs = {"max_threads": max_threads}
 
     try:
-        prob.solve(verbose=False, solver=solver_)
+        prob.solve(verbose=verbose, solver=solver_, **solver_kwargs)
     except cp.error.SolverError:
         raise ValueError('Solver error encountered, most '
-                         'likely due to insufficient sequencing depth.'
+                         'likely due to insufficient sequencing depth. '
                          'Try running with --depthcutoff.')
     sol = x.value
     rnorm0 = cp.norm(A @ x - b, 1).value
@@ -209,14 +213,16 @@ def solve_demixing_problem(df_barcodes, mix, depths, eps, adapt,
         x = cp.Variable(A.shape[1])
         cost = cp.norm(A @ x - b, 1) +\
             (rnorm0*adapt)*cp.norm(cp.multiply(solFlip, x), 1)
-        constraints = [sum(x) == 1, x >= 0]
+        constraints = [cp.sum(x) == 1, x >= 0]
         prob = cp.Problem(cp.Minimize(cost), constraints)
         try:
-            prob.solve(verbose=False, solver=solver_)
+            prob.solve(verbose=verbose, solver=solver_, **solver_kwargs)
         except cp.error.SolverError:
-            raise ValueError('Solver error encountered, most'
-                             'likely due to insufficient sequencing depth.'
+            raise ValueError('Solver error encountered, most '
+                             'likely due to insufficient sequencing depth. '
                              'Try running with --depthcutoff.')
+        # except TypeError:
+        #     raise
         sol = np.zeros(len(sol))
         sol[solNz] = x.value
 
