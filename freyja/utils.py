@@ -1241,7 +1241,7 @@ def process_bed_file(bed_file):
     )
     # Extract number and side (LEFT/RIGHT) using regex
     primer_df[['number', 'side']] =\
-        primer_df['name'].str.extract(r'(.+?)_(LEFT|RIGHT)')
+        primer_df['name'].str.extract(r'_(\d+)_((?:LEFT|RIGHT))_')
     # Drop rows where extraction failed (invalid names)
     primer_df.dropna(subset=['number', 'side'], inplace=True)
     # Separate LEFT and RIGHT primers
