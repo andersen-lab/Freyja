@@ -29,6 +29,36 @@ def agg(results):
     return df_demix
 
 
+def validate_lineage_parents(lineagefile):
+    """
+    Validate that every parent referenced in a lineage exists in the list.
+    Raises an error listing all missing parents.
+    """
+    with open(lineagefile, "r") as f:
+        lineages = yaml.safe_load(f)
+    print("Validating the provided yaml file...")
+    # Build a set of all lineage names
+    existing = {entry['name'] for entry in lineages}
+
+    # Track all missing parents
+    missing_parents = []
+
+    for entry in lineages:
+        parent = entry.get('parent')
+        if parent and parent not in existing:
+            missing_parents.append((entry['name'], parent))
+
+    if missing_parents:
+        error_msg = "Missing parents found:\n"
+        for child, parent in missing_parents:
+            error_msg += f"  Child '{child}' references"
+            " missing parent '{parent}'\n"
+        print("Please check your lineage yaml file..")
+        raise ValueError(error_msg)
+
+    print("lineage yaml file validated...All parents exist.")
+
+
 def load_barcodes(barcodes, pathogen, altname):
     locDir = os.path.abspath(os.path.join(os.path.realpath(__file__),
                              os.pardir))
