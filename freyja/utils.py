@@ -1309,6 +1309,18 @@ def check_amplicon_coverage(depth_file, amplicons, min_coverage):
         columns=["chromosome", "start", "end", "amplicon_name",
                  "amplification_status", "mean_depth", "amplicon_length"]
     )
+    if not aggregated_df.empty:
+        aggregated_df = (
+            aggregated_df.groupby('amplicon_name', as_index=False)
+            .agg({
+                'chromosome': 'first',
+                'start': 'first',
+                'end': 'first',
+                'amplification_status': 'first',
+                'mean_depth': 'mean',
+                'amplicon_length': 'sum'
+            })
+        )    
     return unaggregated_df, aggregated_df
 
 
