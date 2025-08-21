@@ -1334,7 +1334,6 @@ def plot_amplicon_depth(unaggregated_df, output):
             return str(val)
 
     plt.figure(figsize=(12, 6))
-    
     unaggregated_df = unaggregated_df.sort_values("position")
 
     # Compute log2 depth
@@ -1352,7 +1351,8 @@ def plot_amplicon_depth(unaggregated_df, output):
 
     # Create dictionary mapping amplicon_number → formatted "start-end"
     bin_dict = {
-        row.amplicon_number: f"{format_pos(row.amplicon_start)}-{format_pos(row.amplicon_end)}"
+        row.amplicon_number: f"{format_pos(row.amplicon_start)}-\
+            {format_pos(row.amplicon_end)}"
         for row in bin_ranges.itertuples()
     }
 
@@ -1381,7 +1381,6 @@ def plot_amplicon_depth(unaggregated_df, output):
     plt.tight_layout()
     plt.savefig(output, dpi=1000)
     plt.show()
-
 
 
 if __name__ == '__main__':
