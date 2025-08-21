@@ -1309,40 +1309,70 @@ def check_amplicon_coverage(depth_file, amplicons, min_coverage):
         columns=["chromosome", "start", "end", "amplicon_name",
                  "amplification_status", "mean_depth", "amplicon_length"]
     )
-    if not aggregated_df.empty:
-        aggregated_df = (
-            aggregated_df.groupby('amplicon_name', as_index=False)
-            .agg({
-                'chromosome': 'first',
-                'start': 'first',
-                'end': 'first',
-                'amplification_status': 'first',
-                'mean_depth': 'mean',
-                'amplicon_length': 'sum'
-            })
-        )    
     return unaggregated_df, aggregated_df
 
 
 def plot_amplicon_depth(unaggregated_df, output):
     """
     Creates a box plot of sequencing depth across amplicons.
+    Groups by amplicon_number to define bins using min(start) and max(end).
+    Bin labels are shortened (e.g., 1000 -> 1k).
     """
+    def format_pos(val):
+        """Format genomic position into k/M notation."""
+        if val >= 1_000_000:
+            if val % 1_000_000 == 0:
+                return f"{val // 1_000_000}M"
+            else:
+                return f"{val / 1_000_000:.3f}M"
+        elif val >= 1000:
+            if val % 1000 == 0:
+                return f"{val // 1000}k"
+            else:
+                return f"{val / 1000:.2f}k"
+        else:
+            return str(val)
+
     plt.figure(figsize=(12, 6))
+    
     unaggregated_df = unaggregated_df.sort_values("position")
+
+    # Compute log2 depth
     unaggregated_df['log2_depth'] = np.log2(unaggregated_df['depth'] + 1)
-    unaggregated_df['bins'] = (
-        unaggregated_df['amplicon_start'].astype(str) + "-" +
-        unaggregated_df['amplicon_end'].astype(str)
+
+    # Compute bin ranges by grouping
+    bin_ranges = (
+        unaggregated_df.groupby("amplicon_number")
+        .agg(
+            amplicon_start=("amplicon_start", "min"),
+            amplicon_end=("amplicon_end", "max")
+        )
+        .reset_index()
     )
-    sns.boxplot(x="bins", y="log2_depth",
-                data=unaggregated_df, showfliers=False)
+
+    # Create dictionary mapping amplicon_number → formatted "start-end"
+    bin_dict = {
+        row.amplicon_number: f"{format_pos(row.amplicon_start)}-{format_pos(row.amplicon_end)}"
+        for row in bin_ranges.itertuples()
+    }
+
+    # Map bins back to dataframe
+    unaggregated_df["bins"] = unaggregated_df["amplicon_number"].map(bin_dict)
+
+    # Boxplot by bins
+    sns.boxplot(
+        x="bins", y="log2_depth",
+        data=unaggregated_df, showfliers=False
+    )
+
+    # Mean depth line
     mean_depth = np.log2(unaggregated_df['depth'].mean() + 1)
     plt.axhline(
         mean_depth, color='red', linestyle='dashed', linewidth=1.5,
         label=f'Mean Depth (log2): {mean_depth:.2f}'
     )
-    plt.xlabel("Genomic position", fontsize=14)
+
+    plt.xlabel("Amplicon range", fontsize=14)
     plt.ylabel("Log2 depth", fontsize=14)
     plt.title("Amplicon Coverage Depth Distribution", fontsize=16)
     plt.xticks(rotation=90, fontsize=12)
@@ -1351,6 +1381,7 @@ def plot_amplicon_depth(unaggregated_df, output):
     plt.tight_layout()
     plt.savefig(output, dpi=1000)
     plt.show()
+
 
 
 if __name__ == '__main__':
