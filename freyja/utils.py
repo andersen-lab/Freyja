@@ -1246,6 +1246,68 @@ def handle_region_of_interest(region_of_interest, output_df,
     return output_df
 
 
+def validate_primer_bed(df):
+    """
+    Validates a DataFrame representing a primer BED file.
+
+    Args:
+        df (pd.DataFrame): DataFrame to validate.
+
+    Returns:
+        pd.DataFrame: The original DataFrame if valid.
+
+    Raises:
+        ValueError: If the DataFrame does not conform to expected format.
+    """
+
+    # Check column count
+    if df.shape[1] < 6 or df.shape[1] > 7:
+        raise ValueError(
+            "DataFrame must have 6 or 7"
+            " columns. Please refer to example primer file."
+        )
+
+    # Check column types
+    if not all(isinstance(df.iloc[i, 0], str) for i in range(len(df))):
+        raise ValueError(
+            "First column must contain only strings.(Chromosome name)")
+
+    if not pd.api.types.is_numeric_dtype(df.iloc[:, 1]):
+        raise ValueError("Second column must be numeric.(Primer start)")
+
+    if not pd.api.types.is_numeric_dtype(df.iloc[:, 2]):
+        raise ValueError("Third column must be numeric.(Primer end)")
+    # Check that third column is greater than second column
+    if not (df.iloc[:, 2] > df.iloc[:, 1]).all():
+        raise ValueError(
+            "Third column values must be greater than second column values."
+            "Primer start coordinates cannot be greater than primer end."
+        )
+
+    # Check fourth column format
+    pattern = re.compile(r"^[\w-]+_\d+_(LEFT|RIGHT)(?:_.*)?$")
+
+    # Strip any leading/trailing spaces and ensure the values are strings
+    if not all(
+        isinstance(val, str) and
+            pattern.match(val.strip()) for val in df.iloc[:, 3]
+    ):
+        raise ValueError(
+            "Fourth column format is incorrect."
+            " Expected 'string_number_LEFT/RIGHT'"
+            " with possible extra characters"
+            " at the end indicating whether the primer is alternative."
+        )
+
+    if not pd.api.types.is_numeric_dtype(df.iloc[:, 4]):
+        raise ValueError("Fifth column must be numeric.(strand +/-)")
+
+    if not all(isinstance(df.iloc[i, 5], str) for i in range(len(df))):
+        raise ValueError(
+            "Sixth column must contain only strings.(Primer sequence)")
+    return df
+
+
 def process_bed_file(bed_file):
     # Read in the bed file
     primer_df = pd.read_csv(
@@ -1254,9 +1316,10 @@ def process_bed_file(bed_file):
                "end", "name", "pool",
                "strand", "primer_sequence"]
     )
+    validate_primer_bed(primer_df)
     # Extract number and side (LEFT/RIGHT) using regex
     primer_df[['number', 'side']] =\
-        primer_df['name'].str.extract(r'(.+?)_(LEFT|RIGHT)')
+        primer_df['name'].str.extract(r'_(\d+)_((?:LEFT|RIGHT))(?:_|$)')
     # Drop rows where extraction failed (invalid names)
     primer_df.dropna(subset=['number', 'side'], inplace=True)
     # Separate LEFT and RIGHT primers
@@ -1330,22 +1393,64 @@ def check_amplicon_coverage(depth_file, amplicons, min_coverage):
 def plot_amplicon_depth(unaggregated_df, output):
     """
     Creates a box plot of sequencing depth across amplicons.
+    Groups by amplicon_number to define bins using min(start) and max(end).
+    Bin labels are shortened (e.g., 1000 -> 1k).
     """
+    def format_pos(val):
+        """Format genomic position into k/M notation."""
+        if val >= 1_000_000:
+            if val % 1_000_000 == 0:
+                return f"{val // 1_000_000}M"
+            else:
+                return f"{val / 1_000_000:.3f}M"
+        elif val >= 1000:
+            if val % 1000 == 0:
+                return f"{val // 1000}k"
+            else:
+                return f"{val / 1000:.2f}k"
+        else:
+            return str(val)
+
     plt.figure(figsize=(12, 6))
     unaggregated_df = unaggregated_df.sort_values("position")
+
+    # Compute log2 depth
     unaggregated_df['log2_depth'] = np.log2(unaggregated_df['depth'] + 1)
-    unaggregated_df['bins'] = (
-        unaggregated_df['amplicon_start'].astype(str) + "-" +
-        unaggregated_df['amplicon_end'].astype(str)
+
+    # Compute bin ranges by grouping
+    bin_ranges = (
+        unaggregated_df.groupby("amplicon_number")
+        .agg(
+            amplicon_start=("amplicon_start", "min"),
+            amplicon_end=("amplicon_end", "max")
+        )
+        .reset_index()
     )
-    sns.boxplot(x="bins", y="log2_depth",
-                data=unaggregated_df, showfliers=False)
+
+    # Create dictionary mapping amplicon_number → formatted "start-end"
+    bin_dict = {
+        row.amplicon_number:
+            f"{format_pos(row.amplicon_start)}-{format_pos(row.amplicon_end)}"
+        for row in bin_ranges.itertuples()
+    }
+
+    # Map bins back to dataframe
+    unaggregated_df["bins"] = unaggregated_df["amplicon_number"].map(bin_dict)
+
+    # Boxplot by bins
+    sns.boxplot(
+        x="bins", y="log2_depth",
+        data=unaggregated_df, showfliers=False
+    )
+
+    # Mean depth line
     mean_depth = np.log2(unaggregated_df['depth'].mean() + 1)
     plt.axhline(
         mean_depth, color='red', linestyle='dashed', linewidth=1.5,
         label=f'Mean Depth (log2): {mean_depth:.2f}'
     )
-    plt.xlabel("Genomic position", fontsize=14)
+
+    plt.xlabel("Amplicon range", fontsize=14)
     plt.ylabel("Log2 depth", fontsize=14)
     plt.title("Amplicon Coverage Depth Distribution", fontsize=16)
     plt.xticks(rotation=90, fontsize=12)
