@@ -1231,6 +1231,68 @@ def handle_region_of_interest(region_of_interest, output_df,
     return output_df
 
 
+def validate_primer_bed(df):
+    """
+    Validates a DataFrame representing a primer BED file.
+
+    Args:
+        df (pd.DataFrame): DataFrame to validate.
+
+    Returns:
+        pd.DataFrame: The original DataFrame if valid.
+
+    Raises:
+        ValueError: If the DataFrame does not conform to expected format.
+    """
+
+    # Check column count
+    if df.shape[1] < 6 or df.shape[1] > 7:
+        raise ValueError(
+            "DataFrame must have 6 or 7"
+            " columns. Please refer to example primer file."
+        )
+
+    # Check column types
+    if not all(isinstance(df.iloc[i, 0], str) for i in range(len(df))):
+        raise ValueError(
+            "First column must contain only strings.(Chromosome name)")
+
+    if not pd.api.types.is_numeric_dtype(df.iloc[:, 1]):
+        raise ValueError("Second column must be numeric.(Primer start)")
+
+    if not pd.api.types.is_numeric_dtype(df.iloc[:, 2]):
+        raise ValueError("Third column must be numeric.(Primer end)")
+    # Check that third column is greater than second column
+    if not (df.iloc[:, 2] > df.iloc[:, 1]).all():
+        raise ValueError(
+            "Third column values must be greater than second column values."
+            "Primer start coordinates cannot be greater than primer end."
+        )
+
+    # Check fourth column format
+    pattern = re.compile(r"^[\w-]+_\d+_(LEFT|RIGHT)(?:_.*)?$")
+
+    # Strip any leading/trailing spaces and ensure the values are strings
+    if not all(
+        isinstance(val, str) and
+            pattern.match(val.strip()) for val in df.iloc[:, 3]
+    ):
+        raise ValueError(
+            "Fourth column format is incorrect."
+            " Expected 'string_number_LEFT/RIGHT'"
+            " with possible extra characters"
+            " at the end indicating whether the primer is alternative."
+        )
+
+    if not pd.api.types.is_numeric_dtype(df.iloc[:, 4]):
+        raise ValueError("Fifth column must be numeric.(strand +/-)")
+
+    if not all(isinstance(df.iloc[i, 5], str) for i in range(len(df))):
+        raise ValueError(
+            "Sixth column must contain only strings.(Primer sequence)")
+    return df
+
+
 def process_bed_file(bed_file):
     # Read in the bed file
     primer_df = pd.read_csv(
@@ -1239,6 +1301,7 @@ def process_bed_file(bed_file):
                "end", "name", "pool",
                "strand", "primer_sequence"]
     )
+    validate_primer_bed(primer_df)
     # Extract number and side (LEFT/RIGHT) using regex
     primer_df[['number', 'side']] =\
         primer_df['name'].str.extract(r'_(\d+)_((?:LEFT|RIGHT))(?:_|$)')
