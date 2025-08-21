@@ -1241,7 +1241,7 @@ def process_bed_file(bed_file):
     )
     # Extract number and side (LEFT/RIGHT) using regex
     primer_df[['number', 'side']] =\
-        primer_df['name'].str.extract(r'_(\d+)_((?:LEFT|RIGHT))_')
+        primer_df['name'].str.extract(r'_(\d+)_((?:LEFT|RIGHT))(?:_|$)')
     # Drop rows where extraction failed (invalid names)
     primer_df.dropna(subset=['number', 'side'], inplace=True)
     # Separate LEFT and RIGHT primers
@@ -1351,8 +1351,8 @@ def plot_amplicon_depth(unaggregated_df, output):
 
     # Create dictionary mapping amplicon_number → formatted "start-end"
     bin_dict = {
-        row.amplicon_number: f"{format_pos(row.amplicon_start)}-\
-            {format_pos(row.amplicon_end)}"
+        row.amplicon_number:
+            f"{format_pos(row.amplicon_start)}-{format_pos(row.amplicon_end)}"
         for row in bin_ranges.itertuples()
     }
 
