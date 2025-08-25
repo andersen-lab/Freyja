@@ -3732,6 +3732,7 @@
       - PG.2
       - PG.3
       - PG.3.1
+      - PG.3.2
       - PG.4
       - PG.4.1
       - PG.5
@@ -7289,6 +7290,7 @@
       - PG.2
       - PG.3
       - PG.3.1
+      - PG.3.2
       - PG.4
       - PG.4.1
       - PG.5
@@ -9908,6 +9910,7 @@
       - PG.2
       - PG.3
       - PG.3.1
+      - PG.3.2
       - PG.4
       - PG.4.1
       - PG.5
@@ -14953,6 +14956,7 @@
       - PG.2
       - PG.3
       - PG.3.1
+      - PG.3.2
       - PG.4
       - PG.4.1
       - PG.5
@@ -16745,6 +16749,7 @@
       - PG.2
       - PG.3
       - PG.3.1
+      - PG.3.2
       - PG.4
       - PG.4.1
       - PG.5
@@ -21058,6 +21063,7 @@
       - PG.2
       - PG.3
       - PG.3.1
+      - PG.3.2
       - PG.4
       - PG.4.1
       - PG.5
@@ -22067,6 +22073,7 @@
       - PG.2
       - PG.3
       - PG.3.1
+      - PG.3.2
       - PG.4
       - PG.4.1
       - PG.5
@@ -23044,6 +23051,7 @@
       - PG.2
       - PG.3
       - PG.3.1
+      - PG.3.2
       - PG.4
       - PG.4.1
       - PG.5
@@ -24669,6 +24677,7 @@
       - PG.2
       - PG.3
       - PG.3.1
+      - PG.3.2
       - PG.4
       - PG.4.1
       - PG.5
@@ -25104,6 +25113,7 @@
       - PG.2
       - PG.3
       - PG.3.1
+      - PG.3.2
       - PG.4
       - PG.4.1
       - PG.5
@@ -27317,6 +27327,7 @@
       - PG.2
       - PG.3
       - PG.3.1
+      - PG.3.2
       - PG.4
       - PG.4.1
       - PG.5
@@ -28659,6 +28670,7 @@
       - PG.2
       - PG.3
       - PG.3.1
+      - PG.3.2
       - PG.4
       - PG.4.1
       - PG.5
@@ -28734,6 +28746,7 @@
       - PG.2
       - PG.3
       - PG.3.1
+      - PG.3.2
       - PG.4
       - PG.4.1
       - PG.5
@@ -28754,11 +28767,17 @@
   children:
       - PG.3
       - PG.3.1
+      - PG.3.2
   parent: KP.3.3.5
 - name: PG.3.1
   alias: B.1.1.529.2.86.1.1.11.1.3.3.5.3.1
   children:
       - PG.3.1
+  parent: PG.3
+- name: PG.3.2
+  alias: B.1.1.529.2.86.1.1.11.1.3.3.5.3.2
+  children:
+      - PG.3.2
   parent: PG.3
 - name: PG.4
   alias: B.1.1.529.2.86.1.1.11.1.3.3.5.4
@@ -56952,3 +56971,13 @@
   children:
       - XFW.1
   parent: XFW
+- name: XFY
+  alias: XFY
+  children:
+      - XFY
+  recombinant_parents: XFG.5.1,NB.1.8.1
+- name: XFZ
+  alias: XFZ
+  children:
+      - XFZ
+  recombinant_parents: XFC.3,PG.3.2
