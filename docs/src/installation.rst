@@ -14,12 +14,6 @@ Local build from source::
     cd Freyja
     pip install -e .
 
-Please note that pip will not install all the requirements.
-You need to install some requirements via Conda by following these steps::
-
-    conda create -n freyja
-    conda activate freyja
-    conda env update --file environment.yml
 
 Docker::
 
