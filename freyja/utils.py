@@ -13,6 +13,7 @@ import plotly.express as px
 import plotly.graph_objects as go
 from datetime import datetime, timedelta
 import yaml
+import warnings
 from scipy.optimize import curve_fit
 
 # parameters to make plots illustrator friendly
@@ -27,6 +28,42 @@ def agg(results):
     df_demix = pd.concat(allResults, axis=1).T
     df_demix.index = [x.split('/')[-1] for x in df_demix.index]
     return df_demix
+
+
+def validate_lineage_parents(lineagefile):
+    """
+    Validate that every parent
+    referenced in a lineage exists in the list. Issues a warning
+    listing all missing parents instead of raising an error.
+    """
+    with open(lineagefile, "r") as f:
+        try:
+            lineages = yaml.safe_load(f)
+        except yaml.YAMLError as exc:
+            raise ValueError('Error in lineages.yml file: ' + str(exc))
+    print("Validating the lineage hierarchy yaml ...")
+
+    # Build a set of all lineage names
+    existing = {entry.get('name') for entry in lineages}
+    # Track all missing parents
+    missing = []
+    for entry in lineages:
+        if not isinstance(entry, dict):
+            continue
+        child_name = entry.get('name')
+
+        # Single parent case
+        parent = entry.get('parent')
+        if parent and parent not in existing:
+            missing.append((child_name, parent))
+    if missing:
+        warning_msg = "Missing parents found:\n"
+        for child, parent in missing:
+            warning_msg += f"  Child '{child}' missing parent '{parent}'\n"
+        warnings.warn(warning_msg, UserWarning)
+        print("Please check your lineage yaml file.")
+    else:
+        print("Lineage yaml file validated... All parents exist.")
 
 
 def load_barcodes(barcodes, pathogen, altname):
