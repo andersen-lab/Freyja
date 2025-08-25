@@ -127,10 +127,12 @@ def demix(variants, depths, output, eps, barcodes, meta,
     from freyja.sample_deconv import (build_mix_and_depth_arrays,
                                       buildLineageMap,
                                       map_to_constellation,
-                                      reindex_dfs, solve_demixing_problem)
+                                      reindex_dfs, solve_demixing_problem
+                                      )
     from freyja.utils import (collapse_barcodes,
                               load_barcodes,
-                              handle_region_of_interest)
+                              handle_region_of_interest,
+                              validate_lineage_parents)
     locDir = os.path.abspath(os.path.join(os.path.realpath(__file__),
                              os.pardir))
     altname = '' if pathogen == 'SARS-CoV-2' else \
@@ -148,6 +150,7 @@ def demix(variants, depths, output, eps, barcodes, meta,
 
     if depthcutoff != 0:
         df_depth = pd.read_csv(depths, sep='\t', header=None, index_col=1)
+        validate_lineage_parents(lineageyml)
         df_barcodes = collapse_barcodes(df_barcodes, df_depth, depthcutoff,
                                         lineageyml, locDir, output,
                                         relaxedmrca, relaxedthresh,
