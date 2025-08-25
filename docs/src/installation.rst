@@ -8,7 +8,7 @@ Install via Conda::
     conda install -c bioconda freyja
 
 
-Local build from source::
+Local build from source (we recommend running the above conda install command, to get all of the necessary dependencies)::
 
     git clone https://github.com/andersen-lab/Freyja.git
     cd Freyja
