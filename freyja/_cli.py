@@ -150,6 +150,9 @@ def demix(variants, depths, output, eps, barcodes, meta,
 
     if depthcutoff != 0:
         df_depth = pd.read_csv(depths, sep='\t', header=None, index_col=1)
+        if lineageyml == '':
+            print("Using default lineage yml for SARS-CoV-2")
+            lineageyml = os.path.join(locDir, 'data/lineages.yml')
         validate_lineage_parents(lineageyml)
         df_barcodes = collapse_barcodes(df_barcodes, df_depth, depthcutoff,
                                         lineageyml, locDir, output,

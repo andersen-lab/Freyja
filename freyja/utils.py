@@ -41,7 +41,7 @@ def validate_lineage_parents(lineagefile):
             lineages = yaml.safe_load(f)
         except yaml.YAMLError as exc:
             raise ValueError('Error in lineages.yml file: ' + str(exc))
-    print("Validating the provided yaml file...")
+    print("Validating the lineage hierarchy yaml ...")
 
     # Build a set of all lineage names
     existing = {entry.get('name') for entry in lineages}
