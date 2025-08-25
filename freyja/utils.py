@@ -13,6 +13,7 @@ import plotly.express as px
 import plotly.graph_objects as go
 from datetime import datetime, timedelta
 import yaml
+import warnings
 from scipy.optimize import curve_fit
 
 # parameters to make plots illustrator friendly
@@ -31,32 +32,38 @@ def agg(results):
 
 def validate_lineage_parents(lineagefile):
     """
-    Validate that every parent referenced in a lineage exists in the list.
-    Raises an error listing all missing parents.
+    Validate that every parent
+    referenced in a lineage exists in the list. Issues a warning
+    listing all missing parents instead of raising an error.
     """
     with open(lineagefile, "r") as f:
-        lineages = yaml.safe_load(f)
+        try:
+            lineages = yaml.safe_load(f)
+        except yaml.YAMLError as exc:
+            raise ValueError('Error in lineages.yml file: ' + str(exc))
     print("Validating the provided yaml file...")
+
     # Build a set of all lineage names
-    existing = {entry['name'] for entry in lineages}
-
+    existing = {entry.get('name') for entry in lineages}
     # Track all missing parents
-    missing_parents = []
-
+    missing = []
     for entry in lineages:
+        if not isinstance(entry, dict):
+            continue
+        child_name = entry.get('name')
+
+        # Single parent case
         parent = entry.get('parent')
         if parent and parent not in existing:
-            missing_parents.append((entry['name'], parent))
-
-    if missing_parents:
-        error_msg = "Missing parents found:\n"
-        for child, parent in missing_parents:
-            error_msg += f"  Child '{child}' references"
-            " missing parent '{parent}'\n"
-        print("Please check your lineage yaml file..")
-        raise ValueError(error_msg)
-
-    print("lineage yaml file validated...All parents exist.")
+            missing.append((child_name, parent))
+    if missing:
+        warning_msg = "Missing parents found:\n"
+        for child, parent in missing:
+            warning_msg += f"  Child '{child}' missing parent '{parent}'\n"
+        warnings.warn(warning_msg, UserWarning)
+        print("Please check your lineage yaml file.")
+    else:
+        print("Lineage yaml file validated... All parents exist.")
 
 
 def load_barcodes(barcodes, pathogen, altname):
