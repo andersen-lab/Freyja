@@ -68,10 +68,10 @@ def get_error_rate(muts, df0, df_depths0):
     return error_rate
 
 
-def build_mix_and_depth_arrays(fn, depthFn, muts, covcut, autoadapt):
+def build_mix_and_depth_arrays(fn, depthFn, muts, covcut, autoadapt, freq_col):
     input_is_vcf = fn.lower().endswith('vcf')
     if input_is_vcf:
-        df = read_snv_frequencies_vcf(fn, depthFn, muts)
+        df = read_snv_frequencies_vcf(fn, freq_col, depthFn, muts)
     else:
         df = read_snv_frequencies_ivar(fn, depthFn, muts)
         df = df[['REF', 'POS', 'ALT', 'ALT_FREQ', 'ALT_DP']]
@@ -101,7 +101,7 @@ def read_snv_frequencies_ivar(fn, depthFn, muts):
     return df
 
 
-def read_snv_frequencies_vcf(fn, depthFn, muts):
+def read_snv_frequencies_vcf(fn, freq_col, depthFn, muts):
     vcfnames = []
     with open(fn, "r") as file:
         for line in file:
@@ -113,11 +113,13 @@ def read_snv_frequencies_vcf(fn, depthFn, muts):
     df = pd.read_csv(fn, comment='#', sep=r'\s+',
                      header=None,
                      names=vcfnames)
-    df["ALT_FREQ"] = df["INFO"].str.extract(r"AF=([0-9]*\.*[0-9]+)")
+    df["ALT_FREQ"] = df["INFO"].str.extract(rf"{freq_col}=([0-9]*\.?[0-9]+)")
     if df["ALT_FREQ"].isnull().all():
         raise ValueError(
-            f"No AF (allele frequency) data found in the INFO column of "
-            f"VCF file: {fn} or the VCF file is empty")
+            f"No {freq_col} (allele frequency)"
+            "data found in the INFO column of "
+            f"VCF file: {fn} or the VCF file is empty"
+        )
     df["ALT_FREQ"] = pd.to_numeric(df["ALT_FREQ"], downcast="float")
     return df
 

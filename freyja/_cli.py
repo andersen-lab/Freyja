@@ -116,11 +116,14 @@ def print_barcode_version(ctx, param, value):
               is_flag=True,
               help='use error profile to set adapt',
               show_default=True)
+@click.option('--freqcol', default='AF',
+              help='Frequency column name in the vcf file',
+              show_default=True)
 def demix(variants, depths, output, eps, barcodes, meta,
           covcut, confirmedonly, depthcutoff, lineageyml,
           adapt, a_eps, region_of_interest,
           relaxedmrca, relaxedthresh, solver, max_solver_threads,
-          verbose_solver, pathogen, autoadapt):
+          verbose_solver, pathogen, autoadapt, freqcol):
     """
     Generate relative lineage abundances from VARIANTS and DEPTHS
     """
@@ -178,13 +181,15 @@ def demix(variants, depths, output, eps, barcodes, meta,
                                                               depths,
                                                               muts,
                                                               covcut,
-                                                              autoadapt)
+                                                              autoadapt,
+                                                              freqcol)
     else:
         mix, depths_, cov, _ = build_mix_and_depth_arrays(variants,
                                                           depths,
                                                           muts,
                                                           covcut,
-                                                          autoadapt)
+                                                          autoadapt,
+                                                          freqcol)
     df_barcodes, mix, depths_ = reindex_dfs(df_barcodes, mix, depths_)
     print('demixing')
     sample_strains, abundances, error = solve_demixing_problem(
@@ -580,10 +585,13 @@ def variants(bamfile, ref, variants, depths, refname, minq, annot, varthresh):
               is_flag=True,
               help='use error profile to set adapt',
               show_default=True)
+@click.option('--freqcol', default='AF',
+              help='Frequency column name in the vcf file',
+              show_default=True)
 def boot(variants, depths, output_base, eps, barcodes, meta,
          nb, nt, boxplot, confirmedonly, lineageyml, depthcutoff,
          rawboots, relaxedmrca, relaxedthresh, bootseed,
-         solver, pathogen, autoadapt):
+         solver, pathogen, autoadapt, freqcol):
     """
     Perform bootstrapping method for freyja using VARIANTS and DEPTHS
     """
@@ -623,7 +631,8 @@ def boot(variants, depths, output_base, eps, barcodes, meta,
                                                           depths,
                                                           muts,
                                                           covcut,
-                                                          autoadapt)
+                                                          autoadapt,
+                                                          freqcol)
     print('demixing')
     df_barcodes, mix, depths_ = reindex_dfs(df_barcodes, mix, depths_)
     lin_df, constell_df = perform_bootstrap(df_barcodes, mix, depths_,
