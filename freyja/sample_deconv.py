@@ -1,7 +1,6 @@
 import pandas as pd
 import numpy as np
 import json
-import sys
 import re
 import cvxpy as cp
 import os
@@ -389,39 +388,3 @@ def perform_bootstrap(df_barcodes, mix, depths_,
         fig.tight_layout()
         fig.savefig(basename+'_summarized.'+boxplot)
     return lin_df, constell_df
-
-
-if __name__ == '__main__':
-    print('loading lineage models')
-    # read in  barcodes.
-    df_barcodes = pd.read_csv('freyja/data/usher_barcodes.csv', index_col=0)
-    muts = list(df_barcodes.columns)
-    mapDict = buildLineageMap()
-
-    # grab wastewater sample data
-
-    variants = sys.argv[1]  # variant file
-    depths = sys.argv[2]  # depth file
-    # assemble data from of (possibly) mixed samples
-    muts = list(df_barcodes.columns)
-    eps = 0.001
-    mapDict = buildLineageMap()
-    print('building mix/depth matrices')
-    # assemble data from of (possibly) mixed samples
-    mix, depths_, cov = build_mix_and_depth_arrays(variants, depths, muts)
-    print('demixing')
-    df_barcodes, mix, depths_ = reindex_dfs(df_barcodes, mix, depths_)
-    sample_strains, abundances, error = solve_demixing_problem(df_barcodes,
-                                                               mix,
-                                                               depths_, eps)
-    localDict = map_to_constellation(sample_strains, abundances, mapDict)
-    # assemble into series and write.
-    sols_df = pd.Series(data=(localDict, sample_strains, abundances, error),
-                        index=['summarized', 'lineages',
-                               'abundances', 'resid'],
-                        name=mix.name)
-    numBootstraps = 100
-    n_jobs = 10
-    lin_out, constell_out = perform_bootstrap(df_barcodes, mix, depths_,
-                                              numBootstraps, eps,
-                                              n_jobs, mapDict, muts)
