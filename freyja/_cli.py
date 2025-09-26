@@ -168,6 +168,8 @@ def demix(variants, depths, output, eps, barcodes, meta,
                         'It may need to be developed if ' + \
                         'not already present on freyja-barcodes.'
                     raise e
+        else:
+            validate_lineage_parents(lineageyml)
         df_barcodes = collapse_barcodes(df_barcodes, df_depth, depthcutoff,
                                         lineageyml, locDir, output,
                                         relaxedmrca, relaxedthresh,
