@@ -13,7 +13,7 @@ pathogens = ['SARS-CoV-2'] + list(pathogen_config.keys())
 
 
 @click.group(context_settings={'show_default': True})
-@click.version_option('2.0.1')
+@click.version_option('2.0.2')
 def cli():
     pass
 
@@ -350,7 +350,10 @@ def update(outdir, noncl, buildlocal, pathogen):
               default='SARS-CoV-2',
               help='Pathogen of interest',
               show_default=True)
-def barcode_build(pb, outdir, redo, noncl, pathogen):
+@click.option('--format', default='feather',
+              type=click.Choice(['feather', 'csv']),
+              show_default=True)
+def barcode_build(pb, outdir, redo, noncl, pathogen, format):
     """
     Build barcodes from a custom protobuf tree
     """
@@ -401,9 +404,11 @@ def barcode_build(pb, outdir, redo, noncl, pathogen):
         df_barcodes = df_barcodes.loc[df_barcodes.index.isin(lineageNames)]
     else:
         print("Including lineages not yet in cov-lineages.")
-    # df_barcodes.to_csv(os.path.join(locDir, 'usher_barcodes.csv'))
-    df_barcodes.reset_index().to_feather(
-        os.path.join(locDir, 'usher_barcodes.feather'))
+    if format == 'csv':
+        df_barcodes.to_csv(os.path.join(locDir, 'usher_barcodes.csv'))
+    else:
+        df_barcodes.reset_index().to_feather(
+            os.path.join(locDir, 'usher_barcodes.feather'))
     dictMuts = {}
     for lin in df_barcodes.index:
         muts = sorted([df_barcodes.columns[m0]
