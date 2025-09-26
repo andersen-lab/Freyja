@@ -17,7 +17,7 @@ description = ("Freyja recovers relative lineage abundances from mixed "
 
 setup(
     name="freyja",
-    version="2021.10",
+    version="2025-09",
     packages=find_packages(),
     author="Joshua Levy",
     license='BSD 2-Clause',

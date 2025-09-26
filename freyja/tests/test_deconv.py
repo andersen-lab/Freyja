@@ -22,10 +22,10 @@ class DeconvTests(unittest.TestCase):
         depthFn = 'freyja/data/mixture.depth'
         covcut = 10
         autoadapt = False
-
+        freqcol = "AF"
         for varFn in varFns:
             mix, depths, cov, adapt = build_mix_and_depth_arrays(
-                varFn, depthFn, muts, covcut, autoadapt)
+                varFn, depthFn, muts, covcut, autoadapt, freqcol)
             self.assertTrue(ptypes.is_float_dtype(mix))
             self.assertTrue(ptypes.is_float_dtype(depths))
             df_barcodes_reindexed, mix, depths = reindex_dfs(

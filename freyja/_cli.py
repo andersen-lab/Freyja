@@ -13,7 +13,7 @@ pathogens = ['SARS-CoV-2'] + list(pathogen_config.keys())
 
 
 @click.group(context_settings={'show_default': True})
-@click.version_option('2.0.1')
+@click.version_option('2.0.2')
 def cli():
     pass
 
@@ -116,11 +116,14 @@ def print_barcode_version(ctx, param, value):
               is_flag=True,
               help='use error profile to set adapt',
               show_default=True)
+@click.option('--freqcol', default='AF',
+              help='Frequency column name in the vcf file',
+              show_default=True)
 def demix(variants, depths, output, eps, barcodes, meta,
           covcut, confirmedonly, depthcutoff, lineageyml,
           adapt, a_eps, region_of_interest,
           relaxedmrca, relaxedthresh, solver, max_solver_threads,
-          verbose_solver, pathogen, autoadapt):
+          verbose_solver, pathogen, autoadapt, freqcol):
     """
     Generate relative lineage abundances from VARIANTS and DEPTHS
     """
@@ -165,6 +168,8 @@ def demix(variants, depths, output, eps, barcodes, meta,
                         'It may need to be developed if ' + \
                         'not already present on freyja-barcodes.'
                     raise e
+        else:
+            validate_lineage_parents(lineageyml)
         df_barcodes = collapse_barcodes(df_barcodes, df_depth, depthcutoff,
                                         lineageyml, locDir, output,
                                         relaxedmrca, relaxedthresh,
@@ -178,13 +183,15 @@ def demix(variants, depths, output, eps, barcodes, meta,
                                                               depths,
                                                               muts,
                                                               covcut,
-                                                              autoadapt)
+                                                              autoadapt,
+                                                              freqcol)
     else:
         mix, depths_, cov, _ = build_mix_and_depth_arrays(variants,
                                                           depths,
                                                           muts,
                                                           covcut,
-                                                          autoadapt)
+                                                          autoadapt,
+                                                          freqcol)
     df_barcodes, mix, depths_ = reindex_dfs(df_barcodes, mix, depths_)
     print('demixing')
     sample_strains, abundances, error = solve_demixing_problem(
@@ -345,7 +352,10 @@ def update(outdir, noncl, buildlocal, pathogen):
               default='SARS-CoV-2',
               help='Pathogen of interest',
               show_default=True)
-def barcode_build(pb, outdir, redo, noncl, pathogen):
+@click.option('--format', default='feather',
+              type=click.Choice(['feather', 'csv']),
+              show_default=True)
+def barcode_build(pb, outdir, redo, noncl, pathogen, format):
     """
     Build barcodes from a custom protobuf tree
     """
@@ -396,9 +406,11 @@ def barcode_build(pb, outdir, redo, noncl, pathogen):
         df_barcodes = df_barcodes.loc[df_barcodes.index.isin(lineageNames)]
     else:
         print("Including lineages not yet in cov-lineages.")
-    # df_barcodes.to_csv(os.path.join(locDir, 'usher_barcodes.csv'))
-    df_barcodes.reset_index().to_feather(
-        os.path.join(locDir, 'usher_barcodes.feather'))
+    if format == 'csv':
+        df_barcodes.to_csv(os.path.join(locDir, 'usher_barcodes.csv'))
+    else:
+        df_barcodes.reset_index().to_feather(
+            os.path.join(locDir, 'usher_barcodes.feather'))
     dictMuts = {}
     for lin in df_barcodes.index:
         muts = sorted([df_barcodes.columns[m0]
@@ -580,10 +592,13 @@ def variants(bamfile, ref, variants, depths, refname, minq, annot, varthresh):
               is_flag=True,
               help='use error profile to set adapt',
               show_default=True)
+@click.option('--freqcol', default='AF',
+              help='Frequency column name in the vcf file',
+              show_default=True)
 def boot(variants, depths, output_base, eps, barcodes, meta,
          nb, nt, boxplot, confirmedonly, lineageyml, depthcutoff,
          rawboots, relaxedmrca, relaxedthresh, bootseed,
-         solver, pathogen, autoadapt):
+         solver, pathogen, autoadapt, freqcol):
     """
     Perform bootstrapping method for freyja using VARIANTS and DEPTHS
     """
@@ -623,7 +638,8 @@ def boot(variants, depths, output_base, eps, barcodes, meta,
                                                           depths,
                                                           muts,
                                                           covcut,
-                                                          autoadapt)
+                                                          autoadapt,
+                                                          freqcol)
     print('demixing')
     df_barcodes, mix, depths_ = reindex_dfs(df_barcodes, mix, depths_)
     lin_df, constell_df = perform_bootstrap(df_barcodes, mix, depths_,
