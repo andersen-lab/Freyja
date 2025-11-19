@@ -32,6 +32,7 @@ MEASLESN450:
 MEASLES:
  - name: "MEASLESwholegenome"
    barcodes: "https://raw.githubusercontent.com/andersen-lab/Freyja-barcodes/refs/heads/main/MEASLESgenome/latest/barcode.csv"
+   lineageyml: "https://raw.githubusercontent.com/andersen-lab/Freyja-barcodes/refs/heads/main/MEASLESgenome/latest/lineagesMEASLES.yml"
 
 RSVa:
  - name: "RSVa"
