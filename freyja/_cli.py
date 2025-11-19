@@ -142,6 +142,10 @@ def demix(variants, depths, output, eps, barcodes, meta,
               pathogen_config[pathogen][0]['name']
     df_barcodes = load_barcodes(barcodes, pathogen, altname)
 
+    if isinstance(df_barcodes, bool):
+        print('Barcode not available, please download with freyja update')
+        sys.exit()
+
     if confirmedonly:
         confirmed = [dfi for dfi in df_barcodes.index
                      if 'proposed' not in dfi and 'misc' not in dfi]
