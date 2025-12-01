@@ -4,6 +4,7 @@ import sys
 import subprocess
 import requests
 import yaml
+from datetime import datetime
 
 
 def get_pathogen_config(locDir):
@@ -53,12 +54,22 @@ def download_barcodes(locDir, pathogen='SARS-CoV-2'):
         urllib.request.urlretrieve(url3, bPath)
     else:
         pathogen_config = get_pathogen_config(locDir)
-        bPath = os.path.join(locDir,
-                             f"{pathogen_config[pathogen][0]['name']}" +
-                             "_barcodes.csv")
-        urllib.request.urlretrieve(pathogen_config[pathogen][0]['barcodes'],
-                                   bPath)
-    return bPath
+        bPath = os.path.join(
+            locDir,
+            f"{pathogen_config[pathogen][0]['name']}" + "_barcodes.csv"
+        )
+
+        # Download the barcodes file
+        urllib.request.urlretrieve(
+            pathogen_config[pathogen][0]['barcodes'],
+            bPath
+        )
+        timestamp = datetime.now().strftime("%m_%d_%Y-%H-%M")
+        pathogen_name = pathogen_config[pathogen][0]['name']
+        update_line = f"{pathogen_name}:{timestamp}\n"
+        update_file = os.path.join(locDir, "last_barcode_update_other.txt")
+        with open(update_file, "a") as f:
+            f.write(update_line)
 
 
 def convert_tree(loc_dir):
