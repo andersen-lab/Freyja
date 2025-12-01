@@ -1,5 +1,5 @@
 MPXV:
- - name: "mpox"
+ - name: "MPXV"
    barcodes: "https://raw.githubusercontent.com/andersen-lab/Freyja-barcodes/refs/heads/main/MPX/latest/barcode.csv"
    lineageyml: "https://raw.githubusercontent.com/andersen-lab/Freyja-barcodes/refs/heads/main/MPX/latest/mpox_lineages.yml"
 
@@ -8,11 +8,11 @@ H5NX:
    barcodes: "https://raw.githubusercontent.com/andersen-lab/Freyja-barcodes/refs/heads/main/H5Nx/latest/barcode.csv"
 
 H5NX-cattle:
-  - name: "H5Nx-cattle"
+  - name: "H5NX-cattle"
     barcodes: "https://raw.githubusercontent.com/andersen-lab/Freyja-barcodes/refs/heads/main/H5Nx-cattle/latest/barcode.csv"
     lineageyml: "https://raw.githubusercontent.com/andersen-lab/Freyja-barcodes/refs/heads/main/H5Nx-cattle/latest/h5nx_cattle_lineages.yml"
 
-H1N1pdm:
+H1N1:
  - name: "H1N1"
    barcodes: "https://raw.githubusercontent.com/andersen-lab/Freyja-barcodes/refs/heads/main/H1N1/latest/barcode.csv"
 
@@ -29,17 +29,17 @@ MEASLESN450:
  - name: "MEASLESN450"
    barcodes: "https://raw.githubusercontent.com/andersen-lab/Freyja-barcodes/refs/heads/main/MEASLESN450/latest/barcode.csv"
 
-MEASLES:
+MEASLESwholegenome:
  - name: "MEASLESwholegenome"
    barcodes: "https://raw.githubusercontent.com/andersen-lab/Freyja-barcodes/refs/heads/main/MEASLESgenome/latest/barcode.csv"
    lineageyml: "https://raw.githubusercontent.com/andersen-lab/Freyja-barcodes/refs/heads/main/MEASLESgenome/latest/lineagesMEASLES.yml"
 
-RSVa:
- - name: "RSVa"
+RSVA:
+ - name: "RSVA"
    barcodes: "https://raw.githubusercontent.com/andersen-lab/Freyja-barcodes/refs/heads/main/RSVa/latest/barcode.csv"
 
-RSVb:
- - name: "RSVb"
+RSVB:
+ - name: "RSVB"
    barcodes: "https://raw.githubusercontent.com/andersen-lab/Freyja-barcodes/refs/heads/main/RSVb/latest/barcode.csv"
 
 DENV1:
