@@ -47,7 +47,7 @@ def print_barcode_version(ctx, param, value):
             if version:
                 click.echo(version)
             # Construct and show the **path for this specific pathogen**
-            if pathogen is "SARS-CoV-2":
+            if pathogen == "SARS-CoV-2":
                 barcode_filename = "usher_barcodes.feather"
             else:
                 barcode_filename = f"{pathogen}_barcodes.csv"
