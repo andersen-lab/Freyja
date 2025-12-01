@@ -60,7 +60,7 @@ jobs:
             echo "changes were made, updating barcodes"
             git config --local user.name "$GITHUB_ACTOR"
             git config --local user.email "$GITHUB_ACTOR@users.noreply.github.com"
-            echo "SARS-CoV-2: $(date +"%m_%d_%Y-%H-%M")"> freyja/data/last_barcode_update.txt
+            echo $(date +"%m_%d_%Y-%H-%M")> freyja/data/last_barcode_update.txt
             git add freyja/data/last_barcode_update.txt
             git add freyja/data/lineages.yml
             git add freyja/data/usher_barcodes.feather
@@ -71,72 +71,3 @@ jobs:
           else
               echo "no changes were made, doing nothing."
           fi;
-
-      - name: Update barcodes based on pathogen_config.yml
-        run: |
-          echo "Loading pathogen list from YAML…"
-
-          config="freyja/data/pathogen_config.yml"
-          update_file="freyja/data/last_barcode_update.txt"
-          changes_made=0
-
-          # Loop through each top-level key (e.g., H5NX, SARS-CoV-2, etc)
-          for key in $(yq '. | keys | .[]' "$config"); do
-            echo "Processing $key"
-
-            # Get pathogen name field
-            pathogen=$(yq ".${key}[0].name" "$config" | tr -d '"')
-
-            # Get remote URL
-            url=$(yq ".${key}[0].barcodes" "$config" | tr -d '"')
-
-            echo " - Name: $pathogen"
-            echo " - URL:  $url"
-
-            # Construct local filename
-            local_file="freyja/data/${pathogen}_barcodes.csv"
-            tmp_file="/tmp/${pathogen}_latest.csv"
-
-            # Download latest
-            curl -s -L "$url" -o "$tmp_file"
-
-            # If local missing → treat as update
-            if [[ ! -f "$local_file" ]]; then
-              echo "Local file missing. Adding new file for $pathogen."
-              cp "$tmp_file" "$local_file"
-              changes_made=1
-            else
-              # Compare
-              if ! diff -q "$local_file" "$tmp_file" > /dev/null; then
-                echo "Changes detected for $pathogen — updating."
-                cp "$tmp_file" "$local_file"
-                changes_made=1
-              else
-                echo "No changes for $pathogen."
-              fi
-            fi
-
-            # If changed, update timestamp file
-            if [[ $changes_made -eq 1 ]]; then
-              # Remove old entry
-              grep -v "^${pathogen}:" "$update_file" > "${update_file}.tmp" || true
-              mv "${update_file}.tmp" "$update_file"
-
-              # Append new timestamp
-              echo "${pathogen}: $(date +"%m_%d_%Y-%H-%M")" >> "$update_file"
-            fi
-          done
-
-          # Commit if anything changed
-          if [[ $changes_made -eq 1 ]]; then
-            echo "Changes detected — committing."
-
-            git config --local user.name "$GITHUB_ACTOR"
-            git config --local user.email "$GITHUB_ACTOR@users.noreply.github.com"
-
-            git add freyja/data/*
-            git commit -m "Automatic barcode update from pathogen_config.yml"
-            git push origin HEAD
-          else
-            echo "No updates detected. Nothing to commit."
-          fi
