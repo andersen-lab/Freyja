@@ -35,11 +35,25 @@ def print_barcode_version(ctx, param, value):
     elif '--pathogen' in sys.argv:
         pathogen = sys.argv[sys.argv.index('--pathogen')+1]
         if pathogen in pathogens:
-            click.echo(f'Using {pathogen} barcodes in:')
-            click.echo(os.path.join(locDir,
-                                    'data/',
-                                    pathogen_config[pathogen][0]['name'] +
-                                    '_barcodes.csv'))
+            update_file = os.path.join(locDir, 'data/last_barcode_update.txt')
+            version = None
+            # Find the version for this pathogen
+            with open(update_file, 'r') as f:
+                for line in f:
+                    name, ver = line.strip().split(':', 1)
+                    if name == pathogen:
+                        version = ver
+                        break
+            if version:
+                click.echo(version)
+            # Construct and show the **path for this specific pathogen**
+            if pathogen is "SARS-CoV-2":
+                barcode_filename = "usher_barcodes.feather"
+            else:
+                barcode_filename = f"{pathogen}_barcodes.csv"
+            barcode_path = os.path.join(locDir, 'data', barcode_filename)
+            click.echo('Local barcode path:')
+            click.echo(barcode_path)
             ctx.exit()
         else:
             click.echo('Pathogen not in available list (see'
@@ -47,12 +61,6 @@ def print_barcode_version(ctx, param, value):
                        ' May require re-running freyja update.')
             click.echo(f"Available pathogens:{pathogens}")
             ctx.exit()
-    f = open(os.path.join(locDir, 'data/last_barcode_update.txt'), 'r')
-    click.echo('SARS-CoV-2 Barcode version:')
-    click.echo(f.readline().strip())
-    click.echo('Local barcode path:')
-    click.echo(os.path.join(locDir, 'data/usher_barcodes.feather'))
-    ctx.exit()
 
 
 @cli.command()
