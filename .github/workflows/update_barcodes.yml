@@ -136,7 +136,7 @@ jobs:
 
             git add freyja/data/*
             git commit -m "Automatic barcode update from pathogen_config.yml"
-            git push origin main
+            git push origin HEAD
           else
             echo "No updates detected. Nothing to commit."
           fi
