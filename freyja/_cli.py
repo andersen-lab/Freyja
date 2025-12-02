@@ -3,6 +3,7 @@ import sys
 import yaml
 import click
 import pandas as pd
+import subprocess
 from freyja.updates import get_pathogen_config
 
 locDir = os.path.abspath(os.path.join(os.path.realpath(__file__), os.pardir))
@@ -515,7 +516,6 @@ def variants(bamfile, ref, variants, depths, refname, minq, annot, varthresh):
     if ref == 'data/NC_045512_Hu-1.fasta':
         ref = os.path.join(locDir, ref)
 
-    import subprocess
     if len(refname) == 0:
         bashCmd = f"samtools mpileup -aa -A -d 600000 -Q {minq} -q 0 -B -f "\
                   f"{ref} {bamfile} | tee >(cut -f1-4 > {depths}) |"\
@@ -1003,49 +1003,59 @@ def filter(query_mutations, input_bam, min_site, max_site, output):
 @cli.command()
 @click.argument('input_bam',
                 type=click.Path(exists=True))
-@click.argument('min_site', default=0)
-@click.argument('max_site', default=29903)
-@click.option('--output', default='covariants.tsv',
-              help='path to save co-occurring mutations', show_default=True)
-@click.option('--ref-genome', type=click.Path(),
+@click.option('--reference', type=click.Path(),
               default='data/NC_045512_Hu-1.fasta', show_default=True)
-@click.option('--annot', type=click.Path(exists=True),
-              default=None,
-              help=('path to gff file corresponding to reference genome. If '
-                    'included, outputs amino acid mutations in addition to '
-                    'nucleotide mutations.'), show_default=True)
+@click.option('--annot', type=click.Path(),
+              default='data/NC_045512_Hu-1.gff',
+              help=('path to gff file corresponding to reference genome'),
+              show_default=True)
+@click.option('--start_site', default=0, help='minimum genomic coordinate to '
+              'consider', show_default=True)
+@click.option('--end_site', default=None, help='maximum genomic coordinate to consider '
+              '(defaults to full genome)', show_default=True)
+@click.option('--output', default='covariants.tsv', show_default=True)
 @click.option('--min_quality', default=20,
               help='minimum quality for a base to be considered',
               show_default=True)
-@click.option('--min_count', default=10,
+@click.option('--min_depth', default=10,
               help='minimum count for a set of mutations to be saved',
               show_default=True)
-@click.option('--spans_region', is_flag=True,
-              help=('if included, consider only reads that span the region '
-                    'defined by (min_site, max_site)'), show_default=True)
-@click.option('--sort_by', default='count',
-              help=('method by which to sort covariants patterns. Set to '
-                    '"count" or "freq" to sort patterns by count or frequency '
-                    '(in descending order). Set to "site" to sort patterns by '
-                    'start site (n ascending order).'), show_default=True)
-@click.option('--threads', default=1, help='number of parallet processes to '
-              'use. Recommended for large BAM files.', show_default=True)
-def covariants(input_bam, min_site, max_site, output,
-               ref_genome, annot, min_quality, min_count, spans_region,
-               sort_by, threads):
+@click.option('--threads', default=1, help='number of threads to use', 
+              show_default=True)
+def covariants(input_bam, start_site, end_site, output,
+               reference, annot, min_quality, min_depth, threads):
     """
-    Finds mutations co-occurring on the same read pair
-    in BAM_FILE between MIN_SITE and MAX_SITE
+    Calls physically linked mutations in BAM_FILE using coVar
+    (https://github.com/andersen-lab/covar)
     """
-    locDir = os.path.abspath(os.path.join(
-        os.path.realpath(__file__), os.pardir))
-    if ref_genome == 'data/NC_045512_Hu-1.fasta':
-        ref_genome = os.path.join(locDir, ref_genome)
+    locDir = os.path.abspath(os.path.join(os.path.realpath(__file__),
+                             os.pardir))
+    if reference == 'data/NC_045512_Hu-1.fasta':
+        reference = os.path.join(locDir, reference)
+    
+    if annot == 'data/NC_045512_Hu-1.gff':
+        annot = os.path.join(locDir, annot)
 
-    from freyja.read_analysis_tools import covariants as _covariants
-    _covariants(input_bam, min_site, max_site, output,
-                ref_genome, annot, min_quality, min_count, spans_region,
-                sort_by, threads)
+    print(annot)
+    cmd = [
+        'covar',
+        '-i', input_bam,
+        '-r', reference,
+        '-a', annot,
+        '-o', output,
+        '--start_site', str(start_site),
+        '--min_quality', str(min_quality),
+        '--min_depth', str(min_depth),
+        '--threads', str(threads)
+    ]
+    
+    # Only add max-site if specified
+    if end_site is not None:
+        cmd.extend(['--end_site', str(end_site)])
+    
+    sys.stdout.flush()  # force python to flush
+    completed = subprocess.run(cmd, stdout=subprocess.PIPE)
+    sys.exit(completed.returncode)
 
 
 @cli.command()
