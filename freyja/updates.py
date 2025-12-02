@@ -68,8 +68,27 @@ def download_barcodes(locDir, pathogen='SARS-CoV-2'):
         pathogen_name = pathogen_config[pathogen][0]['name']
         update_line = f"{pathogen_name}:{timestamp}\n"
         update_file = os.path.join(locDir, "last_barcode_update_other.txt")
-        with open(update_file, "a") as f:
-            f.write(update_line)
+
+        # Read existing lines (if file exists)
+        lines = []
+        if os.path.exists(update_file):
+            with open(update_file, "r") as f:
+                lines = f.readlines()
+
+        # Update or add the pathogen line
+        updated = False
+        for i, line in enumerate(lines):
+            if line.startswith(f"{pathogen_name}:"):
+                lines[i] = update_line
+                updated = True
+                break
+
+        if not updated:
+            lines.append(update_line)
+
+        # Write back to file
+        with open(update_file, "w") as f:
+            f.writelines(lines)
 
 
 def convert_tree(loc_dir):
