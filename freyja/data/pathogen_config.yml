@@ -4,7 +4,7 @@ MPXV:
    lineageyml: "https://raw.githubusercontent.com/andersen-lab/Freyja-barcodes/refs/heads/main/MPX/latest/mpox_lineages.yml"
 
 H5NX:
- - name: "H5Nx"
+ - name: "H5NX"
    barcodes: "https://raw.githubusercontent.com/andersen-lab/Freyja-barcodes/refs/heads/main/H5Nx/latest/barcode.csv"
 
 H5NX-cattle:
