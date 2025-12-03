@@ -45,6 +45,7 @@ def print_barcode_version(ctx, param, value):
                 ctx.exit()
             else:
                 version = None
+                pathogen_name = pathogen_config[pathogen][0]['name']
                 # Find the version for this pathogen
                 with open(os.path.join(
                     locDir,
@@ -52,12 +53,12 @@ def print_barcode_version(ctx, param, value):
                           "r") as f:
                     for line in f:
                         name, ver = line.strip().split(':', 1)
-                        if name == pathogen:
+                        if name == pathogen_name:
                             version = ver
                             break
                 if version:
                     click.echo(version)
-                barcode_filename = f"{pathogen}_barcodes.csv"
+                barcode_filename = f"{pathogen_name}_barcodes.csv"
                 barcode_path = os.path.join(locDir, 'data', barcode_filename)
                 if os.path.isfile(barcode_path):
                     click.echo('Local barcode path:')
