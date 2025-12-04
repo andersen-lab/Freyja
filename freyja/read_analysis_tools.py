@@ -7,7 +7,7 @@ import matplotlib.colors as mcolors
 from matplotlib.patches import Patch, Rectangle
 
 from Bio.Seq import MutableSeq
-from Bio.SeqIO import SeqIO
+from Bio import SeqIO
 
 import pysam
 
