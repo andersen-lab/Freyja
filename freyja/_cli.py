@@ -448,7 +448,7 @@ def get_lineage_def(lineage, barcodes, annot, ref, output):
     Get the mutations defining a LINEAGE of interest
     from provided barcodes
     """
-    from freyja.read_analysis_utils import parse_gff, translate_snps
+    from read_analysis_tools import parse_gff, translate_snps
 
     if 'data/usher' in barcodes:
         barcodes = os.path.join(locDir, barcodes)
@@ -1011,8 +1011,8 @@ def filter(query_mutations, input_bam, min_site, max_site, output):
               show_default=True)
 @click.option('--start_site', default=0, help='minimum genomic coordinate to '
               'consider', show_default=True)
-@click.option('--end_site', default=None, help='maximum genomic coordinate to consider '
-              '(defaults to full genome)', show_default=True)
+@click.option('--end_site', default=None, help='maximum genomic coordinate'
+              'to consider (defaults to full genome)', show_default=True)
 @click.option('--output', default='covariants.tsv', show_default=True)
 @click.option('--min_quality', default=20,
               help='minimum quality for a base to be considered',
@@ -1020,7 +1020,7 @@ def filter(query_mutations, input_bam, min_site, max_site, output):
 @click.option('--min_depth', default=10,
               help='minimum count for a set of mutations to be saved',
               show_default=True)
-@click.option('--threads', default=1, help='number of threads to use', 
+@click.option('--threads', default=1, help='number of threads to use',
               show_default=True)
 def covariants(input_bam, start_site, end_site, output,
                reference, annot, min_quality, min_depth, threads):
@@ -1032,7 +1032,7 @@ def covariants(input_bam, start_site, end_site, output,
                              os.pardir))
     if reference == 'data/NC_045512_Hu-1.fasta':
         reference = os.path.join(locDir, reference)
-    
+
     if annot == 'data/NC_045512_Hu-1.gff':
         annot = os.path.join(locDir, annot)
 
@@ -1047,11 +1047,11 @@ def covariants(input_bam, start_site, end_site, output,
         '--min_depth', str(min_depth),
         '--threads', str(threads)
     ]
-    
+
     # Only add max-site if specified
     if end_site is not None:
         cmd.extend(['--end_site', str(end_site)])
-    
+
     sys.stdout.flush()  # force python to flush
     completed = subprocess.run(cmd, stdout=subprocess.PIPE)
     sys.exit(completed.returncode)
