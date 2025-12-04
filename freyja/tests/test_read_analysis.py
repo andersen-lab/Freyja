@@ -162,47 +162,27 @@ class ReadAnalysisTests(unittest.TestCase):
 
     def test_covariants(self):
         cmd = ['freyja', 'covariants', self.input_bam,
-               '21563', '25384', '--annot',
-               'freyja/data/NC_045512_Hu-1.gff', '--output',
-               'freyja/data/test_covar.tsv']
+               '--start_site', '21563', '--end_site', '25384',
+               '--output', 'freyja/data/test_covar.tsv']
         err = subprocess.run(cmd)
         print(err)
         df = pd.read_csv('freyja/data/test_covar.tsv', sep='\t')
 
         patterns = []
-        for c in df['Covariants']:
+        for c in df['nt_mutations']:
             patterns.append(c.split(' '))
 
         # Test for covariants spanning > 150bp
-        self.assertTrue(['A23403G(S:D614G)', 'C23604G(S:P681R)'] in patterns)
+        self.assertTrue(['A23403G', 'C23604G'] in patterns)
 
         # Test coverage ranges
-        cov_start = df['Coverage_start']
-        cov_end = df['Coverage_end']
+        cov_start = df['coverage_start']
+        cov_end = df['coverage_end']
 
         for i in range(len(patterns)):
             for mut in patterns[i]:
                 self.assertTrue(int(mut[1:6]) in range(
                     cov_start[i], cov_end[i]))
-
-        # Test spans_region flag
-        cmd = ['freyja', 'covariants', self.input_bam,
-               '23550', '23700', '--output', 'freyja/data/test_covar_span.tsv',
-               '--spans_region']
-        subprocess.run(cmd)
-        df = pd.read_csv('freyja/data/test_covar_span.tsv', sep='\t')
-        patterns = []
-        for c in df['Covariants']:
-            patterns.append(c.split(' '))
-        cov_start = df['Coverage_start']
-        cov_end = df['Coverage_end']
-
-        for i in range(len(patterns)):
-            for mut in patterns[i]:
-                self.assertTrue(int(mut[1:6]) >= cov_start[i] and
-                                int(mut[1:6]) <= cov_end[i])
-        self.assertTrue(df.shape[0] == 2)
-        os.remove('freyja/data/test_covar_span.tsv')
 
         # Test plot-covariants
         cmd = ['freyja', 'plot-covariants',

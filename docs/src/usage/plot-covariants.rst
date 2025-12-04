@@ -21,4 +21,4 @@ view multi-nucleotide variants.
 
 |image2|
 
-.. |image2| image:: ../../../freyja/data/example_covariants_plot.png
+.. |image2| image:: ../../../freyja/data/covariants_plot.png
