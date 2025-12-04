@@ -448,7 +448,7 @@ def get_lineage_def(lineage, barcodes, annot, ref, output):
     Get the mutations defining a LINEAGE of interest
     from provided barcodes
     """
-    from read_analysis_tools import parse_gff, translate_snps
+    from freyja.read_analysis_tools import parse_gff, translate_snps
 
     if 'data/usher' in barcodes:
         barcodes = os.path.join(locDir, barcodes)
