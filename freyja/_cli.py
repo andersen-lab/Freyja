@@ -1036,7 +1036,6 @@ def covariants(input_bam, start_site, end_site, output,
     if annot == 'data/NC_045512_Hu-1.gff':
         annot = os.path.join(locDir, annot)
 
-    print(annot)
     cmd = [
         'covar',
         '-i', input_bam,
@@ -1066,22 +1065,18 @@ def covariants(input_bam, start_site, end_site, output,
 @click.option('--num_clusters', default=10,
               help='number of clusters to plot (sorted by frequency)',
               show_default=True)
-@click.option('--min_mutations', default=1,
+@click.option('--min_mutations', default=2,
               help='minimum number of mutations in a cluster to be plotted',
               show_default=True)
 @click.option('--nt_muts', is_flag=True,
               help='if included, include nucleotide mutations in x-labels',
               show_default=True)
-@click.option('--vmin', default=-5,
-              help='minimum value for colorbar (log scale)', show_default=True)
-@click.option('--vmax', default=0,
-              help='maximum value for colorbar (log scale)', show_default=True)
 def plot_covariants(covariants, output, num_clusters,
-                    min_mutations, nt_muts, vmin, vmax):
+                    min_mutations, nt_muts):
     """Plot COVARIANTS output as a heatmap"""
     from freyja.read_analysis_tools import plot_covariants as _plot_covariants
     _plot_covariants(covariants, output, num_clusters,
-                     min_mutations, nt_muts, vmin, vmax)
+                     min_mutations, nt_muts)
 
 
 @cli.command()
