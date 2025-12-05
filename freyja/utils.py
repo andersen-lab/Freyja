@@ -224,12 +224,12 @@ def read_lineage_file(lineageyml, locDir, altname,
                     raise ValueError('Error in lineages.yml file: ' + str(exc))
         else:
             with open(os.path.join(
-                      locDir, f'data/{altname}_lineages.yml'), 'r') as f:
+                      locDir, f'data/lineages.yml'), 'r') as f:
                 try:
                     lineages_yml = yaml.safe_load(f)
                 except yaml.YAMLError as exc:
                     raise ValueError(
-                        f'Error in {altname}_lineages.yml file: ' +
+                        f'Error in lineages.yml file: ' +
                         str(exc))
     else:
         with open(lineageyml, 'r') as f:
