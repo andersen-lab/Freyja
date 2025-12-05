@@ -1,14 +1,14 @@
-MPXV:
- - name: "MPXV"
+MPX:
+ - name: "MPX"
    barcodes: "https://raw.githubusercontent.com/andersen-lab/Freyja-barcodes/refs/heads/main/MPX/latest/barcode.csv"
    lineageyml: "https://raw.githubusercontent.com/andersen-lab/Freyja-barcodes/refs/heads/main/MPX/latest/mpox_lineages.yml"
 
-H5NX:
- - name: "H5NX"
+H5Nx:
+ - name: "H5Nx"
    barcodes: "https://raw.githubusercontent.com/andersen-lab/Freyja-barcodes/refs/heads/main/H5Nx/latest/barcode.csv"
 
-H5NX-cattle:
-  - name: "H5NX-cattle"
+H5Nx-cattle:
+  - name: "H5Nx-cattle"
     barcodes: "https://raw.githubusercontent.com/andersen-lab/Freyja-barcodes/refs/heads/main/H5Nx-cattle/latest/barcode.csv"
     lineageyml: "https://raw.githubusercontent.com/andersen-lab/Freyja-barcodes/refs/heads/main/H5Nx-cattle/latest/h5nx_cattle_lineages.yml"
 
@@ -24,22 +24,17 @@ H3N2:
  - name: "H3N2"
    barcodes: "https://raw.githubusercontent.com/andersen-lab/Freyja-barcodes/refs/heads/main/H3N2/latest/barcode.csv"
 
-
-MEASLESN450:
- - name: "MEASLESN450"
-   barcodes: "https://raw.githubusercontent.com/andersen-lab/Freyja-barcodes/refs/heads/main/MEASLESN450/latest/barcode.csv"
-
-MEASLESwholegenome:
- - name: "MEASLESwholegenome"
+MEASLESgenome:
+ - name: "MEASLESgenome"
    barcodes: "https://raw.githubusercontent.com/andersen-lab/Freyja-barcodes/refs/heads/main/MEASLESgenome/latest/barcode.csv"
    lineageyml: "https://raw.githubusercontent.com/andersen-lab/Freyja-barcodes/refs/heads/main/MEASLESgenome/latest/lineagesMEASLES.yml"
 
-RSVA:
- - name: "RSVA"
+RSVa:
+ - name: "RSVa"
    barcodes: "https://raw.githubusercontent.com/andersen-lab/Freyja-barcodes/refs/heads/main/RSVa/latest/barcode.csv"
 
-RSVB:
- - name: "RSVB"
+RSVb:
+ - name: "RSVb"
    barcodes: "https://raw.githubusercontent.com/andersen-lab/Freyja-barcodes/refs/heads/main/RSVb/latest/barcode.csv"
 
 DENV1:
@@ -57,3 +52,7 @@ DENV3:
 DENV4:
  - name: "DENV4"
    barcodes: "https://raw.githubusercontent.com/andersen-lab/Freyja-barcodes/refs/heads/main/DENV4/latest/barcode.csv"
+
+MTB:
+ - name: "MTB"
+   barcodes: "https://raw.githubusercontent.com/andersen-lab/Freyja-barcodes/refs/heads/main/MTB/latest/barcode.csv"
