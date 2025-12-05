@@ -213,7 +213,7 @@ def get_value(val, dict, get_val, match_key):
     return values[0]
 
 
-def read_lineage_file(lineageyml, locDir, altname,
+def read_lineage_file(lineageyml, locDir,
                       pathogen='SARS-CoV-2', fileOnly=False):
     if lineageyml == "":
         if pathogen == 'SARS-CoV-2':
@@ -224,12 +224,12 @@ def read_lineage_file(lineageyml, locDir, altname,
                     raise ValueError('Error in lineages.yml file: ' + str(exc))
         else:
             with open(os.path.join(
-                      locDir, f'data/{altname}_lineages.yml'), 'r') as f:
+                      locDir, 'data/lineages.yml'), 'r') as f:
                 try:
                     lineages_yml = yaml.safe_load(f)
                 except yaml.YAMLError as exc:
                     raise ValueError(
-                        f'Error in {altname}_lineages.yml file: ' +
+                        'Error in lineages.yml file: ' +
                         str(exc))
     else:
         with open(lineageyml, 'r') as f:
@@ -1070,7 +1070,7 @@ def collapse_barcodes(df_barcodes, df_depth, depthcutoff,
 
     # load lineage data
     lineage_yml = read_lineage_file(lineageyml, locDir,
-                                    altname, pathogen, fileOnly=True)
+                                    pathogen, fileOnly=True)
     lineage_data = {lineage['name']: lineage for lineage in lineage_yml}
 
     alias_count = {}
