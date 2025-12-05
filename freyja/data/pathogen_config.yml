@@ -1,7 +1,7 @@
 MPX:
  - name: "MPX"
    barcodes: "https://raw.githubusercontent.com/andersen-lab/Freyja-barcodes/refs/heads/main/MPX/latest/barcode.csv"
-   lineageyml: "https://raw.githubusercontent.com/andersen-lab/Freyja-barcodes/refs/heads/main/MPX/latest/mpox_lineages.yml"
+   lineageyml: "https://github.com/andersen-lab/Freyja-barcodes/blob/main/MPX/latest/lineages.yml"
 
 H5Nx:
  - name: "H5Nx"
@@ -10,7 +10,7 @@ H5Nx:
 H5Nx-cattle:
   - name: "H5Nx-cattle"
     barcodes: "https://raw.githubusercontent.com/andersen-lab/Freyja-barcodes/refs/heads/main/H5Nx-cattle/latest/barcode.csv"
-    lineageyml: "https://raw.githubusercontent.com/andersen-lab/Freyja-barcodes/refs/heads/main/H5Nx-cattle/latest/h5nx_cattle_lineages.yml"
+    lineageyml: "https://raw.githubusercontent.com/andersen-lab/Freyja-barcodes/refs/heads/main/H5Nx-cattle/latest/lineages.yml"
 
 H1N1:
  - name: "H1N1"
@@ -27,7 +27,7 @@ H3N2:
 MEASLESgenome:
  - name: "MEASLESgenome"
    barcodes: "https://raw.githubusercontent.com/andersen-lab/Freyja-barcodes/refs/heads/main/MEASLESgenome/latest/barcode.csv"
-   lineageyml: "https://raw.githubusercontent.com/andersen-lab/Freyja-barcodes/refs/heads/main/MEASLESgenome/latest/lineagesMEASLES.yml"
+   lineageyml: "https://raw.githubusercontent.com/andersen-lab/Freyja-barcodes/refs/heads/main/MEASLESgenome/latest/lineages.yml"
 
 RSVa:
  - name: "RSVa"
