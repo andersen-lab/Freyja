@@ -1070,7 +1070,7 @@ def collapse_barcodes(df_barcodes, df_depth, depthcutoff,
 
     # load lineage data
     lineage_yml = read_lineage_file(lineageyml, locDir,
-                                    altname, pathogen, fileOnly=True)
+                                    pathogen, fileOnly=True)
     lineage_data = {lineage['name']: lineage for lineage in lineage_yml}
 
     alias_count = {}
