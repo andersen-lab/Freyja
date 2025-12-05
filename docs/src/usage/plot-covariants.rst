@@ -12,7 +12,7 @@ number of patterns (i.e. rows in the plot) to display, while the
 threshold ``--min_mutations`` sets a minimum number of mutations per set
 of covariants for inclusion in the plot. The flag ``--nt_muts`` can be
 included to provide nucleotide-specific information in the plot
-(e.g. C22995A(S:T478K) as opposed to S:T478K), making it possible to
+(e.g. C22995A as opposed to S:T478K), making it possible to
 view multi-nucleotide variants.
 
 
@@ -21,4 +21,4 @@ view multi-nucleotide variants.
 
 |image2|
 
-.. |image2| image:: ../../../freyja/data/example_covariants_plot.png
+.. |image2| image:: ../../../freyja/data/covariants_plot.png

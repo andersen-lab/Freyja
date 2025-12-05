@@ -5,15 +5,42 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import matplotlib.colors as mcolors
 from matplotlib.patches import Patch, Rectangle
-import concurrent.futures as cf
-from concurrent.futures import ProcessPoolExecutor
-import pysam
+
 from Bio.Seq import MutableSeq
 from Bio import SeqIO
 
-from freyja.read_analysis_utils import nt_position, get_colnames_and_sites, \
-    read_pair_generator, \
-    filter_covariants_output, parse_gff, get_gene
+import pysam
+
+
+def read_pair_generator(bam, refname, min_site, max_site):
+    is_paired = {}
+    for read in bam.fetch(refname, min_site, max_site+1):
+        if read.query_name[-2] == '.':
+            qname = read.query_name[:-1]
+        else:
+            qname = read.query_name
+
+        if qname not in is_paired:
+            is_paired[qname] = False
+        else:
+            is_paired[qname] = True
+
+    read_dict = {}
+    for read in bam.fetch(refname, min_site, max_site+1):
+        if read.query_name[-2] == '.':
+            qname = read.query_name[:-1]
+        else:
+            qname = read.query_name
+
+        if not is_paired[qname]:
+            yield read, None
+            continue
+
+        if qname not in read_dict:
+            read_dict[qname] = read
+        else:
+            yield read_dict[qname], read
+            del read_dict[qname]
 
 
 def extract(query_mutations, input_bam, output, same_read):
@@ -325,496 +352,92 @@ def filter(query_mutations, input_bam, min_site, max_site, output):
     return final_reads
 
 
-def run_parallel(cores, regions, input_bam, ref_fasta, gff_file, min_quality,
-                 min_count, spans_region):
-    with ProcessPoolExecutor(max_workers=cores) as p:
-        futures = {p.submit(process_covariants, input_bam,
-                            region[0], region[1], ref_fasta, gff_file,
-                            min_quality, min_count, spans_region)
-                   for region in regions}
-        for future in cf.as_completed(futures):
-            yield future.result()
-
-
-def covariants(input_bam, min_site, max_site, output,
-               ref_fasta, gff_file, min_quality, min_count, spans_region,
-               sort_by, cores):
-    # Split regions into smaller chunks for parallel processing
-    regions = [(min_site, max_site)]
-    if cores > 1:
-        region_size = (max_site - min_site) // cores
-        regions = [(min_site + i * region_size, min_site +
-                    (i + 1) * region_size) for i in range(cores)]
-        regions[-1] = (regions[-1][0], max_site)
-
-    # Run parallel processing
-    results = run_parallel(cores, regions, input_bam, ref_fasta,
-                           gff_file, min_quality, min_count, spans_region)
-
-    # Aggregate results
-
-    results = list(results)
-    df = pd.concat(results, ignore_index=True)
-
-    df = df.sort_values('Max_count', ascending=False).drop_duplicates(
-        subset='Covariants', keep='first')
-
-    # Sort patterns
-    if sort_by.lower() == 'count':
-        df = df.sort_values('Count', ascending=False)
-    elif sort_by.lower() == 'freq':
-        df = df.sort_values('Freq', ascending=False)
-    elif sort_by.lower() == 'site':
-        df['sort_col'] = [nt_position(s.split(' ')[0]) for s in df.Covariants]
-        df = df.sort_values('sort_col').drop(labels='sort_col', axis=1)
-
-    df.to_csv(output, sep='\t', index=False)
-    print(f'covariants: Output saved to {output}')
-    return df
-
-
-def process_covariants(input_bam, min_site, max_site, ref_fasta, gff_file,
-                       min_quality, min_count, spans_region):
-
-    # Load reference genome
-    ref_genome = MutableSeq(next(SeqIO.parse(ref_fasta, 'fasta')).seq)
-
-    # Load gene annotations (if present)
-    if gff_file is not None:
-        gene_positions = parse_gff(gff_file)
-
-        # Split ORF1ab for SARS-CoV-2
-        if 'ORF1ab' in gene_positions:
-            del gene_positions['ORF1ab']
-            gene_positions['ORF1a'] = (266, 13468)
-            gene_positions['ORF1b'] = (13468, 21555)
-        elif 'orf1ab' in gene_positions:
-            del gene_positions['orf1ab']
-            gene_positions['orf1a'] = (266, 13468)
-            gene_positions['orf1b'] = (13468, 21555)
-
-    # Open input bam file for reading
-    samfile = pysam.AlignmentFile(input_bam, 'rb')
-    refname = samfile.get_reference_name(0)
-
-    co_muts = {}
-    co_muts_by_gene = {}
-    coverage = {}
-    co_muts_region = {}
-
-    # Check if index file exists
-    try:
-        samfile.fetch(refname, min_site, max_site+1)
-    except ValueError:
-        print((f'covariants: Input bamfile missing corresponding index file. '
-               f'Try running:\n samtools index {input_bam}'))
-        return -1
-
-    for read1, read2 in read_pair_generator(samfile, refname, min_site,
-                                            max_site+1):
-
-        coverage_start = None
-        coverage_end = None
-        co_mut_start = None
-        co_mut_end = None
-        nt_to_aa = {}
-
-        muts_final = []
-        for x in [read1, read2]:
-            if x is None:
-                continue
-
-            if any([val is None for val in [x.query_alignment_sequence,
-                                            x.query_alignment_qualities,
-                                            x.cigarstring]]):
-                continue
-
-            start = x.reference_start
-            end = x.reference_end
-            seq = x.query_alignment_sequence
-            quals = x.query_alignment_qualities
-            seq = ''.join(
-                [seq[i] if quals[i] >= min_quality else 'N'
-                 for i in range(len(seq))])
-
-            insertions_found = []
-            ins_offsets = {}
-            ins_offset = 0
-            last_ins_site = 0
-
-            deletions_found = []
-            del_offsets = {}
-            del_offset = 0
-            last_del_site = 0
-
-            snps_found = []
-
-            # Update coverage ranges
-            if coverage_start is None or start < coverage_start:
-                coverage_start = start
-
-            if coverage_end is None or end > coverage_end:
-                coverage_end = end
-
-            cigar = re.findall(r'(\d+)([A-Z]{1})', x.cigarstring)
-            if 'I' in x.cigarstring:
-                i = 0
-                del_spacing = 0
-                ins_spacing = 0
-
-                for m in cigar:
-                    if m[1] == 'I':
-                        insertion_site = start+i+del_spacing-ins_spacing
-                        insertion_len = int(m[0])
-
-                        ins_offsets[(last_ins_site, insertion_site)
-                                    ] = ins_offset
-                        last_ins_site = insertion_site
-                        ins_offset += insertion_len
-                        if 'N' in seq[i:i+insertion_len]:
-                            continue
-
-                        insertions_found.append(
-                            (insertion_site,
-                             seq[i:i+insertion_len])
-                        )
-                        # only insertion site in reference genome
-                        if co_mut_start is None \
-                                or insertion_site < co_mut_start:
-                            co_mut_start = insertion_site
-                        if co_mut_end is None \
-                                or insertion_site > co_mut_end:
-                            co_mut_end = insertion_site
-
-                        i += insertion_len
-                        ins_spacing += insertion_len
-                    elif m[1] == 'D':
-                        del_spacing += int(m[0])
-                    elif m[1] == 'M':
-                        i += int(m[0])
-
-                current_ins_site = start+i+del_spacing-ins_spacing
-                ins_offsets[(last_ins_site, current_ins_site)] = ins_offset
-                last_ins_site = current_ins_site
-
-            if 'D' in x.cigarstring:
-                i = 0
-                for m in cigar:
-                    if m[1] == 'M':
-                        i += int(m[0])
-                    elif m[1] == 'D':
-                        deletion_site = start+i
-                        deletion_len = int(m[0])
-
-                        deletions_found.append((deletion_site, deletion_len))
-                        if co_mut_start is None \
-                                or deletion_site < co_mut_start:
-                            co_mut_start = deletion_site
-                        if co_mut_end is None \
-                                or deletion_site + deletion_len > co_mut_end:
-                            co_mut_end = deletion_site + deletion_len
-
-                        del_offsets[(last_del_site, start+i)] = del_offset
-                        last_del_site = deletion_site
-                        del_offset += deletion_len
-
-                        i += deletion_len
-                del_offsets[(last_del_site, start+i)] = del_offset
-                last_del_site = start+i
-
-            # Find SNPs
-
-            softclip_offset = 0
-            if cigar[0][1] == 'S':
-                softclip_offset += int(cigar[0][0])
-            if (len(cigar) > 1 and cigar[0][1] == 'H' and cigar[1][1] == 'S'):
-                softclip_offset += int(cigar[1][0])
-
-            pairs = x.get_aligned_pairs(matches_only=True)
-
-            for tup in pairs:
-                read_site, ref_site = tup
-
-                read_site -= softclip_offset
-                ref_base = ref_genome[ref_site]
-
-                if seq[read_site] != 'N' and ref_base != seq[read_site]:
-                    snps_found.append(
-                        f'{ref_base.upper()}{ref_site+1}{seq[read_site]}'
-                    )
-                    if co_mut_start is None or ref_site + 1 < co_mut_start:
-                        co_mut_start = ref_site + 1
-                    if co_mut_end is None or ref_site + 1 > co_mut_end:
-                        co_mut_end = ref_site + 1
-
-            # Get corresponding amino acid mutations
-            if gff_file is not None:
-                for ins in insertions_found:
-                    locus = ins[0]
-                    gene_info = get_gene(locus, gene_positions)
-                    ins_string = str(ins).replace(' ', '')
-                    if gene_info is None or ins_string in nt_to_aa:
-                        continue
-
-                    gene, start_site = gene_info
-                    aa_locus = ((locus - start_site) // 3) + 2
-
-                    if len(ins[1]) % 3 == 0:
-                        insertion_seq = MutableSeq(ins[1]).translate()
-                    else:
-                        insertion_seq = ''
-
-                    aa_mut = (f'{ins_string}({gene}:INS{aa_locus}'
-                              f'{insertion_seq})')
-                    nt_to_aa[ins_string] = aa_mut
-
-                for deletion in deletions_found:
-                    locus = deletion[0]
-                    gene_info = get_gene(locus, gene_positions)
-                    deletion_string = str(deletion).replace(' ', '')
-                    if gene_info is None or deletion_string in nt_to_aa:
-                        continue
-
-                    gene, start_site = gene_info
-                    aa_locus = ((locus - start_site) // 3) + 2
-
-                    del_length = deletion[1] // 3
-                    if del_length > 1:
-                        aa_mut = (
-                            f'{deletion_string}({gene}:DEL{aa_locus}/'
-                            f'{aa_locus+del_length-1})'
-                        )
-                    else:
-                        aa_mut = f'{deletion_string}({gene}:DEL{aa_locus})'
-                    nt_to_aa[deletion_string] = aa_mut
-
-                for snp in snps_found:
-                    locus = int(snp[1:-1])
-                    gene_info = get_gene(locus, gene_positions)
-                    if gene_info is None or snp in nt_to_aa:
-                        continue
-
-                    gene, start_site = gene_info
-                    codon_position = (locus - start_site) % 3
-                    aa_locus = ((locus - codon_position - start_site) // 3) + 1
-
-                    ref_codon = ref_genome[locus - codon_position - 1:
-                                           locus - codon_position + 2]
-                    ref_aa = ref_codon.translate()
-
-                    # Adjust for indels
-                    ins_offset = 0
-                    for r in ins_offsets:
-                        if locus in range(r[0], r[1]) or locus == r[1]:
-                            ins_offset = ins_offsets[r]
-                    del_offset = 0
-                    for r in del_offsets:
-                        if locus in range(r[0], r[1]) or locus == r[1]:
-                            del_offset = del_offsets[r]
-
-                    read_start = (locus - start) - codon_position + \
-                        ins_offset - del_offset - 1
-                    read_end = (locus - start) - codon_position + \
-                        ins_offset - del_offset + 2
-
-                    alt_codon = MutableSeq(seq[read_start:read_end])
-
-                    if len(alt_codon) % 3 != 0 or len(alt_codon) == 0 \
-                            or 'N' in alt_codon:
-                        continue
-                    alt_aa = alt_codon.translate()
-
-                    aa_mut = f'{snp}({gene}:{ref_aa}{aa_locus}{alt_aa})'
-                    nt_to_aa[snp] = aa_mut
-
-            for mut in insertions_found + deletions_found + snps_found:
-                muts_final.append(str(mut).replace(' ', ''))
-
-        # Skip update if reads do not span region
-        if spans_region:
-            if coverage_start > min_site or coverage_end < max_site:
-                continue
-
-        muts_final = sorted(list(set(muts_final)), key=nt_position)
-        if len(muts_final) == 0:
-            continue
-
-        # Update
-        key = ' '.join(muts_final)
-        if key not in co_muts:
-            co_muts[key] = 1
-            coverage[key] = [coverage_start, coverage_end]
-            co_muts_region[key] = (co_mut_start, co_mut_end)
-        else:
-            co_muts[key] += 1
-
-            # Update coverage to intersection of read pairs with covariants
-            if coverage_start > coverage[key][0]:
-                coverage[key][0] = coverage_start
-            if coverage_end < coverage[key][1]:
-                coverage[key][1] = coverage_end
-
-        # Should only have to do this when key not in co_muts
-        # but aa_mut can sometimes change for snps due to indels
-        if gff_file is not None:
-            muts_final_aa = []
-            for mut in muts_final:
-                if mut in nt_to_aa:
-                    muts_final_aa.append(nt_to_aa[mut])
-                else:
-                    muts_final_aa.append(mut)
-
-            aa_string = ' '.join(muts_final_aa)
-            if key not in co_muts_by_gene \
-                    or len(co_muts_by_gene[key]) < len(aa_string):
-                co_muts_by_gene[key] = aa_string
-
-    samfile.close()
-
-    # Go through samfile another time to determine number of read pairs
-    # for positions covered by each set of covariants
-    samfile = pysam.AlignmentFile(input_bam, 'rb')
-    samfile.fetch(refname, min_site, max_site+1)
-    co_muts_max_reads = {}
-
-    for read1, read2 in read_pair_generator(samfile, refname, min_site,
-                                            max_site+1):
-
-        coverage_start = None
-        coverage_end = None
-
-        for x in [read1, read2]:
-
-            if x is None:
-                continue
-
-            if any([val is None for val in [x.query_alignment_sequence,
-                                            x.query_alignment_qualities,
-                                            x.cigarstring]]):
-                continue
-
-            start = x.reference_start
-            end = x.reference_end
-            seq = x.query_alignment_sequence
-            quals = x.query_alignment_qualities
-            seq = ''.join(
-                [seq[i] if quals[i] >= min_quality else 'N'
-                 for i in range(len(seq))])
-
-            # Update coverage ranges
-            if coverage_start is None or start < coverage_start:
-                coverage_start = start
-            if coverage_end is None or end > coverage_end:
-                coverage_end = end
-
-        # Skip update if reads do not span region
-        if spans_region:
-            if coverage_start > min_site or coverage_end < max_site:
-                continue
-
-        if coverage_start is None or coverage_end is None:
-            continue
-
-        for key in co_muts_region:
-            co_mut_start, co_mut_end = co_muts_region[key]
-
-            if coverage_start <= co_mut_start and coverage_end >= co_mut_end:
-                if key not in co_muts_max_reads:
-                    co_muts_max_reads[key] = 1
-                else:
-                    co_muts_max_reads[key] += 1
-
-    samfile.close()
-
-    # Aggregate dictionaries into dataframe
-    df = pd.DataFrame()
-    if gff_file is not None:
-        df['Covariants'] = [co_muts_by_gene[k] for k in co_muts]
-    else:
-        df['Covariants'] = [k for k in co_muts]
-    df['Count'] = [co_muts[k] for k in co_muts]
-    df['Max_count'] = [co_muts_max_reads[k] for k in co_muts]
-    df['Freq'] = [co_muts[k] / co_muts_max_reads[k] for k in co_muts]
-    df['Coverage_start'] = [coverage[k][0] for k in co_muts]
-    df['Coverage_end'] = [coverage[k][1] for k in co_muts]
-
-    df = df[df['Count'] >= min_count]
-
-    return df
-
-
 def plot_covariants(covariants, output, num_clusters,
-                    min_mutations, nt_muts, vmin, vmax):
+                    min_mutations, nt_muts):
 
-    covariants_df = pd.read_csv(covariants, sep='\t', header=0)
+    covariants_df = pd.read_csv(covariants, sep='\t')
 
-    if not any(':' in mut for mut in covariants_df['Covariants'][0]):
-        nt_muts = True
+    covariants_df['nt_mutations'] = covariants_df['nt_mutations'].apply(
+        lambda x: x if len(x.split(' ')) >= min_mutations else pd.NA
+    )
+    covariants_df = covariants_df.dropna(subset=['nt_mutations'])
 
-    # Clean up covariants output
-    covariants_df['Covariants'] = covariants_df['Covariants'] \
-        .str.replace(', ', ',') \
-        .str.split(' ') \
-        .apply(filter_covariants_output, args=(nt_muts, min_mutations))
-
-    # Drop rows with NA values and keep top n clusters
-    covariants_df = covariants_df.dropna()
+    nt_to_aa = {}
+    for idx, row in covariants_df.iterrows():
+        for i, mut in enumerate(row['nt_mutations'].split(' ')):
+            if mut not in nt_to_aa:
+                if row['aa_mutations'].split(' ')[i] != 'NA':
+                    nt_to_aa[mut] = row['aa_mutations'].split(' ')[i]
+                else:
+                    nt_to_aa[mut] = mut
 
     # Merge rows with identical covariants and add their counts
     covariants_df = covariants_df \
-        .groupby(covariants_df['Covariants'].astype(str)) \
+        .groupby(covariants_df['nt_mutations'].astype(str)) \
         .agg(
             {
-                'Count': 'sum',
-                'Coverage_start': 'max',
-                'Coverage_end': 'min',
-                'Freq': 'sum'
+                'cluster_depth': 'sum',
+                'coverage_start': 'max',
+                'coverage_end': 'min',
+                'frequency': 'sum'
             }
         ) \
         .reset_index() \
-        .sort_values('Freq', ascending=False)
-
-    # Cast back to list
-    covariants_df['Covariants'] = covariants_df['Covariants'] \
-        .str.strip('][') \
-        .str.replace("'", "") \
-        .str.split(pat=', ')
+        .sort_values('frequency', ascending=False)
 
     covariants_df['Coverage_ranges'] = list(
         zip(
-            covariants_df['Coverage_start'],
-            covariants_df['Coverage_end']
+            covariants_df['coverage_start'],
+            covariants_df['coverage_end']
         )
     )
     covariants_df = covariants_df.head(num_clusters)
     coverage_ranges = covariants_df['Coverage_ranges'].tolist()
-    log_frequency = np.log10(covariants_df['Freq']).tolist()
+    log_frequency = np.log10(covariants_df['frequency']).tolist()
 
     # Get all unique mutations found in the sample
     unique_mutations = set()
-    for sublist in covariants_df['Covariants']:
-        unique_mutations.update(sublist)
+    for sublist in covariants_df['nt_mutations']:
+        unique_mutations.update(sublist.split(' '))
+
+    def get_position(mut, nt_muts):
+        # if nt_muts:
+        if '-' in mut:
+            return int(mut[1:-1].split('-')[0])
+        if '+' in mut:
+            return int(mut[1:-1].split('+')[0])
+        m = re.search(r'(\d+)', mut)
+        if m:
+            return int(m.group(1))
+        return 0
 
     # Populate dataframe with cluster frequencies
-    colnames, sites = get_colnames_and_sites(unique_mutations, nt_muts)
-    index = [f'CP{i}' for i in range(len(covariants_df))]
+    sites = {mut: get_position(mut, nt_muts) for mut in unique_mutations}
+    colnames = list(unique_mutations)
+    colnames.sort(key=lambda x: sites[x])
+
+    index = [f'{i}' for i in range(len(covariants_df))]
     plot_df = pd.DataFrame(columns=colnames, index=index)
-    for pattern in enumerate(covariants_df['Covariants']):
+    for idx, cov in enumerate(covariants_df['nt_mutations']):
         sample_row = np.empty(len(colnames))
         sample_row[:] = np.nan
-        coverage_range = coverage_ranges[pattern[0]]
+        coverage_range = coverage_ranges[idx]
+        muts = [m for m in str(cov).split() if m]
         for col in colnames:
             if sites[col] in range(coverage_range[0], coverage_range[1]):
-                # Placeholder value for refererence bases
+                # Placeholder value for reference bases
                 sample_row[colnames.index(col)] = 1.0
-            for mut in pattern[1]:
-                if col in mut:
-                    sample_row[colnames.index(
-                        col)] = log_frequency[pattern[0]]
-        plot_df.loc[index[pattern[0]]] = sample_row
+            for mut in muts:
+                # match whole mutation tokens, not characters
+                if col == mut:
+                    sample_row[colnames.index(col)] = log_frequency[idx]
+                    break
+        plot_df.loc[index[idx]] = sample_row
 
     plot_df = plot_df.astype(float)
 
+    if not nt_muts:
+        plot_df.columns = [nt_to_aa[col] for col in plot_df.columns]
     # Plot heatmap
     fig, ax = plt.subplots(figsize=(15, 10))
 
@@ -823,8 +446,7 @@ def plot_covariants(covariants, output, num_clusters,
                                                      colors=colors)
     ax = sns.heatmap(plot_df, cmap=cmap,
                      cbar_kws={'label': 'log10 Frequency', 'shrink': 0.5},
-                     vmin=vmin,
-                     vmax=vmax,
+                     vmax=0,
                      linewidths=1.5, linecolor='white', square=True)
 
     gray = mcolors.LinearSegmentedColormap.from_list(
@@ -871,3 +493,62 @@ def plot_covariants(covariants, output, num_clusters,
     plt.savefig(output, bbox_inches='tight')
 
     print(f'plot-covariants: Output saved to {output}')
+
+
+def parse_gff(gff_file):
+    gene_positions = {}
+    with open(gff_file) as f:
+        for line in f.readlines():
+            line = line.split('\t')
+            if 'gene' in line:
+                attrs = line[-1].split(';')
+                for attr in attrs:
+                    if attr.startswith('Name='):
+                        gene_name = attr.split('=')[1]
+                        gene_positions[gene_name] = (int(line[3]),
+                                                     int(line[4]))
+    return gene_positions
+
+
+def translate_snps(snps, ref, gene_positions):
+
+    # Load reference genome
+    ref = MutableSeq(next(SeqIO.parse(ref, 'fasta')).seq)
+
+    output = {snp: None for snp in snps}
+    for snp in snps:
+        locus = int(snp[1:-1])
+
+        # Find the key in gene_positions that corresponds to the gene
+        # containing the SNP
+        gene_info = None
+        for gene in gene_positions:
+            start, end = gene_positions[gene]
+            if start <= locus <= end:
+                gene_info = gene, start
+                break
+        if gene_info is None:
+            continue
+
+        codon_position = (locus - start) % 3
+        aa_locus = ((locus - codon_position - start) // 3) + 1
+
+        ref_codon = ref[locus - codon_position - 1:
+                        locus - codon_position + 2]
+        ref_aa = ref_codon.translate()
+
+        alt_codon = MutableSeq(str(ref_codon))
+        alt_codon[codon_position] = snp[-1]
+
+        if len(alt_codon) % 3 != 0 or len(alt_codon) == 0 \
+                or 'N' in alt_codon:
+            continue
+        alt_aa = alt_codon.translate()
+
+        if ref_aa == alt_aa or '*' in alt_aa:
+            continue  # Synonymous/stop codon mutation
+
+        aa_mut = f'{gene}:{ref_aa}{aa_locus}{alt_aa}'
+        output[snp] = aa_mut
+
+    return output

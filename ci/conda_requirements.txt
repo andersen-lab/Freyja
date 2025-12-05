@@ -20,3 +20,4 @@ pysam
 biopython
 seaborn
 pyarrow
+covar
