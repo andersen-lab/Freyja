@@ -5,6 +5,8 @@ import subprocess
 import requests
 import yaml
 from datetime import datetime
+import json
+import re
 
 
 def get_pathogen_config(locDir):
@@ -38,57 +40,85 @@ def download_tree(locDir):
     return treePath
 
 
+def get_latest_git_folder_date(org, repo, branch, pathogen_dir):
+    api_url = f"https://api.github.com/repos/{org}"
+    "/{repo}/contents/{pathogen_dir}?ref={branch}"
+
+    try:
+        with urllib.request.urlopen(api_url) as r:
+            items = json.loads(r.read().decode())
+    except Exception as e:
+        print(f"Error fetching GitHub directory listing: {e}")
+        return None
+
+    # Match YYYY-MM-DD
+    date_pattern = re.compile(r"^\d{4}-\d{2}-\d{2}$")
+
+    dates = [
+        item["name"] for item in items
+        if date_pattern.match(item["name"])]
+
+    if not dates:
+        return None
+
+    # Lexical sort works for YYYY-MM-DD format
+    return sorted(dates)[-1]
+
+
 def download_barcodes(locDir, pathogen='SARS-CoV-2'):
     if pathogen == 'SARS-CoV-2':
-        url = "https://raw.githubusercontent.com/andersen-lab/"\
-            "Freyja/main/freyja/data/usher_barcodes.feather"
-        bPath = os.path.join(locDir, "usher_barcodes.feather")
-        urllib.request.urlretrieve(url, bPath)
-        url2 = "https://raw.githubusercontent.com/andersen-lab/"\
-            "Freyja/main/freyja/data/last_barcode_update.txt"
-        bPath = os.path.join(locDir, "last_barcode_update.txt")
-        urllib.request.urlretrieve(url2, bPath)
-        url3 = "https://raw.githubusercontent.com/andersen-lab/"\
-            "Freyja/main/freyja/data/lineage_mutations.json"
-        bPath = os.path.join(locDir, "lineage_mutations.json")
-        urllib.request.urlretrieve(url3, bPath)
+        base = "https://raw.githubusercontent.com/"
+        "andersen-lab/Freyja/main/freyja/data"
+        urllib.request.urlretrieve(f"{base}/usher_barcodes.feather",
+                                   os.path.join(locDir,
+                                                "usher_barcodes.feather"))
+        urllib.request.urlretrieve(f"{base}/last_barcode_update.txt",
+                                   os.path.join(locDir,
+                                                "last_barcode_update.txt"))
+        urllib.request.urlretrieve(f"{base}/lineage_mutations.json",
+                                   os.path.join(locDir,
+                                                "lineage_mutations.json"))
+        return
+
+    pathogen_config = get_pathogen_config(locDir)
+    entry = pathogen_config[pathogen][0]
+
+    barcode_url = entry['barcodes']
+    pathogen_name = entry['name']
+    parts = barcode_url.split("/")
+    org = parts[3]
+    repo = parts[4]
+    branch = parts[7]
+    pathogen_dir = parts[8]
+    date_from_github = get_latest_git_folder_date(
+        org, repo, branch, pathogen_dir)
+
+    if date_from_github:
+        timestamp = date_from_github  # YYYY-MM-DD
     else:
-        pathogen_config = get_pathogen_config(locDir)
-        bPath = os.path.join(
-            locDir,
-            f"{pathogen_config[pathogen][0]['name']}" + "_barcodes.csv"
-        )
+        timestamp = datetime.now().strftime("%Y-%m-%d")  # fallback
+    out_csv = os.path.join(locDir, f"{pathogen_name}_barcodes.csv")
+    urllib.request.urlretrieve(barcode_url, out_csv)
+    update_file = os.path.join(locDir, "last_barcode_update_other.txt")
+    update_line = f"{pathogen_name}:{timestamp}\n"
 
-        # Download the barcodes file
-        urllib.request.urlretrieve(
-            pathogen_config[pathogen][0]['barcodes'],
-            bPath
-        )
-        timestamp = datetime.now().strftime("%m_%d_%Y-%H-%M")
-        pathogen_name = pathogen_config[pathogen][0]['name']
-        update_line = f"{pathogen_name}:{timestamp}\n"
-        update_file = os.path.join(locDir, "last_barcode_update_other.txt")
+    lines = []
+    if os.path.exists(update_file):
+        with open(update_file, "r") as f:
+            lines = f.readlines()
 
-        # Read existing lines (if file exists)
-        lines = []
-        if os.path.exists(update_file):
-            with open(update_file, "r") as f:
-                lines = f.readlines()
+    updated = False
+    for i, line in enumerate(lines):
+        if line.startswith(f"{pathogen_name}:"):
+            lines[i] = update_line
+            updated = True
+            break
 
-        # Update or add the pathogen line
-        updated = False
-        for i, line in enumerate(lines):
-            if line.startswith(f"{pathogen_name}:"):
-                lines[i] = update_line
-                updated = True
-                break
+    if not updated:
+        lines.append(update_line)
 
-        if not updated:
-            lines.append(update_line)
-
-        # Write back to file
-        with open(update_file, "w") as f:
-            f.writelines(lines)
+    with open(update_file, "w") as f:
+        f.writelines(lines)
 
 
 def convert_tree(loc_dir):
