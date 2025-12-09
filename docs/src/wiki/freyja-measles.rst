@@ -15,18 +15,11 @@ For the purpose of this tutorial, we will be using `NC_001498.1. <https://www.nc
 The reference genome file can also be found `here. <https://github.com/andersen-lab/Freyja/blob/main/docs/data/measles-reference.fasta>`_
 
 
-2. Choose barcode type. Please note that there are two sets of barcodes available for Measles.
-Freyja provides two barcode options as MEASLES and MEASLESN450. Here, we use the whole genome barcodes but
-you may also use the N450 region barcodes. It is important, however, to
-use the right reference genome according to the barcode used.
-If you are using region N450 barcodes, please make sure to
-use the reference that includes N450 region only.
-
-1. Prepare your primer file in a bed format. For this tutorial, we will be using `artic-measles V1.0.0 panel <https://labs.primalscheme.com/detail/artic-measles/400/v1.0.0/?q=measles>`_
+2. Prepare your primer file in a bed format. For this tutorial, we will be using `artic-measles V1.0.0 panel <https://labs.primalscheme.com/detail/artic-measles/400/v1.0.0/?q=measles>`_
 also provided `here. <https://github.com/andersen-lab/Freyja/blob/main/docs/data/artic-measles-v1.0.0.bed>`_
 This file will be used to simulate measles amplicon sequencing reads and trim the primers in the downstream analysis.
 
-1. Prepare your reads, by assessing quality of the reads and removing the sequencing adapters.
+3. Prepare your reads, by assessing quality of the reads and removing the sequencing adapters.
 We will be using simulated reads produced by `Bygul, <https://github.com/andersen-lab/Bygul>`_ an amplicon read simulator developed by our team.
 
 For instance, we generated reads from two different measles samples using this code as following:
@@ -50,7 +43,7 @@ For instance, we generated reads from two different measles samples using this c
     bygul simulate-proportions GCA_031128185.1.fna,GCA_031129565.1.fna primer.bed measles-reference.fasta --outdir measles-H1-20-D9-80/ --proportions 0.2,0.8
 
 
-1. Align your reads to your reference genome using an aligner of your choice. 
+4. Align your reads to your reference genome using an aligner of your choice. 
 Here, we use ``minimap2`` with parameters set for aligning short reads to a reference genome.
 
 .. code::
@@ -62,25 +55,25 @@ Here, we use ``minimap2`` with parameters set for aligning short reads to a refe
 **From here on, the instruction will be the same for mixed and pure samples.
 Please change the file names accordingly.**
 
-6. Convert sam format file to a bam file using samtools.
+5. Convert sam format file to a bam file using samtools.
 
 .. code:: 
 
    samtools view -bS aligned.sam > aligned.bam
 
-7. Sort your bam file.
+6. Sort your bam file.
 
 .. code:: 
 
     samtools sort -o aligned_sorted.bam aligned.bam
 
-8. Index your bam file.
+7. Index your bam file.
 
 .. code::
 
     samtools index aligned_sorted.bam
 
-9. Remove primers from the reads. The following command will remove reads with mean
+8. Remove primers from the reads. The following command will remove reads with mean
 quality score `-q` less than 15 and minimum read length of 50 (after trimming).
 Flag `-e` keeps reads without primers in the output and 
 the flag `-x` will make sure that reads that occur at the 
@@ -91,20 +84,20 @@ specified offset positions relative to primer positions will also be trimmed.
 
     ivar trim -b primer.bed -p trimmed -i aligned_sorted.bam -q 15 -m 50 -e -x 3
 
-10. Sort and index the trimmed bam file.
+9. Sort and index the trimmed bam file.
 
 .. code::
 
     samtools sort -o trimmed_sorted.bam trimmed.bam && samtools index trimmed_sorted.bam
 
-11. Generate coverage depth for each single genomic location in the reference.
+10. Generate coverage depth for each single genomic location in the reference.
 This will be used in freyja pipeline downstream analysis.
 
 .. code::
 
     samtools mpileup -aa -A -d 600000 -Q 20 -q 0 -B -f reference.fasta trimmed_sorted.bam | cut -f1-4 > depths.tsv
 
-12. Call variants using variant caller of your choice. We recommend using Lofreq or ivar and included both commands for your reference.
+11. Call variants using variant caller of your choice. We recommend using Lofreq or ivar and included both commands for your reference.
 
 .. code::
 
@@ -113,11 +106,11 @@ This will be used in freyja pipeline downstream analysis.
     # Call variants using ivar
     freyja variants trimmed_sorted.bam --variants variants.tsv --depths depths.tsv --ref reference.fasta
 
-13. Run freyja demix to estimate lineage prevalence.
+12. Run freyja demix to estimate lineage prevalence.
 
 .. code::
 
-    freyja demix variants.tsv depths.tsv --output freyja_demix.txt --pathogen MEASLES
+    freyja demix variants.tsv depths.tsv --output freyja_demix.txt --pathogen MEASLESgenome
 
 
 The final demix outputs for the pure and mixed sample are as following:

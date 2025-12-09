@@ -36,24 +36,47 @@ def print_barcode_version(ctx, param, value):
     elif '--pathogen' in sys.argv:
         pathogen = sys.argv[sys.argv.index('--pathogen')+1]
         if pathogen in pathogens:
-            click.echo(f'Using {pathogen} barcodes in:')
-            click.echo(os.path.join(locDir,
-                                    'data/',
-                                    pathogen_config[pathogen][0]['name'] +
-                                    '_barcodes.csv'))
-            ctx.exit()
+            if pathogen == "SARS-CoV-2":
+                f = open(os.path.join(
+                    locDir, 'data/last_barcode_update.txt'), 'r')
+                click.echo("SARS-CoV-2 Barcode version:")
+                click.echo(f.readline().strip())
+                click.echo('Local barcode path:')
+                click.echo(os.path.join(locDir, 'data/usher_barcodes.feather'))
+                ctx.exit()
+            else:
+                version = None
+                pathogen_name = pathogen_config[pathogen][0]['name']
+                # Find the version for this pathogen
+                with open(os.path.join(
+                    locDir,
+                    'data/last_barcode_update_other.txt'),
+                          "r") as f:
+                    for line in f:
+                        name, ver = line.strip().split(':', 1)
+                        if name == pathogen_name:
+                            version = ver
+                            break
+                if version:
+                    click.echo(version)
+                barcode_filename = f"{pathogen_name}_barcodes.csv"
+                barcode_path = os.path.join(locDir, 'data', barcode_filename)
+                if os.path.isfile(barcode_path):
+                    click.echo('Local barcode path:')
+                    click.echo(barcode_path)
+                else:
+                    raise click.ClickException(
+                        f"Barcode file '{barcode_filename}'"
+                        "does not exist. "
+                        "Please use the 'update'"
+                        "command to download the barcode first.")
+                ctx.exit()
         else:
             click.echo('Pathogen not in available list (see'
                        ' freyja-barcodes repo).'
                        ' May require re-running freyja update.')
             click.echo(f"Available pathogens:{pathogens}")
             ctx.exit()
-    f = open(os.path.join(locDir, 'data/last_barcode_update.txt'), 'r')
-    click.echo('SARS-CoV-2 Barcode version:')
-    click.echo(f.readline().strip())
-    click.echo('Local barcode path:')
-    click.echo(os.path.join(locDir, 'data/usher_barcodes.feather'))
-    ctx.exit()
 
 
 @cli.command()

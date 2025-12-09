@@ -70,6 +70,4 @@ jobs:
             git push origin main
           else
               echo "no changes were made, doing nothing."
-          fi; 
-
-
+          fi;
