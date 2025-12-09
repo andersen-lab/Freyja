@@ -41,9 +41,11 @@ def download_tree(locDir):
 
 
 def get_latest_git_folder_date(org, repo, branch, pathogen_dir):
-    api_url = f"https://api.github.com/repos/{org}"
-    "/{repo}/contents/{pathogen_dir}?ref={branch}"
-
+    api_url = (
+        f"https://api.github.com/repos/{org}/{repo}/contents/"
+        f"{pathogen_dir}"
+        f"?ref={branch}"
+    )
     try:
         with urllib.request.urlopen(api_url) as r:
             items = json.loads(r.read().decode())
@@ -67,8 +69,11 @@ def get_latest_git_folder_date(org, repo, branch, pathogen_dir):
 
 def download_barcodes(locDir, pathogen='SARS-CoV-2'):
     if pathogen == 'SARS-CoV-2':
-        base = "https://raw.githubusercontent.com/"
-        "andersen-lab/Freyja/main/freyja/data"
+        base = (
+            "https://raw.githubusercontent.com/"
+            "andersen-lab/Freyja/main/freyja/data"
+            )
+
         urllib.request.urlretrieve(f"{base}/usher_barcodes.feather",
                                    os.path.join(locDir,
                                                 "usher_barcodes.feather"))
@@ -78,47 +83,45 @@ def download_barcodes(locDir, pathogen='SARS-CoV-2'):
         urllib.request.urlretrieve(f"{base}/lineage_mutations.json",
                                    os.path.join(locDir,
                                                 "lineage_mutations.json"))
-        return
-
-    pathogen_config = get_pathogen_config(locDir)
-    entry = pathogen_config[pathogen][0]
-
-    barcode_url = entry['barcodes']
-    pathogen_name = entry['name']
-    parts = barcode_url.split("/")
-    org = parts[3]
-    repo = parts[4]
-    branch = parts[7]
-    pathogen_dir = parts[8]
-    date_from_github = get_latest_git_folder_date(
-        org, repo, branch, pathogen_dir)
-
-    if date_from_github:
-        timestamp = date_from_github  # YYYY-MM-DD
     else:
-        timestamp = datetime.now().strftime("%Y-%m-%d")  # fallback
-    out_csv = os.path.join(locDir, f"{pathogen_name}_barcodes.csv")
-    urllib.request.urlretrieve(barcode_url, out_csv)
-    update_file = os.path.join(locDir, "last_barcode_update_other.txt")
-    update_line = f"{pathogen_name}:{timestamp}\n"
+        pathogen_config = get_pathogen_config(locDir)
+        entry = pathogen_config[pathogen][0]
+        barcode_url = entry['barcodes']
+        pathogen_name = entry['name']
+        parts = barcode_url.split("/")
+        org = parts[3]
+        repo = parts[4]
+        branch = parts[7]
+        pathogen_dir = parts[8]
+        date_from_github = get_latest_git_folder_date(
+            org, repo, branch, pathogen_dir)
+        if date_from_github:
+            timestamp = date_from_github  # YYYY-MM-DD
+        else:
+            timestamp = datetime.now().strftime("%Y-%m-%d")  # fallback
+        out_csv = os.path.join(locDir, f"{pathogen_name}_barcodes.csv")
+        urllib.request.urlretrieve(barcode_url, out_csv)
+        print(barcode_url)
+        update_file = os.path.join(locDir, "last_barcode_update_other.txt")
+        update_line = f"{pathogen_name}:{timestamp}\n"
 
-    lines = []
-    if os.path.exists(update_file):
-        with open(update_file, "r") as f:
-            lines = f.readlines()
+        lines = []
+        if os.path.exists(update_file):
+            with open(update_file, "r") as f:
+                lines = f.readlines()
 
-    updated = False
-    for i, line in enumerate(lines):
-        if line.startswith(f"{pathogen_name}:"):
-            lines[i] = update_line
-            updated = True
-            break
+        updated = False
+        for i, line in enumerate(lines):
+            if line.startswith(f"{pathogen_name}:"):
+                lines[i] = update_line
+                updated = True
+                break
 
-    if not updated:
-        lines.append(update_line)
+        if not updated:
+            lines.append(update_line)
 
-    with open(update_file, "w") as f:
-        f.writelines(lines)
+        with open(update_file, "w") as f:
+            f.writelines(lines)
 
 
 def convert_tree(loc_dir):
