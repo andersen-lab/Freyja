@@ -55,4 +55,4 @@ DENV4:
 
 MTB:
  - name: "MTB"
-   barcodes: "https://raw.githubusercontent.com/andersen-lab/Freyja-barcodes/refs/heads/main/MTB/latest/barcode.csv"
+   barcodes: "https://raw.githubusercontent.com/andersen-lab/Freyja-barcodes/refs/heads/main/MTB/latest/barcode.feather"
