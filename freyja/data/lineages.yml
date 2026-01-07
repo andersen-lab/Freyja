@@ -3911,6 +3911,8 @@
       - RG.1
       - RG.1.1
       - RG.1.2
+      - RG.2
+      - RG.3
       - S.1
       - U.1
       - U.2
@@ -7561,6 +7563,8 @@
       - RG.1
       - RG.1.1
       - RG.1.2
+      - RG.2
+      - RG.3
       - S.1
       - U.1
       - U.2
@@ -10273,6 +10277,8 @@
       - RG.1
       - RG.1.1
       - RG.1.2
+      - RG.2
+      - RG.3
       - S.1
   parent: B.1
 - name: B.1.1.1
@@ -15401,6 +15407,8 @@
       - RG.1
       - RG.1.1
       - RG.1.2
+      - RG.2
+      - RG.3
   parent: B.1.1
 - name: BA.1
   alias: B.1.1.529.1
@@ -17278,6 +17286,8 @@
       - RG.1
       - RG.1.1
       - RG.1.2
+      - RG.2
+      - RG.3
   parent: B.1.1.529
 - name: BA.2.1
   alias: B.1.1.529.2.1
@@ -21676,6 +21686,8 @@
       - RG.1
       - RG.1.1
       - RG.1.2
+      - RG.2
+      - RG.3
   parent: BA.2
 - name: BA.2.86.1
   alias: B.1.1.529.2.86.1
@@ -22770,6 +22782,8 @@
       - RG.1
       - RG.1.1
       - RG.1.2
+      - RG.2
+      - RG.3
   parent: BA.2.86
 - name: JN.1
   alias: B.1.1.529.2.86.1.1
@@ -23832,6 +23846,8 @@
       - RG.1
       - RG.1.1
       - RG.1.2
+      - RG.2
+      - RG.3
   parent: BA.2.86.1
 - name: JN.1.1
   alias: B.1.1.529.2.86.1.1.1
@@ -25457,6 +25473,8 @@
       - RG.1
       - RG.1.1
       - RG.1.2
+      - RG.2
+      - RG.3
   parent: JN.1
 - name: JN.1.11.1
   alias: B.1.1.529.2.86.1.1.11.1
@@ -25946,6 +25964,8 @@
       - RG.1
       - RG.1.1
       - RG.1.2
+      - RG.2
+      - RG.3
   parent: JN.1.11
 - name: KP.1
   alias: B.1.1.529.2.86.1.1.11.1.1
@@ -26135,6 +26155,8 @@
       - RG.1
       - RG.1.1
       - RG.1.2
+      - RG.2
+      - RG.3
   parent: JN.1.11.1
 - name: KP.1.1
   alias: B.1.1.529.2.86.1.1.11.1.1.1
@@ -26322,6 +26344,8 @@
       - RG.1
       - RG.1.1
       - RG.1.2
+      - RG.2
+      - RG.3
   parent: KP.1
 - name: KP.1.1.1
   alias: B.1.1.529.2.86.1.1.11.1.1.1.1
@@ -26523,6 +26547,8 @@
       - RG.1
       - RG.1.1
       - RG.1.2
+      - RG.2
+      - RG.3
   parent: KP.1.1
 - name: LP.1
   alias: B.1.1.529.2.86.1.1.11.1.1.1.3.1
@@ -26728,6 +26754,8 @@
       - RG.1
       - RG.1.1
       - RG.1.2
+      - RG.2
+      - RG.3
   parent: KP.1.1.3
 - name: LP.8.1
   alias: B.1.1.529.2.86.1.1.11.1.1.1.3.8.1
@@ -26876,6 +26904,8 @@
       - RG.1
       - RG.1.1
       - RG.1.2
+      - RG.2
+      - RG.3
   parent: LP.8
 - name: LP.8.1.1
   alias: B.1.1.529.2.86.1.1.11.1.1.1.3.8.1.1
@@ -27387,6 +27417,8 @@
       - RG.1
       - RG.1.1
       - RG.1.2
+      - RG.2
+      - RG.3
   parent: LP.8.1
 - name: NW.1
   alias: B.1.1.529.2.86.1.1.11.1.1.1.3.8.1.2.1
@@ -27417,6 +27449,8 @@
       - RG.1
       - RG.1.1
       - RG.1.2
+      - RG.2
+      - RG.3
   parent: LP.8.1.2
 - name: NW.1.1
   alias: B.1.1.529.2.86.1.1.11.1.1.1.3.8.1.2.1.1
@@ -27445,6 +27479,8 @@
       - RG.1
       - RG.1.1
       - RG.1.2
+      - RG.2
+      - RG.3
   parent: NW.1
 - name: NW.1.2.1
   alias: B.1.1.529.2.86.1.1.11.1.1.1.3.8.1.2.1.2.1
@@ -27476,6 +27512,8 @@
       - RG.1
       - RG.1.1
       - RG.1.2
+      - RG.2
+      - RG.3
   parent: NW.1.2
 - name: RG.1
   alias: B.1.1.529.2.86.1.1.11.1.1.1.3.8.1.2.1.2.2.1
@@ -27494,6 +27532,16 @@
   children:
       - RG.1.2
   parent: RG.1
+- name: RG.2
+  alias: B.1.1.529.2.86.1.1.11.1.1.1.3.8.1.2.1.2.2.2
+  children:
+      - RG.2
+  parent: NW.1.2.2
+- name: RG.3
+  alias: B.1.1.529.2.86.1.1.11.1.1.1.3.8.1.2.1.2.2.3
+  children:
+      - RG.3
+  parent: NW.1.2.2
 - name: NW.1.2.3
   alias: B.1.1.529.2.86.1.1.11.1.1.1.3.8.1.2.1.2.3
   children:
@@ -59734,6 +59782,8 @@
       - XFG.3.2
       - XFG.3.3
       - XFG.3.3.1
+      - XFG.3.3.2
+      - XFG.3.3.3
       - XFG.3.4
       - XFG.3.4.1
       - XFG.3.4.2
@@ -60141,6 +60191,8 @@
       - XFG.3.2
       - XFG.3.3
       - XFG.3.3.1
+      - XFG.3.3.2
+      - XFG.3.3.3
       - XFG.3.4
       - XFG.3.4.1
       - XFG.3.4.2
@@ -60321,11 +60373,23 @@
   children:
       - XFG.3.3
       - XFG.3.3.1
+      - XFG.3.3.2
+      - XFG.3.3.3
   parent: XFG.3
 - name: XFG.3.3.1
   alias: XFG.3.3.1
   children:
       - XFG.3.3.1
+  parent: XFG.3.3
+- name: XFG.3.3.2
+  alias: XFG.3.3.2
+  children:
+      - XFG.3.3.2
+  parent: XFG.3.3
+- name: XFG.3.3.3
+  alias: XFG.3.3.3
+  children:
+      - XFG.3.3.3
   parent: XFG.3.3
 - name: XFG.3.4
   alias: XFG.3.4
@@ -62198,3 +62262,8 @@
   children:
       - XGM
   recombinant_parents: NY.3.3,LF.7.3,NY.3.3
+- name: XGN
+  alias: XGN
+  children:
+      - XGN
+  recombinant_parents: XFG.3.5.2,RG.3,XFG.3.5.2
