@@ -51,22 +51,32 @@ def print_barcode_version(ctx, param, value):
                 file_path = os.path.join(
                     locDir,
                     'data/last_barcode_update_other.txt')
+                # make sure the pathogen version storing file exists
                 if os.path.isfile(file_path):
+                    barcode_filename = f"{pathogen_name}_barcodes.csv"
+                    barcode_path = os.path.join(locDir, 'data', barcode_filename)
+                    #extract the version
                     with open(file_path, "r") as f:
                         for line in f:
                             name, ver = line.strip().split(':', 1)
                             if name == pathogen_name:
                                 version = ver
                                 break
-                    click.echo(version)
-                    barcode_filename = f"{pathogen_name}_barcodes.csv"
-                    barcode_path = os.path.join(locDir, 'data', barcode_filename)
-                    click.echo('Local barcode path:')
-                    click.echo(barcode_path) 
+                    # Only print if the version exists
+                    if version:
+                        click.echo(version)
+                        click.echo('Local barcode path:')
+                        click.echo(barcode_path)
+                    # if no version, ask user to update
+                    else:
+                        print("please use the update command to pull barcodes first.")
+                        sys.exit()
+                # if the pathogen storing file does not exist at all update
                 else:
-                    print("please use the update command to pull barcodes first.")
-                    sys.exit()            
+                        print("please use the update command to pull barcodes first.")
+                        sys.exit()         
         else:
+            # if the listed pathogen doesn't exist
             click.echo('Pathogen not in available list (see'
                        ' freyja-barcodes repo).'
                        ' May require re-running freyja update.')
