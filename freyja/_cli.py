@@ -69,7 +69,9 @@ def print_barcode_version(ctx, param, value):
                         f"Barcode file '{barcode_filename}'"
                         "does not exist. "
                         "Please use the 'update'"
-                        "command to download the barcode first.")
+                        "command to download the barcode first."
+                        "if you specify --outdir, the latest barcodes are only"
+                        "written to that directly and not updated.")
                 ctx.exit()
         else:
             click.echo('Pathogen not in available list (see'
