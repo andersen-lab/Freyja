@@ -89,8 +89,8 @@ def load_barcodes(barcodes, pathogen, altname):
                                           index_col=0)
             except FileNotFoundError:
                 print(f"Barcode could not be opened for {pathogen}." +
-                      f"Please try running freyja update --pathogen"
-                      f"{pathogen} if you haven't yet done so")
+                      f"Please try running freyja update --pathogen" +
+                      f"{pathogen} if you haven't yet done so.")
                 return False
     return df_barcodes
 
