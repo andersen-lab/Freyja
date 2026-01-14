@@ -87,7 +87,7 @@ def load_barcodes(barcodes, pathogen, altname):
                 df_barcodes = pd.read_csv(os.path.join(locDir,
                                           f'data/{altname}_barcodes.csv'),
                                           index_col=0)
-            except OSError:
+            except FileNotFoundError:
                 print(f"Barcode could not be opened for {pathogen}." +
                       f"Please try running freyja update --pathogen"
                       f"{pathogen} if you haven't yet done so")
