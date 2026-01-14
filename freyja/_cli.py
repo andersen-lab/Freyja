@@ -83,7 +83,7 @@ def print_barcode_version(ctx, param, value):
 
 @cli.command()
 @click.option('--version', is_flag=True, callback=print_barcode_version,
-              expose_value=False, is_eager=True, show_default=True,
+              expose_value=False, is_eager=False, show_default=True,
               help="get barcode version, "
               "returns filename for custom barcodes")
 @click.argument('variants', type=click.Path(exists=True))
