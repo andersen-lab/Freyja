@@ -48,31 +48,24 @@ def print_barcode_version(ctx, param, value):
                 version = None
                 pathogen_name = pathogen_config[pathogen][0]['name']
                 # Find the version for this pathogen
-                with open(os.path.join(
+                file_path = os.path.join(
                     locDir,
-                    'data/last_barcode_update_other.txt'),
-                          "r") as f:
-                    for line in f:
-                        name, ver = line.strip().split(':', 1)
-                        if name == pathogen_name:
-                            version = ver
-                            break
-                if version:
+                    'data/last_barcode_update_other.txt')
+                if os.path.isfile(file_path):
+                    with open(file_path, "r") as f:
+                        for line in f:
+                            name, ver = line.strip().split(':', 1)
+                            if name == pathogen_name:
+                                version = ver
+                                break
                     click.echo(version)
-                barcode_filename = f"{pathogen_name}_barcodes.csv"
-                barcode_path = os.path.join(locDir, 'data', barcode_filename)
-                if os.path.isfile(barcode_path):
+                    barcode_filename = f"{pathogen_name}_barcodes.csv"
+                    barcode_path = os.path.join(locDir, 'data', barcode_filename)
                     click.echo('Local barcode path:')
-                    click.echo(barcode_path)
+                    click.echo(barcode_path) 
                 else:
-                    raise click.ClickException(
-                        f"Barcode file '{barcode_filename}'"
-                        "does not exist. "
-                        "Please use the 'update'"
-                        "command to download the barcode first."
-                        "if you specify --outdir, the latest barcodes are only"
-                        "written to that directly and not updated.")
-                ctx.exit()
+                    print("please use the update command to pull barcodes first.")
+                    sys.exit()            
         else:
             click.echo('Pathogen not in available list (see'
                        ' freyja-barcodes repo).'
