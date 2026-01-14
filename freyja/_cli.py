@@ -272,7 +272,9 @@ def demix(variants, depths, output, eps, barcodes, meta,
 
 @cli.command()
 @click.option('--outdir', default='',
-              help='Output directory to save updated files.')
+              help='Output directory to save updated files.' +
+              'if this option is used, the barcodes are only' +
+              'downloaded to the directory specified.')
 @click.option('--noncl', is_flag=True, default=True,
               help='only include lineages that are '
                    'confirmed by cov-lineages',
