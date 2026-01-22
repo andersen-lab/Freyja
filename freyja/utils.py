@@ -88,9 +88,9 @@ def load_barcodes(barcodes, pathogen, altname):
                                           f'data/{altname}_barcodes.csv'),
                                           index_col=0)
             except IOError:
-                print(f"Barcode could not be opened for {pathogen}" +
-                      f"Please try running freyja update --pathogen"
-                      f"{pathogen} if you haven't yet done so")
+                print(f"Barcode could not be opened for {pathogen}. "
+                      "Please try running freyja update "
+                      f"--pathogen {pathogen} if you haven't yet done so.")
                 return False
     return df_barcodes
 
