@@ -1,0 +1,196 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Command Line Workflow &mdash; Freyja  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Cryptic Variant Detection" href="cryptic_variants.html" />
+    <link rel="prev" title="freyja plot-covariants" href="../usage/plot-covariants.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            Freyja
+              <img src="../../_static/freyja-logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Usage:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/demix.html">freyja demix</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/variants.html">freyja variants</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/barcode-build.html">freyja barcode-build</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/get-lineage-def.html">freyja get-lineage-def</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/update.html">freyja update</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/boot.html">freyja boot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/aggregate.html">freyja aggregate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/plot.html">freyja plot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/dash.html">freyja dash</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/relgrowthrate.html">freyja relgrowthrate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/extract.html">freyja extract</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/filter.html">freyja filter</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/covariants.html">freyja covariants</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/plot-covariants.html">freyja plot-covariants</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Wiki:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Command Line Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cryptic_variants.html">Cryptic Variant Detection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="custom_plotting_tutorial.html">Custom Plotting Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="freyja-measles.html">Running Freyja on other pathogens - Measles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="custom-plots-with-R.html">Demix output manipulation and plotting using R</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lineage_barcode_extract.html">Lineage Barcode Extract</a></li>
+<li class="toctree-l1"><a class="reference internal" href="read_analysis_tutorial.html">Read Analysis Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="terra_workflow.html">Terra Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="expanded_pathogens.html">Running Freyja on other pathogens</a></li>
+<li class="toctree-l1"><a class="reference internal" href="custom_barcodes.html">Creating custom barcodes</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Freyja</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Command Line Workflow</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/src/wiki/command_line_workflow.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="command-line-workflow">
+<span id="id1"></span><h1>Command Line Workflow<a class="headerlink" href="#command-line-workflow" title="Link to this heading"></a></h1>
+<p>For these analyses, we’ll be starting with an aligned, trimmed, and
+sorted BAM file,
+<a class="reference external" href="https://github.com/andersen-lab/Freyja/raw/main/freyja/data/test.bam">test.bam</a>.
+Alignment can be done using a variety of methods, including
+<a class="reference external" href="https://github.com/lh3/minimap2">minimap2</a> and
+<a class="reference external" href="https://github.com/lh3/bwa">bwa</a>. For information on how to perform
+trimming and sorting, check out the <a class="reference external" href="https://andersen-lab.github.io/ivar/html/index.html">iVar
+manual</a>.</p>
+<p>Once you’ve got your BAM file, you’ll just need the reference that you
+used for the alignment (i.e. Hu-1 for SARS-CoV-2 samples, like
+<a class="reference external" href="https://github.com/andersen-lab/Freyja/blob/main/freyja/data/NC_045512_Hu-1.fasta">this</a>).Since we’re generally going to be
+working with many wastewater samples at the same time, it’s a good idea
+to create folders to store each of the output files, using
+<code class="docutils literal notranslate"><span class="pre">mkdir</span> <span class="pre">variants_files</span> <span class="pre">depth_files</span> <span class="pre">demix_files</span></code>, for example. From
+there you can go ahead and run initial single nucleotide variant (SNV)
+calling step, in which we calculate the frequency of each observed
+mutation in the data.</p>
+<p>This can be done using the command</p>
+<p><code class="docutils literal notranslate"><span class="pre">freyja</span> <span class="pre">variants</span> <span class="pre">test.bam</span> <span class="pre">--variants</span> <span class="pre">variants_files/test.variants.tsv</span> <span class="pre">--depths</span> <span class="pre">depth_files/test.depth</span>&#160; <span class="pre">--ref</span> <span class="pre">NC_045512_Hu-1.fasta</span></code></p>
+<p>Before we perform demixing, it’s a good idea to make sure our list of
+lineage barcodes and corresponding metadata is up to date. We can do
+this by running</p>
+<p><code class="docutils literal notranslate"><span class="pre">freyja</span> <span class="pre">update</span></code></p>
+<p>which will save these files in freyja’s <code class="docutils literal notranslate"><span class="pre">data</span></code> folder. This can be a
+bit tricky to find in your conda environment, so if you want a local
+copy (good to keep around in case you want to compare results with
+past/future barcode libraries) you can also add in the <code class="docutils literal notranslate"><span class="pre">--outdir</span></code>
+option, and specify the location where you want to put the barcode
+library. This just needs to be done once (per session – new lineages are
+being added every day).You can also check the overal coverage depth status
+across amplicons using the following command:</p>
+<p><code class="docutils literal notranslate"><span class="pre">freyja</span> <span class="pre">ampliconstat</span> <span class="pre">--primer</span> <span class="pre">primer.bed</span> <span class="pre">--input_depth</span> <span class="pre">depth_files/test.depth</span></code></p>
+<p>This command will creat a figure with distribution of depth for each
+amplicon that is provided in the primer bed file. The plot will show genomic
+coordinates of each amplicon, which can be cross-referenced with the
+csv output created by this function. The csv file will provide
+information such as amplicon number, genomic location,
+mean coverage depth, amplicon length and amplification status.
+The function use 5 as the threshold for minimum number of reads
+present to discern the amplification status but you can set it
+to a custom number using <code class="docutils literal notranslate"><span class="pre">--min_depth</span></code>.</p>
+<p>Here is an example of how the plot will look like with the test data.</p>
+<p><img alt="freyja_dropout_plot" src="../../_images/amplicon_dropout_plot.png" /></p>
+<p>Then we can proceed to the de-mixing step.
+Demixing can be performed using the command</p>
+<p><code class="docutils literal notranslate"><span class="pre">freyja</span> <span class="pre">demix</span> <span class="pre">variants_files/test.variants.tsv</span> <span class="pre">depth_files/test.depth</span> <span class="pre">--output</span> <span class="pre">demix_files/test.output</span> <span class="pre">--confirmedonly</span></code></p>
+<p>If you want to use your local barcodes set, you’ll need to use the
+<code class="docutils literal notranslate"><span class="pre">--barcodes</span></code> option and specify the path of your local barcodes. Note:
+While the output of <code class="docutils literal notranslate"><span class="pre">freyja</span> <span class="pre">variants</span></code> will not change over time, the
+output of <code class="docutils literal notranslate"><span class="pre">freyja</span> <span class="pre">demix</span></code> depends strongly on the list of known lineage
+barcodes. The method will assign the closest lineage (in an edit
+distance sense) to what’s in the data, but if a more representative
+lineage is identified the assignment will shift to the more
+representative lineage.</p>
+<p>Once you’ve run demix on a bunch of samples, you can aggregate all of
+the output files using the command</p>
+<p><code class="docutils literal notranslate"><span class="pre">freyja</span> <span class="pre">aggregate</span> <span class="pre">demix_files/</span> <span class="pre">--output</span> <span class="pre">bunch_of_files.tsv</span></code>.</p>
+<p>From there, it’s easy to look directly at the output files in any
+standard tsv viewer (Excel, Numbers, LibreOffice Calc, etc.).</p>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../usage/plot-covariants.html" class="btn btn-neutral float-left" title="freyja plot-covariants" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="cryptic_variants.html" class="btn btn-neutral float-right" title="Cryptic Variant Detection" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Andersen Lab.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
