@@ -90,7 +90,7 @@ def load_barcodes(barcodes, pathogen, altname):
             except IOError:
                 print(f"Barcode could not be opened for {pathogen}. "
                       "Please try running freyja update "
-                      f"--pathogen {pathogen}if you haven't yet done so.")
+                      f"--pathogen {pathogen} if you haven't yet done so.")
                 return False
     return df_barcodes
 

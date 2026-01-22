@@ -14,7 +14,7 @@ pathogens = ['SARS-CoV-2'] + list(pathogen_config.keys())
 
 
 @click.group(context_settings={'show_default': True})
-@click.version_option('2.0.2')
+@click.version_option('2.0.3')
 def cli():
     pass
 
@@ -32,7 +32,16 @@ def print_barcode_version(ctx, param, value):
         click.echo('Using user-supplied barcodes at path:')
         click.echo(os.path.abspath(barcodes))
         ctx.exit()
-
+    elif '--pathogen' not in sys.argv:
+        click.echo('--pathogen option not provided, resorting'
+                   ' to default (SARS-CoV-2)')
+        f = open(os.path.join(
+            locDir, 'data/last_barcode_update.txt'), 'r')
+        click.echo("SARS-CoV-2 Barcode version:")
+        click.echo(f.readline().strip())
+        click.echo('Local barcode path:')
+        click.echo(os.path.join(locDir, 'data/usher_barcodes.feather'))
+        ctx.exit()
     elif '--pathogen' in sys.argv:
         pathogen = sys.argv[sys.argv.index('--pathogen')+1]
         if pathogen in pathogens:
@@ -72,13 +81,14 @@ def print_barcode_version(ctx, param, value):
                     # if no version, ask user to update
                     else:
                         print("please use the update"
-                              "command to pull barcodes first.")
+                              " command to pull barcodes first.")
                         sys.exit()
                 # if the pathogen storing file does not exist at all update
                 else:
                     print("please use the update"
-                          "command to pull barcodes first.")
+                          " command to pull barcodes first.")
                     sys.exit()
+                ctx.exit()
         else:
             # if the listed pathogen doesn't exist
             click.echo('Pathogen not in available list (see'
@@ -92,7 +102,8 @@ def print_barcode_version(ctx, param, value):
 @click.option('--version', is_flag=True, callback=print_barcode_version,
               expose_value=False, is_eager=True, show_default=True,
               help="get barcode version, "
-              "returns filename for custom barcodes")
+              "returns filename for custom barcodes. Requires --pathogen"
+              " option to get version info")
 @click.argument('variants', type=click.Path(exists=True))
 @click.argument('depths', type=click.Path(exists=True))
 @click.option('--eps', default=1e-3,
