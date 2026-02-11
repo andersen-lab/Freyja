@@ -93,13 +93,15 @@ def download_barcodes(locDir, pathogen='SARS-CoV-2'):
         repo = parts[4]
         branch = parts[7]
         pathogen_dir = parts[8]
+        output_format = parts[10].split(".")[1]
         date_from_github = get_latest_git_folder_date(
             org, repo, branch, pathogen_dir)
         if date_from_github:
             timestamp = date_from_github  # YYYY-MM-DD
         else:
             timestamp = datetime.now().strftime("%Y-%m-%d")  # fallback
-        out_csv = os.path.join(locDir, f"{pathogen_name}_barcodes.csv")
+        out_csv = os.path.join(locDir,
+                               f"{pathogen_name}_barcodes.{output_format}")
         urllib.request.urlretrieve(barcode_url, out_csv)
         print(barcode_url)
         update_file = os.path.join(locDir, "last_barcode_update_other.txt")
