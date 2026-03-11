@@ -109,7 +109,7 @@ def check_mutation_chain(df_barcodes):
             else:
                 # combining leads to already existing mutation
                 # just add in that mutation
-                df_barcodes.loc[lin_seq.index, sm[2]] = 1
+                df_barcodes.loc[lin_seq.index, sm[2]] += 1
             # remove constituent mutations
             df_barcodes.loc[lin_seq.index, sm[0:2]] -= 1
         # drop all unused mutations
