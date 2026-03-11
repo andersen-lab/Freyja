@@ -1,7 +1,7 @@
 import unittest
 import pandas as pd
 from freyja.convert_paths2barcodes import parse_tree_paths, sortFun, \
-    convert_to_barcodes, reversion_checking
+    convert_to_barcodes, reversion_checking, check_mutation_chain
 import pandas.testing as pdt
 
 
@@ -50,6 +50,28 @@ class BarcodeTests(unittest.TestCase):
                      if (d[-1] + d[1:len(d)-1]+d[0]) in df_barcodes.columns]
         print(flipPairs)
         self.assertTrue(len(flipPairs) == 0)
+
+    def test_check_mutation_chain(self):
+        sample_barcode_data = pd.DataFrame(
+            {"A225G": [1], "A225T": [1], "C225A": [1], "G225T": [1],
+                "T225C": [2]},
+            index=["lineage"],
+        )
+        chained_df = check_mutation_chain(sample_barcode_data.copy())
+        df_barcodes_ideal = pd.DataFrame(
+            {"A225C": [1]},
+            index=["lineage"],
+        )
+        pd.testing.assert_frame_equal(chained_df, df_barcodes_ideal)
+
+    # test when barcode is not a binary sparse matrix
+    def test_check_mutation_chain_non_binary(self):
+        sample_barcode_data = pd.DataFrame(
+            {"A225G": [2]},
+            index=["lineage"],
+        )
+        with self.assertRaises(AssertionError):
+            check_mutation_chain(sample_barcode_data.copy())
 
 
 if __name__ == '__main__':

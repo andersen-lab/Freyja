@@ -109,7 +109,7 @@ def check_mutation_chain(df_barcodes):
             else:
                 # combining leads to already existing mutation
                 # just add in that mutation
-                df_barcodes.loc[lin_seq.index, sm[2]] = 1
+                df_barcodes.loc[lin_seq.index, sm[2]] += 1
             # remove constituent mutations
             df_barcodes.loc[lin_seq.index, sm[0:2]] -= 1
         # drop all unused mutations
@@ -118,6 +118,10 @@ def check_mutation_chain(df_barcodes):
         # in case mutation path leads to a return to the reference.
         df_barcodes = reversion_checking(df_barcodes)
         seq_muts = identify_chains(df_barcodes)
+    # The barcode should be binary sparse matrix
+    assert df_barcodes.isin([0, 1]).all(
+        axis=None
+    ), "Barcode matrix should be binary"
     return df_barcodes
 
 
