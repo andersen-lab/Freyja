@@ -51,7 +51,7 @@ class BarcodeTests(unittest.TestCase):
         print(flipPairs)
         self.assertTrue(len(flipPairs) == 0)
 
-    def test_check_mutation_chain():
+    def test_check_mutation_chain(self):
         sample_barcode_data = pd.DataFrame(
             {"A225G": [1], "A225T": [1], "C225A": [1], "G225T": [1],
                 "T225C": [2]},
