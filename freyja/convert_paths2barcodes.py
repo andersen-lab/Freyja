@@ -119,9 +119,7 @@ def check_mutation_chain(df_barcodes):
         df_barcodes = reversion_checking(df_barcodes)
         seq_muts = identify_chains(df_barcodes)
     # The barcode should be binary sparse matrix
-    assert df_barcodes.isin([0, 1]).all(
-        axis=None
-    ), "Error: barcode matrix should be binary"
+    assert df_barcodes.isin([0, 1]).all(axis=None), "Barcode matrix should be binary"
     return df_barcodes
 
 

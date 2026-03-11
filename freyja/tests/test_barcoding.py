@@ -64,6 +64,15 @@ class BarcodeTests(unittest.TestCase):
         )
         pd.testing.assert_frame_equal(chained_df, df_barcodes_ideal)
 
+    # test when barcode is not a binary sparse matrix
+    def test_check_mutation_chain_non_binary(self):
+        sample_barcode_data = pd.DataFrame(
+            {"A225G": [2]},
+            index=["lineage"],
+        )
+        with self.assertRaises(AssertionError):
+            check_mutation_chain(sample_barcode_data.copy())
+
 
 if __name__ == '__main__':
     unittest.main()
