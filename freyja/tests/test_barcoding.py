@@ -1,7 +1,7 @@
 import unittest
 import pandas as pd
 from freyja.convert_paths2barcodes import parse_tree_paths, sortFun, \
-    convert_to_barcodes, reversion_checking
+    convert_to_barcodes, reversion_checking, check_mutation_chain
 import pandas.testing as pdt
 
 
@@ -53,7 +53,8 @@ class BarcodeTests(unittest.TestCase):
 
     def test_check_mutation_chain():
         sample_barcode_data = pd.DataFrame(
-            {"A225G": [1], "A225T": [1], "C225A": [1], "G225T": [1], "T225C": [2]},
+            {"A225G": [1], "A225T": [1], "C225A": [1], "G225T": [1],
+                "T225C": [2]},
             index=["lineage"],
         )
         chained_df = check_mutation_chain(sample_barcode_data.copy())
