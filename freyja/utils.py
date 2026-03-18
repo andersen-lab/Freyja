@@ -1262,24 +1262,14 @@ def handle_region_of_interest(region_of_interest,
     roi_df['end'] = roi_df['end'].apply(
         lambda x: x if x < ref_len else ref_len)
     roi_df.index.name = 'name'
-
-    # Get percent coverage in each region
-    roi_cov = pd.Series()
+    covered_bases = 0
+    total_bases = 0
     for _, row in roi_df.iterrows():
-        roi_depths = df_depth.loc[(df_depth.index >= row['start']) &
-                                  (df_depth.index <= row['end'])]
-        roi_cov = pd.concat([roi_cov,
-                             pd.Series(
-                                 (sum(roi_depths.loc[:, 3] > covcut) /
-                                     len(roi_depths)) * 100,
-                                 index=[row.name])
-                             ])
-
-    # Write to output
-    output_df = pd.concat([output_df, roi_cov], axis=0)
-    output_df.name = title
-
-    return output_df
+        roi_depths = df_depth.loc[row['start']:row['end']]
+        covered_bases += (roi_depths.iloc[:, 0] > covcut).sum()
+        total_bases += roi_depths.shape[0]
+    coverage = 100 * covered_bases / total_bases
+    return coverage
 
 
 def validate_primer_bed(df):
