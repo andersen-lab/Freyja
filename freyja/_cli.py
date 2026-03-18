@@ -278,13 +278,6 @@ def demix(variants, depths, output, eps, barcodes, meta,
                         index=['summarized', 'lineages',
                         'abundances', 'resid', 'coverage'],
                         name=mix.name)
-
-    # Determine coverage in region(s) of interest (if specified)
-    if region_of_interest != '':
-
-        sols_df = handle_region_of_interest(region_of_interest, sols_df,
-                                            df_depth, covcut, mix.name)
-
     # convert lineage/abundance readouts to single line strings
     sols_df['lineages'] = ' '.join(sols_df['lineages'])
     sols_df['abundances'] = ['%.8f' % ab for ab in sols_df['abundances']]
