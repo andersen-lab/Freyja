@@ -639,10 +639,13 @@ def variants(bamfile, ref, variants, depths, refname, minq, annot, varthresh):
 @click.option('--freqcol', default='AF',
               help='Frequency column name in the vcf file',
               show_default=True)
+@click.option('--region_of_interest', default='',
+              help='JSON file containing region(s) of interest'
+                   ' for which to compute additional coverage estimates')
 def boot(variants, depths, output_base, eps, barcodes, meta,
          nb, nt, boxplot, confirmedonly, lineageyml, depthcutoff,
          rawboots, relaxedmrca, relaxedthresh, bootseed,
-         solver, pathogen, autoadapt, freqcol):
+         solver, pathogen, autoadapt, freqcol, region_of_interest):
     """
     Perform bootstrapping method for freyja using VARIANTS and DEPTHS
     """
@@ -683,7 +686,8 @@ def boot(variants, depths, output_base, eps, barcodes, meta,
                                                           muts,
                                                           covcut,
                                                           autoadapt,
-                                                          freqcol)
+                                                          freqcol,
+                                                          region_of_interest)
     print('demixing')
     df_barcodes, mix, depths_ = reindex_dfs(df_barcodes, mix, depths_)
     lin_df, constell_df = perform_bootstrap(df_barcodes, mix, depths_,
