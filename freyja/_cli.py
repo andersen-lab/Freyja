@@ -178,7 +178,6 @@ def demix(variants, depths, output, eps, barcodes, meta,
                                       )
     from freyja.utils import (collapse_barcodes,
                               load_barcodes,
-                              handle_region_of_interest,
                               validate_lineage_parents)
     locDir = os.path.abspath(os.path.join(os.path.realpath(__file__),
                              os.pardir))
