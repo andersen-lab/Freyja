@@ -226,19 +226,22 @@ def demix(variants, depths, output, eps, barcodes, meta,
     print('building mix/depth matrices')
     # assemble data from (possibly) mixed samples
     if autoadapt:
-        mix, depths_, cov, adapt = build_mix_and_depth_arrays(variants,
-                                                              depths,
-                                                              muts,
-                                                              covcut,
-                                                              autoadapt,
-                                                              freqcol)
+        mix, depths_, cov, adapt = \
+            build_mix_and_depth_arrays(variants,
+                                       depths,
+                                       muts,
+                                       covcut,
+                                       autoadapt,
+                                       freqcol,
+                                       region_of_interest)
     else:
         mix, depths_, cov, _ = build_mix_and_depth_arrays(variants,
                                                           depths,
                                                           muts,
                                                           covcut,
                                                           autoadapt,
-                                                          freqcol)
+                                                          freqcol,
+                                                          region_of_interest)
     df_barcodes, mix, depths_ = reindex_dfs(df_barcodes, mix, depths_)
     print('demixing')
     sample_strains, abundances, error = solve_demixing_problem(
