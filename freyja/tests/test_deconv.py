@@ -25,7 +25,8 @@ class DeconvTests(unittest.TestCase):
         freqcol = "AF"
         for varFn in varFns:
             mix, depths, cov, adapt = build_mix_and_depth_arrays(
-                varFn, depthFn, muts, covcut, autoadapt, freqcol)
+                varFn, depthFn, muts, covcut, autoadapt, freqcol,
+                region_of_interest)
             self.assertTrue(ptypes.is_float_dtype(mix))
             self.assertTrue(ptypes.is_float_dtype(depths))
             df_barcodes_reindexed, mix, depths = reindex_dfs(
