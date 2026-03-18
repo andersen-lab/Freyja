@@ -1244,9 +1244,9 @@ def collapse_barcodes(df_barcodes, df_depth, depthcutoff,
     return df_barcodes
 
 
-def handle_region_of_interest(region_of_interest, output_df,
-                              df_depth, covcut, title):
-
+def handle_region_of_interest(region_of_interest,
+                              df_depth, covcut):
+    ref_len = len(df_depth)
     roi_df = pd.read_json(region_of_interest, orient='index')
 
     roi_df['start'] = roi_df['start'].astype(int)
@@ -1257,11 +1257,10 @@ def handle_region_of_interest(region_of_interest, output_df,
         lambda x: (x['start'], x['end']) if x['start'] < x['end']
         else (x['end'], x['start']), axis=1))
 
-    # Ensure start > 0 and end < 29903
+    # Ensure start > 0 and end < less than len of genome
     roi_df['start'] = roi_df['start'].apply(lambda x: x if x > 0 else 1)
     roi_df['end'] = roi_df['end'].apply(
-        lambda x: x if x < 29903 else 29903)
-
+        lambda x: x if x < ref_len else ref_len)
     roi_df.index.name = 'name'
 
     # Get percent coverage in each region
