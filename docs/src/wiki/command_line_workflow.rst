@@ -64,19 +64,20 @@ Demixing can be performed using the command
 
 ``freyja demix variants_files/test.variants.tsv depth_files/test.depth --output demix_files/test.output --confirmedonly``
 
+
 By default, Freyja demix calculates the coverage across all genomic positions
- in the provided reference genome and includes it in the output.
- If you want to calculate the coverage in a specific genomic region, you can use
- ``--region_of_interest`` and provide the regions in a JSON format as following:
- ``
- {
+in the provided reference genome and includes it in the output.
+If you want to calculate the coverage in a specific genomic region, you can use
+``--region_of_interest`` and provide the regions in a JSON format as following:
+
+.. code:: python
+     {
   "1": {
     "chromosome": "NC_045512.2",
     "start": 25,
     "end": 431
   }
-``
- 
+
 If you want to use your local barcodes set, you’ll need to use the
 ``--barcodes`` option and specify the path of your local barcodes. Note:
 While the output of ``freyja variants`` will not change over time, the
