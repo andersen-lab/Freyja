@@ -70,13 +70,13 @@ in the provided reference genome and includes it in the output.
 If you want to calculate the coverage in a specific genomic region, you can use
 ``--region_of_interest`` and provide the regions in a JSON format as following:
 
-.. code:: R
+.. code::
     {
     "1": {
-        "chromosome": "NC_045512.2",
-        "start": 25,
-        "end": 431
-    }
+    "chromosome": "NC_045512.2",
+    "start": 25,
+    "end": 431
+    , ...}
 
 
 If you want to use your local barcodes set, you’ll need to use the
