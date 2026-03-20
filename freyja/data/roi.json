@@ -1,0 +1,497 @@
+{
+  "1": {
+    "chromosome": "NC_045512.2",
+    "start": 25,
+    "end": 431
+  },
+  "10": {
+    "chromosome": "NC_045512.2",
+    "start": 2780,
+    "end": 3210
+  },
+  "11": {
+    "chromosome": "NC_045512.2",
+    "start": 3078,
+    "end": 3492
+  },
+  "12": {
+    "chromosome": "NC_045512.2",
+    "start": 3390,
+    "end": 3794
+  },
+  "13": {
+    "chromosome": "NC_045512.2",
+    "start": 3683,
+    "end": 4093
+  },
+  "14": {
+    "chromosome": "NC_045512.2",
+    "start": 3992,
+    "end": 4409
+  },
+  "15": {
+    "chromosome": "NC_045512.2",
+    "start": 4312,
+    "end": 4710
+  },
+  "16": {
+    "chromosome": "NC_045512.2",
+    "start": 4620,
+    "end": 5017
+  },
+  "17": {
+    "chromosome": "NC_045512.2",
+    "start": 4923,
+    "end": 5331
+  },
+  "18": {
+    "chromosome": "NC_045512.2",
+    "start": 5230,
+    "end": 5643
+  },
+  "19": {
+    "chromosome": "NC_045512.2",
+    "start": 5561,
+    "end": 5957
+  },
+  "2": {
+    "chromosome": "NC_045512.2",
+    "start": 324,
+    "end": 727
+  },
+  "20": {
+    "chromosome": "NC_045512.2",
+    "start": 5867,
+    "end": 6272
+  },
+  "21": {
+    "chromosome": "NC_045512.2",
+    "start": 6184,
+    "end": 6582
+  },
+  "22": {
+    "chromosome": "NC_045512.2",
+    "start": 6478,
+    "end": 6885
+  },
+  "23": {
+    "chromosome": "NC_045512.2",
+    "start": 6747,
+    "end": 7156
+  },
+  "24": {
+    "chromosome": "NC_045512.2",
+    "start": 7057,
+    "end": 7467
+  },
+  "25": {
+    "chromosome": "NC_045512.2",
+    "start": 7381,
+    "end": 7770
+  },
+  "26": {
+    "chromosome": "NC_045512.2",
+    "start": 7672,
+    "end": 8092
+  },
+  "27": {
+    "chromosome": "NC_045512.2",
+    "start": 7997,
+    "end": 8395
+  },
+  "28": {
+    "chromosome": "NC_045512.2",
+    "start": 8304,
+    "end": 8714
+  },
+  "29": {
+    "chromosome": "NC_045512.2",
+    "start": 8596,
+    "end": 9013
+  },
+  "3": {
+    "chromosome": "NC_045512.2",
+    "start": 644,
+    "end": 1044
+  },
+  "30": {
+    "chromosome": "NC_045512.2",
+    "start": 8919,
+    "end": 9329
+  },
+  "31": {
+    "chromosome": "NC_045512.2",
+    "start": 9168,
+    "end": 9564
+  },
+  "32": {
+    "chromosome": "NC_045512.2",
+    "start": 9470,
+    "end": 9866
+  },
+  "33": {
+    "chromosome": "NC_045512.2",
+    "start": 9782,
+    "end": 10176
+  },
+  "34": {
+    "chromosome": "NC_045512.2",
+    "start": 10076,
+    "end": 10491
+  },
+  "35": {
+    "chromosome": "NC_045512.2",
+    "start": 10393,
+    "end": 10810
+  },
+  "36": {
+    "chromosome": "NC_045512.2",
+    "start": 10713,
+    "end": 11116
+  },
+  "37": {
+    "chromosome": "NC_045512.2",
+    "start": 11000,
+    "end": 11414
+  },
+  "38": {
+    "chromosome": "NC_045512.2",
+    "start": 11305,
+    "end": 11720
+  },
+  "39": {
+    "chromosome": "NC_045512.2",
+    "start": 11624,
+    "end": 12033
+  },
+  "4": {
+    "chromosome": "NC_045512.2",
+    "start": 944,
+    "end": 1362
+  },
+  "40": {
+    "chromosome": "NC_045512.2",
+    "start": 11937,
+    "end": 12339
+  },
+  "41": {
+    "chromosome": "NC_045512.2",
+    "start": 12234,
+    "end": 12643
+  },
+  "42": {
+    "chromosome": "NC_045512.2",
+    "start": 12519,
+    "end": 12920
+  },
+  "43": {
+    "chromosome": "NC_045512.2",
+    "start": 12831,
+    "end": 13240
+  },
+  "44": {
+    "chromosome": "NC_045512.2",
+    "start": 13124,
+    "end": 13528
+  },
+  "45": {
+    "chromosome": "NC_045512.2",
+    "start": 13463,
+    "end": 13859
+  },
+  "46": {
+    "chromosome": "NC_045512.2",
+    "start": 13752,
+    "end": 14144
+  },
+  "47": {
+    "chromosome": "NC_045512.2",
+    "start": 14045,
+    "end": 14457
+  },
+  "48": {
+    "chromosome": "NC_045512.2",
+    "start": 14338,
+    "end": 14743
+  },
+  "49": {
+    "chromosome": "NC_045512.2",
+    "start": 14647,
+    "end": 15050
+  },
+  "5": {
+    "chromosome": "NC_045512.2",
+    "start": 1245,
+    "end": 1650
+  },
+  "50": {
+    "chromosome": "NC_045512.2",
+    "start": 14953,
+    "end": 15358
+  },
+  "51": {
+    "chromosome": "NC_045512.2",
+    "start": 15214,
+    "end": 15619
+  },
+  "52": {
+    "chromosome": "NC_045512.2",
+    "start": 15535,
+    "end": 15941
+  },
+  "53": {
+    "chromosome": "NC_045512.2",
+    "start": 15855,
+    "end": 16260
+  },
+  "54": {
+    "chromosome": "NC_045512.2",
+    "start": 16112,
+    "end": 16508
+  },
+  "55": {
+    "chromosome": "NC_045512.2",
+    "start": 16386,
+    "end": 16796
+  },
+  "56": {
+    "chromosome": "NC_045512.2",
+    "start": 16692,
+    "end": 17105
+  },
+  "57": {
+    "chromosome": "NC_045512.2",
+    "start": 16986,
+    "end": 17405
+  },
+  "58": {
+    "chromosome": "NC_045512.2",
+    "start": 17323,
+    "end": 17711
+  },
+  "59": {
+    "chromosome": "NC_045512.2",
+    "start": 17615,
+    "end": 18022
+  },
+  "6": {
+    "chromosome": "NC_045512.2",
+    "start": 1540,
+    "end": 1948
+  },
+  "60": {
+    "chromosome": "NC_045512.2",
+    "start": 17911,
+    "end": 18328
+  },
+  "61": {
+    "chromosome": "NC_045512.2",
+    "start": 18244,
+    "end": 18652
+  },
+  "62": {
+    "chromosome": "NC_045512.2",
+    "start": 18550,
+    "end": 18961
+  },
+  "63": {
+    "chromosome": "NC_045512.2",
+    "start": 18869,
+    "end": 19277
+  },
+  "64": {
+    "chromosome": "NC_045512.2",
+    "start": 19183,
+    "end": 19586
+  },
+  "65": {
+    "chromosome": "NC_045512.2",
+    "start": 19485,
+    "end": 19901
+  },
+  "66": {
+    "chromosome": "NC_045512.2",
+    "start": 19810,
+    "end": 20216
+  },
+  "67": {
+    "chromosome": "NC_045512.2",
+    "start": 20090,
+    "end": 20497
+  },
+  "68": {
+    "chromosome": "NC_045512.2",
+    "start": 20377,
+    "end": 20792
+  },
+  "69": {
+    "chromosome": "NC_045512.2",
+    "start": 20677,
+    "end": 21080
+  },
+  "7": {
+    "chromosome": "NC_045512.2",
+    "start": 1851,
+    "end": 2250
+  },
+  "70": {
+    "chromosome": "NC_045512.2",
+    "start": 20988,
+    "end": 21387
+  },
+  "71": {
+    "chromosome": "NC_045512.2",
+    "start": 21294,
+    "end": 21700
+  },
+  "72": {
+    "chromosome": "NC_045512.2",
+    "start": 21532,
+    "end": 21933
+  },
+  "73": {
+    "chromosome": "NC_045512.2",
+    "start": 21865,
+    "end": 22274
+  },
+  "74": {
+    "chromosome": "NC_045512.2",
+    "start": 22091,
+    "end": 22503
+  },
+  "75": {
+    "chromosome": "NC_045512.2",
+    "start": 22402,
+    "end": 22805
+  },
+  "76": {
+    "chromosome": "NC_045512.2",
+    "start": 22648,
+    "end": 23141
+  },
+  "77": {
+    "chromosome": "NC_045512.2",
+    "start": 22944,
+    "end": 23351
+  },
+  "78": {
+    "chromosome": "NC_045512.2",
+    "start": 23219,
+    "end": 23635
+  },
+  "79": {
+    "chromosome": "NC_045512.2",
+    "start": 23553,
+    "end": 23955
+  },
+  "8": {
+    "chromosome": "NC_045512.2",
+    "start": 2154,
+    "end": 2571
+  },
+  "80": {
+    "chromosome": "NC_045512.2",
+    "start": 23853,
+    "end": 24258
+  },
+  "81": {
+    "chromosome": "NC_045512.2",
+    "start": 24171,
+    "end": 24567
+  },
+  "82": {
+    "chromosome": "NC_045512.2",
+    "start": 24426,
+    "end": 24836
+  },
+  "83": {
+    "chromosome": "NC_045512.2",
+    "start": 24750,
+    "end": 25150
+  },
+  "84": {
+    "chromosome": "NC_045512.2",
+    "start": 25051,
+    "end": 25461
+  },
+  "85": {
+    "chromosome": "NC_045512.2",
+    "start": 25331,
+    "end": 25740
+  },
+  "86": {
+    "chromosome": "NC_045512.2",
+    "start": 25645,
+    "end": 26050
+  },
+  "87": {
+    "chromosome": "NC_045512.2",
+    "start": 25951,
+    "end": 26360
+  },
+  "88": {
+    "chromosome": "NC_045512.2",
+    "start": 26242,
+    "end": 26661
+  },
+  "89": {
+    "chromosome": "NC_045512.2",
+    "start": 26564,
+    "end": 26991
+  },
+  "9": {
+    "chromosome": "NC_045512.2",
+    "start": 2483,
+    "end": 2885
+  },
+  "90": {
+    "chromosome": "NC_045512.2",
+    "start": 26873,
+    "end": 27283
+  },
+  "91": {
+    "chromosome": "NC_045512.2",
+    "start": 27152,
+    "end": 27560
+  },
+  "92": {
+    "chromosome": "NC_045512.2",
+    "start": 27447,
+    "end": 27855
+  },
+  "93": {
+    "chromosome": "NC_045512.2",
+    "start": 27700,
+    "end": 28104
+  },
+  "94": {
+    "chromosome": "NC_045512.2",
+    "start": 27996,
+    "end": 28416
+  },
+  "95": {
+    "chromosome": "NC_045512.2",
+    "start": 28190,
+    "end": 28598
+  },
+  "96": {
+    "chromosome": "NC_045512.2",
+    "start": 28512,
+    "end": 28914
+  },
+  "97": {
+    "chromosome": "NC_045512.2",
+    "start": 28827,
+    "end": 29227
+  },
+  "98": {
+    "chromosome": "NC_045512.2",
+    "start": 29136,
+    "end": 29534
+  },
+  "99": {
+    "chromosome": "NC_045512.2",
+    "start": 29452,
+    "end": 29854
+  }
+}
