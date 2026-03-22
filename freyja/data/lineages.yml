@@ -3963,6 +3963,10 @@
       - SL.1
       - SM.1
       - SN.1
+      - SQ.1
+      - SQ.1.1
+      - SQ.2
+      - SQ.3
       - U.1
       - U.2
       - U.3
@@ -7664,6 +7668,10 @@
       - SL.1
       - SM.1
       - SN.1
+      - SQ.1
+      - SQ.1.1
+      - SQ.2
+      - SQ.3
       - U.1
       - U.2
       - U.3
@@ -10427,6 +10435,10 @@
       - SL.1
       - SM.1
       - SN.1
+      - SQ.1
+      - SQ.1.1
+      - SQ.2
+      - SQ.3
   parent: B.1
 - name: B.1.1.1
   alias: B.1.1.1
@@ -15605,6 +15617,10 @@
       - SL.1
       - SM.1
       - SN.1
+      - SQ.1
+      - SQ.1.1
+      - SQ.2
+      - SQ.3
   parent: B.1.1
 - name: BA.1
   alias: B.1.1.529.1
@@ -34502,6 +34518,10 @@
       - SL.1
       - SM.1
       - SN.1
+      - SQ.1
+      - SQ.1.1
+      - SQ.2
+      - SQ.3
   parent: B.1.1.529
 - name: BA.3.1
   alias: B.1.1.529.3.1
@@ -34568,6 +34588,10 @@
       - SL.1
       - SM.1
       - SN.1
+      - SQ.1
+      - SQ.1.1
+      - SQ.2
+      - SQ.3
   parent: BA.3
 - name: BA.3.2.1
   alias: B.1.1.529.3.2.1
@@ -34656,6 +34680,10 @@
       - SL.1
       - SM.1
       - SN.1
+      - SQ.1
+      - SQ.1.1
+      - SQ.2
+      - SQ.3
   parent: BA.3.2
 - name: RE.1
   alias: B.1.1.529.3.2.2.1
@@ -34831,6 +34859,10 @@
       - SL.1
       - SM.1
       - SN.1
+      - SQ.1
+      - SQ.1.1
+      - SQ.2
+      - SQ.3
   parent: BA.3.2.2
 - name: RE.2.1
   alias: B.1.1.529.3.2.2.2.1
@@ -34905,6 +34937,10 @@
       - RU.1
       - SM.1
       - SN.1
+      - SQ.1
+      - SQ.1.1
+      - SQ.2
+      - SQ.3
   parent: RE.2
 - name: RE.2.2.1
   alias: B.1.1.529.3.2.2.2.2.1
@@ -34980,7 +35016,32 @@
   alias: B.1.1.529.3.2.2.2.2.9
   children:
       - RE.2.2.9
+      - SQ.1
+      - SQ.1.1
+      - SQ.2
+      - SQ.3
   parent: RE.2.2
+- name: SQ.1
+  alias: B.1.1.529.3.2.2.2.2.9.1
+  children:
+      - SQ.1
+      - SQ.1.1
+  parent: RE.2.2.9
+- name: SQ.1.1
+  alias: B.1.1.529.3.2.2.2.2.9.1.1
+  children:
+      - SQ.1.1
+  parent: SQ.1
+- name: SQ.2
+  alias: B.1.1.529.3.2.2.2.2.9.2
+  children:
+      - SQ.2
+  parent: RE.2.2.9
+- name: SQ.3
+  alias: B.1.1.529.3.2.2.2.2.9.3
+  children:
+      - SQ.3
+  parent: RE.2.2.9
 - name: RE.2.3
   alias: B.1.1.529.3.2.2.2.3
   children:
