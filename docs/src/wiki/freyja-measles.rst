@@ -34,13 +34,13 @@ For instance, we generated reads from two different measles samples using this c
 
 .. code::
 
-    bygul simulate-proportions GCA_031128185.1.fna primer.bed measles-reference.fasta --outdir measles-H1-100/
+    bygul simulate-proportions GCA_031128185.1.fna --primers primer.bed --reference measles-reference.fasta --outdir measles-H1-100/
 
 *Mixed sample read simulation:*
 
 .. code::
     
-    bygul simulate-proportions GCA_031128185.1.fna,GCA_031129565.1.fna primer.bed measles-reference.fasta --outdir measles-H1-20-D9-80/ --proportions 0.2,0.8
+    bygul simulate-proportions GCA_031128185.1.fna,GCA_031129565.1.fna --primers primer.bed --reference measles-reference.fasta --outdir measles-H1-20-D9-80/ --proportions 0.2,0.8
 
 
 4. Align your reads to your reference genome using an aligner of your choice. 

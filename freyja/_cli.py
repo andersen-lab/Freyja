@@ -178,7 +178,6 @@ def demix(variants, depths, output, eps, barcodes, meta,
                                       )
     from freyja.utils import (collapse_barcodes,
                               load_barcodes,
-                              handle_region_of_interest,
                               validate_lineage_parents)
     locDir = os.path.abspath(os.path.join(os.path.realpath(__file__),
                              os.pardir))
@@ -227,19 +226,22 @@ def demix(variants, depths, output, eps, barcodes, meta,
     print('building mix/depth matrices')
     # assemble data from (possibly) mixed samples
     if autoadapt:
-        mix, depths_, cov, adapt = build_mix_and_depth_arrays(variants,
-                                                              depths,
-                                                              muts,
-                                                              covcut,
-                                                              autoadapt,
-                                                              freqcol)
+        mix, depths_, cov, adapt = \
+            build_mix_and_depth_arrays(variants,
+                                       depths,
+                                       muts,
+                                       covcut,
+                                       autoadapt,
+                                       freqcol,
+                                       region_of_interest)
     else:
         mix, depths_, cov, _ = build_mix_and_depth_arrays(variants,
                                                           depths,
                                                           muts,
                                                           covcut,
                                                           autoadapt,
-                                                          freqcol)
+                                                          freqcol,
+                                                          region_of_interest)
     df_barcodes, mix, depths_ = reindex_dfs(df_barcodes, mix, depths_)
     print('demixing')
     sample_strains, abundances, error = solve_demixing_problem(
@@ -276,13 +278,6 @@ def demix(variants, depths, output, eps, barcodes, meta,
                         index=['summarized', 'lineages',
                         'abundances', 'resid', 'coverage'],
                         name=mix.name)
-
-    # Determine coverage in region(s) of interest (if specified)
-    if region_of_interest != '':
-
-        sols_df = handle_region_of_interest(region_of_interest, sols_df,
-                                            df_depth, covcut, mix.name)
-
     # convert lineage/abundance readouts to single line strings
     sols_df['lineages'] = ' '.join(sols_df['lineages'])
     sols_df['abundances'] = ['%.8f' % ab for ab in sols_df['abundances']]
@@ -644,10 +639,13 @@ def variants(bamfile, ref, variants, depths, refname, minq, annot, varthresh):
 @click.option('--freqcol', default='AF',
               help='Frequency column name in the vcf file',
               show_default=True)
+@click.option('--region_of_interest', default='',
+              help='JSON file containing region(s) of interest'
+                   ' for which to compute additional coverage estimates')
 def boot(variants, depths, output_base, eps, barcodes, meta,
          nb, nt, boxplot, confirmedonly, lineageyml, depthcutoff,
          rawboots, relaxedmrca, relaxedthresh, bootseed,
-         solver, pathogen, autoadapt, freqcol):
+         solver, pathogen, autoadapt, freqcol, region_of_interest):
     """
     Perform bootstrapping method for freyja using VARIANTS and DEPTHS
     """
@@ -688,7 +686,8 @@ def boot(variants, depths, output_base, eps, barcodes, meta,
                                                           muts,
                                                           covcut,
                                                           autoadapt,
-                                                          freqcol)
+                                                          freqcol,
+                                                          region_of_interest)
     print('demixing')
     df_barcodes, mix, depths_ = reindex_dfs(df_barcodes, mix, depths_)
     lin_df, constell_df = perform_bootstrap(df_barcodes, mix, depths_,
