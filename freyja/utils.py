@@ -1261,10 +1261,20 @@ def handle_region_of_interest(region_of_interest,
     roi_df['start'] = roi_df['start'].apply(lambda x: x if x > 0 else 1)
     roi_df['end'] = roi_df['end'].apply(
         lambda x: x if x < ref_len else ref_len)
-    roi_df.index.name = 'name'
+    # Sort intervals by start
+    intervals = roi_df[['start', 'end']].sort_values(by='start').values
+    # merging overlapping intervals
+    merged = []
+    for start, end in intervals:
+        if not merged or start > merged[-1][1]:
+            merged.append([start, end])
+        else:
+            merged[-1][1] = max(merged[-1][1], end)
+    merged_df = pd.DataFrame(merged, columns=['start', 'end'])
+    # calculating covergae for roi
     covered_bases = 0
     total_bases = 0
-    for _, row in roi_df.iterrows():
+    for _, row in merged_df.iterrows():
         roi_depths = df_depth.loc[row['start']:row['end']]
         covered_bases += (roi_depths.iloc[:, 0] > covcut).sum()
         total_bases += roi_depths.shape[0]
