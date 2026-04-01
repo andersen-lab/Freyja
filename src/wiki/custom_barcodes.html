@@ -1,0 +1,238 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Creating custom barcodes &mdash; Freyja  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="prev" title="Running Freyja on other pathogens" href="expanded_pathogens.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            Freyja
+              <img src="../../_static/freyja-logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Usage:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/demix.html">freyja demix</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/variants.html">freyja variants</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/barcode-build.html">freyja barcode-build</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/get-lineage-def.html">freyja get-lineage-def</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/update.html">freyja update</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/boot.html">freyja boot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/aggregate.html">freyja aggregate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/plot.html">freyja plot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/dash.html">freyja dash</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/relgrowthrate.html">freyja relgrowthrate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/extract.html">freyja extract</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/filter.html">freyja filter</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/covariants.html">freyja covariants</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/plot-covariants.html">freyja plot-covariants</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Wiki:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="command_line_workflow.html">Command Line Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cryptic_variants.html">Cryptic Variant Detection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="custom_plotting_tutorial.html">Custom Plotting Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="freyja-measles.html">Running Freyja on other pathogens - Measles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="custom-plots-with-R.html">Demix output manipulation and plotting using R</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lineage_barcode_extract.html">Lineage Barcode Extract</a></li>
+<li class="toctree-l1"><a class="reference internal" href="read_analysis_tutorial.html">Read Analysis Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="terra_workflow.html">Terra Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="expanded_pathogens.html">Running Freyja on other pathogens</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Creating custom barcodes</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#worked-example-rsva">Worked example: RSV‑A</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Freyja</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Creating custom barcodes</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/src/wiki/custom_barcodes.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="creating-custom-barcodes">
+<h1>Creating custom barcodes<a class="headerlink" href="#creating-custom-barcodes" title="Link to this heading"></a></h1>
+<p>Follow these steps to generate lineage‑specific barcodes with <strong>BarcodeForge</strong>.</p>
+<ol class="arabic">
+<li><p>Install dependencies</p>
+<ul class="simple">
+<li><p><strong>Conda / Mamba</strong> – see &lt;<a class="reference external" href="https://mamba.readthedocs.io/en/latest/installation/mamba-installation.html">https://mamba.readthedocs.io/en/latest/installation/mamba-installation.html</a>&gt;.</p></li>
+<li><p><strong>BarcodeForge</strong> – install from <em>Bioconda</em>:</p></li>
+</ul>
+<blockquote>
+<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>conda<span class="w"> </span>install<span class="w"> </span>-c<span class="w"> </span>bioconda<span class="w"> </span>barcodeforge
+</pre></div>
+</div>
+</div></blockquote>
+</li>
+<li><p>Prepare input files</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><strong>Reference genome</strong> – FASTA file of the reference sequence.</p></li>
+<li><p><strong>Multiple‑sequence alignment</strong> – FASTA of all sequences to be barcoded.</p></li>
+<li><p><strong>Phylogenetic tree</strong> – Newick or Nexus file containing every lineage to be barcoded.</p></li>
+<li><p><strong>Lineage table</strong> – TSV mapping each sequence ID to its lineage (<code class="docutils literal notranslate"><span class="pre">lineage&lt;TAB&gt;sequence_id</span></code>).</p></li>
+<li><p><strong>Barcode prefix</strong> <em>(optional)</em> – string to prepend to each barcode (e.g. <code class="docutils literal notranslate"><span class="pre">RSVa</span></code> for RSV‑A).</p></li>
+</ul>
+</div></blockquote>
+</li>
+<li><p>Run BarcodeForge</p>
+<blockquote>
+<div><p>Basic syntax:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>barcodeforge<span class="w"> </span>barcode<span class="w"> </span>REFERENCE_GENOME<span class="w"> </span>ALIGNMENT<span class="w"> </span>TREE<span class="w"> </span>LINEAGES<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</pre></div>
+</div>
+<p>Common options:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--tree_format</span> <span class="pre">{newick,nexus}</span></code> – tree file format (default: <code class="docutils literal notranslate"><span class="pre">newick</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--usher-args</span> <span class="pre">&quot;&lt;args&gt;&quot;</span></code> – extra flags passed to <strong>usher</strong></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--threads</span> <span class="pre">N</span></code> – number of CPU cores (default: <code class="docutils literal notranslate"><span class="pre">1</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--matutils-overlap</span> <span class="pre">FLOAT</span></code> – value for <code class="docutils literal notranslate"><span class="pre">matUtils</span> <span class="pre">annotate</span> <span class="pre">--set-overlap</span></code> (default: <code class="docutils literal notranslate"><span class="pre">0</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--prefix</span> <span class="pre">TEXT</span></code> – prefix prepended to lineage names (default: empty)</p></li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Use <code class="docutils literal notranslate"><span class="pre">--help</span></code> to see every available flag.</p>
+</div>
+</div></blockquote>
+</li>
+<li><p>Retrieve the output</p>
+<p>The pipeline writes results to the current directory:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">barcodes.csv</span></code> – barcode definitions for each lineage</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">barcodes.html</span></code> – the same barcodes in an interactive HTML format</p></li>
+</ul>
+</div></blockquote>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The <cite>barcodeforge_workdir</cite> folder contains intermediate files generated by the pipeline.</p>
+</div>
+</li>
+</ol>
+<section id="worked-example-rsva">
+<h2>Worked example: RSV‑A<a class="headerlink" href="#worked-example-rsva" title="Link to this heading"></a></h2>
+<p>The following example shows how to generate barcodes for the RSV-A lineage tree:</p>
+<ol class="arabic">
+<li><p><strong>Download demo data</strong>:</p>
+<blockquote>
+<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>mkdir<span class="w"> </span>data
+wget<span class="w"> </span>https://raw.githubusercontent.com/andersen-lab/BarcodeForge/refs/heads/main/barcodeforge/assets/tree.nwk<span class="w"> </span>-O<span class="w"> </span>data/tree.nwk
+wget<span class="w"> </span>https://raw.githubusercontent.com/andersen-lab/BarcodeForge/refs/heads/main/barcodeforge/assets/aligned.fasta<span class="w"> </span>-O<span class="w"> </span>data/aligned.fasta
+wget<span class="w"> </span>https://raw.githubusercontent.com/andersen-lab/BarcodeForge/refs/heads/main/barcodeforge/assets/reference.fasta<span class="w"> </span>-O<span class="w"> </span>data/reference.fasta
+wget<span class="w"> </span>https://raw.githubusercontent.com/andersen-lab/BarcodeForge/refs/heads/main/barcodeforge/assets/lineages.tsv<span class="w"> </span>-O<span class="w"> </span>data/lineages.tsv
+</pre></div>
+</div>
+<ul class="simple">
+<li><p><a class="reference external" href="https://github.com/andersen-lab/BarcodeForge/blob/main/barcodeforge/assets/tree.nwk">RSV-A tree</a></p></li>
+<li><p><a class="reference external" href="https://github.com/andersen-lab/BarcodeForge/blob/main/barcodeforge/assets/aligned.fasta">RSV-A alignment</a></p></li>
+<li><p><a class="reference external" href="https://github.com/andersen-lab/BarcodeForge/blob/main/barcodeforge/assets/reference.fasta">RSV-A reference genome</a></p></li>
+<li><p><a class="reference external" href="https://github.com/andersen-lab/BarcodeForge/blob/main/barcodeforge/assets/lineages.tsv">RSV-A lineages per sample</a></p></li>
+</ul>
+</div></blockquote>
+</li>
+<li><p><strong>Generate barcodes</strong>:</p>
+<blockquote>
+<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>barcodeforge<span class="w"> </span>barcode<span class="w"> </span>data/reference.fasta<span class="w"> </span>data/aligned.fasta<span class="w"> </span>data/tree.nwk<span class="w"> </span>data/lineages.tsv<span class="w"> </span>--tree_format<span class="w"> </span>newick<span class="w"> </span>--threads<span class="w"> </span><span class="m">4</span><span class="w"> </span>--prefix<span class="w"> </span>RSVa
+</pre></div>
+</div>
+</div></blockquote>
+</li>
+</ol>
+<ol class="arabic" start="4">
+<li><p><strong>View the results</strong></p>
+<p>The barcodes are saved in the current directory:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">RSVa-barcodes.csv</span></code> – barcode definitions for each lineage</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">RSVa-barcodes.html</span></code> – the same barcodes in an interactive HTML format</p></li>
+<li><p><cite>barcodeforge_workdir</cite> – intermediate files generated by the pipeline</p></li>
+</ul>
+</div></blockquote>
+</li>
+</ol>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="expanded_pathogens.html" class="btn btn-neutral float-left" title="Running Freyja on other pathogens" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Andersen Lab.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
