@@ -1244,9 +1244,9 @@ def collapse_barcodes(df_barcodes, df_depth, depthcutoff,
     return df_barcodes
 
 
-def handle_region_of_interest(region_of_interest, output_df,
-                              df_depth, covcut, title):
-
+def handle_region_of_interest(region_of_interest,
+                              df_depth, covcut):
+    ref_len = len(df_depth)
     roi_df = pd.read_json(region_of_interest, orient='index')
 
     roi_df['start'] = roi_df['start'].astype(int)
@@ -1257,30 +1257,29 @@ def handle_region_of_interest(region_of_interest, output_df,
         lambda x: (x['start'], x['end']) if x['start'] < x['end']
         else (x['end'], x['start']), axis=1))
 
-    # Ensure start > 0 and end < 29903
+    # Ensure start > 0 and end < less than len of genome
     roi_df['start'] = roi_df['start'].apply(lambda x: x if x > 0 else 1)
     roi_df['end'] = roi_df['end'].apply(
-        lambda x: x if x < 29903 else 29903)
-
-    roi_df.index.name = 'name'
-
-    # Get percent coverage in each region
-    roi_cov = pd.Series()
-    for _, row in roi_df.iterrows():
-        roi_depths = df_depth.loc[(df_depth.index >= row['start']) &
-                                  (df_depth.index <= row['end'])]
-        roi_cov = pd.concat([roi_cov,
-                             pd.Series(
-                                 (sum(roi_depths.loc[:, 3] > covcut) /
-                                     len(roi_depths)) * 100,
-                                 index=[row.name])
-                             ])
-
-    # Write to output
-    output_df = pd.concat([output_df, roi_cov], axis=0)
-    output_df.name = title
-
-    return output_df
+        lambda x: x if x < ref_len else ref_len)
+    # Sort intervals by start
+    intervals = roi_df[['start', 'end']].sort_values(by='start').values
+    # merging overlapping intervals
+    merged = []
+    for start, end in intervals:
+        if not merged or start > merged[-1][1]:
+            merged.append([start, end])
+        else:
+            merged[-1][1] = max(merged[-1][1], end)
+    merged_df = pd.DataFrame(merged, columns=['start', 'end'])
+    # calculating covergae for roi
+    covered_bases = 0
+    total_bases = 0
+    for _, row in merged_df.iterrows():
+        roi_depths = df_depth.loc[row['start']:row['end']]
+        covered_bases += (roi_depths.iloc[:, 0] > covcut).sum()
+        total_bases += roi_depths.shape[0]
+    coverage = 100 * covered_bases / total_bases
+    return coverage
 
 
 def validate_primer_bed(df):

@@ -67,7 +67,9 @@ def get_error_rate(muts, df0, df_depths0):
     return error_rate
 
 
-def build_mix_and_depth_arrays(fn, depthFn, muts, covcut, autoadapt, freq_col):
+def build_mix_and_depth_arrays(fn, depthFn, muts, covcut, autoadapt, freq_col,
+                               region_of_interest):
+    from freyja.utils import handle_region_of_interest
     input_is_vcf = fn.lower().endswith('vcf')
     if input_is_vcf:
         df = read_snv_frequencies_vcf(fn, freq_col, depthFn, muts)
@@ -91,7 +93,13 @@ def build_mix_and_depth_arrays(fn, depthFn, muts, covcut, autoadapt, freq_col):
     mix.name = fn
     depths = pd.Series({kI: df_depth.loc[int(re.findall(r'\d+', kI)[0]), 3]
                         .astype(float) for kI in muts}, name=fn)
-    coverage = 100.*np.sum(df_depth.loc[:, 3] >= covcut)/df_depth.shape[0]
+    # Determine coverage in region(s) of interest (if specified)
+    if region_of_interest != '':
+        coverage = handle_region_of_interest(region_of_interest,
+                                             df_depth,
+                                             covcut)
+    else:
+        coverage = 100.*np.sum(df_depth.loc[:, 3] >= covcut)/df_depth.shape[0]
     return mix, depths, coverage, adapt
 
 
