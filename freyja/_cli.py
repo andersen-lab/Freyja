@@ -282,6 +282,7 @@ def demix(variants, depths, output, eps, barcodes, meta,
     sols_df['lineages'] = ' '.join(sols_df['lineages'])
     sols_df['abundances'] = ['%.8f' % ab for ab in sols_df['abundances']]
     sols_df['abundances'] = ' '.join(sols_df['abundances'])
+    sols_df['pathogen'] = pathogen
     sols_df.to_csv(output, sep='\t')
 
 
