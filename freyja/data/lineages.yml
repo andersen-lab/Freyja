@@ -3959,6 +3959,7 @@
       - RS.3
       - RS.4
       - RS.5
+      - RS.6
       - RT.1
       - RT.2
       - RU.1
@@ -3973,6 +3974,7 @@
       - SQ.2
       - SQ.3
       - SS.1
+      - SS.2
       - U.1
       - U.2
       - U.3
@@ -7670,6 +7672,7 @@
       - RS.3
       - RS.4
       - RS.5
+      - RS.6
       - RT.1
       - RT.2
       - RU.1
@@ -7684,6 +7687,7 @@
       - SQ.2
       - SQ.3
       - SS.1
+      - SS.2
       - U.1
       - U.2
       - U.3
@@ -10443,6 +10447,7 @@
       - RS.3
       - RS.4
       - RS.5
+      - RS.6
       - RT.1
       - RT.2
       - RU.1
@@ -10457,6 +10462,7 @@
       - SQ.2
       - SQ.3
       - SS.1
+      - SS.2
   parent: B.1
 - name: B.1.1.1
   alias: B.1.1.1
@@ -15632,6 +15638,7 @@
       - RS.3
       - RS.4
       - RS.5
+      - RS.6
       - RT.1
       - RT.2
       - RU.1
@@ -15645,6 +15652,7 @@
       - SQ.2
       - SQ.3
       - SS.1
+      - SS.2
   parent: B.1.1
 - name: BA.1
   alias: B.1.1.529.1
@@ -34590,6 +34598,7 @@
       - RS.3
       - RS.4
       - RS.5
+      - RS.6
       - RT.1
       - RT.2
       - RU.1
@@ -34603,6 +34612,7 @@
       - SQ.2
       - SQ.3
       - SS.1
+      - SS.2
   parent: B.1.1.529
 - name: BA.3.1
   alias: B.1.1.529.3.1
@@ -34663,6 +34673,7 @@
       - RS.3
       - RS.4
       - RS.5
+      - RS.6
       - RT.1
       - RT.2
       - RU.1
@@ -34676,6 +34687,7 @@
       - SQ.2
       - SQ.3
       - SS.1
+      - SS.2
   parent: BA.3
 - name: BA.3.2.1
   alias: B.1.1.529.3.2.1
@@ -34758,6 +34770,7 @@
       - RS.3
       - RS.4
       - RS.5
+      - RS.6
       - RT.1
       - RT.2
       - RU.1
@@ -34771,6 +34784,7 @@
       - SQ.2
       - SQ.3
       - SS.1
+      - SS.2
   parent: BA.3.2
 - name: RE.1
   alias: B.1.1.529.3.2.2.1
@@ -34795,8 +34809,10 @@
       - RS.3
       - RS.4
       - RS.5
+      - RS.6
       - SJ.1
       - SS.1
+      - SS.2
   parent: BA.3.2.2
 - name: RE.1.1
   alias: B.1.1.529.3.2.2.1.1
@@ -34819,8 +34835,10 @@
       - RS.3
       - RS.4
       - RS.5
+      - RS.6
       - SJ.1
       - SS.1
+      - SS.2
   parent: RE.1
 - name: RE.1.1.1
   alias: B.1.1.529.3.2.2.1.1.1
@@ -34837,6 +34855,7 @@
       - RS.3
       - RS.4
       - RS.5
+      - RS.6
   parent: RE.1.1
 - name: RS.1
   alias: B.1.1.529.3.2.2.1.1.1.1
@@ -34900,6 +34919,11 @@
   children:
       - RS.5
   parent: RE.1.1.1
+- name: RS.6
+  alias: B.1.1.529.3.2.2.1.1.1.6
+  children:
+      - RS.6
+  parent: RE.1.1.1
 - name: RE.1.1.2
   alias: B.1.1.529.3.2.2.1.1.2
   children:
@@ -34921,11 +34945,17 @@
   children:
       - RE.1.1.4
       - SS.1
+      - SS.2
   parent: RE.1.1
 - name: SS.1
   alias: B.1.1.529.3.2.2.1.1.4.1
   children:
       - SS.1
+  parent: RE.1.1.4
+- name: SS.2
+  alias: B.1.1.529.3.2.2.1.1.4.2
+  children:
+      - SS.2
   parent: RE.1.1.4
 - name: RE.1.1.5
   alias: B.1.1.529.3.2.2.1.1.5
