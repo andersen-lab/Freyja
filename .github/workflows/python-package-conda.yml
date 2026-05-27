@@ -30,7 +30,8 @@ jobs:
           conda activate test
           conda config --add channels bioconda
           conda config --add channels conda-forge          
-          conda install --yes --file ci/conda_requirements.txt
+          conda install -n test --yes --file ci/conda_requirements.txt
+          conda install pandas
           pip install -e . --no-deps 
           
       - name: Test
