@@ -11,10 +11,10 @@ jobs:
     steps:
       # Downloads a copy of the code in your repository before running CI tests
       - name: Check out repository code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v2
 
       - name: Setup for conda
-        uses: conda-incubator/setup-miniconda@v4
+        uses: conda-incubator/setup-miniconda@v2
         with:        
           auto-update-conda: true
           channels: bioconda,conda-forge
@@ -31,8 +31,7 @@ jobs:
           conda config --add channels bioconda
           conda config --add channels conda-forge          
           conda install -n test --yes --file ci/conda_requirements.txt
-          conda install pandas
-          pip install -e . --no-deps 
+          pip install -e .
           
       - name: Test
         shell: bash -l {0}
@@ -43,9 +42,9 @@ jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@v2
     - name: flake8
-      uses: actions/setup-python@v6
+      uses: actions/setup-python@v2
       with:
         python-version: '3.10'
     - name: install dependencies
