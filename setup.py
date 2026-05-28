@@ -35,7 +35,7 @@ setup(
     },
     install_requires=[
         "click", "numpy", "pandas", "cvxpy", "seaborn", "pysam",
-        "biopython", "sphinx", "sphinx_rtd_theme",
+        "biopython", "sphinx", "sphinx_rtd_theme","pyarrow", "tqdm",
         "sphinx-click @ git+https://github.com/dylanpilz/sphinx-click.git"
         ]
 )
