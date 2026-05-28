@@ -1,3 +1,4 @@
+import csv
 import unittest
 import os
 
@@ -16,6 +17,20 @@ class CommandLineTests(unittest.TestCase):
         os.system('freyja demix freyja/data/test.tsv freyja/data/test.depth \
                    --output test.demixed.tsv')
         self.assertTrue(file_exists('.', "test.demixed.tsv"))
+
+        with open('test.demixed.tsv') as f:
+            reader = csv.reader(f, delimiter='\t')
+            result = {row[0]: row[1] for row in reader if len(row) >= 2}
+
+        self.assertEqual(result['pathogen'], 'SARS-CoV-2')
+        self.assertGreater(float(result['coverage']), 90.0)
+
+        lineages = result['lineages'].split()
+        self.assertIn('A', lineages)
+        self.assertIn('AY.48', lineages)
+
+        abundances = [float(a) for a in result['abundances'].split()]
+        self.assertAlmostEqual(sum(abundances), 1.0, places=2)
 
     def test_demix_with_vcf(self):
         os.system('freyja demix freyja/data/test.vcf freyja/data/test.depth \

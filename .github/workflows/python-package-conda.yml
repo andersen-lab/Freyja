@@ -28,7 +28,7 @@ jobs:
           conda install -n base conda-libmamba-solver
           conda config --set solver libmamba        
           conda install --yes --file ci/conda_requirements.txt
-          pip install -e . --no-deps 
+          python -m pip install -e . --no-deps 
           
       - name: Test
         shell: bash -l {0}
