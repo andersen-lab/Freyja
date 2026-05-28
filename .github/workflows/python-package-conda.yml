@@ -26,9 +26,7 @@ jobs:
         shell: bash -l {0}
         run: |
           conda install -n base conda-libmamba-solver
-          conda config --set solver libmamba
-          conda config --add channels bioconda
-          conda config --add channels conda-forge          
+          conda config --set solver libmamba        
           conda install --yes --file ci/conda_requirements.txt
           python -m pip install -e . --no-deps 
           
