@@ -31,7 +31,7 @@ jobs:
           conda config --add channels bioconda
           conda config --add channels conda-forge          
           conda install --yes --file ci/conda_requirements.txt
-          pip install -e .
+          pip install -e . --no-deps
           
       - name: Test
         shell: bash -l {0}
