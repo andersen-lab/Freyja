@@ -311,7 +311,7 @@ def perform_bootstrap(df_barcodes, mix, depths_,
     totalDepth = depths_.sum()
     fracDepths = depths_/totalDepth
 
-    fracDefining = fracDepths.sum()
+    fracDefining = min(fracDepths.sum(), 1.0)  # clamp float rounding above 1.0 -> numpy binomial p>1 (issue #320)
     fracDepths_adj = fracDepths/fracDefining
 
     seed = bootseed
