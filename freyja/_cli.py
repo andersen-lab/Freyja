@@ -1186,6 +1186,7 @@ def ampliconstat(input_depth, primer, min_depth, output_plot, output_csv):
     print("Writing amplicon dropout CSV file...")
     aggregated_df.to_csv(output_csv, index=False)
 
+
 @cli.command()
 @click.option('--barcodes', default='',
               help='Path to custom barcode file')
@@ -1217,8 +1218,8 @@ def ampliconstat(input_depth, primer, min_depth, output_plot, output_csv):
               ' Not used if using --barcodes option.',
               show_default=True)
 def cov_res(barcodes, region_start, region_end, regions,
-                          output, confirmedonly, lineageyml, relaxedmrca,
-                          relaxedthresh, pathogen):
+            output, confirmedonly, lineageyml, relaxedmrca,
+            relaxedthresh, pathogen):
     """
     Determine which lineages are indistinguishable from one another
     if only a given genomic region (or set of regions) is covered,
@@ -1275,7 +1276,7 @@ def cov_res(barcodes, region_start, region_end, regions,
     # fully covered, everything else as uncovered
     sites = sorted({int(mut[1:-1]) for mut in df_barcodes.columns})
     depth = [1 if any(start <= site <= end for start, end in covered)
-            else 0 for site in sites]
+             else 0 for site in sites]
     df_depth = pd.DataFrame({3: depth}, index=sites)
 
     collapse_barcodes(df_barcodes, df_depth, 1, lineageyml, locDir,
