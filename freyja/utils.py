@@ -1072,6 +1072,18 @@ def collapse_barcodes(df_barcodes, df_depth, depthcutoff,
     lineage_yml = read_lineage_file(lineageyml, locDir,
                                     pathogen, fileOnly=True)
     lineage_data = {lineage['name']: lineage for lineage in lineage_yml}
+    # recombinant parents are occasionally provided in unaliased form, e.g.
+    # the parents of XHD are listed as XFG.3.4.1 and XDV.1.5.1.1.8.1, the
+    # latter being the unaliased form of NB.1.8.1. Only lineage names are
+    # keys of lineage_data, so map any such parents back to their names.
+    alias_to_name = {lineage['alias']: lineage['name']
+                     for lineage in lineage_yml}
+    for lineage in lineage_data.values():
+        if 'recombinant_parents' not in lineage:
+            continue
+        lineage['recombinant_parents'] = ','.join(
+            [alias_to_name.get(parent, parent) for parent in
+             lineage['recombinant_parents'].replace('*', '').split(',')])
 
     alias_count = {}
     collapsed_lineages = {}
@@ -1079,132 +1091,15 @@ def collapse_barcodes(df_barcodes, df_depth, depthcutoff,
     # collapse lineages into MRCA, where possible
     for tup in duplicates:
         try:
-            pango_aliases = [lineage_data[lin]['alias']
-                             for lin in tup]
-        except KeyError:
-            print('Lineage hierarchy file is likely behind'
-                  ' the selected barcode file. Try updating'
-                  ' the hierarchy file.')
-        # handle cases where multiple lineage classes are being merged
-        # e.g. (A.5, B.12) or (XBB, XBN)
-        # unless all lineages are recombinants, drop recombinants from naming
-        if relaxed:
-            if not np.all(['recombinant_parents' in
-                           lineage_data[alias.split('.')[0]]
-                           for alias in pango_aliases]):
-                if np.any(['recombinant_parents' in
-                           lineage_data[alias.split('.')[0]]
-                           for alias in pango_aliases]):
-                    pango_aliases = [alias for alias in pango_aliases
-                                     if 'recombinant_parents' not in
-                                     lineage_data[alias.split('.')[0]]]
-
-        multiple_lin_classes = len(
-            set([alias.split('.')[0] for alias in pango_aliases])) > 1
-
-        if multiple_lin_classes:
-            recombs = [alias for alias in pango_aliases
-                       if 'recombinant_parents' in
-                       lineage_data[alias.split('.')[0]]]
-
-            # for recombinant lineages, find the parent lineages
-            startTypes = set([alias.split('.')[0] for alias in pango_aliases])
-            # figure out which are the candidates for recomb merging
-            # if they exist
-            while len(recombs) > 0:
-                parent_aliases = []
-                for alias in recombs:
-                    if 'recombinant_parents' in lineage_data[alias.split('.')
-                                                             [0]]:
-                        # trace up tree until a recombination event.
-                        # grab parents of recombinant
-                        parents = lineage_data[alias.split('.')
-                                               [0]]['recombinant_parents'
-                                                    ].replace('*', ''
-                                                              ).split(',')
-                        parent_aliases.append([lineage_data[lin]['alias']
-                                               for lin in parents])
-
-                distinct = []
-                newRecombs = []
-                mergedIn = False
-                for alias, pa in zip(recombs, parent_aliases):
-                    for aliasP in pa:
-                        if aliasP.split('.')[0] in startTypes:
-                            mergedIn = True
-                            # if now using same start as others,
-                            # add to list of aliases
-                            pango_aliases.append(aliasP)
-                            if alias in pango_aliases:
-                                pango_aliases.remove(alias)
-                        elif 'recombinant_parents' in lineage_data[aliasP.
-                                                                   split('.')
-                                                                   [0]]:
-                            # check if it's a different recombinant
-                            newRecombs.append(aliasP)
-                        else:
-                            # non-recombinant, but not in current start types.
-                            distinct.append(aliasP)
-                if not mergedIn:
-                    # if no merges, remove the recombinants
-                    # and add in the parents
-                    for r in recombs:
-                        pango_aliases.remove(r)
-                    pango_aliases.extend(distinct+newRecombs)
-
-                startTypes = set([alias.split('.')[0]
-                                  for alias in pango_aliases])
-                if len(startTypes) == 1:
-                    break
-                recombs = [alias for alias in pango_aliases if
-                           'recombinant_parents' in
-                           lineage_data[alias.split('.')[0]]]
-
-        def get_path_to_root(lineage, lineage_data):
-            if lineage not in lineage_data:
-                for lin in lineage_data:
-                    if lineage_data[lin]['alias'] == lineage:
-                        lineage = lin
-                        break
-            if 'parent' not in lineage_data[lineage]:
-                return lineage + '/'
-            return get_path_to_root(
-                lineage_data[lineage]['parent'],
-                lineage_data
-            ) + lineage + '/'
-
-        if not relaxed:
-            paths = [get_path_to_root(lineage, lineage_data)
-                     for lineage in pango_aliases]
-            mrca = os.path.commonpath(paths).split('/')[-1]
-        else:
-            paths = [get_path_to_root(lineage, lineage_data)[:-1]
-                     for lineage in pango_aliases]
-            j0 = 1
-            groupCt = float(len(paths))
-            ext_counts = np.unique([lin.split('/')[0:j0]
-                                    for lin in paths],
-                                   return_counts=True)
-            coherentFrac = np.max(ext_counts[1]) / groupCt
-            if coherentFrac < relaxedthresh:
-                mrca = ''
-            else:
-                maxLength = np.max([len(lin.split('/'))
-                                    for lin in paths])
-                while coherentFrac >= relaxedthresh and j0 <= maxLength:
-                    ext_counts = np.unique([lin.split('/')[0:j0]
-                                            if j0 <= len(lin.split('/'))
-                                            else lin.split('/') +
-                                            ['']*(j0-len(lin.split('/')))
-                                            for lin in paths],
-                                           return_counts=True,
-                                           axis=0)
-                    max_ind = np.argmax(ext_counts[1])
-
-                    coherentFrac = ext_counts[1][max_ind] / groupCt
-                    if coherentFrac >= relaxedthresh:
-                        mrca = ext_counts[0][max_ind][-1]
-                    j0 += 1
+            mrca = get_group_mrca(tup, lineage_data, relaxed, relaxedthresh)
+        except KeyError as e:
+            # e.g. a lineage present in the barcodes but not (yet) in the
+            # hierarchy. Group these into Misc rather than failing the run.
+            warnings.warn(f'Lineage {e.args[0]} is missing from the lineage'
+                          ' hierarchy file, which is likely behind the'
+                          ' selected barcode file. Try updating the hierarchy'
+                          f' file. Grouping {", ".join(tup)} into Misc.')
+            mrca = ''
 
         # assign placeholder if no MRCA found
         if len(mrca) == 0:
@@ -1242,6 +1137,135 @@ def collapse_barcodes(df_barcodes, df_depth, depthcutoff,
     print(f'collapsed lineages saved to {output}')
 
     return df_barcodes
+
+
+def get_path_to_root(lineage, lineage_data):
+    if lineage not in lineage_data:
+        for lin in lineage_data:
+            if lineage_data[lin]['alias'] == lineage:
+                lineage = lin
+                break
+    if 'parent' not in lineage_data[lineage]:
+        return lineage + '/'
+    return get_path_to_root(
+        lineage_data[lineage]['parent'],
+        lineage_data
+    ) + lineage + '/'
+
+
+def get_group_mrca(tup, lineage_data, relaxed, relaxedthresh):
+    """Get the most recent common ancestor of a group of lineages that share
+    an identical barcode. Raises a KeyError if one of the lineages, or one of
+    their recombinant parents, is absent from the lineage hierarchy."""
+    pango_aliases = [lineage_data[lin]['alias']
+                     for lin in tup]
+    # handle cases where multiple lineage classes are being merged
+    # e.g. (A.5, B.12) or (XBB, XBN)
+    # unless all lineages are recombinants, drop recombinants from naming
+    if relaxed:
+        if not np.all(['recombinant_parents' in
+                       lineage_data[alias.split('.')[0]]
+                       for alias in pango_aliases]):
+            if np.any(['recombinant_parents' in
+                       lineage_data[alias.split('.')[0]]
+                       for alias in pango_aliases]):
+                pango_aliases = [alias for alias in pango_aliases
+                                 if 'recombinant_parents' not in
+                                 lineage_data[alias.split('.')[0]]]
+
+    multiple_lin_classes = len(
+        set([alias.split('.')[0] for alias in pango_aliases])) > 1
+
+    if multiple_lin_classes:
+        recombs = [alias for alias in pango_aliases
+                   if 'recombinant_parents' in
+                   lineage_data[alias.split('.')[0]]]
+
+        # for recombinant lineages, find the parent lineages
+        startTypes = set([alias.split('.')[0] for alias in pango_aliases])
+        # figure out which are the candidates for recomb merging
+        # if they exist
+        while len(recombs) > 0:
+            parent_aliases = []
+            for alias in recombs:
+                if 'recombinant_parents' in lineage_data[alias.split('.')[0]]:
+                    # trace up tree until a recombination event.
+                    # grab parents of recombinant
+                    parents = lineage_data[alias.split('.')
+                                           [0]]['recombinant_parents'
+                                                ].replace('*', ''
+                                                          ).split(',')
+                    parent_aliases.append([lineage_data[lin]['alias']
+                                           for lin in parents])
+
+            distinct = []
+            newRecombs = []
+            mergedIn = False
+            for alias, pa in zip(recombs, parent_aliases):
+                for aliasP in pa:
+                    if aliasP.split('.')[0] in startTypes:
+                        mergedIn = True
+                        # if now using same start as others,
+                        # add to list of aliases
+                        pango_aliases.append(aliasP)
+                        if alias in pango_aliases:
+                            pango_aliases.remove(alias)
+                    elif 'recombinant_parents' in lineage_data[aliasP.
+                                                               split('.')[0]]:
+                        # check if it's a different recombinant
+                        newRecombs.append(aliasP)
+                    else:
+                        # non-recombinant, but not in current start types.
+                        distinct.append(aliasP)
+            if not mergedIn:
+                # if no merges, remove the recombinants
+                # and add in the parents
+                for r in recombs:
+                    pango_aliases.remove(r)
+                pango_aliases.extend(distinct+newRecombs)
+
+            startTypes = set([alias.split('.')[0]
+                              for alias in pango_aliases])
+            if len(startTypes) == 1:
+                break
+            recombs = [alias for alias in pango_aliases if
+                       'recombinant_parents' in
+                       lineage_data[alias.split('.')[0]]]
+
+    if not relaxed:
+        paths = [get_path_to_root(lineage, lineage_data)
+                 for lineage in pango_aliases]
+        mrca = os.path.commonpath(paths).split('/')[-1]
+    else:
+        paths = [get_path_to_root(lineage, lineage_data)[:-1]
+                 for lineage in pango_aliases]
+        j0 = 1
+        groupCt = float(len(paths))
+        ext_counts = np.unique([lin.split('/')[0:j0]
+                                for lin in paths],
+                               return_counts=True)
+        coherentFrac = np.max(ext_counts[1]) / groupCt
+        if coherentFrac < relaxedthresh:
+            mrca = ''
+        else:
+            maxLength = np.max([len(lin.split('/'))
+                                for lin in paths])
+            while coherentFrac >= relaxedthresh and j0 <= maxLength:
+                ext_counts = np.unique([lin.split('/')[0:j0]
+                                        if j0 <= len(lin.split('/'))
+                                        else lin.split('/') +
+                                        ['']*(j0-len(lin.split('/')))
+                                        for lin in paths],
+                                       return_counts=True,
+                                       axis=0)
+                max_ind = np.argmax(ext_counts[1])
+
+                coherentFrac = ext_counts[1][max_ind] / groupCt
+                if coherentFrac >= relaxedthresh:
+                    mrca = ext_counts[0][max_ind][-1]
+                j0 += 1
+
+    return mrca
 
 
 def handle_region_of_interest(region_of_interest,

@@ -418,6 +418,54 @@ class UtilsTests(unittest.TestCase):
         self.assertLess(collapsed[0], original[0])
         self.assertLess(collapsed[1], original[1])
 
+    def write_test_lineage_yml(self, fn):
+        # minimal hierarchy, where the second parent of the recombinant XR is
+        # given in unaliased form (B.1.1.1.1 is the alias of C.1), as is the
+        # case for XHD in pango-designation
+        lineages = [
+            {'name': 'B', 'alias': 'B',
+             'children': ['B', 'B.1', 'B.1.1', 'C.1']},
+            {'name': 'B.1', 'alias': 'B.1', 'parent': 'B',
+             'children': ['B.1', 'B.1.1', 'C.1']},
+            {'name': 'B.1.1', 'alias': 'B.1.1', 'parent': 'B.1',
+             'children': ['B.1.1', 'C.1']},
+            {'name': 'C.1', 'alias': 'B.1.1.1.1', 'parent': 'B.1.1',
+             'children': ['C.1']},
+            {'name': 'XR', 'alias': 'XR', 'children': ['XR'],
+             'recombinant_parents': 'B.1.1,B.1.1.1.1'},
+        ]
+        with open(fn, 'w') as f:
+            yaml.dump(lineages, f, default_flow_style=False)
+
+    def collapse_test_barcodes(self, lineages):
+        barcodes = pd.DataFrame([[1, 1], [1, 1]], index=lineages,
+                                columns=['A100T', 'C200G'])
+        depth = pd.DataFrame({0: ['ref', 'ref'], 2: ['A', 'C'], 3: [10, 10]},
+                             index=[100, 200])
+        lineages_yml = 'test_lineages.yml'
+        self.write_test_lineage_yml(lineages_yml)
+        try:
+            return collapse_barcodes(barcodes, depth, 1, lineages_yml,
+                                     'freyja', 'test', False, 0.9, '')
+        finally:
+            os.remove(lineages_yml)
+            os.remove('test_collapsed_lineages.yml')
+
+    def test_collapse_barcodes_unaliased_recombinant_parent(self):
+        # recombinant parents given in unaliased form should still resolve,
+        # rather than raising a KeyError
+        barcodes = self.collapse_test_barcodes(['XR', 'B.1'])
+
+        self.assertEqual(list(barcodes.index), ['B.1-like'])
+
+    def test_collapse_barcodes_missing_lineage(self):
+        # a lineage that is absent from the hierarchy should warn and be
+        # grouped into Misc, rather than raising a KeyError
+        with self.assertWarns(UserWarning):
+            barcodes = self.collapse_test_barcodes(['ZZ.1', 'B.1'])
+
+        self.assertEqual(list(barcodes.index), ['Misc'])
+
 
 if __name__ == '__main__':
     unittest.main()
