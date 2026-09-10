@@ -1122,8 +1122,18 @@ def collapse_barcodes(df_barcodes, df_depth, depthcutoff,
                                                [0]]['recombinant_parents'
                                                     ].replace('*', ''
                                                               ).split(',')
+                        # recombinant_parents may list a lineage by its
+                        # alias rather than its name; resolve to name
+                        resolved_parents = []
+                        for lin in parents:
+                            if lin not in lineage_data:
+                                for name in lineage_data:
+                                    if lineage_data[name]['alias'] == lin:
+                                        lin = name
+                                        break
+                            resolved_parents.append(lin)
                         parent_aliases.append([lineage_data[lin]['alias']
-                                               for lin in parents])
+                                               for lin in resolved_parents])
 
                 distinct = []
                 newRecombs = []
