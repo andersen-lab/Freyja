@@ -44,6 +44,12 @@ class CommandLineTests(unittest.TestCase):
         self.assertTrue(file_exists('.',
                                     "test_demixed_collapsed_lineages.yml"))
 
+    def test_cov_res(self):
+        os.system('freyja cov-res --region_start 22000 --region_end 25000 \
+                   --output test_cov_res')
+        self.assertTrue(
+            file_exists('.', "test_cov_res_collapsed_lineages.yml"))
+
     def test_plot(self):
         os.system('freyja plot freyja/data/aggregated_result.tsv \
                    --output test_plot.pdf')
