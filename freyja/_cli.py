@@ -1187,5 +1187,101 @@ def ampliconstat(input_depth, primer, min_depth, output_plot, output_csv):
     aggregated_df.to_csv(output_csv, index=False)
 
 
+@cli.command()
+@click.option('--barcodes', default='',
+              help='Path to custom barcode file')
+@click.option('--region_start', default=None, type=int,
+              help='start position of the covered region')
+@click.option('--region_end', default=None, type=int,
+              help='end position of the covered region')
+@click.option('--regions', default='',
+              help='JSON file containing multiple covered regions'
+                   ' (same format as --region_of_interest), for use'
+                   ' instead of --region_start/--region_end')
+@click.option('--output', default='aliased_groups.yml',
+              help='Output file prefix',
+              type=click.Path(exists=False), show_default=True)
+@click.option('--confirmedonly', is_flag=True,
+              help="exclude unconfirmed lineages",
+              default=False, show_default=True)
+@click.option('--lineageyml', default='',
+              help='lineage hierarchy file in a yaml format')
+@click.option('--relaxedmrca', is_flag=True, default=False,
+              help='clusters are assigned robust mrca to handle outliers',
+              show_default=True)
+@click.option('--relaxedthresh', default=0.9,
+              help='associated threshold for robust mrca function',
+              show_default=True)
+@click.option('--pathogen', type=click.Choice(pathogens),
+              default='SARS-CoV-2',
+              help='Pathogen of interest.' +
+              ' Not used if using --barcodes option.',
+              show_default=True)
+def cov_res(barcodes, region_start, region_end, regions,
+            output, confirmedonly, lineageyml, relaxedmrca,
+            relaxedthresh, pathogen):
+    """
+    Determine which lineages are indistinguishable from one another
+    if only a given genomic region (or set of regions) is covered,
+    using the same MRCA-collapsing logic as demix --depthcutoff.
+    """
+    from freyja.utils import (collapse_barcodes,
+                              load_barcodes,
+                              validate_lineage_parents)
+    altname = '' if pathogen == 'SARS-CoV-2' else \
+              pathogen_config[pathogen][0]['name']
+    df_barcodes = load_barcodes(barcodes, pathogen, altname)
+
+    if isinstance(df_barcodes, bool):
+        print('Barcode not available, please download with freyja update')
+        sys.exit()
+
+    if confirmedonly:
+        confirmed = [dfi for dfi in df_barcodes.index
+                     if 'proposed' not in dfi and 'misc' not in dfi]
+        df_barcodes = df_barcodes.loc[confirmed, :]
+
+    # drop intra-lineage diversity naming (keeps separate barcodes)
+    indexSimplified = [dfi.split('_')[0] for dfi in df_barcodes.index]
+    df_barcodes = df_barcodes.loc[indexSimplified, :]
+
+    if region_start is not None and region_end is not None:
+        covered = [(min(region_start, region_end),
+                   max(region_start, region_end))]
+    elif regions != '':
+        roi_df = pd.read_json(regions, orient='index')
+        covered = list(zip(roi_df['start'].astype(int),
+                           roi_df['end'].astype(int)))
+        covered = [(min(s, e), max(s, e)) for s, e in covered]
+    else:
+        raise click.UsageError('Must specify either --region_start/'
+                               '--region_end or --regions')
+
+    if lineageyml == '':
+        print(f"Using default lineage hierarchy yml for {pathogen}")
+        if pathogen == 'SARS-CoV-2':
+            lineageyml = os.path.join(locDir, 'data/lineages.yml')
+        else:
+            try:
+                lineageyml = os.path.join(locDir,
+                                          f'data/{altname}_lineages.yml')
+            except FileNotFoundError as e:
+                e.strerror = f'No lineage yml for {pathogen} found. ' + \
+                    'It may need to be developed if ' + \
+                    'not already present on freyja-barcodes.'
+                raise e
+    validate_lineage_parents(lineageyml)
+
+    # build a synthetic depth profile: covered sites are treated as
+    # fully covered, everything else as uncovered
+    sites = sorted({int(mut[1:-1]) for mut in df_barcodes.columns})
+    depth = [1 if any(start <= site <= end for start, end in covered)
+             else 0 for site in sites]
+    df_depth = pd.DataFrame({3: depth}, index=sites)
+
+    collapse_barcodes(df_barcodes, df_depth, 1, lineageyml, locDir,
+                      output, relaxedmrca, relaxedthresh, altname, pathogen)
+
+
 if __name__ == '__main__':
     cli()
