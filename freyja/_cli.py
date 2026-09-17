@@ -14,7 +14,7 @@ pathogens = ['SARS-CoV-2'] + list(pathogen_config.keys())
 
 
 @click.group(context_settings={'show_default': True})
-@click.version_option('2.0.3')
+@click.version_option('2.0.4')
 def cli():
     pass
 
