@@ -95,7 +95,6 @@ class CommandLineTests(unittest.TestCase):
     def test_covariants_assign(self):
         os.system('freyja covariants-assign \
                    freyja/data/covariants_example.tsv \
-                   --region_start 22000 --region_end 25000 \
                    --output test_covariants_assign')
         self.assertTrue(
             file_exists('.', "test_covariants_assign_collapsed_lineages.yml"))
@@ -104,31 +103,13 @@ class CommandLineTests(unittest.TestCase):
         self.assertTrue(
             file_exists('.', "test_covariants_assign_abundances.tsv"))
 
-    def test_covariants_assign_region(self):
-        os.system('freyja covariants-assign \
-                   freyja/data/covariants_example.tsv --collapse region \
-                   --region_start 22000 --region_end 25000 \
-                   --output test_covariants_assign_region')
-        self.assertTrue(file_exists(
-            '.', "test_covariants_assign_region_abundances.tsv"))
-
-    def test_covariants_assign_ties(self):
-        for ties in ('mrca', 'majority'):
-            os.system(
-                'freyja covariants-assign freyja/data/covariants_example.tsv'
-                ' --region_start 22000 --region_end 25000 --ties '
-                f'{ties} --collapse region '
-                f'--output test_covariants_assign_ties_{ties}')
-            self.assertTrue(file_exists(
-                '.', f"test_covariants_assign_ties_{ties}_clusters.tsv"))
-
     def test_covariants_assign_groups(self):
         for assign_by in ('mrca', 'majority'):
             os.system(
                 'freyja covariants-assign freyja/data/covariants_example.tsv'
-                ' --region_start 22000 --region_end 25000 --groups '
-                'freyja/data/example_lineage_groups.yml --assign_by '
-                f'{assign_by} --max_missing 1 --max_extra 1 --unassigned drop '
+                ' --groups freyja/data/example_lineage_groups.yml '
+                f'--assign_by {assign_by} --max_missing 1 --max_extra 1 '
+                '--unassigned drop '
                 f'--output test_covariants_assign_{assign_by}')
             self.assertTrue(file_exists(
                 '.', f"test_covariants_assign_{assign_by}"

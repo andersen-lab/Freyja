@@ -1265,106 +1265,15 @@ def collapse_barcodes(df_barcodes, df_depth, depthcutoff,
     return df_barcodes
 
 
-def assign_covariants_to_classes(df_covariants, df_barcodes, max_missing=1,
-                                 max_extra=0, ties='majority',
-                                 class_members=None, lineage_data=None,
-                                 relaxed=False, relaxedthresh=0.9):
-    """Assign each covariant cluster to the barcode class/classes it is
-    consistent with.
-
-    df_barcodes holds one row per class (the output of collapse_barcodes
-    for the covered region). A cluster is consistent with a class when the
-    cluster's SNV mutations at known barcode sites equal the class's
-    barcode mutations across the span the cluster's reads cover.
-    
-    Up to max_missing of the class's in-span mutations may be absent from the
-    cluster, and up to max_extra of the cluster's mutations may be absent
-    from the class.
-    
-    Clusters with no known barcode mutations, or with no
-    consistent class, are labelled 'unassigned'.
-
-    ties controls what happens when several classes are equally good:
-    'split' keeps all of them (the cluster is split equally between them
-    downstream), 'mrca' reports the MRCA of every lineage in the tied
-    classes, and 'majority' (the default) reports the tied class with the
-    most member lineages (the MRCA of the largest tied classes if they are
-    the same size). 'mrca' and 'majority' use class_members (class -> member
-    lineages, as in the collapsed lineages yml; classes not listed are
-    single lineages), and need lineage_data to compute an MRCA; without it
-    tied classes that cannot be told apart by size stay split. The MRCA
-    labels created are returned in df.attrs['tie_members'] (label ->
-    lineages).
-    """
-    sites = pd.Series({mut: int(mut[1:-1]) for mut in df_barcodes.columns})
-    class_muts = {cls: set(row.index[row.values > 0])
-                  for cls, row in df_barcodes.iterrows()}
-    rows = []
-    tie_members = {}
-    for _, cluster in df_covariants.iterrows():
-        # barcodes are SNV-only: ignore deletions/other non-SNV calls
-        muts = {m for m in str(cluster['nt_mutations']).split()
-                if re.fullmatch(r'[ACGT]\d+[ACGT]', m)} & set(sites.index)
-        start = cluster.get('coverage_start')
-        end = cluster.get('coverage_end')
-        if pd.isna(start) or pd.isna(end):
-            positions = [int(m[1:-1]) for m in muts]
-            start, end = min(positions, default=0), max(positions, default=0)
-        in_span = set(sites.index[(sites >= start) & (sites <= end)])
-        matches = []
-        if len(muts) > 0:
-            # mismatches per class: mutations in the cluster that the class
-            # lacks (extra) and in-span class mutations absent from the
-            # cluster (missing); keep the classes within both allowances
-            # that have the fewest mismatches overall
-            mismatch = {}
-            for cls, cm in class_muts.items():
-                extra = len(muts - cm)
-                missing = len((cm & in_span) - muts)
-                if extra <= max_extra and missing <= max_missing:
-                    mismatch[cls] = extra + missing
-            if mismatch:
-                best = min(mismatch.values())
-                matches = [cls for cls, n in mismatch.items() if n == best]
-        tied = ';'.join(matches)
-        if len(matches) > 1 and ties != 'split':
-            members = {cls: (class_members or {}).get(cls, [cls])
-                       for cls in matches}
-            if ties == 'majority':
-                top = max(len(m) for m in members.values())
-                matches = [cls for cls in matches
-                           if len(members[cls]) == top]
-            if len(matches) > 1 and lineage_data is not None:
-                union = sorted({lin for cls in matches
-                                for lin in members[cls]
-                                if lin in lineage_data})
-                label = get_mrca_label(union, lineage_data, relaxed,
-                                       relaxedthresh)
-                tie_members[label] = union
-                matches = [label]
-        rows.append({
-            'nt_mutations': cluster['nt_mutations'],
-            'cluster_depth': cluster['cluster_depth'],
-            'frequency': cluster['frequency'],
-            'assigned_classes': ';'.join(matches) if matches
-            else 'unassigned',
-            'tied_classes': tied,
-        })
-    assigned = pd.DataFrame(rows)
-    assigned.attrs['tie_members'] = tie_members
-    return assigned
-
-
 def assign_covariants_to_lineages(df_covariants, df_barcodes, lineage_data,
                                   max_missing=1, max_extra=0, relaxed=False,
-                                  relaxedthresh=0.9, covered=None):
+                                  relaxedthresh=0.9):
     """Assign each covariant cluster to the set of lineages it cannot be
     told apart from, using only the part of the barcodes the cluster's
     reads cover.
 
     For each cluster, the barcodes are restricted to the sites inside the
-    cluster's span (coverage_start-coverage_end, optionally limited to the
-    covered regions given as (start, end) tuples). A lineage matches when
+    cluster's span (coverage_start-coverage_end). A lineage matches when
     the cluster's SNV mutations at known barcode sites equal the lineage's
     barcode mutations over that span, allowing up to max_missing lineage
     mutations absent from the cluster and up to max_extra cluster mutations
@@ -1387,9 +1296,6 @@ def assign_covariants_to_lineages(df_covariants, df_barcodes, lineage_data,
     else:
         lo, hi = positions.min(), positions.max()
     keep = (positions >= lo) & (positions <= hi)
-    if covered:
-        keep &= positions.map(lambda p: any(s <= p <= e
-                                            for s, e in covered))
     mut_cols = list(positions.index[keep])
     col_pos = positions[keep].values
     col_index = {mut: j for j, mut in enumerate(mut_cols)}
