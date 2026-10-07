@@ -1283,5 +1283,256 @@ def cov_res(barcodes, region_start, region_end, regions,
                       output, relaxedmrca, relaxedthresh, altname, pathogen)
 
 
+@cli.command()
+@click.argument('covariants', type=click.Path(exists=True))
+@click.option('--barcodes', default='',
+              help='Path to custom barcode file')
+@click.option('--region_start', default=None, type=int,
+              help='start position of the covered region')
+@click.option('--region_end', default=None, type=int,
+              help='end position of the covered region')
+@click.option('--regions', default='',
+              help='JSON file containing multiple covered regions'
+                   ' (same format as --region_of_interest), for use'
+                   ' instead of --region_start/--region_end')
+@click.option('--groups', default='',
+              type=click.Path(exists=False),
+              help='lineage groups yaml (name/members entries, as in '
+                   'plot_config.yml); if given, also report abundances '
+                   'per group')
+@click.option('--assign_by', default='majority',
+              type=click.Choice(['mrca', 'majority']),
+              help='with --groups, assign a collapsed class to the group '
+                   'of its MRCA, or to the group holding most of its '
+                   'member lineages (also the default for --ties)',
+              show_default=True)
+@click.option('--max_missing', default=1, type=int,
+              help='allow up to this many of a class\'s mutations in the '
+                   'covered span to be absent from a cluster',
+              show_default=True)
+@click.option('--max_extra', default=0, type=int,
+              help='allow up to this many of a cluster\'s mutations to be '
+                   'absent from the class barcode',
+              show_default=True)
+@click.option('--unassigned', default='other',
+              type=click.Choice(['other', 'drop']),
+              help='clusters matching no class: count them as Other, or '
+                   'drop them and renormalise over the assigned clusters',
+              show_default=True)
+@click.option('--ties', default=None,
+              type=click.Choice(['split', 'mrca', 'majority']),
+              help='clusters equally consistent with several classes: '
+                   'split them equally between the classes, assign them '
+                   'to the (strict) MRCA of all the tied classes\' '
+                   'lineages, or to the tied class with the most member '
+                   'lineages. Defaults to the --assign_by setting')
+@click.option('--collapse', default='cluster',
+              type=click.Choice(['cluster', 'region']),
+              help='cluster: match each cluster against the barcodes over '
+                   'its own covered span and return the lineages it cannot '
+                   'be told apart from; region: collapse the barcodes once '
+                   'over --region_start/--region_end (or --regions) and '
+                   'assign clusters to those classes',
+              show_default=True)
+@click.option('--output', default='covariants_assigned',
+              help='Output file prefix',
+              type=click.Path(exists=False), show_default=True)
+@click.option('--confirmedonly', is_flag=True,
+              help="exclude unconfirmed lineages",
+              default=False, show_default=True)
+@click.option('--lineageyml', default='',
+              help='lineage hierarchy file in a yaml format')
+@click.option('--relaxedmrca', is_flag=True, default=False,
+              help='clusters are assigned robust mrca to handle outliers',
+              show_default=True)
+@click.option('--relaxedthresh', default=0.9,
+              help='associated threshold for robust mrca function',
+              show_default=True)
+@click.option('--pathogen', type=click.Choice(pathogens),
+              default='SARS-CoV-2',
+              help='Pathogen of interest.' +
+              ' Not used if using --barcodes option.',
+              show_default=True)
+def covariants_assign(covariants, barcodes, region_start, region_end,
+                      regions, groups, assign_by, max_missing, max_extra,
+                      unassigned, ties, collapse, output,
+                      confirmedonly, lineageyml,
+                      relaxedmrca, relaxedthresh, pathogen):
+    """
+    Assign the read-level clusters in a COVARIANTS file (from
+    freyja covariants) to the lineage classes that are distinguishable when
+    only a given genomic region (or set of regions) is covered, using the
+    same MRCA-collapsing logic as cov-res and demix --depthcutoff.
+    """
+    from freyja.utils import (assign_covariants_to_classes,
+                              assign_covariants_to_lineages,
+                              class_to_group,
+                              collapse_barcodes,
+                              load_barcodes,
+                              load_lineage_groups,
+                              read_lineage_file,
+                              validate_lineage_parents)
+    altname = '' if pathogen == 'SARS-CoV-2' else \
+              pathogen_config[pathogen][0]['name']
+    df_barcodes = load_barcodes(barcodes, pathogen, altname)
+
+    if isinstance(df_barcodes, bool):
+        print('Barcode not available, please download with freyja update')
+        sys.exit()
+
+    if confirmedonly:
+        confirmed = [dfi for dfi in df_barcodes.index
+                     if 'proposed' not in dfi and 'misc' not in dfi]
+        df_barcodes = df_barcodes.loc[confirmed, :]
+
+    # drop intra-lineage diversity naming (keeps separate barcodes)
+    indexSimplified = [dfi.split('_')[0] for dfi in df_barcodes.index]
+    df_barcodes = df_barcodes.loc[indexSimplified, :]
+
+    if region_start is not None and region_end is not None:
+        covered = [(min(region_start, region_end),
+                   max(region_start, region_end))]
+    elif regions != '':
+        roi_df = pd.read_json(regions, orient='index')
+        covered = list(zip(roi_df['start'].astype(int),
+                           roi_df['end'].astype(int)))
+        covered = [(min(s, e), max(s, e)) for s, e in covered]
+    elif collapse == 'region':
+        raise click.UsageError('Must specify either --region_start/'
+                               '--region_end or --regions')
+    else:
+        covered = None
+
+    if lineageyml == '':
+        print(f"Using default lineage hierarchy yml for {pathogen}")
+        if pathogen == 'SARS-CoV-2':
+            lineageyml = os.path.join(locDir, 'data/lineages.yml')
+        else:
+            try:
+                lineageyml = os.path.join(locDir,
+                                          f'data/{altname}_lineages.yml')
+            except FileNotFoundError as e:
+                e.strerror = f'No lineage yml for {pathogen} found. ' + \
+                    'It may need to be developed if ' + \
+                    'not already present on freyja-barcodes.'
+                raise e
+    validate_lineage_parents(lineageyml)
+
+    df_covariants = pd.read_csv(covariants, sep='\t')
+    lineage_data = {lin['name']: lin for lin in
+                    read_lineage_file(lineageyml, locDir, pathogen,
+                                      fileOnly=True)}
+
+    if collapse == 'cluster':
+        assigned = assign_covariants_to_lineages(
+            df_covariants, df_barcodes, lineage_data, max_missing,
+            max_extra, relaxedmrca, relaxedthresh, covered)
+        # label -> every lineage of any cluster given that label
+        collapsed = {}
+        for label, lins in zip(assigned['assigned_classes'],
+                               assigned['lineages']):
+            if label != 'unassigned':
+                collapsed.setdefault(label, set()).update(lins.split(';'))
+        collapsed = {label: sorted(lins) for label, lins in collapsed.items()}
+        with open(f'{output}_collapsed_lineages.yml', 'w') as f:
+            yaml.dump(collapsed, f, default_flow_style=False)
+        print(f'class lineages saved to {output}_collapsed_lineages.yml')
+
+        def class_members(i, cls):
+            return assigned['lineages'][i].split(';')
+    else:
+        # build a synthetic depth profile: covered sites are treated as
+        # fully covered, everything else as uncovered
+        sites = sorted({int(mut[1:-1]) for mut in df_barcodes.columns})
+        depth = [1 if any(start <= site <= end for start, end in covered)
+                 else 0 for site in sites]
+        df_depth = pd.DataFrame({3: depth}, index=sites)
+
+        # collapse_barcodes derives <prefix>_collapsed_lineages.yml from an
+        # output name with an extension
+        df_classes = collapse_barcodes(df_barcodes, df_depth, 1, lineageyml,
+                                       locDir, f'{output}.yml', relaxedmrca,
+                                       relaxedthresh, altname, pathogen)
+        try:
+            with open(f'{output}_collapsed_lineages.yml') as f:
+                collapsed = yaml.safe_load(f) or {}
+        except FileNotFoundError:
+            collapsed = {}
+        if ties is None:
+            ties = assign_by
+        # tied classes are merged with a strict MRCA: the relaxed one drops
+        # minority lineages as outliers, which would hide real ambiguity
+        assigned = assign_covariants_to_classes(
+            df_covariants, df_classes, max_missing, max_extra, ties,
+            collapsed, lineage_data, False, relaxedthresh)
+        # lineages behind any MRCA labels created for tied clusters
+        collapsed = {**collapsed, **assigned.attrs['tie_members']}
+
+        def class_members(i, cls):
+            return collapsed.get(cls)
+
+    group_lookup = None
+    if groups != '':
+        # classes -> groups, using the lineages of the class
+        patterns = load_lineage_groups(groups, lineage_data)
+        alias = {name: lin['alias'] for name, lin in lineage_data.items()}
+
+        def group_lookup(i, cls):
+            return class_to_group(cls, class_members(i, cls), patterns,
+                                  alias, assign_by)
+
+        assigned['assigned_groups'] = [
+            ';'.join(dict.fromkeys(
+                group_lookup(i, cls) if cls != 'unassigned'
+                else 'unassigned' for cls in classes.split(';')))
+            for i, classes in enumerate(assigned['assigned_classes'])]
+    assigned.to_csv(f'{output}_clusters.tsv', sep='\t', index=False)
+
+    # per-class abundance: cluster frequencies (split equally between
+    # ambiguous classes); unassigned clusters count as Other or are
+    # dropped (--unassigned), then normalised
+    abundance = {}
+    for classes, freq in zip(assigned['assigned_classes'],
+                             assigned['frequency']):
+        for cls in classes.split(';'):
+            abundance[cls] = abundance.get(cls, 0) + \
+                freq / len(classes.split(';'))
+    unassigned_freq = abundance.pop('unassigned', 0)
+    if unassigned == 'other':
+        abundance['Other'] = abundance.get('Other', 0) + unassigned_freq
+    total = sum(abundance.values())
+    abundance = pd.Series(abundance, name='abundance', dtype=float)
+    if total > 0:
+        abundance = abundance / total
+    abundance.sort_values(ascending=False).rename_axis('lineage_class') \
+        .to_csv(f'{output}_abundances.tsv', sep='\t')
+    print(f'cluster assignments saved to {output}_clusters.tsv\n'
+          f'class abundances saved to {output}_abundances.tsv\n'
+          f'unassigned cluster frequency: {unassigned_freq:.4f}')
+
+    if group_lookup is not None:
+        # same splitting rule, summed per group instead of per class
+        group_abundance = {}
+        for i, (classes, freq) in enumerate(zip(assigned['assigned_classes'],
+                                                assigned['frequency'])):
+            if classes == 'unassigned':
+                if unassigned == 'other':
+                    group_abundance['Other'] = \
+                        group_abundance.get('Other', 0) + freq
+                continue
+            for cls in classes.split(';'):
+                grp = group_lookup(i, cls)
+                group_abundance[grp] = group_abundance.get(grp, 0) + \
+                    freq / len(classes.split(';'))
+        group_abundance = pd.Series(group_abundance, name='abundance',
+                                    dtype=float)
+        if group_abundance.sum() > 0:
+            group_abundance = group_abundance / group_abundance.sum()
+        group_abundance.sort_values(ascending=False) \
+            .rename_axis('lineage_group') \
+            .to_csv(f'{output}_group_abundances.tsv', sep='\t')
+        print(f'group abundances ({assign_by}) saved to '
+              f'{output}_group_abundances.tsv')
+
 if __name__ == '__main__':
     cli()
