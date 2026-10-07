@@ -1348,6 +1348,22 @@ def assign_covariants_to_lineages(df_covariants, df_barcodes, lineage_data,
     return pd.DataFrame(rows)
 
 
+def sum_cluster_abundances(df_assigned, column, unassigned='other'):
+    """Sum cluster frequencies by the labels in column and normalise to 1.
+    Clusters labelled 'unassigned' are counted as 'Other'
+    or dropped (unassigned='drop'). Returns the abundances,
+    sorted, and the total frequency of unassigned clusters."""
+    abundance = df_assigned.groupby(column)['frequency'].sum()
+    unassigned_freq = float(abundance.get('unassigned', 0.0))
+    abundance = abundance.drop('unassigned', errors='ignore')
+    if unassigned == 'other':
+        abundance['Other'] = abundance.get('Other', 0.0) + unassigned_freq
+    if abundance.sum() > 0:
+        abundance = abundance / abundance.sum()
+    return abundance.rename('abundance').sort_values(ascending=False), \
+        unassigned_freq
+
+
 def load_lineage_groups(groups_yml, lineage_data):
     """Read a lineage groups yaml (name/members entries, as in
     plot_config.yml) and return ([(full alias prefix, group)] sorted most

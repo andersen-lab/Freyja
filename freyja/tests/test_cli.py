@@ -20,15 +20,15 @@ class CommandLineTests(unittest.TestCase):
         os.system('freyja --version')
 
     @unittest.skipUnless(
-        os.environ.get('RUN_RELEASE_CHECKS'),
-        "release-only check; set RUN_RELEASE_CHECKS=1 to run "
-        "(requires full git tag history)"
+        os.environ.get('GITHUB_EVENT_NAME') == 'pull_request',
+        "only runs for pull requests in GitHub Actions (requires the full "
+        "git tag history); set GITHUB_EVENT_NAME=pull_request to run it "
+        "locally"
     )
     def test_version_bumped_for_release(self):
         # Guards against forgetting to bump the version in freyja/_cli.py
-        # before cutting a new release. Only meant to be run manually via
-        # the "Pre-release version check" GitHub Actions workflow, not as
-        # part of normal PR/CI runs.
+        # before cutting a new release. Only runs for pull requests, not
+        # for pushes or other GitHub Actions events.
         with open('freyja/_cli.py') as f:
             cli_source = f.read()
 
@@ -50,7 +50,8 @@ class CommandLineTests(unittest.TestCase):
         self.assertGreater(
             cli_version, latest_tag_version,
             f"freyja/_cli.py version {match.group(1)} is not newer than "
-            f"the latest released tag v{'.'.join(map(str, latest_tag_version))}"
+            f"the latest released tag"
+            f"v{'.'.join(map(str, latest_tag_version))}"
             f". Bump click.version_option in freyja/_cli.py before "
             f"releasing."
         )

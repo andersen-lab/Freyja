@@ -1344,6 +1344,7 @@ def covariants_assign(covariants, barcodes, groups, assign_by, max_missing,
                               load_barcodes,
                               load_lineage_groups,
                               read_lineage_file,
+                              sum_cluster_abundances,
                               validate_lineage_parents)
     altname = '' if pathogen == 'SARS-CoV-2' else \
               pathogen_config[pathogen][0]['name']
@@ -1396,61 +1397,35 @@ def covariants_assign(covariants, barcodes, groups, assign_by, max_missing,
         yaml.dump(collapsed, f, default_flow_style=False)
     print(f'class lineages saved to {output}_collapsed_lineages.yml')
 
-    group_lookup = None
     if groups != '':
-        # clusters -> groups, using the lineages assigned to each cluster
+        # group of each cluster, from the lineages assigned to it
         patterns = load_lineage_groups(groups, lineage_data)
         alias = {name: lin['alias'] for name, lin in lineage_data.items()}
-
-        def group_lookup(i, cls):
-            return class_to_group(cls, assigned['lineages'][i].split(';'),
-                                  patterns, alias, assign_by)
-
         assigned['assigned_groups'] = [
-            group_lookup(i, cls) if cls != 'unassigned' else 'unassigned'
-            for i, cls in enumerate(assigned['assigned_classes'])]
+            class_to_group(cls, lins.split(';'), patterns, alias, assign_by)
+            if cls != 'unassigned' else 'unassigned'
+            for cls, lins in zip(assigned['assigned_classes'],
+                                 assigned['lineages'])]
     assigned.to_csv(f'{output}_clusters.tsv', sep='\t', index=False)
 
-    # per-class abundance: cluster frequencies; unassigned clusters count
-    # as Other or are dropped (--unassigned), then normalised
-    abundance = {}
-    for cls, freq in zip(assigned['assigned_classes'],
-                         assigned['frequency']):
-        abundance[cls] = abundance.get(cls, 0) + freq
-    unassigned_freq = abundance.pop('unassigned', 0)
-    if unassigned == 'other':
-        abundance['Other'] = abundance.get('Other', 0) + unassigned_freq
-    total = sum(abundance.values())
-    abundance = pd.Series(abundance, name='abundance', dtype=float)
-    if total > 0:
-        abundance = abundance / total
-    abundance.sort_values(ascending=False).rename_axis('lineage_class') \
+    # abundance per class (and per group); unassigned clusters count as
+    # Other or are dropped (--unassigned)
+    abundance, unassigned_freq = sum_cluster_abundances(
+        assigned, 'assigned_classes', unassigned)
+    abundance.rename_axis('lineage_class') \
         .to_csv(f'{output}_abundances.tsv', sep='\t')
     print(f'cluster assignments saved to {output}_clusters.tsv\n'
           f'class abundances saved to {output}_abundances.tsv\n'
           f'unassigned cluster frequency: {unassigned_freq:.4f}')
 
-    if group_lookup is not None:
-        # same, summed per group instead of per class
-        group_abundance = {}
-        for i, (cls, freq) in enumerate(zip(assigned['assigned_classes'],
-                                            assigned['frequency'])):
-            if cls == 'unassigned':
-                if unassigned == 'other':
-                    group_abundance['Other'] = \
-                        group_abundance.get('Other', 0) + freq
-                continue
-            grp = group_lookup(i, cls)
-            group_abundance[grp] = group_abundance.get(grp, 0) + freq
-        group_abundance = pd.Series(group_abundance, name='abundance',
-                                    dtype=float)
-        if group_abundance.sum() > 0:
-            group_abundance = group_abundance / group_abundance.sum()
-        group_abundance.sort_values(ascending=False) \
-            .rename_axis('lineage_group') \
+    if groups != '':
+        group_abundance, _ = sum_cluster_abundances(
+            assigned, 'assigned_groups', unassigned)
+        group_abundance.rename_axis('lineage_group') \
             .to_csv(f'{output}_group_abundances.tsv', sep='\t')
         print(f'group abundances ({assign_by}) saved to '
               f'{output}_group_abundances.tsv')
+
 
 if __name__ == '__main__':
     cli()
