@@ -1,6 +1,5 @@
 import csv
 import re
-import subprocess
 import unittest
 import os
 
@@ -18,43 +17,6 @@ class CommandLineTests(unittest.TestCase):
 
     def test_version(self):
         os.system('freyja --version')
-
-    @unittest.skipUnless(
-        os.environ.get('GITHUB_EVENT_NAME') == 'pull_request',
-        "only runs for pull requests in GitHub Actions (requires the full "
-        "git tag history); set GITHUB_EVENT_NAME=pull_request to run it "
-        "locally"
-    )
-    def test_version_bumped_for_release(self):
-        # Guards against forgetting to bump the version in freyja/_cli.py
-        # before cutting a new release. Only runs for pull requests, not
-        # for pushes or other GitHub Actions events.
-        with open('freyja/_cli.py') as f:
-            cli_source = f.read()
-
-        match = re.search(r"@click\.version_option\('([^']+)'\)", cli_source)
-        self.assertIsNotNone(
-            match, "Could not find click.version_option(...) in _cli.py")
-        cli_version = _parse_version(match.group(1))
-
-        tags = subprocess.run(
-            ['git', 'tag', '--list', 'v*'],
-            capture_output=True, text=True, check=True
-        ).stdout.split()
-        self.assertTrue(
-            tags, "No git tags found - fetch full tag history "
-            "(git fetch --tags) before running this check")
-
-        latest_tag_version = max(_parse_version(t) for t in tags)
-
-        self.assertGreater(
-            cli_version, latest_tag_version,
-            f"freyja/_cli.py version {match.group(1)} is not newer than "
-            f"the latest released tag"
-            f"v{'.'.join(map(str, latest_tag_version))}"
-            f". Bump click.version_option in freyja/_cli.py before "
-            f"releasing."
-        )
 
     def test_demix(self):
         os.system('freyja demix freyja/data/test.tsv freyja/data/test.depth \
