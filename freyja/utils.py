@@ -1042,6 +1042,164 @@ def make_dashboard(agg_df, meta_df, thresh, title, introText,
     print("Dashboard html file saved to " + outputFn)
 
 
+def get_mrca_label(lineages, lineage_data, relaxed, relaxedthresh):
+    """Name the most recent common ancestor of a set of lineages, as
+    'X-like' (or 'Misc' if there is none), using the same logic as
+    collapse_barcodes: recombinants are traced to their parents, and
+    with relaxed the MRCA may leave out outliers (relaxedthresh)."""
+    try:
+        pango_aliases = [lineage_data[lin]['alias']
+                         for lin in lineages]
+    except KeyError:
+        print('Lineage hierarchy file is likely behind'
+              ' the selected barcode file. Try updating'
+              ' the hierarchy file.')
+    # handle cases where multiple lineage classes are being merged
+    # e.g. (A.5, B.12) or (XBB, XBN)
+    # unless all lineages are recombinants, drop recombinants from naming
+    if relaxed:
+        if not np.all(['recombinant_parents' in
+                       lineage_data[alias.split('.')[0]]
+                       for alias in pango_aliases]):
+            if np.any(['recombinant_parents' in
+                       lineage_data[alias.split('.')[0]]
+                       for alias in pango_aliases]):
+                pango_aliases = [alias for alias in pango_aliases
+                                 if 'recombinant_parents' not in
+                                 lineage_data[alias.split('.')[0]]]
+
+    multiple_lin_classes = len(
+        set([alias.split('.')[0] for alias in pango_aliases])) > 1
+
+    if multiple_lin_classes:
+        recombs = [alias for alias in pango_aliases
+                   if 'recombinant_parents' in
+                   lineage_data[alias.split('.')[0]]]
+
+        # for recombinant lineages, find the parent lineages
+        startTypes = set([alias.split('.')[0] for alias in pango_aliases])
+        # figure out which are the candidates for recomb merging
+        # if they exist
+        while len(recombs) > 0:
+            parent_aliases = []
+            for alias in recombs:
+                if 'recombinant_parents' in lineage_data[alias.split('.')
+                                                         [0]]:
+                    # trace up tree until a recombination event.
+                    # grab parents of recombinant
+                    parents = lineage_data[alias.split('.')
+                                           [0]]['recombinant_parents'
+                                                ].replace('*', ''
+                                                          ).split(',')
+                    # recombinant_parents may list a lineage by its
+                    # alias rather than its name; resolve to name
+                    resolved_parents = []
+                    for lin in parents:
+                        if lin not in lineage_data:
+                            for name in lineage_data:
+                                if lineage_data[name]['alias'] == lin:
+                                    lin = name
+                                    break
+                        resolved_parents.append(lin)
+                    parent_aliases.append([lineage_data[lin]['alias']
+                                           for lin in resolved_parents])
+
+            distinct = []
+            newRecombs = []
+            mergedIn = False
+            for alias, pa in zip(recombs, parent_aliases):
+                for aliasP in pa:
+                    if aliasP.split('.')[0] in startTypes:
+                        mergedIn = True
+                        # if now using same start as others,
+                        # add to list of aliases
+                        pango_aliases.append(aliasP)
+                        if alias in pango_aliases:
+                            pango_aliases.remove(alias)
+                    elif 'recombinant_parents' in lineage_data[aliasP.
+                                                               split('.')
+                                                               [0]]:
+                        # check if it's a different recombinant
+                        newRecombs.append(aliasP)
+                    else:
+                        # non-recombinant, but not in current start types.
+                        distinct.append(aliasP)
+            if not mergedIn:
+                # if no merges, remove the recombinants
+                # and add in the parents
+                for r in recombs:
+                    pango_aliases.remove(r)
+                pango_aliases.extend(distinct+newRecombs)
+
+            startTypes = set([alias.split('.')[0]
+                              for alias in pango_aliases])
+            if len(startTypes) == 1:
+                break
+            recombs = [alias for alias in pango_aliases if
+                       'recombinant_parents' in
+                       lineage_data[alias.split('.')[0]]]
+
+    def get_path_to_root(lineage, lineage_data):
+        if lineage not in lineage_data:
+            for lin in lineage_data:
+                if lineage_data[lin]['alias'] == lineage:
+                    lineage = lin
+                    break
+        if 'parent' not in lineage_data[lineage]:
+            return lineage + '/'
+        return get_path_to_root(
+            lineage_data[lineage]['parent'],
+            lineage_data
+        ) + lineage + '/'
+
+    if not relaxed:
+        paths = [get_path_to_root(lineage, lineage_data)
+                 for lineage in pango_aliases]
+        mrca = os.path.commonpath(paths).split('/')[-1]
+    else:
+        paths = [get_path_to_root(lineage, lineage_data)[:-1]
+                 for lineage in pango_aliases]
+        j0 = 1
+        groupCt = float(len(paths))
+        ext_counts = np.unique([lin.split('/')[0:j0]
+                                for lin in paths],
+                               return_counts=True)
+        coherentFrac = np.max(ext_counts[1]) / groupCt
+        if coherentFrac < relaxedthresh:
+            mrca = ''
+        else:
+            maxLength = np.max([len(lin.split('/'))
+                                for lin in paths])
+            while coherentFrac >= relaxedthresh and j0 <= maxLength:
+                ext_counts = np.unique([lin.split('/')[0:j0]
+                                        if j0 <= len(lin.split('/'))
+                                        else lin.split('/') +
+                                        ['']*(j0-len(lin.split('/')))
+                                        for lin in paths],
+                                       return_counts=True,
+                                       axis=0)
+                max_ind = np.argmax(ext_counts[1])
+
+                coherentFrac = ext_counts[1][max_ind] / groupCt
+                if coherentFrac >= relaxedthresh:
+                    mrca = ext_counts[0][max_ind][-1]
+                j0 += 1
+
+    # assign placeholder if no MRCA found
+    if len(mrca) == 0:
+        mrca = 'Misc'
+    else:
+        # get shortened alias if available
+        for lineage in lineage_data:
+            if lineage_data[lineage]['alias'] == mrca:
+                # add flag to indicate that this is a merged lineage
+                mrca = lineage + '-like'
+                break
+        if not mrca.endswith('-like'):
+            mrca += '-like'
+    return mrca
+
+
 def collapse_barcodes(df_barcodes, df_depth, depthcutoff,
                       lineageyml, locDir, output,
                       relaxed, relaxedthresh, altname,
@@ -1078,156 +1236,9 @@ def collapse_barcodes(df_barcodes, df_depth, depthcutoff,
 
     # collapse lineages into MRCA, where possible
     for tup in duplicates:
-        try:
-            pango_aliases = [lineage_data[lin]['alias']
-                             for lin in tup]
-        except KeyError:
-            print('Lineage hierarchy file is likely behind'
-                  ' the selected barcode file. Try updating'
-                  ' the hierarchy file.')
-        # handle cases where multiple lineage classes are being merged
-        # e.g. (A.5, B.12) or (XBB, XBN)
-        # unless all lineages are recombinants, drop recombinants from naming
-        if relaxed:
-            if not np.all(['recombinant_parents' in
-                           lineage_data[alias.split('.')[0]]
-                           for alias in pango_aliases]):
-                if np.any(['recombinant_parents' in
-                           lineage_data[alias.split('.')[0]]
-                           for alias in pango_aliases]):
-                    pango_aliases = [alias for alias in pango_aliases
-                                     if 'recombinant_parents' not in
-                                     lineage_data[alias.split('.')[0]]]
+        mrca = get_mrca_label(tup, lineage_data, relaxed,
+                              relaxedthresh)
 
-        multiple_lin_classes = len(
-            set([alias.split('.')[0] for alias in pango_aliases])) > 1
-
-        if multiple_lin_classes:
-            recombs = [alias for alias in pango_aliases
-                       if 'recombinant_parents' in
-                       lineage_data[alias.split('.')[0]]]
-
-            # for recombinant lineages, find the parent lineages
-            startTypes = set([alias.split('.')[0] for alias in pango_aliases])
-            # figure out which are the candidates for recomb merging
-            # if they exist
-            while len(recombs) > 0:
-                parent_aliases = []
-                for alias in recombs:
-                    if 'recombinant_parents' in lineage_data[alias.split('.')
-                                                             [0]]:
-                        # trace up tree until a recombination event.
-                        # grab parents of recombinant
-                        parents = lineage_data[alias.split('.')
-                                               [0]]['recombinant_parents'
-                                                    ].replace('*', ''
-                                                              ).split(',')
-                        # recombinant_parents may list a lineage by its
-                        # alias rather than its name; resolve to name
-                        resolved_parents = []
-                        for lin in parents:
-                            if lin not in lineage_data:
-                                for name in lineage_data:
-                                    if lineage_data[name]['alias'] == lin:
-                                        lin = name
-                                        break
-                            resolved_parents.append(lin)
-                        parent_aliases.append([lineage_data[lin]['alias']
-                                               for lin in resolved_parents])
-
-                distinct = []
-                newRecombs = []
-                mergedIn = False
-                for alias, pa in zip(recombs, parent_aliases):
-                    for aliasP in pa:
-                        if aliasP.split('.')[0] in startTypes:
-                            mergedIn = True
-                            # if now using same start as others,
-                            # add to list of aliases
-                            pango_aliases.append(aliasP)
-                            if alias in pango_aliases:
-                                pango_aliases.remove(alias)
-                        elif 'recombinant_parents' in lineage_data[aliasP.
-                                                                   split('.')
-                                                                   [0]]:
-                            # check if it's a different recombinant
-                            newRecombs.append(aliasP)
-                        else:
-                            # non-recombinant, but not in current start types.
-                            distinct.append(aliasP)
-                if not mergedIn:
-                    # if no merges, remove the recombinants
-                    # and add in the parents
-                    for r in recombs:
-                        pango_aliases.remove(r)
-                    pango_aliases.extend(distinct+newRecombs)
-
-                startTypes = set([alias.split('.')[0]
-                                  for alias in pango_aliases])
-                if len(startTypes) == 1:
-                    break
-                recombs = [alias for alias in pango_aliases if
-                           'recombinant_parents' in
-                           lineage_data[alias.split('.')[0]]]
-
-        def get_path_to_root(lineage, lineage_data):
-            if lineage not in lineage_data:
-                for lin in lineage_data:
-                    if lineage_data[lin]['alias'] == lineage:
-                        lineage = lin
-                        break
-            if 'parent' not in lineage_data[lineage]:
-                return lineage + '/'
-            return get_path_to_root(
-                lineage_data[lineage]['parent'],
-                lineage_data
-            ) + lineage + '/'
-
-        if not relaxed:
-            paths = [get_path_to_root(lineage, lineage_data)
-                     for lineage in pango_aliases]
-            mrca = os.path.commonpath(paths).split('/')[-1]
-        else:
-            paths = [get_path_to_root(lineage, lineage_data)[:-1]
-                     for lineage in pango_aliases]
-            j0 = 1
-            groupCt = float(len(paths))
-            ext_counts = np.unique([lin.split('/')[0:j0]
-                                    for lin in paths],
-                                   return_counts=True)
-            coherentFrac = np.max(ext_counts[1]) / groupCt
-            if coherentFrac < relaxedthresh:
-                mrca = ''
-            else:
-                maxLength = np.max([len(lin.split('/'))
-                                    for lin in paths])
-                while coherentFrac >= relaxedthresh and j0 <= maxLength:
-                    ext_counts = np.unique([lin.split('/')[0:j0]
-                                            if j0 <= len(lin.split('/'))
-                                            else lin.split('/') +
-                                            ['']*(j0-len(lin.split('/')))
-                                            for lin in paths],
-                                           return_counts=True,
-                                           axis=0)
-                    max_ind = np.argmax(ext_counts[1])
-
-                    coherentFrac = ext_counts[1][max_ind] / groupCt
-                    if coherentFrac >= relaxedthresh:
-                        mrca = ext_counts[0][max_ind][-1]
-                    j0 += 1
-
-        # assign placeholder if no MRCA found
-        if len(mrca) == 0:
-            mrca = 'Misc'
-        else:
-            # get shortened alias if available
-            for lineage in lineage_data:
-                if lineage_data[lineage]['alias'] == mrca:
-                    # add flag to indicate that this is a merged lineage
-                    mrca = lineage + '-like'
-                    break
-            if not mrca.endswith('-like'):
-                mrca += '-like'
         # include index for multiple barcode classes with same MRCA
         if mrca not in alias_count:
             alias_count[mrca] = 0
@@ -1252,6 +1263,158 @@ def collapse_barcodes(df_barcodes, df_depth, depthcutoff,
     print(f'collapsed lineages saved to {output}')
 
     return df_barcodes
+
+
+def assign_covariants_to_lineages(df_covariants, df_barcodes, lineage_data,
+                                  max_missing=1, max_extra=0, relaxed=False,
+                                  relaxedthresh=0.9):
+    """Assign each covariant cluster to the set of lineages it cannot be
+    told apart from, using only the part of the barcodes the cluster's
+    reads cover.
+
+    For each cluster, the barcodes are restricted to the sites inside the
+    cluster's span (coverage_start-coverage_end). A lineage matches when
+    the cluster's SNV mutations at known barcode sites equal the lineage's
+    barcode mutations over that span, allowing up to max_missing lineage
+    mutations absent from the cluster and up to max_extra cluster mutations
+    absent from the lineage. Only the lineages with the fewest mismatches
+    are kept. These lineages are the cluster's class: it is labelled with
+    the lineage if there is only one, otherwise with their MRCA (as in
+    collapse_barcodes, relaxed or strict). Clusters with no known barcode
+    mutations, or with no matching lineage, are labelled 'unassigned'.
+
+    Returns one row per cluster, with the lineages of the assigned class in
+    'lineages' (semicolon separated).
+    """
+    barcodes = df_barcodes[~df_barcodes.index.duplicated()]
+    positions = pd.Series({mut: int(mut[1:-1]) for mut in barcodes.columns})
+    # only look at the sites any cluster could cover
+    starts = df_covariants.get('coverage_start', pd.Series(dtype=float))
+    ends = df_covariants.get('coverage_end', pd.Series(dtype=float))
+    if len(starts) and not starts.isna().all() and not ends.isna().all():
+        lo, hi = starts.min(), ends.max()
+    else:
+        lo, hi = positions.min(), positions.max()
+    keep = (positions >= lo) & (positions <= hi)
+    mut_cols = list(positions.index[keep])
+    col_pos = positions[keep].values
+    col_index = {mut: j for j, mut in enumerate(mut_cols)}
+    matrix = barcodes[mut_cols].values > 0
+    names = np.array(barcodes.index)
+    mrca_cache = {}
+    rows = []
+    for _, cluster in df_covariants.iterrows():
+        # barcodes are SNV-only: ignore deletions/other non-SNV calls
+        muts = [m for m in str(cluster['nt_mutations']).split()
+                if re.fullmatch(r'[ACGT]\d+[ACGT]', m) and m in col_index]
+        start = cluster.get('coverage_start')
+        end = cluster.get('coverage_end')
+        if pd.isna(start) or pd.isna(end):
+            mpos = [int(m[1:-1]) for m in muts]
+            start, end = min(mpos, default=0), max(mpos, default=0)
+        span = np.where((col_pos >= start) & (col_pos <= end))[0]
+        in_cluster = np.isin(span, [col_index[m] for m in muts])
+        label, lineages, mismatches = 'unassigned', [], ''
+        if in_cluster.any():
+            sub = matrix[:, span]
+            shared = sub[:, in_cluster].sum(axis=1)
+            extra = in_cluster.sum() - shared
+            missing = sub.sum(axis=1) - shared
+            ok = (extra <= max_extra) & (missing <= max_missing)
+            if ok.any():
+                total = np.where(ok, extra + missing, np.inf)
+                best = total.min()
+                lineages = sorted(names[total == best])
+                mismatches = int(best)
+                known = tuple(lin for lin in lineages if lin in lineage_data)
+                if len(lineages) == 1 or len(known) == 0:
+                    label = lineages[0]
+                else:
+                    if known not in mrca_cache:
+                        mrca_cache[known] = get_mrca_label(
+                            known, lineage_data, relaxed, relaxedthresh)
+                    label = mrca_cache[known]
+        rows.append({
+            'nt_mutations': cluster['nt_mutations'],
+            'cluster_depth': cluster['cluster_depth'],
+            'frequency': cluster['frequency'],
+            'coverage_start': start,
+            'coverage_end': end,
+            'assigned_classes': label,
+            'n_lineages': len(lineages),
+            'mismatches': mismatches,
+            'lineages': ';'.join(lineages),
+        })
+    return pd.DataFrame(rows)
+
+
+def sum_cluster_abundances(df_assigned, column, unassigned='other'):
+    """Sum cluster frequencies by the labels in column and normalise to 1.
+    Clusters labelled 'unassigned' are counted as 'Other'
+    or dropped (unassigned='drop'). Returns the abundances,
+    sorted, and the total frequency of unassigned clusters."""
+    abundance = df_assigned.groupby(column)['frequency'].sum()
+    unassigned_freq = float(abundance.get('unassigned', 0.0))
+    abundance = abundance.drop('unassigned', errors='ignore')
+    if unassigned == 'other':
+        abundance['Other'] = abundance.get('Other', 0.0) + unassigned_freq
+    if abundance.sum() > 0:
+        abundance = abundance / abundance.sum()
+    return abundance.rename('abundance').sort_values(ascending=False), \
+        unassigned_freq
+
+
+def load_lineage_groups(groups_yml, lineage_data):
+    """Read a lineage groups yaml (name/members entries, as in
+    plot_config.yml) and return ([(full alias prefix, group)] sorted most
+    specific first, fallback group name). Members are lineage names with an
+    optional trailing * (the lineage and all of its descendants); lineages
+    matching no member go to the fallback group 'Other'."""
+    with open(groups_yml) as f:
+        groups = yaml.safe_load(f)
+    alias = {name: lin['alias'] for name, lin in lineage_data.items()}
+    patterns = []
+    for entry in groups.values():
+        for member in entry.get('members') or []:
+            full = alias.get(member.rstrip('*'))
+            if full is None:
+                raise ValueError(f"group {entry['name']}: member {member}"
+                                 " not found in the lineage hierarchy file")
+            patterns.append((full, entry['name']))
+    patterns.sort(key=lambda p: -len(p[0]))
+    return patterns
+
+
+def lineage_to_group(lineage, patterns, alias, fallback='Other'):
+    """Most specific group whose member is an ancestor of (or equal to)
+    lineage, by full pango alias. Collapsed class labels such as
+    'BA.2.75-like(1)' are taken at their MRCA name."""
+    base = re.sub(r'-like\d*$', '', re.sub(r'\(\d+\)$', '', lineage))
+    full = alias.get(base.split('_')[0])
+    if full is None:
+        return fallback
+    for prefix, group in patterns:
+        if full == prefix or full.startswith(prefix + '.'):
+            return group
+    return fallback
+
+
+def class_to_group(label, members, patterns, alias, assign_by='majority'):
+    """Group for a collapsed class: 'mrca' uses the class's MRCA label,
+    'majority' the group holding most of its member lineages (ties and
+    classes without a member list fall back to the MRCA label)."""
+    mrca_group = lineage_to_group(label, patterns, alias)
+    if assign_by == 'mrca' or not members:
+        return mrca_group
+    counts = {}
+    for member in members:
+        group = lineage_to_group(member, patterns, alias)
+        counts[group] = counts.get(group, 0) + 1
+    top = max(counts.values())
+    winners = [g for g, c in counts.items() if c == top]
+    if mrca_group in winners or len(winners) > 1:
+        return mrca_group
+    return winners[0]
 
 
 def handle_region_of_interest(region_of_interest,

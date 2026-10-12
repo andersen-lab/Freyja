@@ -1,4 +1,5 @@
 import csv
+import re
 import unittest
 import os
 
@@ -6,6 +7,10 @@ import os
 def file_exists(directory, filename):
     file_path = os.path.join(directory, filename)
     return os.path.exists(file_path)
+
+
+def _parse_version(version_str):
+    return tuple(int(p) for p in re.findall(r'\d+', version_str))
 
 
 class CommandLineTests(unittest.TestCase):
@@ -49,6 +54,29 @@ class CommandLineTests(unittest.TestCase):
                    --output test_cov_res')
         self.assertTrue(
             file_exists('.', "test_cov_res_collapsed_lineages.yml"))
+
+    def test_covariants_assign(self):
+        os.system('freyja covariants-assign \
+                   freyja/data/covariants_example.tsv \
+                   --output test_covariants_assign')
+        self.assertTrue(
+            file_exists('.', "test_covariants_assign_collapsed_lineages.yml"))
+        self.assertTrue(
+            file_exists('.', "test_covariants_assign_clusters.tsv"))
+        self.assertTrue(
+            file_exists('.', "test_covariants_assign_abundances.tsv"))
+
+    def test_covariants_assign_groups(self):
+        for assign_by in ('mrca', 'majority'):
+            os.system(
+                'freyja covariants-assign freyja/data/covariants_example.tsv'
+                ' --groups freyja/data/example_lineage_groups.yml '
+                f'--assign_by {assign_by} --max_missing 1 --max_extra 1 '
+                '--unassigned drop '
+                f'--output test_covariants_assign_{assign_by}')
+            self.assertTrue(file_exists(
+                '.', f"test_covariants_assign_{assign_by}"
+                     "_group_abundances.tsv"))
 
     def test_plot(self):
         os.system('freyja plot freyja/data/aggregated_result.tsv \

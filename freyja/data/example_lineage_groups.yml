@@ -1,0 +1,18 @@
+# Example lineage groups for `freyja covariants-assign --groups`.
+# Members are lineage names; a trailing * includes all descendants. Each
+# lineage goes to its most specific matching group, otherwise to "Other".
+BA.2.75:
+  name: "BA.2.75"
+  members:
+    - "BA.2.75*"
+BA.5:
+  name: "BA.5"
+  members:
+    - "BA.5*"
+XBB:
+  name: "XBB"
+  members:
+    - "XBB*"
+Other:
+  name: "Other"
+  members: null
