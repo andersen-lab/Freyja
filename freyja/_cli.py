@@ -14,7 +14,7 @@ pathogens = ['SARS-CoV-2'] + list(pathogen_config.keys())
 
 
 @click.group(context_settings={'show_default': True})
-@click.version_option('2.0.6')
+@click.version_option('2.0.7')
 def cli():
     pass
 
@@ -1310,6 +1310,14 @@ def cov_res(barcodes, region_start, region_end, regions,
               help='clusters matching no lineage: count them as Other, or '
                    'drop them and renormalise over the assigned clusters',
               show_default=True)
+@click.option('--demix_output', is_flag=True, default=False,
+              help='also write a freyja demix style output file',
+              show_default=True)
+@click.option('--meta', default='',
+              help='custom lineage to variant metadata file')
+@click.option('--ref', default=None,
+              help='Reference file in fasta format, for the genome length '
+                   '(default for SARS-CoV-2: data/NC_045512_Hu-1.fasta)')
 @click.option('--output', default='covariants_assigned',
               help='Output file prefix',
               type=click.Path(exists=False), show_default=True)
@@ -1330,8 +1338,9 @@ def cov_res(barcodes, region_start, region_end, regions,
               ' Not used if using --barcodes option.',
               show_default=True)
 def covariants_assign(covariants, barcodes, groups, assign_by, max_missing,
-                      max_extra, unassigned, output, confirmedonly,
-                      lineageyml, relaxedmrca, relaxedthresh, pathogen):
+                      max_extra, unassigned, demix_output, meta, ref, output,
+                      confirmedonly, lineageyml, relaxedmrca, relaxedthresh,
+                      pathogen):
     """
     Assign the read-level clusters in a COVARIANTS file (from
     freyja covariants) to the lineages they cannot be told apart from.
@@ -1339,11 +1348,13 @@ def covariants_assign(covariants, barcodes, groups, assign_by, max_missing,
     cover, and labelled with the MRCA of the matching lineages (using the
     same MRCA logic as demix --depthcutoff).
     """
+    from freyja.sample_deconv import buildLineageMap, map_to_constellation
     from freyja.utils import (assign_covariants_to_lineages,
                               class_to_group,
                               load_barcodes,
                               load_lineage_groups,
                               read_lineage_file,
+                              span_coverage,
                               sum_cluster_abundances,
                               validate_lineage_parents)
     altname = '' if pathogen == 'SARS-CoV-2' else \
@@ -1417,6 +1428,30 @@ def covariants_assign(covariants, barcodes, groups, assign_by, max_missing,
     print(f'cluster assignments saved to {output}_clusters.tsv\n'
           f'class abundances saved to {output}_abundances.tsv\n'
           f'unassigned cluster frequency: {unassigned_freq:.4f}')
+
+    if demix_output:
+        # coverage is the percent of the genome spanned by the clusters
+        lineages = list(abundance.index)
+        if ref is None and pathogen == 'SARS-CoV-2':
+            ref = os.path.join(locDir, 'data/NC_045512_Hu-1.fasta')
+        coverage = float('nan')
+        if ref is not None:
+            with open(ref) as f:
+                genome_length = sum(len(line.strip()) for line in f
+                                    if not line.startswith('>'))
+            coverage = span_coverage(assigned['coverage_start'],
+                                     assigned['coverage_end'], genome_length)
+        demix_df = pd.Series(
+            data=(map_to_constellation(lineages, abundance.values,
+                                       buildLineageMap(meta)),
+                  ' '.join(lineages),
+                  ' '.join(['%.8f' % ab for ab in abundance.values]),
+                  float('nan'), coverage, pathogen),
+            index=['summarized', 'lineages', 'abundances', 'resid',
+                   'coverage', 'pathogen'],
+            name=covariants)
+        demix_df.to_csv(f'{output}_demix.tsv', sep='\t')
+        print(f'demix style output saved to {output}_demix.tsv')
 
     if groups != '':
         group_abundance, _ = sum_cluster_abundances(

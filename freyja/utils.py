@@ -1364,6 +1364,14 @@ def sum_cluster_abundances(df_assigned, column, unassigned='other'):
         unassigned_freq
 
 
+def span_coverage(starts, ends, genome_length):
+    """Percent of the genome covered by the (start, end) intervals."""
+    covered = set()
+    for start, end in zip(starts, ends):
+        covered.update(range(int(start), int(end) + 1))
+    return 100. * len(covered) / genome_length
+
+
 def load_lineage_groups(groups_yml, lineage_data):
     """Read a lineage groups yaml (name/members entries, as in
     plot_config.yml) and return ([(full alias prefix, group)] sorted most
