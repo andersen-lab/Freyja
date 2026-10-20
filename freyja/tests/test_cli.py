@@ -57,10 +57,12 @@ class CommandLineTests(unittest.TestCase):
 
     def test_covariants_assign(self):
         os.system('freyja covariants-assign \
-                   freyja/data/covariants_example.tsv \
+                   freyja/data/covariants_example.tsv --demix_output \
                    --output test_covariants_assign')
         self.assertTrue(
             file_exists('.', "test_covariants_assign_collapsed_lineages.yml"))
+        self.assertTrue(
+            file_exists('.', "test_covariants_assign_demix.tsv"))
         self.assertTrue(
             file_exists('.', "test_covariants_assign_clusters.tsv"))
         self.assertTrue(
