@@ -42,6 +42,7 @@ jobs:
         shell: bash -l {0}
         run: |
           micromamba install -y -n test --file ci/conda_requirements.txt
+          micromamba activate test
           python -m pip install -e . --no-deps
 
       - name: update
