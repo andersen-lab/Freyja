@@ -50,7 +50,7 @@ jobs:
           ZIPNAME: ${{ secrets.ZIPNAME }}
         run: |
           conda activate test
-          wget "${TREELINK}"
+          wget --user-agent andersen-lab/Freyja "${TREELINK}"
           freyja barcode-build --pb "${ZIPNAME}" --outdir freyja/data/ --redo
 
       - name: commit if output is different 
