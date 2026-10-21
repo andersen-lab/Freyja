@@ -10,6 +10,9 @@ on:
     paths:
       - '.github/workflows/**'
 
+permissions:
+  contents: write
+
 jobs:
   testsuite:
     runs-on: ubuntu-latest
@@ -19,48 +22,47 @@ jobs:
 
     steps:
       - name: Check out repository code
-        uses: actions/checkout@main
+        uses: actions/checkout@v4
         with:
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Setup for conda
-        uses: conda-incubator/setup-miniconda@v2
+      - name: Setup micromamba
+        uses: mamba-org/setup-micromamba@v1
         with:
-          miniforge-version: "latest"
-          auto-update-conda: true
-          channels: bioconda,conda-forge
-          channel-priority: true
-          python-version: '3.10'
-          activate-environment: test
+          environment-name: test
+          init-shell: bash
+          cache-environment: true
+          cache-downloads: true
+          channels: conda-forge,bioconda
+          channel-priority: flexible
+          create-args: >-
+            python=3.10
 
-      - name: Install
+      - name: Install dependencies
         shell: bash -l {0}
         run: |
-          conda install -n base conda-libmamba-solver
-          conda config --set solver libmamba
-          conda config --add channels bioconda
-          conda config --add channels conda-forge          
-          conda install --yes --file ci/conda_requirements.txt
-          pip install -e . --no-deps 
-          
+          micromamba install -y -n test --file ci/conda_requirements.txt
+          python -m pip install -e . --no-deps
+
       - name: update
         shell: bash -l {0}
         env:
           TREELINK: ${{ secrets.TREELINK }}
           ZIPNAME: ${{ secrets.ZIPNAME }}
         run: |
-          conda activate test
+          micromamba activate test
           wget --user-agent andersen-lab/Freyja "${TREELINK}"
           freyja barcode-build --pb "${ZIPNAME}" --outdir freyja/data/ --redo
 
-      - name: commit if output is different 
+      - name: commit if output is different
+        shell: bash
         run: |
           echo "running git diff, committing if different"
-          if [[($(git status freyja/data/usher_barcodes.feather --porcelain | wc -c) -ne 0)]]; then
+          if [[ $(git status --porcelain -- freyja/data/usher_barcodes.feather | wc -c) -ne 0 ]]; then
             echo "changes were made, updating barcodes"
             git config --local user.name "$GITHUB_ACTOR"
             git config --local user.email "$GITHUB_ACTOR@users.noreply.github.com"
-            echo $(date +"%m_%d_%Y-%H-%M")> freyja/data/last_barcode_update.txt
+            echo "$(date +"%m_%d_%Y-%H-%M")" > freyja/data/last_barcode_update.txt
             git add freyja/data/last_barcode_update.txt
             git add freyja/data/lineages.yml
             git add freyja/data/usher_barcodes.feather
@@ -69,5 +71,5 @@ jobs:
             git commit -m "updating barcodes and metadata"
             git push origin main
           else
-              echo "no changes were made, doing nothing."
-          fi;
+            echo "no changes were made, doing nothing."
+          fi
