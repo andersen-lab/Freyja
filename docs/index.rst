@@ -24,6 +24,7 @@ To ensure reproducibility of results, we provide old (timestamped) barcodes and 
    src/usage/extract
    src/usage/filter
    src/usage/covariants
+   src/usage/covariants-assign
    src/usage/plot-covariants
 
 .. toctree::
