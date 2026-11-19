@@ -95,6 +95,31 @@ def load_barcodes(barcodes, pathogen, altname):
     return df_barcodes
 
 
+def get_barcode_version(barcodes, pathogen, altname):
+    """
+    Barcode version string, as reported by demix --version.
+    Custom barcodes have no version, so their path is returned.
+    """
+    if barcodes != '':
+        return os.path.abspath(barcodes)
+    locDir = os.path.abspath(os.path.join(os.path.realpath(__file__),
+                             os.pardir))
+    try:
+        if pathogen == 'SARS-CoV-2':
+            with open(os.path.join(locDir,
+                                   'data/last_barcode_update.txt')) as f:
+                return f.readline().strip()
+        with open(os.path.join(locDir,
+                               'data/last_barcode_update_other.txt')) as f:
+            for line in f:
+                name, ver = line.strip().split(':', 1)
+                if name == altname:
+                    return ver
+    except (IOError, ValueError):
+        pass
+    return 'unknown'
+
+
 # Check the format of the config file and correct if necessary.
 def checkConfig(config):
     """
