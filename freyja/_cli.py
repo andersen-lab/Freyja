@@ -13,8 +13,11 @@ pathogen_config = get_pathogen_config(os.path.join(locDir, 'data'))
 pathogens = ['SARS-CoV-2'] + list(pathogen_config.keys())
 
 
+__version__ = '2.0.7'
+
+
 @click.group(context_settings={'show_default': True})
-@click.version_option('2.0.7')
+@click.version_option(__version__)
 def cli():
     pass
 
@@ -177,6 +180,7 @@ def demix(variants, depths, output, eps, barcodes, meta,
                                       reindex_dfs, solve_demixing_problem
                                       )
     from freyja.utils import (collapse_barcodes,
+                              get_barcode_version,
                               load_barcodes,
                               validate_lineage_parents)
     locDir = os.path.abspath(os.path.join(os.path.realpath(__file__),
@@ -283,6 +287,9 @@ def demix(variants, depths, output, eps, barcodes, meta,
     sols_df['abundances'] = ['%.8f' % ab for ab in sols_df['abundances']]
     sols_df['abundances'] = ' '.join(sols_df['abundances'])
     sols_df['pathogen'] = pathogen
+    sols_df['barcode_version'] = get_barcode_version(barcodes, pathogen,
+                                                     altname)
+    sols_df['freyja_version'] = __version__
     sols_df.to_csv(output, sep='\t')
 
 
@@ -1351,6 +1358,7 @@ def covariants_assign(covariants, barcodes, groups, assign_by, max_missing,
     from freyja.sample_deconv import buildLineageMap, map_to_constellation
     from freyja.utils import (assign_covariants_to_lineages,
                               class_to_group,
+                              get_barcode_version,
                               load_barcodes,
                               load_lineage_groups,
                               read_lineage_file,
@@ -1446,9 +1454,12 @@ def covariants_assign(covariants, barcodes, groups, assign_by, max_missing,
                                        buildLineageMap(meta)),
                   ' '.join(lineages),
                   ' '.join(['%.8f' % ab for ab in abundance.values]),
-                  float('nan'), coverage, pathogen),
+                  float('nan'), coverage, pathogen,
+                  get_barcode_version(barcodes, pathogen, altname),
+                  __version__),
             index=['summarized', 'lineages', 'abundances', 'resid',
-                   'coverage', 'pathogen'],
+                   'coverage', 'pathogen', 'barcode_version',
+                   'freyja_version'],
             name=covariants)
         demix_df.to_csv(f'{output}_demix.tsv', sep='\t')
         print(f'demix style output saved to {output}_demix.tsv')
