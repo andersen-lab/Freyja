@@ -181,6 +181,7 @@ def demix(variants, depths, output, eps, barcodes, meta,
                                       )
     from freyja.utils import (collapse_barcodes,
                               get_barcode_version,
+                              get_pathogen_label,
                               load_barcodes,
                               validate_lineage_parents)
     locDir = os.path.abspath(os.path.join(os.path.realpath(__file__),
@@ -286,7 +287,7 @@ def demix(variants, depths, output, eps, barcodes, meta,
     sols_df['lineages'] = ' '.join(sols_df['lineages'])
     sols_df['abundances'] = ['%.8f' % ab for ab in sols_df['abundances']]
     sols_df['abundances'] = ' '.join(sols_df['abundances'])
-    sols_df['pathogen'] = pathogen
+    sols_df['pathogen'] = get_pathogen_label(barcodes, pathogen)
     sols_df['barcode_version'] = get_barcode_version(barcodes, pathogen,
                                                      altname)
     sols_df['freyja_version'] = __version__
@@ -1359,6 +1360,7 @@ def covariants_assign(covariants, barcodes, groups, assign_by, max_missing,
     from freyja.utils import (assign_covariants_to_lineages,
                               class_to_group,
                               get_barcode_version,
+                              get_pathogen_label,
                               load_barcodes,
                               load_lineage_groups,
                               read_lineage_file,
@@ -1454,7 +1456,8 @@ def covariants_assign(covariants, barcodes, groups, assign_by, max_missing,
                                        buildLineageMap(meta)),
                   ' '.join(lineages),
                   ' '.join(['%.8f' % ab for ab in abundance.values]),
-                  float('nan'), coverage, pathogen,
+                  float('nan'), coverage,
+                  get_pathogen_label(barcodes, pathogen),
                   get_barcode_version(barcodes, pathogen, altname),
                   __version__),
             index=['summarized', 'lineages', 'abundances', 'resid',

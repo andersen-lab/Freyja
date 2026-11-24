@@ -37,6 +37,35 @@ class CommandLineTests(unittest.TestCase):
         abundances = [float(a) for a in result['abundances'].split()]
         self.assertAlmostEqual(sum(abundances), 1.0, places=2)
 
+    def test_pathogen_label_custom_barcodes(self):
+        import click
+        from click.testing import CliRunner
+        from freyja.utils import get_pathogen_label
+
+        @click.command()
+        @click.option('--pathogen', default='SARS-CoV-2')
+        @click.option('--barcodes', default='')
+        def cmd(pathogen, barcodes):
+            click.echo(get_pathogen_label(barcodes, pathogen))
+
+        def run(*args):
+            return CliRunner().invoke(cmd, list(args)).output.strip()
+
+        self.assertEqual(run(), 'SARS-CoV-2')
+        self.assertEqual(run('--barcodes', 'x'), 'n/a')
+        self.assertEqual(run('--barcodes', 'x', '--pathogen', 'SARS-CoV-2'),
+                         'SARS-CoV-2')
+        self.assertEqual(run('--barcodes', 'x', '--pathogen', 'MPXV'), 'MPXV')
+
+    def test_demix_custom_barcodes_pathogen_na(self):
+        os.system('freyja demix freyja/data/test.tsv freyja/data/test.depth '
+                  '--barcodes freyja/data/usher_barcodes.feather '
+                  '--output test.custombarcodes.tsv')
+        with open('test.custombarcodes.tsv') as f:
+            reader = csv.reader(f, delimiter='\t')
+            result = {row[0]: row[1] for row in reader if len(row) >= 2}
+        self.assertEqual(result['pathogen'], 'n/a')
+
     def test_demix_with_vcf(self):
         os.system('freyja demix freyja/data/test.vcf freyja/data/test.depth \
                    --output test.demixed.tsv')

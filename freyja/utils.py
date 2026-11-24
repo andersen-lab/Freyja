@@ -95,6 +95,22 @@ def load_barcodes(barcodes, pathogen, altname):
     return df_barcodes
 
 
+def get_pathogen_label(barcodes, pathogen):
+    """
+    Pathogen name for output files. With custom barcodes and no explicit
+    --pathogen, the pathogen is unknown, so report 'n/a'.
+    """
+    if barcodes != '':
+        import click
+        from click.core import ParameterSource
+        ctx = click.get_current_context(silent=True)
+        if ctx is not None and \
+                ctx.get_parameter_source('pathogen') == \
+                ParameterSource.DEFAULT:
+            return 'n/a'
+    return pathogen
+
+
 def get_barcode_version(barcodes, pathogen, altname):
     """
     Barcode version string, as reported by demix --version.
