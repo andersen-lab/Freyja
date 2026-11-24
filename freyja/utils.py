@@ -312,9 +312,9 @@ def prepLineageDict(agg_d0, thresh=0.001, config=None, lineage_info=None,
                   .replace("(", "")
                   .replace("\n", "")).copy()
     agg_d0['abundances'] = agg_d0['abundances']\
-          .apply(lambda x:
-                 re.sub(' +', ' ', x)
-                   .split(' ')).copy()
+        .apply(lambda x:
+               re.sub(' +', ' ', x)
+                 .split(' ')).copy()
 
     if mergeLikes:
         agg_d0['lineages'] = agg_d0['lineages'].apply(
@@ -413,14 +413,13 @@ def prepSummaryDict(agg_d0):
     # drop any samples with NO lineages identified from analysis
     agg_d0 = agg_d0[agg_d0['summarized'].apply(lambda x: len(x) > 1)].copy()
     agg_d0['summarized'] = agg_d0['summarized']\
-          .apply(lambda x:
-                 dict(zip(x[0::2],
-                          x[1::2]))).copy()
+        .apply(lambda x:
+               dict(zip(x[0::2],
+                    x[1::2]))).copy()
     agg_d0['summarized'] = agg_d0['summarized']\
-          .apply(lambda x:
-                 {k: float(v)
-                  for k, v
-                  in x.items()}).copy()
+        .apply(lambda x:
+               {k: float(v)
+                for k, v in x.items()}).copy()
     return agg_d0
 
 
