@@ -184,6 +184,12 @@ def solve_demixing_problem(df_barcodes, mix, depths, eps, adapt,
     # single file problem setup, solving
 
     dep = np.log2(depths+1)
+    if np.max(dep) == 0:
+        raise ValueError(
+            "No read depth at any barcode mutation position, so lineage "
+            "abundances cannot be estimated. If the depths file is empty or "
+            "all zeros, check that the reads were aligned to the same "
+            "reference the barcodes were built against.")
     dep = dep/np.max(dep)  # normalize depth scaling pre-optimization
 
     # set up and solve demixing problem

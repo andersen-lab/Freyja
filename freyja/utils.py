@@ -298,9 +298,11 @@ def prepLineageDict(agg_d0, thresh=0.001, config=None, lineage_info=None,
                   .replace("(", "")
                   .replace("\n", "")).copy()
     agg_d0 = agg_d0[agg_d0['lineages'].apply(lambda x: len(x) > 0)].copy()
-    agg_d0.loc[:, 'lineages'] = agg_d0['lineages'].apply(lambda x:
-                                                         re.sub(' +', ' ', x)
-                                                           .split(' ')).copy()
+    # whole-column assignment (not .loc[:, col]): pandas 3 string columns
+    # reject in-place assignment of lists
+    agg_d0['lineages'] = agg_d0['lineages'].apply(lambda x:
+                                                  re.sub(' +', ' ', x)
+                                                    .split(' ')).copy()
     agg_d0.loc[:, 'abundances'] = agg_d0['abundances']\
           .apply(lambda x:
                  x.replace("'", "")
@@ -309,13 +311,13 @@ def prepLineageDict(agg_d0, thresh=0.001, config=None, lineage_info=None,
                   .replace(")", "")
                   .replace("(", "")
                   .replace("\n", "")).copy()
-    agg_d0.loc[:, 'abundances'] = agg_d0['abundances']\
-          .apply(lambda x:
-                 re.sub(' +', ' ', x)
-                   .split(' ')).copy()
+    agg_d0['abundances'] = agg_d0['abundances']\
+        .apply(lambda x:
+               re.sub(' +', ' ', x)
+                 .split(' ')).copy()
 
     if mergeLikes:
-        agg_d0.loc[:, 'lineages'] = agg_d0['lineages'].apply(
+        agg_d0['lineages'] = agg_d0['lineages'].apply(
             lambda x: [x0.split('-like')[0] for x0 in x])
         newLins, newAbunds = [], []
         for lins, abunds in zip(agg_d0['lineages'], agg_d0['abundances']):
@@ -399,7 +401,7 @@ def prepLineageDict(agg_d0, thresh=0.001, config=None, lineage_info=None,
 
 
 def prepSummaryDict(agg_d0):
-    agg_d0.loc[:, 'summarized'] = agg_d0['summarized']\
+    agg_d0['summarized'] = agg_d0['summarized']\
           .apply(lambda x:
                  x.replace("'", "")
                   .replace("]", "")
@@ -410,15 +412,14 @@ def prepSummaryDict(agg_d0):
                   .split(', ')).copy()
     # drop any samples with NO lineages identified from analysis
     agg_d0 = agg_d0[agg_d0['summarized'].apply(lambda x: len(x) > 1)].copy()
-    agg_d0.loc[:, 'summarized'] = agg_d0['summarized']\
-          .apply(lambda x:
-                 dict(zip(x[0::2],
-                          x[1::2]))).copy()
-    agg_d0.loc[:, 'summarized'] = agg_d0['summarized']\
-          .apply(lambda x:
-                 {k: float(v)
-                  for k, v
-                  in x.items()}).copy()
+    agg_d0['summarized'] = agg_d0['summarized']\
+        .apply(lambda x:
+               dict(zip(x[0::2],
+                    x[1::2]))).copy()
+    agg_d0['summarized'] = agg_d0['summarized']\
+        .apply(lambda x:
+               {k: float(v)
+                for k, v in x.items()}).copy()
     return agg_d0
 
 
