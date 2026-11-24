@@ -176,15 +176,15 @@ class UtilsTests(unittest.TestCase):
         agg_df = prepLineageDict(agg_df, thresh=0.001)
         agg_df = prepSummaryDict(agg_df)
         # flexibility to python versions
-        if isinstance(agg_df['linDict'][0], list):
-            self.assertTrue((agg_df['linDict'][0][0]['A'] > 0) &
-                            (agg_df['linDict'][1][0]['A'] > 0))
+        if isinstance(agg_df['linDict'].iloc[0], list):
+            self.assertTrue((agg_df['linDict'].iloc[0][0]['A'] > 0) &
+                            (agg_df['linDict'].iloc[1][0]['A'] > 0))
         else:
-            self.assertTrue((agg_df['linDict'][0]['A'] > 0) &
-                            (agg_df['linDict'][1]['A'] > 0))
-        self.assertTrue((agg_df['summarized'][0]['A'] > 0) &
-                        (agg_df['summarized'][1]['A'] > 0))
-        self.assertTrue(agg_df['summarized'][1]['Delta'] > 0)
+            self.assertTrue((agg_df['linDict'].iloc[0]['A'] > 0) &
+                            (agg_df['linDict'].iloc[1]['A'] > 0))
+        self.assertTrue((agg_df['summarized'].iloc[0]['A'] > 0) &
+                        (agg_df['summarized'].iloc[1]['A'] > 0))
+        self.assertTrue(agg_df['summarized'].iloc[1]['Delta'] > 0)
 
     def test_checkConfig(self):
         # config dictionaries whose format is valid.

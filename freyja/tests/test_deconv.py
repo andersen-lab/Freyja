@@ -52,8 +52,8 @@ class DeconvTests(unittest.TestCase):
         strain1 = 'B.1.1.7'
         strain2 = 'B.1.427'
         mixFracs = [0.4, 0.6]
-        mix = mixFracs[0]*df_barcodes.loc[strain1, ]\
-            + mixFracs[1]*df_barcodes.loc[strain2, ]
+        mix = mixFracs[0]*df_barcodes.loc[strain1]\
+            + mixFracs[1]*df_barcodes.loc[strain2]
         # generate random sequencing depth at each position
         depths = negative_binomial(50, 0.25, size=len(mix))
         eps = 0.001
@@ -68,6 +68,17 @@ class DeconvTests(unittest.TestCase):
         self.assertAlmostEqual(
             abundances[sample_strains.tolist().index(strain2)], mixFracs[1])
 
+    def test_demixing_zero_depth(self):
+        # reads aligned to the wrong reference give zero depth everywhere;
+        # this should be a clear error rather than a NaN failure in cvxpy
+        df_barcodes = pd.read_csv('freyja/data/usher_barcodes.csv',
+                                  index_col=0)
+        mix = df_barcodes.loc['B.1.1.7']
+        depths = pd.Series(0., index=mix.index)
+        with self.assertRaisesRegex(ValueError, 'No read depth'):
+            solve_demixing_problem(df_barcodes, mix, depths,
+                                   0.001, 0., 1.E-8, 'CLARABEL')
+
     def test_boot(self):
         mapDict = buildLineageMap('')
         df_barcodes = pd.read_csv('freyja/data/usher_barcodes.csv',
@@ -77,8 +88,8 @@ class DeconvTests(unittest.TestCase):
         strain1 = 'B.1.1.7'
         strain2 = 'B.1.427'
         mixFracs = [0.4, 0.6]
-        mix = mixFracs[0]*df_barcodes.loc[strain1, ]\
-            + mixFracs[1]*df_barcodes.loc[strain2, ]
+        mix = mixFracs[0]*df_barcodes.loc[strain1]\
+            + mixFracs[1]*df_barcodes.loc[strain2]
         # generate random sequencing depth at each position
         depths = pd.Series(negative_binomial(50, 0.25, size=len(mix)),
                            index=mix.index)

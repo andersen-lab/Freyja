@@ -48,7 +48,8 @@ def convert_to_barcodes(df):
             dropList.append(c)
     df_barcodes = df_barcodes.drop(columns=dropList)
     df_barcodes = pd.concat((df_barcodes, temp), axis=1)
-    df_barcodes = df_barcodes.groupby(axis=1, level=0).sum()
+    # groupby(axis=1) was removed in pandas 3; transposing is equivalent
+    df_barcodes = df_barcodes.T.groupby(level=0).sum().T
     return df_barcodes
 
 
