@@ -13,7 +13,7 @@ pathogen_config = get_pathogen_config(os.path.join(locDir, 'data'))
 pathogens = ['SARS-CoV-2'] + list(pathogen_config.keys())
 
 
-__version__ = '2.0.7'
+__version__ = '2.0.8'
 
 
 @click.group(context_settings={'show_default': True})
